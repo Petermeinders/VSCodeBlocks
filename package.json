@@ -1,0 +1,115 @@
+{
+	"name": "vsblocksnipets",
+	"displayName": "VSBlockSnipets",
+	"description": "Save and organize code snippets",
+	"version": "0.0.1",
+	"engines": {
+		"vscode": "^1.58.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"publisher": "PeterM",
+	"activationEvents": [
+		"onCommand:vsblocksnipets.helloWorld",
+		"onCommand:vsblocksnipets.askQuestion",
+		"onCommand:vsblocksnipets.refresh",
+		"onCommand:vsblocksnipets.addCode",
+		"onCommand:vsblocksnipets.importCode",
+		"onView:vsblocksnipets-sidebar"
+	],
+	"main": "./dist/extension.js",
+	"contributes": {
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "vsblocksnipets-sidebar-view",
+					"title": "VSBlockSnipets",
+					"icon": "media/circuit-board.svg"
+				}
+			]
+		},
+		"views": {
+			"vsblocksnipets-sidebar-view": [
+				{
+					"type": "webview",
+					"id": "vsblocksnipets-sidebar",
+					"name": "VSBlockSnipets",
+					"icon": "media/circuit-board.svg",
+					"contextualTitle": "VSBlockSnipets"
+				}
+			]
+		},
+		"commands": [
+			{
+				"command": "vsblocksnipets.helloWorld",
+				"title": "Hello World"
+			},
+			{
+				"command": "vsblocksnipets.askQuestion",
+				"category": "VSBlockSnipets",
+				"title": "Question"
+			},
+			{
+				"command": "vsblocksnipets.refresh",
+				"category": "VSBlockSnipets",
+				"title": "Refresh"
+			},
+			{
+				"command": "vsblocksnipets.addCode",
+				"category": "VSBlockSnipets",
+				"title": "Add code from selection"
+			},
+			{
+				"command": "vsblocksnipets.importCode",
+				"category": "VSBlockSnipets",
+				"title": "Import code json from selection"
+			}
+		]
+	},
+	"scripts": {
+		"vscode:prepublish": "webpack --mode production",
+		"compile": "webpack",
+		"watch": "concurrently \"rollup -c -w\" \"webpack --watch\"",
+		"package": "webpack --mode production --devtool hidden-source-map",
+		"test-compile": "tsc -p ./",
+		"test-watch": "tsc -watch -p ./",
+		"pretest": "npm run test-compile && npm run lint",
+		"lint": "eslint src --ext ts",
+		"test": "node ./out/test/runTest.js"
+	},
+	"devDependencies": {
+		"@rollup/plugin-commonjs": "^19.0.0",
+		"@rollup/plugin-node-resolve": "^13.0.0",
+		"@rollup/plugin-typescript": "^8.2.1",
+		"@tsconfig/svelte": "^2.0.1",
+		"@types/glob": "^7.1.3",
+		"@types/mocha": "^8.2.2",
+		"@types/node": "14.x",
+		"@types/vscode": "^1.58.0",
+		"@typescript-eslint/eslint-plugin": "^4.28.3",
+		"@typescript-eslint/parser": "^4.28.3",
+		"concurrently": "^6.2.0",
+		"eslint": "^7.27.0",
+		"glob": "^7.1.7",
+		"mocha": "^8.4.0",
+		"rollup": "^2.53.1",
+		"rollup-plugin-css-only": "^3.1.0",
+		"rollup-plugin-svelte": "^6.1.1",
+		"rollup-plugin-terser": "^7.0.2",
+		"svelte": "3.24.1",
+		"svelte-check": "^1.6.0",
+		"svelte-preprocess": "^4.7.4",
+		"ts-loader": "^9.2.2",
+		"typescript": "^4.3.2",
+		"vscode-test": "^1.5.2",
+		"webpack": "^5.44.0",
+		"webpack-cli": "^4.7.0"
+	},
+	"dependencies": {
+		"@fortawesome/free-solid-svg-icons": "^5.15.3",
+		"svelte-dnd-action": "^0.9.9",
+		"svelte-fa": "^2.2.1",
+		"svelte-material-ui": "^4.2.0"
+	}
+}
