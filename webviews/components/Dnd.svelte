@@ -5,7 +5,7 @@
   import { items } from "../store.ts";
   import { text } from "svelte/internal";
   import Fa from 'svelte-fa'
-  import { faFlag, faTint, faTag } from '@fortawesome/free-solid-svg-icons'
+  import { faFlag, faTint, faTag, faFont, faArrowCircleRight } from '@fortawesome/free-solid-svg-icons'
   import {setDebugMode} from "svelte-dnd-action";
 
   function getNonce() {
@@ -59,12 +59,16 @@
     return s[0];
   }
 
-  function handleDblClick(item) {
+  function pasteCodeFromBlock(item) {
     tsvscode.postMessage({
       type: "onItemDoubleClick",
       value: item.code,
     });
   }
+
+   function onItemDoubleClick(item){
+    console.log("double clicked. Future implementation.")
+   }
 
   function searchCode(e) {
     console.log(e);
@@ -101,10 +105,21 @@
   function ShowColorPicker(item){
       console.log(item.id);
       console.log(document.getElementById(item.id));
-      document.getElementById(item.id).getElementsByClassName('colorInput')[0].classList.toggle('hide')
+
+      if(document.getElementById(item.id).getElementsByClassName('colorInput')[0].classList.contains('hide')) {
+        document.getElementById(item.id).getElementsByClassName('colorInput')[0].classList.remove('hide');
+        document.getElementById(item.id).getElementsByClassName('colorInput')[0].classList.add('show');
+      }
+      else {
+        document.getElementById(item.id).getElementsByClassName('colorInput')[0].classList.add('hide');
+        document.getElementById(item.id).getElementsByClassName('colorInput')[0].classList.remove('show');
+      }
+
+
       //TODO: Refactor out JS mess.
-      if(document.getElementById(item.id).getElementsByClassName('tagInput')[0].classList.toggle('hide') === false) {
-        document.getElementById(item.id).getElementsByClassName('tagInput')[0].classList.toggle('hide')
+      if(document.getElementById(item.id).getElementsByClassName('tagInput')[0].classList.contains('show')) {
+        document.getElementById(item.id).getElementsByClassName('tagInput')[0].classList.add('hide');
+        document.getElementById(item.id).getElementsByClassName('tagInput')[0].classList.remove('show');
       }
 
   }
@@ -126,10 +141,21 @@
   function ShowTags(item){
     console.log(item.id);
       console.log(document.getElementById(item.id));
-      document.getElementById(item.id).getElementsByClassName('tagInput')[0].classList.toggle('hide')
+
+      if(document.getElementById(item.id).getElementsByClassName('tagInput')[0].classList.contains('hide')) {
+        document.getElementById(item.id).getElementsByClassName('tagInput')[0].classList.remove('hide');
+        document.getElementById(item.id).getElementsByClassName('tagInput')[0].classList.add('show');
+      }
+      else {
+        document.getElementById(item.id).getElementsByClassName('tagInput')[0].classList.add('hide');
+        document.getElementById(item.id).getElementsByClassName('tagInput')[0].classList.remove('show');
+      }
+
+
       //TODO: Refactor out JS mess.
-      if(document.getElementById(item.id).getElementsByClassName('colorInput')[0].classList.toggle('hide') === false) {
-        document.getElementById(item.id).getElementsByClassName('colorInput')[0].classList.toggle('hide')
+      if(document.getElementById(item.id).getElementsByClassName('colorInput')[0].classList.contains('show')) {
+        document.getElementById(item.id).getElementsByClassName('colorInput')[0].classList.add('hide');
+        document.getElementById(item.id).getElementsByClassName('colorInput')[0].classList.remove('show');
       }
   }
 
@@ -159,15 +185,33 @@
   <section aria-label="{listName}" autoAriaDisabled:true use:dndzone={{ items: $items, flipDurationMs }} on:consider={handleDndConsider} on:finalize={handleDndFinalize}>
     {console.log($items)}
     {#each $items as item (item.id)}
-      <div aria-label={item.name} id={item.id} animate:flip={{ duration: flipDurationMs }} on:dblclick={handleDblClick(item)} class="cell" style="border-color:{item.color}; display:{item.visible}">
+      <div aria-label={item.name} id={item.id} animate:flip={{ duration: flipDurationMs }} on:dblclick={onItemDoubleClick(item)} class="cell" style="border-color:{item.color}; display:{item.visible}">
         <div>
-          <input type="text" id="{getNonce()}" style="float:left;" value="{item.color}" class="hide colorInput" placeholder="red" on:change={event => changeColor(event, item)}/>
-          <input type="text" id="{getNonce()}" style="float:left;" value="{item.tags}" class="hide tagInput" placeholder="tag1, tag2" on:change={event => changeTags(event, item)}/>
+
+        <div style="background: #3c3c3c;     margin-top: 3px; align-items: center; " class="hide colorInput">
+          <Fa icon={faTint}  style="color:yellow; padding-right: 4px;  " />
+          <input type="text" id="{getNonce()}" style="float:left;" value="{item.color}" class="" placeholder="red" on:change={event => changeColor(event, item)}/>
+        </div>
+
+          <div style=" background: #3c3c3c;     margin-top: 3px; align-items: center;" class="hide tagInput">
+            <Fa icon={faTag}  style="color:#007acc; padding-right: 4px;"/>
+            <input type="text" id="{getNonce()}" style="float:left;" value="{item.tags}"  placeholder="tag1, tag2" on:change={event => changeTags(event, item)}/>
+          </div>
 
 
-          <input type="text" bind:value={item.name} on:change={() => changedName(item)} /> <span on:click={deleteItem($items, item)} style="float:right; cursor: pointer;">x</span>          
-          <span style="float:left; cursor: pointer;" on:click={ShowColorPicker(item)}><Fa icon={faTint}  style="color:{item.color}; padding-right: 4px;" /> </span>
-          <span style="float:left; cursor: pointer;" on:click={ShowTags(item)}><Fa icon={faTag}  style="color:{item.color}; padding-right: 4px;" /> </span>
+          <div style="background: #3c3c3c;     margin-top: 3px; align-items: center;" class="show">
+            <Fa icon={faFont}  style="color:{item.color}; padding-right: 4px;"/>
+            <input type="text" bind:value={item.name} on:change={() => changedName(item)} /> 
+
+          </div>
+
+
+          <span style="float:left; cursor: pointer;" on:click={ShowColorPicker(item)}><Fa icon={faTint}  style="color:yellow; padding-right: 4px;" /> </span>
+          <span style="float:left; cursor: pointer;" on:click={ShowTags(item)}><Fa icon={faTag}  style="color:#007acc; padding-right: 4px;" /> </span>
+          <span style="float:left; cursor: pointer;" on:click={pasteCodeFromBlock(item)}><Fa icon={faArrowCircleRight}  style="color:#00c300; padding-right: 4px;" /> </span>
+
+          <span on:click={deleteItem($items, item)} class="show" style="float:right; cursor: pointer;">x</span>          
+
         
         </div>
         {returnFirstLine(item)}
@@ -177,7 +221,7 @@
   </section>
 </main>
 
-<style>
+<style lang="css">
   section {
     width: 100%;
     padding: 0.3em;
@@ -225,7 +269,9 @@
   .hide {
 		display: none;
 	}
+
   .show {
-		display: inline;
+		display: flex;
 	}
+
 </style>
