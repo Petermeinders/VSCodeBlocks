@@ -101,7 +101,7 @@
     //   console.log("Not found!");
     // }
   }
-  
+
   function ShowColorPicker(item){
       console.log(item.id);
       console.log(document.getElementById(item.id));
@@ -178,7 +178,7 @@
     document.getElementById(item.id).getElementsByClassName('codeblock')[0].classList.toggle('hide');
   }
 
-  
+
   function getSelectionText() {
     var text = "", startRange=0, endRange=0;
     if (window.getSelection) {
@@ -209,11 +209,19 @@
     if (lastNumber === -1)
     {
       item.placeholders = [];
+      lastNumber = 1;
     }
-    lastNumber = ++lastNumber;
+    else{
+      lastNumber = ++lastNumber;
+    }
 
     var selObj = getSelectionText();
     var selectedString = selObj[0];
+
+    if (selectedString === "")
+    {
+      return;
+    }
 
     console.log(selObj[0]);
     console.log(item.code);
@@ -224,7 +232,7 @@
     const tempItems = $items.map(x => {
       if(x.id === item.id){
         x.placeholders.push(selectedString);
-        x.code = newCode; 
+        x.code = newCode;
         return x;
       }
       else{
@@ -239,9 +247,67 @@
   }
 
 
+  // function OnPlaceholderFocus(e, item, placeholder){
+  //   // e.target.setAttribute('data-prev', e.target.value);
+  //   // console.log("Previous:" + e.target.getAttribute('data-prev'));
+  // }
 
-  function PlaceHolderChange() {
+  // function OnPlaceHolderInput(e, item, placeholder){
+  //   // e.target.setAttribute('data-prev', e.target.value);
+  //   // console.log("Previous:" + e.target.getAttribute('data-prev'));
+  // }
 
+  function OnPlaceHolderChange(e, item, placeholder) {
+    let prevValue = placeholder; //e.target.getAttribute('data-prev');
+
+    // if (prevValue === null)
+    //   e.target.setAttribute('data-prev', e.target.value);
+
+    console.log("Previous:" + e.target.getAttribute('data-prev'));
+    e.target.setAttribute('data-prev', e.target.value);
+    console.log("NEW:" + e.target.getAttribute('data-prev'));
+
+    var indexValue = item.placeholders.indexOf(e.target.value);
+
+      indexValue = ++indexValue;
+
+
+    if (e.target.value === "")
+    {
+      var newCode = item.code.replaceAll("${"+indexValue+":"+prevValue+"}", prevValue  )
+    }
+    else{
+      var newCode = item.code.replaceAll("${"+indexValue+":"+prevValue+"}", "${"+indexValue+":"+e.target.value+"}"  )
+    }
+    const tempItems = $items.map(x => {
+      if(x.id === item.id){
+        if (e.target.value !== "") //If empty, delete!
+        {
+          x.code = newCode;
+          return x;
+        }
+        else{
+          x.code = newCode;
+          let index = x.placeholders.indexOf("");
+          x.placeholders.splice(index, 1);
+          console.log("Clearning Value!")
+          console.log(x)
+          return x;
+        }
+      }
+      else{
+        return x;
+      }
+    });
+    $items =[...tempItems]
+  }
+
+  function OnCodeChange(e, item){
+    // item.placeholders =
+    // item.map(i => {
+    //   i.placehol
+    //   if(i.placeholders.)
+    // })
   }
 
 
@@ -270,7 +336,7 @@
 
             <div style="background: #3c3c3c;     margin-top: 3px; align-items: center;" class="show">
               <Fa icon={faFont}  style="color:{item.color}; padding-right: 4px;"/>
-              <input type="text" bind:value={item.name} on:change={() => changedName(item)} /> 
+              <input type="text" bind:value={item.name} on:change={() => changedName(item)} />
 
             </div>
         </div>
@@ -281,20 +347,20 @@
           <span style=" cursor: pointer;" on:click={event => editCodeBlock(event, item)}><Fa icon={faPencilAlt}  style="color:orange; padding-right: 4px;" /> </span>
 
 
-          <span on:click={deleteItem($items, item)} class="show" style="float:right; cursor: pointer;">x</span>         
+          <span on:click={deleteItem($items, item)} class="show" style="float:right; cursor: pointer;">x</span>
         </div>
         <div class="hide codeblock">
-          <textarea style="height:100px;"  bind:value={item.code}></textarea>
+          <textarea disabled style="height:100px;"  bind:value={item.code} on:change={(event) => OnCodeChange(event, item)}></textarea>
         <!-- <span class="tooltiptext">{item.code}</span> -->
           <button on:click={event => CreateTabStop(event, item)}>Selection to variable </button>
- 
+
           {#if item.placeholders !== null && typeof(item.placeholders) !== 'undefined' && item.placeholders.length > 0}
 
             {#each item.placeholders as placeholder}
-            <input type="text" bind:value={placeholder} on:change={() => PlaceHolderChange(item)} /> 
-            {/each}          
+            <input type="text" bind:value={placeholder} on:change={(event) => OnPlaceHolderChange(event, item, placeholder.toString())} />
+            {/each}
           {/if}
-        
+
         </div>
       </div>
     {/each}

@@ -3,6 +3,7 @@ import { writable, derived } from "svelte/store";
 
 // export const items = writable([{id:0,name:""}]);
 let originItems = [{ id: "0", name: "test", code:"if(${1:condition} ||${1:condition}){${2:expression}})", placeholders:["condition","expression"], color:'white', visible:"", tags:["tag1","tag2"] },{ id: "1", name: "test2", code:"...2", color:'white', visible:"", tags:["tag1","tag2"] }];
+// [{ "id": "0", "name": "test", "code":"if(${1:condition} ||${1:condition}){${2:expression}})", "placeholders":["condition","expression"], "color":'white', "visible":"", "tags":["tag1","tag2"] },{ "id": "1", "name": "test2", "code":"...2", "color":'white', "visible":"", "tags":["tag1","tag2"] }]
 let originTags = [{id: 1, tagName:"code"}, {id: 2, tagName:"command"}];
 let originPage: "code" | "other" = "code";
 
