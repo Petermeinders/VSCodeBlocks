@@ -5,6 +5,3 @@ node_modules/**
 .yarnrc
 vsc-extension-quickstart.md
 **/.eslintrc.json
-**/*.map
-dist/
-out/
