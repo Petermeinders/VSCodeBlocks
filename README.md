@@ -42,6 +42,7 @@ Import code blocks: (Warning will overrite current blocks) 1. Open new tab, 2. P
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
 Ben Awad's VSCode extension creation tutorial was a huge help!
+
 https://github.com/isaacHagoel/svelte-dnd-action
 
 ## License
