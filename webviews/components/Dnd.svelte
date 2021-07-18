@@ -3,9 +3,9 @@
   import { dndzone, SHADOW_ITEM_MARKER_PROPERTY_NAME, TRIGGERS } from "svelte-dnd-action";
   import { afterUpdate, beforeUpdate, onMount } from "svelte";
   import { items } from "../store.ts";
-  import { text } from "svelte/internal";
+  import { text, xlink_attr } from "svelte/internal";
   import Fa from 'svelte-fa'
-  import { faFlag, faTint, faTag, faFont, faArrowCircleRight } from '@fortawesome/free-solid-svg-icons'
+  import { faFlag, faTint, faTag, faFont, faArrowCircleRight, faPencilAlt } from '@fortawesome/free-solid-svg-icons'
   import {setDebugMode} from "svelte-dnd-action";
 
   function getNonce() {
@@ -61,7 +61,7 @@
 
   function pasteCodeFromBlock(item) {
     tsvscode.postMessage({
-      type: "onItemDoubleClick",
+      type: "insertSnippet",
       value: item.code,
     });
   }
@@ -174,6 +174,77 @@
     document.getElementById(item.id).getElementsByClassName('tagInput')[0].classList.toggle('hide')
   }
 
+  function editCodeBlock(e, item){
+    document.getElementById(item.id).getElementsByClassName('codeblock')[0].classList.toggle('hide');
+  }
+
+  
+  function getSelectionText() {
+    var text = "", startRange=0, endRange=0;
+    if (window.getSelection) {
+        text = window.getSelection().toString();
+        startRange = window.getSelection().anchorOffset;
+        endRange = window.getSelection().focusOffset;
+    } else if (document.selection && document.selection.type != "Control"){
+        text = document.selection.createRange().text;
+    }
+
+    return [text, endRange, startRange];
+}
+
+  function CheckExistingPlaceholders(item){
+    if(item.placeholders === null || typeof(item.placeholders) === 'undefined' || item.placeholders.length === 0)
+        {
+          console.log("no placeholders")
+          return -1;
+        }
+        else{
+          console.log("Placeholders:" + item.placeholders.length)
+          return item.placeholders.length
+        }
+  }
+
+  function CreateTabStop(e, item){
+    var lastNumber = CheckExistingPlaceholders(item);
+    if (lastNumber === -1)
+    {
+      item.placeholders = [];
+    }
+    lastNumber = ++lastNumber;
+
+    var selObj = getSelectionText();
+    var selectedString = selObj[0];
+
+    console.log(selObj[0]);
+    console.log(item.code);
+
+    var newCode = item.code.replaceAll(selectedString, "${"+lastNumber+":"+selectedString+"}" )
+    // item.placeholders.push(selectedString);
+
+    const tempItems = $items.map(x => {
+      if(x.id === item.id){
+        x.placeholders.push(selectedString);
+        x.code = newCode; 
+        return x;
+      }
+      else{
+        return x;
+      }
+    });
+
+    $items =[...tempItems]
+
+    //var selRange = selObj.getRangeAt(0);
+    //console.log(selRange.toString());
+  }
+
+
+
+  function PlaceHolderChange() {
+
+  }
+
+
   setDebugMode(true);
 
   const listName="Code Blocks";
@@ -183,39 +254,48 @@
   <input type="text" placeholder="Search" on:change={searchCode} />
 
   <section aria-label="{listName}" autoAriaDisabled:true use:dndzone={{ items: $items, flipDurationMs }} on:consider={handleDndConsider} on:finalize={handleDndFinalize}>
-    {console.log($items)}
     {#each $items as item (item.id)}
       <div aria-label={item.name} id={item.id} animate:flip={{ duration: flipDurationMs }} on:dblclick={onItemDoubleClick(item)} class="cell" style="border-color:{item.color}; display:{item.visible}">
         <div>
+          <div style="background: #3c3c3c;     margin-top: 3px; align-items: center; " class="hide colorInput">
+            <Fa icon={faTint}  style="color:yellow; padding-right: 4px;  " />
+            <input type="text" id="{getNonce()}" style="float:left;" value="{item.color}" class="" placeholder="red" on:change={event => changeColor(event, item)}/>
+          </div>
 
-        <div style="background: #3c3c3c;     margin-top: 3px; align-items: center; " class="hide colorInput">
-          <Fa icon={faTint}  style="color:yellow; padding-right: 4px;  " />
-          <input type="text" id="{getNonce()}" style="float:left;" value="{item.color}" class="" placeholder="red" on:change={event => changeColor(event, item)}/>
+            <div style=" background: #3c3c3c;     margin-top: 3px; align-items: center;" class="hide tagInput">
+              <Fa icon={faTag}  style="color:#007acc; padding-right: 4px;"/>
+              <input type="text" id="{getNonce()}" style="float:left;" value="{item.tags}"  placeholder="tag1, tag2" on:change={event => changeTags(event, item)}/>
+            </div>
+
+
+            <div style="background: #3c3c3c;     margin-top: 3px; align-items: center;" class="show">
+              <Fa icon={faFont}  style="color:{item.color}; padding-right: 4px;"/>
+              <input type="text" bind:value={item.name} on:change={() => changedName(item)} /> 
+
+            </div>
         </div>
-
-          <div style=" background: #3c3c3c;     margin-top: 3px; align-items: center;" class="hide tagInput">
-            <Fa icon={faTag}  style="color:#007acc; padding-right: 4px;"/>
-            <input type="text" id="{getNonce()}" style="float:left;" value="{item.tags}"  placeholder="tag1, tag2" on:change={event => changeTags(event, item)}/>
-          </div>
-
-
-          <div style="background: #3c3c3c;     margin-top: 3px; align-items: center;" class="show">
-            <Fa icon={faFont}  style="color:{item.color}; padding-right: 4px;"/>
-            <input type="text" bind:value={item.name} on:change={() => changedName(item)} /> 
-
-          </div>
+        <div>
+          <span style="cursor: pointer;" on:click={ShowColorPicker(item)}><Fa icon={faTint}  style="color:yellow; padding-right: 4px;" /> </span>
+          <span style="cursor: pointer;" on:click={ShowTags(item)}><Fa icon={faTag}  style="color:#007acc; padding-right: 4px;" /> </span>
+          <span style=" cursor: pointer;" on:click={pasteCodeFromBlock(item)}><Fa icon={faArrowCircleRight}  style="color:#00c300; padding-right: 4px;" /> </span>
+          <span style=" cursor: pointer;" on:click={event => editCodeBlock(event, item)}><Fa icon={faPencilAlt}  style="color:orange; padding-right: 4px;" /> </span>
 
 
-          <span style="float:left; cursor: pointer;" on:click={ShowColorPicker(item)}><Fa icon={faTint}  style="color:yellow; padding-right: 4px;" /> </span>
-          <span style="float:left; cursor: pointer;" on:click={ShowTags(item)}><Fa icon={faTag}  style="color:#007acc; padding-right: 4px;" /> </span>
-          <span style="float:left; cursor: pointer;" on:click={pasteCodeFromBlock(item)}><Fa icon={faArrowCircleRight}  style="color:#00c300; padding-right: 4px;" /> </span>
+          <span on:click={deleteItem($items, item)} class="show" style="float:right; cursor: pointer;">x</span>         
+        </div>
+        <div class="hide codeblock">
+          <textarea style="height:100px;"  bind:value={item.code}></textarea>
+        <!-- <span class="tooltiptext">{item.code}</span> -->
+          <button on:click={event => CreateTabStop(event, item)}>Selection to variable </button>
+ 
+          {#if item.placeholders !== null && typeof(item.placeholders) !== 'undefined' && item.placeholders.length > 0}
 
-          <span on:click={deleteItem($items, item)} class="show" style="float:right; cursor: pointer;">x</span>          
-
+            {#each item.placeholders as placeholder}
+            <input type="text" bind:value={placeholder} on:change={() => PlaceHolderChange(item)} /> 
+            {/each}          
+          {/if}
         
         </div>
-        {returnFirstLine(item)}
-        <!-- <span class="tooltiptext">{item.code}</span> -->
       </div>
     {/each}
   </section>
@@ -231,7 +311,7 @@
     height: 600px;
   }
   .cell {
-    width: 95%;
+    width: 100%;
     padding: 0.2em;
     border: 1px solid rgb(255, 255, 255);
     margin: 0.15em 0;
@@ -275,3 +355,5 @@
 	}
 
 </style>
+
+

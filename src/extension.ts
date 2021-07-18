@@ -36,8 +36,23 @@ export function activate(context: vscode.ExtensionContext) {
 			// The code you place here will be executed every time your command is executed
 			// Display a message box to the user
 			vscode.window.showInformationMessage('Hello World!! from VSBlockSnipets!');
-			HellowWorldPanel.createOrShow(context.extensionUri);
+			//vscode.window.showInputBox({value:"test"});
+
+			// var inputbox = vscode.window.createInputBox();
+			// inputbox.
+			// inputbox.show();
+
+			// vscode.workspace.sett.
+
+			//HellowWorldPanel.createOrShow(context.extensionUri);
+
+			// var snip = new vscode.SnippetString("for (const ${2:element} of ${1:array}) {\", \"\t$0\", \"}");
+			// vscode.window.activeTextEditor?.insertSnippet(snip);
+
+			
 		}));
+
+		
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand('vsblocksnipets.addCode', () => {

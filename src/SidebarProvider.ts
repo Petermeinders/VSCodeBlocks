@@ -55,7 +55,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           //   let text = document.getText();
           break;
         }
-        case "onItemDoubleClick": {
+        case "insertSnippet": {
           if (!data.value) {
 
             return;

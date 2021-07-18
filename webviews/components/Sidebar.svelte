@@ -6,33 +6,39 @@
   import { items } from "../store";
   import { tags } from "../store";
   import { page } from "../store";
-import { SHADOW_ITEM_MARKER_PROPERTY_NAME } from "svelte-dnd-action";
+  import { SHADOW_ITEM_MARKER_PROPERTY_NAME } from "svelte-dnd-action";
 
-
+  function UpdateTabStop() {}
 
   $: {
+    if ($items !== null && $items[0] !== undefined) {
+      $items.map((item) => {
+        item.tags = item.tags ?? [""];
+      });
 
-    if ($items !== null && $items[0] !== undefined) {  
-      
-      $items.map(item => {
-       item.tags = item.tags ?? [""];
-      })
+      console.log("Saving Items");
+      console.log($items);
 
-      console.log("Saving Items")
-      console.log($items)
+      let i;
+      let p;
+      let t;
 
-    let i = $items;
-    let p = $page;
-    let t = $tags;
+      if (tsvscode.getState()?.i !== null && typeof(tsvscode.getState()?.i) !== "undefined") {
+        if (tsvscode.getState().i[0].code !== null && typeof(tsvscode.getState().i[0].code) !== "undefined") {
+          if (tsvscode.getState().i[0].code !== $items[0].code) {
+            console.log("DIFFERENT CODE NEED UPDATE!");
+          }
+        }
+      }
 
+      i = $items;
+      p = $page;
+      t = $tags;
 
-
-    tsvscode.setState({ i, p, t });
-    console.log("STATE SET!")
-    }
-    else{
-      console.warn("BAD STATE!")
-
+      tsvscode.setState({ i, p, t });
+      console.log("STATE SET FROM SIDEBAR!");
+    } else {
+      console.warn("BAD STATE!");
     }
     // tsvscode.setState({ i });
 
@@ -43,16 +49,16 @@ import { SHADOW_ITEM_MARKER_PROPERTY_NAME } from "svelte-dnd-action";
   onMount(() => {
     window.addEventListener("message", (event) => {
       const message = event.data; // The json data that the extension sent
-	  let lastId = getNonce();
+      let lastId = getNonce();
       switch (message.type) {
         case "add-code":
-          $items = [{ id: lastId, code: message.value, name: "New Name", visible:'true', color:'white', tags:[""] }, ...$items];
+          $items = [{ id: lastId, code: message.value, name: "New Name", visible: "true", color: "white", tags: [""] }, ...$items];
           console.log({ items });
           break;
 
         case "import-code":
           $items = JSON.parse(message.value);
-          console.log($items );
+          console.log($items);
           break;
       }
     });
@@ -87,10 +93,8 @@ import { SHADOW_ITEM_MARKER_PROPERTY_NAME } from "svelte-dnd-action";
   ];
 
   const data = {
-		'Tags': $tags,
-
-	}
-
+    Tags: $tags,
+  };
 
   function getNonce() {
     let text = "";
@@ -123,7 +127,7 @@ import { SHADOW_ITEM_MARKER_PROPERTY_NAME } from "svelte-dnd-action";
 
 <main>
   {#if $page === "code"}
-    <Tags/>
+    <Tags />
     <Dnd />
     <button
       on:click={() => {
