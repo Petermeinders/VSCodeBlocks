@@ -2,7 +2,19 @@ import { xlink_attr } from "svelte/internal";
 import { writable, derived } from "svelte/store";
 
 // export const items = writable([{id:0,name:""}]);
-let originItems = [{ id: "0", name: "test", code:"if(${1:condition} ||${1:condition}){${2:expression}})", placeholders:["condition","expression"], color:'white', visible:"", tags:["tag1","tag2"] },{ id: "1", name: "test2", code:"...2", color:'white', visible:"", tags:["tag1","tag2"] }];
+let items3 = [
+  {id: 31, name: "item31"},
+  {id: 32, name: "item32"},
+  {id: 33, name: "item33"},
+];
+
+let items4 = [
+  {id: 31, name: "item36"},
+  {id: 32, name: "item37"},
+  {id: 33, name: "item38"},
+];
+
+let originItems = [{ id: "0", name: "test", code:"if(${1:condition} ||${1:condition}){${2:expression}})", innerItems:items3, placeholders:["condition","expression"], color:'white', visible:"", tags:["tag1","tag2"] },{ id: "1", name: "test2", innerItems:items4, code:"...2", color:'white', visible:"", tags:["tag1","tag2"] }];
 // [{ "id": "0", "name": "test", "code":"if(${1:condition} ||${1:condition}){${2:expression}})", "placeholders":["condition","expression"], "color":'white', "visible":"", "tags":["tag1","tag2"] },{ "id": "1", "name": "test2", "code":"...2", "color":'white', "visible":"", "tags":["tag1","tag2"] }]
 let originTags = [{id: 1, tagName:"code"}, {id: 2, tagName:"command"}];
 let originPage: "code" | "other" = "code";

@@ -1,6 +1,6 @@
 <script>
-	import Nested from './Dnd.svelte';
-	import Board from './Board.svelte';
+	// import Nested from './Dnd.svelte';
+	// import Board from './Board.svelte';
 
 
   let items1 = [
@@ -39,9 +39,9 @@
 	];
 </script>
 
-<Nested items = {items1}/>
+<!-- <Nested items = {items1}/> -->
 <!-- <Board columnItems = {board}/> -->
-
+<h1>Hello...</h1>
 
 <style>
 

@@ -10,6 +10,9 @@
 
   function UpdateTabStop() {}
 
+  export let isSidebar: true | false;
+  console.log("sidebar: " + isSidebar);
+
   $: {
     if ($items !== null && $items[0] !== undefined) {
       $items.map((item) => {
@@ -23,8 +26,8 @@
       let p;
       let t;
 
-      if (tsvscode.getState()?.i !== null && typeof(tsvscode.getState()?.i) !== "undefined") {
-        if (tsvscode.getState().i[0].code !== null && typeof(tsvscode.getState().i[0].code) !== "undefined") {
+      if (tsvscode.getState()?.i !== null && typeof tsvscode.getState()?.i !== "undefined") {
+        if (tsvscode.getState().i[0].code !== null && typeof tsvscode.getState().i[0].code !== "undefined") {
           if (tsvscode.getState().i[0].code !== $items[0].code) {
             console.log("DIFFERENT CODE NEED UPDATE!");
           }
@@ -122,43 +125,95 @@
     });
   }
 
+  function FullScreen() {
+    console.log("Full Screen Mode!");
+    tsvscode.postMessage({
+      type: "fullScreen",
+      value: $items,
+    });
+  }
+
+  function ShowSidebar() {
+    console.log("Sidebar mode");
+    tsvscode.postMessage({
+      type: "showSidebar",
+      value: $items,
+    });
+  }
+
   let clicked = 0;
 </script>
 
 <main>
-  {#if $page === "code"}
-    <Tags />
-    <Dnd />
-    <button
-      on:click={() => {
-        $page = "other";
-      }}>Future Tab</button
-    >
+  <!-- SIDEBAR -->
+  {#if isSidebar === true}
+    {#if $page === "code"}
+      <Tags />
+      <Dnd />
+      <button
+        on:click={() => {
+          $page = "other";
+        }}>Future Tab</button
+      >
+    {:else}
+      <div>Test Text!</div>
+      <button
+        on:click={() => {
+          $page = "code";
+        }}>go back</button
+      >
+    {/if}
   {:else}
-    <div>Test Text!</div>
-    <button
-      on:click={() => {
-        $page = "code";
-      }}>go back</button
-    >
+    <!-- PANEL -->
+    <h1>Panel</h1>
+    <div class="container">
+      <div class="box">
+        <Tags />
+        <Dnd />
+      </div>
+      <!-- <div class="box" style="width:800px;">
+        <div>
+          <Board/>
+        </div>
+      </div> -->
+    </div>
   {/if}
 
   <div>
     <button
+      class="butt butter"
       on:click={() => {
         tsvscode.postMessage({
           type: "onInfo",
           value: "🐛  on line ",
         });
-      }}
-    >
-      Test Msg</button
+      }}>Test Msg</button
     >
   </div>
   <div>
     <button on:click={ExportCode}>Export Code </button>
   </div>
+  {#if isSidebar === true}
+    <div>
+      <button on:click={FullScreen}>Full Screen</button>
+    </div>
+  {:else}
+    <div>
+      <button on:click={ShowSidebar}>Sidebar mode</button>
+    </div>
+  {/if}
 </main>
 
 <style>
+  .container {
+    display: flex; /* or inline-flex */
+  }
+
+  .box {
+  }
+
+  .butt {
+    width: auto;
+    color: white;
+  }
 </style>

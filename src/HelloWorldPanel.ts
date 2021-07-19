@@ -106,6 +106,17 @@ export class HellowWorldPanel {
           vscode.window.showInformationMessage(data.value);
           break;
         }
+        case "showSidebar": {
+          if (!data.value) {
+            return;
+          }
+          vscode.commands.executeCommand("workbench.action.closeActiveEditor");
+          vscode.commands.executeCommand("workbench.action.toggleSidebarVisibility");
+
+          // vscode.workspace.openTextDocument(uri).then((document) => {
+          //   let text = document.getText();
+          break;
+        }
         case "onError": {
           if (!data.value) {
             return;
@@ -142,6 +153,12 @@ export class HellowWorldPanel {
       "vscode.css"
     );
 
+    const styleMainUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this._extensionUri, "out", "compiled/sidebar.css")
+    );
+    
+
+
     // Uri to load styles into webview
     const stylesResetUri = webview.asWebviewUri(styleResetPath);
     const stylesMainUri = webview.asWebviewUri(stylesPathMainPath);
@@ -166,8 +183,10 @@ export class HellowWorldPanel {
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
 				<link href="${stylesResetUri}" rel="stylesheet">
 				<link href="${stylesMainUri}" rel="stylesheet">
+        <link href="${styleMainUri}" rel="stylesheet">
         <script nonce="${nonce}">
-        </script>
+        const tsvscode = acquireVsCodeApi();
+      </script>
 			</head>
       <body>
 			</body>

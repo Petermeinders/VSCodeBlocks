@@ -31,6 +31,8 @@
 
   ];
 
+
+
   function getNonce() {
     let text = "";
     const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -61,6 +63,16 @@
     alert("dragabble elements are still clickable :)");
   }
 
+
+
+   let containerWidth = '200vw';
+   let itemWidth = '5em';
+	function handleDndConsider(e) {
+		items = e.detail.items;
+	}
+	function handleDndFinalize(e) {
+		items = e.detail.items;
+	}
 </script>
 
 <section class="board" use:dndzone={{ items: columnItems, flipDurationMs, type: "columns" }} 
@@ -80,6 +92,13 @@ on:finalize={handleDndFinalizeColumns}>
           <div class="card" animate:flip={{ duration: flipDurationMs }} on:click={handleClick}>
             {item.name}
             <!-- <HorizontalList items={item.innerItems}/> -->
+            <div class="innerSection" style="width:{containerWidth}" use:dndzone={{items:item.innerItems, flipDurationMs}} on:consider={handleDndConsider} on:finalize={handleDndFinalize}>
+                {#each item.innerItems as inner(item.id)}
+                    <div class="inner" style="flex: 0 0 {itemWidth}" animate:flip="{{duration: flipDurationMs}}">
+                        {inner.name}	
+                    </div>
+                {/each}
+            </div>
           </div>
         {/each}
       </div>
@@ -126,4 +145,18 @@ on:finalize={handleDndFinalizeColumns}>
     border: 1px solid #333333;
   }
 
+  .innerSection {
+    height: 60px;
+		padding: 0.3em;
+		border: 1px solid black;
+		display: flex;
+		overflow-x: scroll;
+	}
+	.inner {
+    height: 45px;
+    display: inline-block;
+		padding: 0.9em;
+		border: 1px solid blue;
+		margin: 0 0.15em;
+	}
 </style>

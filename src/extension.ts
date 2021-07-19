@@ -44,7 +44,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 			// vscode.workspace.sett.
 
-			//HellowWorldPanel.createOrShow(context.extensionUri);
+			HellowWorldPanel.createOrShow(context.extensionUri);
 
 			// var snip = new vscode.SnippetString("for (const ${2:element} of ${1:array}) {\", \"\t$0\", \"}");
 			// vscode.window.activeTextEditor?.insertSnippet(snip);

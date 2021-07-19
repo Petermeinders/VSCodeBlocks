@@ -47,6 +47,17 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
           break;
         }
+        case "fullScreen": {
+          if (!data.value) {
+            return;
+          }
+          vscode.commands.executeCommand("workbench.action.toggleSidebarVisibility");
+          vscode.commands.executeCommand("vsblocksnipets.helloWorld");
+
+          // vscode.workspace.openTextDocument(uri).then((document) => {
+          //   let text = document.getText();
+          break;
+        }
         case "loadData": {
           if (!data.value) {
             return;
@@ -75,7 +86,6 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           if (!data.value) {
             return;
           }
-          vscode.window.showErrorMessage(data.value);
           break;
         }
         // case "tokens": {

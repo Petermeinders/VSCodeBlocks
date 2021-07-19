@@ -320,7 +320,7 @@
   <input type="text" placeholder="Search" on:change={searchCode} />
 
   <section aria-label="{listName}" autoAriaDisabled:true use:dndzone={{ items: $items, flipDurationMs }} on:consider={handleDndConsider} on:finalize={handleDndFinalize}>
-    {#each $items as item (item.id)}
+    {#each $items as item (getNonce())}
       <div aria-label={item.name} id={item.id} animate:flip={{ duration: flipDurationMs }} on:dblclick={onItemDoubleClick(item)} class="cell" style="border-color:{item.color}; display:{item.visible}">
         <div>
           <div style="background: #3c3c3c;     margin-top: 3px; align-items: center; " class="hide colorInput">
@@ -369,7 +369,8 @@
 
 <style lang="css">
   section {
-    width: 100%;
+    /* width: 100%; */
+    width:auto;
     padding: 0.3em;
     border: 1px solid black;
     /* this will allow the dragged element to scroll the list */
@@ -377,7 +378,8 @@
     height: 600px;
   }
   .cell {
-    width: 100%;
+    /* width: 100%; */
+    width:auto;
     padding: 0.2em;
     border: 1px solid rgb(255, 255, 255);
     margin: 0.15em 0;
@@ -419,6 +421,10 @@
   .show {
 		display: flex;
 	}
+
+  textarea{
+    width:auto;
+  }
 
 </style>
 
