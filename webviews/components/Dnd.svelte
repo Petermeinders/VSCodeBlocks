@@ -19,28 +19,28 @@
 
   const flipDurationMs = 300;
   function handleDndConsider(e) {
-    $items = e.detail.items;
+    $items.customSnippets = e.detail.items;
 
     if (e.detail.info.trigger === "draggedEntered") {
       console.log("dragEntered!");
     }
   }
   function handleDndFinalize(e) {
-    $items = e.detail.items;
+    $items.customSnippets = e.detail.items;
     if (e.detail.info.trigger === "draggedEntered") {
       console.log("dragEntered!");
     }
   }
 
   function deleteItem(itemList, item) {
-    console.log($items);
+    console.log($items.customSnippets);
 
     let itemsLeft = itemList.filter((j) => j.id !== item.id);
-    $items = [...itemsLeft];
+    $items.customSnippets = [...itemsLeft];
   }
 
   function changedName(item) {
-    let i = $items.filter((x) => {
+    let i = $items.customSnippets.filter((x) => {
       if (x.id === item.id) {
         x.name = item.name;
         console.log(x);
@@ -73,29 +73,29 @@
   function searchCode(e) {
     console.log(e);
     console.log(e.target.value);
-    const foundFirst = $items.find((element) => element.name.toLowerCase().includes(e.target.value.toLowerCase()));
-    // const foundArray = $items.filter((item) => item.name.toLowerCase().indexOf(e.target.value.toLowerCase()) !== -1 || item.tags.indexOf(e.target.value) !== -1);
-    const foundArray = $items.filter((item) => item.name.toLowerCase().indexOf(e.target.value.toLowerCase().trim()) !== -1 || item.tags.findIndex( x => x.toLowerCase().trim() === e.target.value.toLowerCase().trim()) !== -1);
+    const foundFirst = $items.customSnippets.find((element) => element.name.toLowerCase().includes(e.target.value.toLowerCase()));
+    // const foundArray = $items.customSnippets.filter((item) => item.name.toLowerCase().indexOf(e.target.value.toLowerCase()) !== -1 || item.tags.indexOf(e.target.value) !== -1);
+    const foundArray = $items.customSnippets.filter((item) => item.name.toLowerCase().indexOf(e.target.value.toLowerCase().trim()) !== -1 || item.tags.findIndex( x => x.toLowerCase().trim() === e.target.value.toLowerCase().trim()) !== -1);
     console.log(foundArray);
 
     let newArray = [];
     if (foundArray.length > 0) {
       foundArray.forEach((element) => {
-        let index = $items.indexOf(element);
-        $items.splice(index, 1);
+        let index = $items.customSnippets.indexOf(element);
+        $items.customSnippets.splice(index, 1);
         newArray.push(element);
       });
 
-      $items = [...newArray, ...$items];
-      // $items = [{ id: element.id, name: element.name, code: element.code }, ...$items];
+      $items.customSnippets = [...newArray, ...$items.customSnippets];
+      // $items.customSnippets = [{ id: element.id, name: element.name, code: element.code }, ...$items.customSnippets];
     } else {
       console.log("Not found!");
     }
 
-    // const index = $items.indexOf(foundFirst);
+    // const index = $items.customSnippets.indexOf(foundFirst);
     // if (index > -1) {
-    //   $items.splice(index, 1);
-    //   $items = [{ id: foundFirst.id, name: foundFirst.name, code: foundFirst.code }, ...$items];
+    //   $items.customSnippets.splice(index, 1);
+    //   $items.customSnippets = [{ id: foundFirst.id, name: foundFirst.name, code: foundFirst.code }, ...$items.customSnippets];
     // }
     // else{
     //   console.log("Not found!");
@@ -128,7 +128,7 @@
     console.log(e);
     console.log(item);
     item.color = e.target.value;
-    $items = $items.map((i) =>{
+    $items.customSnippets = $items.customSnippets.map((i) =>{
       if (i.id === item.id)
       {
         i.color = item.color;
@@ -163,7 +163,7 @@
     console.log(e);
     console.log(item);
     //  item.tags = e.target.value;
-    $items = $items.map((i) =>{
+    $items.customSnippets = $items.customSnippets.map((i) =>{
       if (i.id === item.id)
       {
         var array = e.target.value.split(',');
@@ -229,7 +229,7 @@
     var newCode = item.code.replaceAll(selectedString, "${"+lastNumber+":"+selectedString+"}" )
     // item.placeholders.push(selectedString);
 
-    const tempItems = $items.map(x => {
+    const tempItems = $items.customSnippets.map(x => {
       if(x.id === item.id){
         x.placeholders.push(selectedString);
         x.code = newCode;
@@ -240,7 +240,11 @@
       }
     });
 
-    $items =[...tempItems]
+    $items.customSnippets =[...tempItems]
+
+    document.getElementById(item.id).getElementsByClassName('codeblock')[0].classList.remove('hide');
+
+
 
     //var selRange = selObj.getRangeAt(0);
     //console.log(selRange.toString());
@@ -279,7 +283,7 @@
     else{
       var newCode = item.code.replaceAll("${"+indexValue+":"+prevValue+"}", "${"+indexValue+":"+e.target.value+"}"  )
     }
-    const tempItems = $items.map(x => {
+    const tempItems = $items.customSnippets.map(x => {
       if(x.id === item.id){
         if (e.target.value !== "") //If empty, delete!
         {
@@ -299,7 +303,7 @@
         return x;
       }
     });
-    $items =[...tempItems]
+    $items.customSnippets =[...tempItems]
   }
 
   function OnCodeChange(e, item){
@@ -318,9 +322,9 @@
 
 <main>
   <input type="text" placeholder="Search" on:change={searchCode} />
-
-  <section aria-label="{listName}" autoAriaDisabled:true use:dndzone={{ items: $items, flipDurationMs }} on:consider={handleDndConsider} on:finalize={handleDndFinalize}>
-    {#each $items as item (getNonce())}
+{console.log($items.customSnippets)}
+  <section aria-label="{listName}" autoAriaDisabled:true use:dndzone={{ items: $items.customSnippets, flipDurationMs }} on:consider={handleDndConsider} on:finalize={handleDndFinalize}>
+    {#each $items.customSnippets as item (getNonce())}
       <div aria-label={item.name} id={item.id} animate:flip={{ duration: flipDurationMs }} on:dblclick={onItemDoubleClick(item)} class="cell" style="border-color:{item.color}; display:{item.visible}">
         <div>
           <div style="background: #3c3c3c;     margin-top: 3px; align-items: center; " class="hide colorInput">
@@ -347,7 +351,7 @@
           <span style=" cursor: pointer;" on:click={event => editCodeBlock(event, item)}><Fa icon={faPencilAlt}  style="color:orange; padding-right: 4px;" /> </span>
 
 
-          <span on:click={deleteItem($items, item)} class="show" style="float:right; cursor: pointer;">x</span>
+          <span on:click={deleteItem($items.customSnippets, item)} class="show" style="float:right; cursor: pointer;">x</span>
         </div>
         <div class="hide codeblock">
           <textarea disabled style="height:100px;"  bind:value={item.code} on:change={(event) => OnCodeChange(event, item)}></textarea>

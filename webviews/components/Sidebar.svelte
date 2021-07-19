@@ -14,8 +14,8 @@
   console.log("sidebar: " + isSidebar);
 
   $: {
-    if ($items !== null && $items[0] !== undefined) {
-      $items.map((item) => {
+    if ($items !== null && $items.customSnippets[0] !== undefined) {
+      $items.customSnippets.map((item) => {
         item.tags = item.tags ?? [""];
       });
 
@@ -26,13 +26,13 @@
       let p;
       let t;
 
-      if (tsvscode.getState()?.i !== null && typeof tsvscode.getState()?.i !== "undefined") {
-        if (tsvscode.getState().i[0].code !== null && typeof tsvscode.getState().i[0].code !== "undefined") {
-          if (tsvscode.getState().i[0].code !== $items[0].code) {
-            console.log("DIFFERENT CODE NEED UPDATE!");
-          }
-        }
-      }
+      // if (tsvscode.getState()?.i !== null && typeof tsvscode.getState()?.i !== "undefined") {
+      //   if (tsvscode.getState().i[0].code !== null && typeof tsvscode.getState().i[0].code !== "undefined") {
+      //     if (tsvscode.getState().i[0].code !== $items[0].code) {
+      //       console.log("DIFFERENT CODE NEED UPDATE!");
+      //     }
+      //   }
+      // }
 
       i = $items;
       p = $page;
@@ -55,7 +55,7 @@
       let lastId = getNonce();
       switch (message.type) {
         case "add-code":
-          $items = [{ id: lastId, code: message.value, name: "New Name", visible: "true", color: "white", tags: [""] }, ...$items];
+          $items = {customSnippets:[{ id: lastId, code: message.value, innerItems:"items4", name: "New Name", visible: "true", color: "white", tags: [""]}, ...$items.customSnippets], vsSnippets:[]};
           console.log({ items });
           break;
 

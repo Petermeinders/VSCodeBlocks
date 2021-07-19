@@ -14,7 +14,103 @@ let items4 = [
   {id: 33, name: "item38"},
 ];
 
-let originItems = [{ id: "0", name: "test", code:"if(${1:condition} ||${1:condition}){${2:expression}})", innerItems:items3, placeholders:["condition","expression"], color:'white', visible:"", tags:["tag1","tag2"] },{ id: "1", name: "test2", innerItems:items4, code:"...2", color:'white', visible:"", tags:["tag1","tag2"] }];
+let vsSnippets1 = {
+  "Constructor":{
+    "prefix":"ctor",
+    "body":[
+       "/**",
+       " *",
+       " */",
+       "constructor() {",
+       "\tsuper();",
+       "\t$0",
+       "}"
+    ],
+    "description":"Constructor"
+ },
+ "Class Definition":{
+  "prefix":"class",
+  "body":[
+     "class ${1:name} {",
+     "\tconstructor(${2:parameters}) {",
+     "\t\t$0",
+     "\t}",
+     "}"
+  ],
+  "description":"Class Definition"
+}
+};
+
+let vsSnippets2 = {
+  "Public Method Definition":{
+    "prefix":"public method",
+    "body":[
+       "/**",
+       " * ${1:name}",
+       " */",
+       "public ${1:name}() {",
+       "\t$0",
+       "}"
+    ],
+    "description":"Public Method Definition"
+ },
+ "Private Method Definition":{
+    "prefix":"private method",
+    "body":[
+       "private ${1:name}() {",
+       "\t$0",
+       "}"
+    ],
+    "description":"Private Method Definition"
+ }
+}
+
+
+// let originItems = {
+//   "customSnippets":[
+//     { "id": "0", "name": "test", "code":"if(${1:condition} ||${1:condition}){${2:expression}})", "innerItems":"items3", "placeholders":["condition","expression"], "color":'white', "visible":"", "tags":["tag1","tag2"] },
+//     { "id": "1", "name": "test2", "innerItems":"items4", "code":"...2", "color":'white', "visible":"", "tags":["tag1","tag2"] }
+//   ],
+//   vsSnippets:[
+//     vsSnippets1, vsSnippets2
+//   ]};
+
+  let originItems = {
+    "customSnippets":[
+       {
+          "id":"0",
+          "name":"test",
+          "code":"if(${1:condition} ||${1:condition}){${2:expression}})",
+          "innerItems":"items3",
+          "placeholders":[
+             "condition",
+             "expression"
+          ],
+          "color":"white",
+          "visible":"",
+          "tags":[
+             "tag1",
+             "tag2"
+          ]
+       },
+       {
+          "id":"1",
+          "name":"test2",
+          "innerItems":"items4",
+          "code":"...2",
+          "color":"white",
+          "visible":"",
+          "tags":[
+             "tag1",
+             "tag2"
+          ]
+       }
+    ],
+    "vsSnippets":[
+       "vsSnippets1",
+       "vsSnippets2"
+    ]
+ };
 // [{ "id": "0", "name": "test", "code":"if(${1:condition} ||${1:condition}){${2:expression}})", "placeholders":["condition","expression"], "color":'white', "visible":"", "tags":["tag1","tag2"] },{ "id": "1", "name": "test2", "code":"...2", "color":'white', "visible":"", "tags":["tag1","tag2"] }]
 let originTags = [{id: 1, tagName:"code"}, {id: 2, tagName:"command"}];
 let originPage: "code" | "other" = "code";
@@ -62,7 +158,7 @@ export const items = writable(originItems, (set) => {
 export const tags = derived(
 	items,
 	$items => {
-    let s = new Set($items.map(item => item.tags).flat());
+    let s = new Set($items.customSnippets.map(item => item.tags).flat());
     s = ["None", ...s];
     return Array.from(s);
   }
