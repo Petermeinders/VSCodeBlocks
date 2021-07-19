@@ -324,7 +324,7 @@
   <input type="text" placeholder="Search" on:change={searchCode} />
 {console.log($items.customSnippets)}
   <section aria-label="{listName}" autoAriaDisabled:true use:dndzone={{ items: $items.customSnippets, flipDurationMs }} on:consider={handleDndConsider} on:finalize={handleDndFinalize}>
-    {#each $items.customSnippets as item (getNonce())}
+    {#each $items.customSnippets as item (item.id)}
       <div aria-label={item.name} id={item.id} animate:flip={{ duration: flipDurationMs }} on:dblclick={onItemDoubleClick(item)} class="cell" style="border-color:{item.color}; display:{item.visible}">
         <div>
           <div style="background: #3c3c3c;     margin-top: 3px; align-items: center; " class="hide colorInput">

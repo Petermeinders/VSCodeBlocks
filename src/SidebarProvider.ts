@@ -35,7 +35,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           if (!data.value) {
             return;
           }
-          vscode.window.showInformationMessage(data.value[0].code);
+          // vscode.window.showInformationMessage(data.value.customSnippets);
           const language = 'markdown';
           const content = JSON.stringify(data.value);
 
