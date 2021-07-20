@@ -9,19 +9,28 @@ export class HellowWorldPanel {
 
   public static readonly viewType = "hello-world";
 
-  private readonly _panel: vscode.WebviewPanel;
-  private readonly _extensionUri: vscode.Uri;
-  private _disposables: vscode.Disposable[] = [];
+  public readonly _panel: vscode.WebviewPanel;
+  public readonly _extensionUri: vscode.Uri;
+  public _disposables: vscode.Disposable[] = [];
 
-  public static createOrShow(extensionUri: vscode.Uri) {
+  public static createOrShow(extensionUri: vscode.Uri, message:string) {
     const column = vscode.window.activeTextEditor
       ? vscode.window.activeTextEditor.viewColumn
       : undefined;
 
     // If we already have a panel, show it.
     if (HellowWorldPanel.currentPanel) {
-      HellowWorldPanel.currentPanel._panel.reveal(column);
+      //HellowWorldPanel.currentPanel._panel.reveal(column);
       HellowWorldPanel.currentPanel._update();
+
+      if(message !== "")
+      {
+        HellowWorldPanel.currentPanel._panel.webview.postMessage({
+          type: 'add-code',
+          value:message,
+        });
+      }
+
       return;
     }
 
@@ -43,6 +52,30 @@ export class HellowWorldPanel {
     );
 
     HellowWorldPanel.currentPanel = new HellowWorldPanel(panel, extensionUri);
+    if(message !== "")
+    {
+      HellowWorldPanel.currentPanel._panel.webview.postMessage({
+        type: 'add-code',
+        value:message,
+      });
+    }
+  }
+
+  public static addPanelCode(items){
+    if(typeof(HellowWorldPanel.currentPanel) !== 'undefined')
+    {
+      HellowWorldPanel.currentPanel._panel.webview.postMessage({
+        type: 'add-code',
+        value:items,
+      });
+    }
+  }
+
+  public static PassCodeToWindow(items:any){
+    HellowWorldPanel.currentPanel._panel.webview.postMessage({
+      type: 'import-code',
+      value:items,
+    });
   }
 
   public static kill() {
@@ -112,6 +145,19 @@ export class HellowWorldPanel {
           }
           vscode.commands.executeCommand("workbench.action.closeActiveEditor");
           vscode.commands.executeCommand("workbench.action.toggleSidebarVisibility");
+
+          vscode.commands.executeCommand("vsblocksnipets.helloWorld", data.value);
+
+          // vscode.workspace.openTextDocument(uri).then((document) => {
+          //   let text = document.getText();
+          break;
+        }
+        case "ImportDataFromFile": {
+          if (!data.value) {
+            return;
+          }
+
+          vscode.commands.executeCommand("vsblocksnipets.importCodeFromFile", false);
 
           // vscode.workspace.openTextDocument(uri).then((document) => {
           //   let text = document.getText();

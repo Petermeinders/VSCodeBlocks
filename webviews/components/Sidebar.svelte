@@ -19,8 +19,17 @@
         item.tags = item.tags ?? [""];
       });
 
+      if ($items.vsSnippets === null || typeof($items.vsSnippets) === 'undefined') {
+        $items.vsSnippets = [
+          "vsSnippets1",
+          "vsSnippets2"
+        ];
+      }
+
       console.log("Saving Items");
       console.log($items);
+
+      
 
       let i;
       let p;
@@ -60,7 +69,26 @@
           break;
 
         case "import-code":
-          $items = JSON.parse(message.value);
+          if (typeof(message.value) === "string")
+          {
+            $items = JSON.parse(message.value);
+          }
+          else{
+            $items = message.value;
+
+          }
+          console.log($items);
+          break;
+
+          case "import-code-from-file":
+          if (typeof(message.value) === "string")
+          {
+            $items = JSON.parse(message.value);
+          }
+          else{
+            $items = message.value;
+
+          }
           console.log($items);
           break;
       }
@@ -120,8 +148,8 @@
   function ImportCode() {
     console.log("Import Data Start!");
     tsvscode.postMessage({
-      type: "saveData",
-      value: $items,
+      type: "ImportDataFromFile",
+      value: true,
     });
   }
 
@@ -192,6 +220,9 @@
   </div>
   <div>
     <button on:click={ExportCode}>Export Code </button>
+  </div>
+  <div>
+    <button on:click={ImportCode}>Import Code </button>
   </div>
   {#if isSidebar === true}
     <div>

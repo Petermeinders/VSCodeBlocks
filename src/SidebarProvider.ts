@@ -1,3 +1,4 @@
+import { TextEncoder } from "util";
 import * as vscode from "vscode";
 import { getNonce } from "./getNonce";
 
@@ -39,11 +40,23 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           const language = 'markdown';
           const content = JSON.stringify(data.value);
 
-          const document = await vscode.workspace.openTextDocument({
-            language,
-            content,
+          let uri = vscode.Uri.file('%USERPROFILE%\.vscode\extensions');
+
+          const options: vscode.OpenDialogOptions = {
+            canSelectMany: false,
+            defaultUri: uri,
+            openLabel: 'Select',
+            canSelectFolders: false,
+            canSelectFiles: true,
+
+          };
+
+          let fs = vscode.workspace.fs;
+          vscode.window.showOpenDialog(options).then((fileUri) => {
+            let codeString = JSON.stringify(data.value);
+            let uint8array = new TextEncoder().encode(codeString);
+            fs.writeFile(fileUri[0], uint8array);
           });
-          vscode.window.showTextDocument(document);
 
           break;
         }
@@ -52,29 +65,32 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
             return;
           }
           vscode.commands.executeCommand("workbench.action.toggleSidebarVisibility");
-          vscode.commands.executeCommand("vsblocksnipets.helloWorld");
-          
+          vscode.commands.executeCommand("vsblocksnipets.helloWorld", data.value);
+
           //let uri = vscode.Uri.file('%USERPROFILE%\.vscode\extensions');
 
-      //     const options: vscode.OpenDialogOptions = {
-      //       canSelectMany: false,
-      //       defaultUri: uri,
-      //       openLabel: 'Select',
-      //       canSelectFolders:true,
-      //       canSelectFiles:false,
+          //     const options: vscode.OpenDialogOptions = {
+          //       canSelectMany: false,
+          //       defaultUri: uri,
+          //       openLabel: 'Select',
+          //       canSelectFolders:true,
+          //       canSelectFiles:false,
 
-      //  };          
-       
-      // vscode.window.showOpenDialog(options);
+          //  };          
+
+          // vscode.window.showOpenDialog(options);
 
           // vscode.workspace.openTextDocument(uri).then((document) => {
           //   let text = document.getText();
           break;
         }
-        case "loadData": {
+        case "ImportDataFromFile": {
           if (!data.value) {
             return;
           }
+
+          vscode.commands.executeCommand("vsblocksnipets.importCodeFromFile", true);
+
           // vscode.workspace.openTextDocument(uri).then((document) => {
           //   let text = document.getText();
           break;
@@ -84,13 +100,13 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
             return;
           }
-            const editor = vscode.window.activeTextEditor;
-            const document = editor?.document;
-            const cursorPos =  editor?.selection.active as vscode.Position;
-            var snip = new vscode.SnippetString(data.value);
-            vscode.window.activeTextEditor?.insertSnippet(snip);
+          const editor = vscode.window.activeTextEditor;
+          const document = editor?.document;
+          const cursorPos = editor?.selection.active as vscode.Position;
+          var snip = new vscode.SnippetString(data.value);
+          vscode.window.activeTextEditor?.insertSnippet(snip);
 
-            //vscode.TextEdit.insert(cursorPos, data.value);
+          //vscode.TextEdit.insert(cursorPos, data.value);
           // vscode.workspace.openTextDocument(uri).then((document) => {
           //   let text = document.getText();
           break;
@@ -130,7 +146,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     const styleMainUri = webview.asWebviewUri(
       vscode.Uri.joinPath(this._extensionUri, "out", "compiled/sidebar.css")
     );
-    
+
 
 
     // Use a nonce to only allow a specific script to be run.

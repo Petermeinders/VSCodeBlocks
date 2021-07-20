@@ -3,6 +3,7 @@ import { HellowWorldPanel } from './HelloWorldPanel';
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import { SidebarProvider } from './SidebarProvider';
+import { TextDecoder } from 'util';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -23,36 +24,24 @@ export function activate(context: vscode.ExtensionContext) {
 	);
 
 	const item = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
-		item.text = "$(beaker) Add Code";
-		item.command = "vsblocksnipets.addCode";
-		item.show();
+	item.text = "$(beaker) Add Code";
+	item.command = "vsblocksnipets.addCode";
+	item.show();
 
 
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
 	context.subscriptions.push(
-		vscode.commands.registerCommand('vsblocksnipets.helloWorld', () => {
+		vscode.commands.registerCommand('vsblocksnipets.helloWorld', (items) => {
 			// The code you place here will be executed every time your command is executed
 			// Display a message box to the user
-			vscode.window.showInformationMessage('Hello World!! from VSBlockSnipets!');
+			// vscode.window.showInformationMessage('Hello World!! from VSBlockSnipets!');
 			//vscode.window.showInputBox({value:"test"});
 
-			// var inputbox = vscode.window.createInputBox();
-			// inputbox.
-			// inputbox.show();
-
-			// vscode.workspace.sett.
-
-			HellowWorldPanel.createOrShow(context.extensionUri);
-
-			// var snip = new vscode.SnippetString("for (const ${2:element} of ${1:array}) {\", \"\t$0\", \"}");
-			// vscode.window.activeTextEditor?.insertSnippet(snip);
-
-			
+			HellowWorldPanel.createOrShow(context.extensionUri, "");
+			vscode.commands.executeCommand("vsblocksnipets.passBlocksToSidebar", items);
 		}));
-
-		
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand('vsblocksnipets.addCode', () => {
@@ -64,30 +53,113 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 			const text = activeTextEditor.document.getText(activeTextEditor.selection);
 			vscode.window.showInformationMessage(text);
+			// vscode.window.showInformationMessage(vscode.NotebookCellStatusBarItem.name);
 
 			sidebarProvider._view?.webview.postMessage({
 				type: 'add-code',
-				value:text,
+				value: text,
 			});
+
+			HellowWorldPanel.addPanelCode(text);
 
 		}));
 
-		
+
 	context.subscriptions.push(
-		vscode.commands.registerCommand('vsblocksnipets.importCode', () => {
+		vscode.commands.registerCommand('vsblocksnipets.importCode', (items) => {
+			console.log("Passed Items:");
+			console.log(items);
+
 			const { activeTextEditor } = vscode.window;
 
-			if (!activeTextEditor) {
-				vscode.window.showInformationMessage("no active window");
-				return;
-			}
+			// if (!activeTextEditor) {
+			// 	vscode.window.showInformationMessage("no active window");
+			// 	return;
+			// }
 			const text = activeTextEditor.document.getText(activeTextEditor.selection);
 			vscode.window.showInformationMessage(text);
 
-			sidebarProvider._view?.webview.postMessage({
-				type: 'import-code',
-				value:text,
+			if (items !== null && typeof (items) !== "undefined") {
+				HellowWorldPanel.PassCodeToWindow(items);
+			}
+			else {
+				sidebarProvider._view?.webview.postMessage({
+					type: 'import-code',
+					value: text,
+				});
+			}
+		}));
+
+
+	context.subscriptions.push(
+		vscode.commands.registerCommand('vsblocksnipets.importCodeFromFile', (fromSidebar) => {
+			console.log("Importing Code From File:");
+
+			//const { activeTextEditor } = vscode.window;
+
+			// if (!activeTextEditor) {
+			// 	vscode.window.showInformationMessage("no active window");
+			// 	return;
+			// }
+			// await vscode.commands.executeCommand("workbench.action.closeSidebar");
+
+
+			let uri = vscode.Uri.file('%USERPROFILE%\.vscode\extensions');
+
+			const options: vscode.OpenDialogOptions = {
+				canSelectMany: false,
+				defaultUri: uri,
+				openLabel: 'Select',
+				canSelectFolders: false,
+				canSelectFiles: true,
+
+			};
+
+			let fs = vscode.workspace.fs;
+			let fileString;
+			vscode.window.showOpenDialog(options).then((fileUri) => {
+				let readFile = fs.readFile(fileUri[0]).then(data => {
+					fileString = new TextDecoder().decode(data, { stream: true });
+
+					if (fromSidebar) {
+						sidebarProvider._view?.webview.postMessage({
+							type: 'import-code-from-file',
+							value: fileString,
+						});
+					}
+					else {
+						// const text = activeTextEditor.document.getText(activeTextEditor.selection);
+						// vscode.window.showInformationMessage(text);
+
+						HellowWorldPanel.PassCodeToWindow(fileString);
+					}
+				});
 			});
+		}));
+
+
+	context.subscriptions.push(
+		vscode.commands.registerCommand('vsblocksnipets.passBlocksToSidebar', (items) => {
+			console.log("Passed Items:");
+			console.log(items);
+
+			const newString = JSON.stringify(items);
+
+			//const { activeTextEditor } = vscode.window;
+
+			// if (!activeTextEditor) {
+			// 	vscode.window.showInformationMessage("no active window");
+			// 	return;
+			// }
+
+			HellowWorldPanel.PassCodeToWindow(newString)
+
+			// sidebarProvider._view?.webview.postMessage({
+			// 	type: 'import-code',
+			// 	value: newString,
+			// });
+
+
 
 		}));
 

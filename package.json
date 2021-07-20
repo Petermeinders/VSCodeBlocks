@@ -16,6 +16,8 @@
 		"onCommand:vsblocksnipets.refresh",
 		"onCommand:vsblocksnipets.addCode",
 		"onCommand:vsblocksnipets.importCode",
+		"onCommand:vsblocksnipets.importCodeFromFile",
+		"onCommand:vsblocksnipets.passBlocksToSidebar",
 		"onView:vsblocksnipets-sidebar"
 	],
 	"main": "./dist/extension.js",
@@ -64,6 +66,16 @@
 				"command": "vsblocksnipets.importCode",
 				"category": "VSBlockSnipets",
 				"title": "Import code json from selection"
+			},
+			{
+				"command": "vsblocksnipets.passBlocksToSidebar",
+				"category": "VSBlockSnipets",
+				"title": "Pass blocks from full view to side view"
+			},
+			{
+				"command": "vsblocksnipets.importCodeFromFile",
+				"category": "VSBlockSnipets",
+				"title": "Import code json file previously exported"
 			}
 		]
 	},
