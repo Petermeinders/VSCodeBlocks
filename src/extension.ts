@@ -33,14 +33,14 @@ export function activate(context: vscode.ExtensionContext) {
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
 	context.subscriptions.push(
-		vscode.commands.registerCommand('vsblocksnipets.helloWorld', (items) => {
+		vscode.commands.registerCommand('vsblocksnipets.startPanel', (items) => {
 			// The code you place here will be executed every time your command is executed
 			// Display a message box to the user
 			// vscode.window.showInformationMessage('Hello World!! from VSBlockSnipets!');
 			//vscode.window.showInputBox({value:"test"});
 
 			HellowWorldPanel.createOrShow(context.extensionUri, "");
-			vscode.commands.executeCommand("vsblocksnipets.passBlocksToSidebar", items);
+			vscode.commands.executeCommand("vsblocksnipets.passBlocksToWindow", items);
 		}));
 
 	context.subscriptions.push(
@@ -139,27 +139,14 @@ export function activate(context: vscode.ExtensionContext) {
 
 
 	context.subscriptions.push(
-		vscode.commands.registerCommand('vsblocksnipets.passBlocksToSidebar', (items) => {
+		vscode.commands.registerCommand('vsblocksnipets.passBlocksToWindow', (items) => {
 			console.log("Passed Items:");
 			console.log(items);
 
 			const newString = JSON.stringify(items);
 
-			//const { activeTextEditor } = vscode.window;
 
-			// if (!activeTextEditor) {
-			// 	vscode.window.showInformationMessage("no active window");
-			// 	return;
-			// }
-
-			HellowWorldPanel.PassCodeToWindow(newString)
-
-			// sidebarProvider._view?.webview.postMessage({
-			// 	type: 'import-code',
-			// 	value: newString,
-			// });
-
-
+			HellowWorldPanel.PassCodeToWindow(newString);
 
 		}));
 

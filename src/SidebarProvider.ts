@@ -65,23 +65,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
             return;
           }
           vscode.commands.executeCommand("workbench.action.toggleSidebarVisibility");
-          vscode.commands.executeCommand("vsblocksnipets.helloWorld", data.value);
-
-          //let uri = vscode.Uri.file('%USERPROFILE%\.vscode\extensions');
-
-          //     const options: vscode.OpenDialogOptions = {
-          //       canSelectMany: false,
-          //       defaultUri: uri,
-          //       openLabel: 'Select',
-          //       canSelectFolders:true,
-          //       canSelectFiles:false,
-
-          //  };          
-
-          // vscode.window.showOpenDialog(options);
-
-          // vscode.workspace.openTextDocument(uri).then((document) => {
-          //   let text = document.getText();
+          vscode.commands.executeCommand("vsblocksnipets.startPanel", data.value);
           break;
         }
         case "ImportDataFromFile": {

@@ -146,10 +146,8 @@ export class HellowWorldPanel {
           vscode.commands.executeCommand("workbench.action.closeActiveEditor");
           vscode.commands.executeCommand("workbench.action.toggleSidebarVisibility");
 
-          vscode.commands.executeCommand("vsblocksnipets.helloWorld", data.value);
+    //      vscode.commands.executeCommand("vsblocksnipets.startPanel", data.value);
 
-          // vscode.workspace.openTextDocument(uri).then((document) => {
-          //   let text = document.getText();
           break;
         }
         case "ImportDataFromFile": {

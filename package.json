@@ -11,13 +11,13 @@
 	],
 	"publisher": "PeterM",
 	"activationEvents": [
-		"onCommand:vsblocksnipets.helloWorld",
+		"onCommand:vsblocksnipets.startPanel",
 		"onCommand:vsblocksnipets.askQuestion",
 		"onCommand:vsblocksnipets.refresh",
 		"onCommand:vsblocksnipets.addCode",
 		"onCommand:vsblocksnipets.importCode",
 		"onCommand:vsblocksnipets.importCodeFromFile",
-		"onCommand:vsblocksnipets.passBlocksToSidebar",
+		"onCommand:vsblocksnipets.passBlocksToWindow",
 		"onView:vsblocksnipets-sidebar"
 	],
 	"main": "./dist/extension.js",
@@ -44,7 +44,7 @@
 		},
 		"commands": [
 			{
-				"command": "vsblocksnipets.helloWorld",
+				"command": "vsblocksnipets.startPanel",
 				"title": "Hello World"
 			},
 			{
@@ -68,7 +68,7 @@
 				"title": "Import code json from selection"
 			},
 			{
-				"command": "vsblocksnipets.passBlocksToSidebar",
+				"command": "vsblocksnipets.passBlocksToWindow",
 				"category": "VSBlockSnipets",
 				"title": "Pass blocks from full view to side view"
 			},
