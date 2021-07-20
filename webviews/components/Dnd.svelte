@@ -7,6 +7,7 @@
   import Fa from 'svelte-fa'
   import { faFlag, faTint, faTag, faFont, faArrowCircleRight, faPencilAlt } from '@fortawesome/free-solid-svg-icons'
   import {setDebugMode} from "svelte-dnd-action";
+import { TreeItemCollapsibleState } from "vscode";
 
   function getNonce() {
     let text = "";
@@ -318,6 +319,8 @@
   setDebugMode(true);
 
   const listName="Code Blocks";
+
+  //const combinedArray = [...$items.customSnippets,...$items.vsSnippets]
 </script>
 
 <main>

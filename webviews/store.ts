@@ -107,8 +107,8 @@ let vsSnippets2 = {
        }
     ],
     "vsSnippets":[
-       "vsSnippets1",
-       "vsSnippets2"
+       vsSnippets1,
+       vsSnippets2
     ]
  };
 // [{ "id": "0", "name": "test", "code":"if(${1:condition} ||${1:condition}){${2:expression}})", "placeholders":["condition","expression"], "color":'white', "visible":"", "tags":["tag1","tag2"] },{ "id": "1", "name": "test2", "code":"...2", "color":'white', "visible":"", "tags":["tag1","tag2"] }]

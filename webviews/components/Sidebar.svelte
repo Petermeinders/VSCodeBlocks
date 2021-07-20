@@ -34,6 +34,51 @@
       //   }
       // }
 
+      if ($items.vsSnippets !== null && $items.vsSnippets.length > 0) {
+        //         const resultArray = Object.keys($items.vsSnippets).map(index => {
+        //     let person = $items.vsSnippets[index];
+        //     person.name = index;
+        //     console.log(person)
+        //     return person;
+        // });
+
+        let final = [];
+
+        $items.vsSnippets.map((x) => {
+          var keys = Object.keys(x).map(function (y) {
+            return y;
+          });
+
+          var asdf = Object.values(x).map(function (y, index) {
+            let newArray = y;
+            newArray.name = keys[index];
+            // do something with person
+            final.push(newArray);
+            //console.log(newArray)
+          });
+        });
+        console.log("Before map:")
+        console.log(final);
+
+        final.map(block =>{
+          block.readOnly = true;
+          block.id = getNonce();
+          block.code = block.body;
+          block.prefix = block.prefix;
+          block.description = block.description;
+          block.innerItems = "innerItem";
+          block.placeholders = [];
+          block.color = "grey";
+          block.visible = "";
+          block.tags = [];
+        })
+
+        console.log("After map:")
+      console.log(final);
+      }
+
+
+
       i = $items;
       p = $page;
       t = $tags;
@@ -55,12 +100,17 @@
       let lastId = getNonce();
       switch (message.type) {
         case "add-code":
-          $items = {customSnippets:[{ id: lastId, code: message.value, innerItems:"items4", name: "New Name", visible: "true", color: "white", tags: [""]}, ...$items.customSnippets], vsSnippets:[]};
+          $items = {
+            customSnippets: [{ id: lastId, code: message.value, innerItems: "items4", name: "New Name", visible: "true", color: "white", tags: [""] }, ...$items.customSnippets],
+            vsSnippets: [],
+          };
           console.log({ items });
           break;
 
         case "import-code":
-          $items = JSON.parse(message.value);
+          let parsedCode = JSON.parse(message.value);
+
+          $items = parsedCode;
           console.log($items);
           break;
       }
