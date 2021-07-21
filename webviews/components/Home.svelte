@@ -208,6 +208,7 @@
   {/if}
 
   <div>
+    <!-- svelte-ignore missing-declaration -->
     <button
       class="butt butter"
       on:click={() => {
@@ -238,13 +239,5 @@
 <style>
   .container {
     display: flex; /* or inline-flex */
-  }
-
-  .box {
-  }
-
-  .butt {
-    width: auto;
-    color: white;
   }
 </style>

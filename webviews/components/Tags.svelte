@@ -19,7 +19,7 @@
 
   function filterBlocksByTag(tag: string) {
     console.log("TIME TOFIND TAGS!");
-    let i = $items.filter((x) => { 
+    let i = $items.customSnippets.filter((x) => { 
       if (typeof x.tags !== "undefined") { //Tag found
         if (x.tags.findIndex((y) => y.includes(tag)) !== -1 || tag === "None") {
           x.visible = "";
@@ -37,7 +37,7 @@
       }
       return x;
     });
-    $items = [...i];
+    $items.customSnippets = [...i];
 
     //This doesn't work since the component gets reloaded after new derived value
     //e.target.classList.add('selectedTag')
@@ -60,10 +60,6 @@
         {/each}
       </ul>
     {/if}
-
-    <!-- {#each $tags as tag (getNonce())}
-          <div class="cursorPointer" style="border-width:1px; border-color:white; border-style:{borderStyle};" on:click={filterBlocksByTag(tag)}>{tag}</div>
-    {/each} -->
   </div>
 </main>
 
@@ -94,7 +90,7 @@
     transform: rotate(0.25turn);
   }
 
-  .selectedTag {
+  /* .selectedTag {
     font-weight: bold;
-  }
+  } */
 </style>

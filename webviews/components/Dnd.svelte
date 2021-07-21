@@ -1,11 +1,10 @@
 <script lang="ts">
   import { flip } from "svelte/animate";
-  import { dndzone, SHADOW_ITEM_MARKER_PROPERTY_NAME, TRIGGERS } from "svelte-dnd-action";
+  import { dndzone, Item, SHADOW_ITEM_MARKER_PROPERTY_NAME, TRIGGERS } from "svelte-dnd-action";
   import { afterUpdate, beforeUpdate, onMount } from "svelte";
-  import { items } from "../store.ts";
-  import { text, xlink_attr } from "svelte/internal";
+  import { items } from "../store";
   import Fa from 'svelte-fa'
-  import { faFlag, faTint, faTag, faFont, faArrowCircleRight, faPencilAlt,  faPlusCircle, faTimesCircle} from '@fortawesome/free-solid-svg-icons'
+  import { faTint, faTag, faFont, faPlusCircle, faTimesCircle} from '@fortawesome/free-solid-svg-icons'
   import {setDebugMode} from "svelte-dnd-action";
 
   function getNonce() {
@@ -18,14 +17,14 @@
   }
 
   const flipDurationMs = 300;
-  function handleDndConsider(e) {
+  function handleDndConsider(e:any) {
     $items.customSnippets = e.detail.items;
 
     if (e.detail.info.trigger === "draggedEntered") {
       console.log("dragEntered!");
     }
   }
-  function handleDndFinalize(e) {
+  function handleDndFinalize(e:any) {
     $items.customSnippets = e.detail.items;
     if (e.detail.info.trigger === "draggedEntered") {
       console.log("dragEntered!");
@@ -303,21 +302,12 @@
         return x;
       }
     });
+    let test:items = $items
     $items.customSnippets =[...tempItems]
   }
 
   function OnCodeChange(e, item){
-    // item.placeholders =
-    // item.map(i => {
-    //   i.placehol
-    //   if(i.placeholders.)
-    // })
   }
-
-  function onmouseenter(){
-
-  }
-
 
   setDebugMode(true);
 
