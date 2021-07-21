@@ -76,18 +76,21 @@ export function activate(context: vscode.ExtensionContext) {
 			// 	vscode.window.showInformationMessage("no active window");
 			// 	return;
 			// }
-			const text = activeTextEditor.document.getText(activeTextEditor.selection);
-			vscode.window.showInformationMessage(text);
+			if (typeof (activeTextEditor) !== 'undefined') {
+				const text = activeTextEditor.document.getText(activeTextEditor.selection);
+				vscode.window.showInformationMessage(text);
 
-			if (items !== null && typeof (items) !== "undefined") {
-				HellowWorldPanel.PassCodeToWindow(items);
+				if (items !== null && typeof (items) !== "undefined") {
+					HellowWorldPanel.PassCodeToWindow(items);
+				}
+				else {
+					sidebarProvider._view?.webview.postMessage({
+						type: 'import-code',
+						value: text,
+					});
+				}
 			}
-			else {
-				sidebarProvider._view?.webview.postMessage({
-					type: 'import-code',
-					value: text,
-				});
-			}
+
 		}));
 
 
@@ -118,22 +121,27 @@ export function activate(context: vscode.ExtensionContext) {
 			let fs = vscode.workspace.fs;
 			let fileString;
 			vscode.window.showOpenDialog(options).then((fileUri) => {
-				let readFile = fs.readFile(fileUri[0]).then(data => {
-					fileString = new TextDecoder().decode(data, { stream: true });
+				if (typeof (fileUri) !== 'undefined') {
+					let URI: vscode.Uri;
+					URI = fileUri[0];
 
-					if (fromSidebar) {
-						sidebarProvider._view?.webview.postMessage({
-							type: 'import-code-from-file',
-							value: fileString,
-						});
-					}
-					else {
-						// const text = activeTextEditor.document.getText(activeTextEditor.selection);
-						// vscode.window.showInformationMessage(text);
+					fs.readFile(URI).then(data => {
+						fileString = new TextDecoder().decode(data, { stream: true });
 
-						HellowWorldPanel.PassCodeToWindow(fileString);
-					}
-				});
+						if (fromSidebar) {
+							sidebarProvider._view?.webview.postMessage({
+								type: 'import-code-from-file',
+								value: fileString,
+							});
+						}
+						else {
+							// const text = activeTextEditor.document.getText(activeTextEditor.selection);
+							// vscode.window.showInformationMessage(text);
+
+							HellowWorldPanel.PassCodeToWindow(fileString);
+						}
+					});
+				}
 			});
 		}));
 

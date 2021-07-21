@@ -1,3 +1,4 @@
+import { TextEncoder } from "util";
 import * as vscode from "vscode";
 import { getNonce } from "./getNonce";
 
@@ -61,7 +62,7 @@ export class HellowWorldPanel {
     }
   }
 
-  public static addPanelCode(items){
+  public static addPanelCode(items: any){
     if(typeof(HellowWorldPanel.currentPanel) !== 'undefined')
     {
       HellowWorldPanel.currentPanel._panel.webview.postMessage({
@@ -72,10 +73,18 @@ export class HellowWorldPanel {
   }
 
   public static PassCodeToWindow(items:any){
-    HellowWorldPanel.currentPanel._panel.webview.postMessage({
-      type: 'import-code',
-      value:items,
-    });
+    if(typeof(HellowWorldPanel.currentPanel) !== 'undefined')
+    {
+      HellowWorldPanel.currentPanel._panel.webview.postMessage({
+        type: 'import-code',
+        value:items,
+      });
+    }
+    else
+    {
+      console.log("error");
+    }
+
   }
 
   public static kill() {
@@ -137,6 +146,63 @@ export class HellowWorldPanel {
             return;
           }
           vscode.window.showInformationMessage(data.value);
+          break;
+        }
+        case "insertSnippet": {
+          if (!data.value) {
+
+            return;
+          }
+          let editor = vscode.window.activeTextEditor;
+          if (typeof(editor) === "undefined"){
+            editor = vscode.window.visibleTextEditors[0];
+          }
+          const document = editor?.document;
+          const cursorPos = editor?.selection.active as vscode.Position;
+          var snip = new vscode.SnippetString(data.value);
+          editor.insertSnippet(snip);
+
+          //vscode.TextEdit.insert(cursorPos, data.value);
+          // vscode.workspace.openTextDocument(uri).then((document) => {
+          //   let text = document.getText();
+          break;
+        }
+        case "saveData": {
+          if (!data.value) {
+            return;
+          }
+          // vscode.window.showInformationMessage(data.value.customSnippets);
+          const language = 'markdown';
+          const content = JSON.stringify(data.value);
+
+          let uri = vscode.Uri.file('%USERPROFILE%\.vscode\extensions');
+
+          const options: vscode.OpenDialogOptions = {
+            canSelectMany: false,
+            defaultUri: uri,
+            openLabel: 'Select',
+            canSelectFolders: false,
+            canSelectFiles: true,
+
+          };
+
+          let fs = vscode.workspace.fs;
+          vscode.window.showOpenDialog(options).then((fileUri) => {
+            let URI:vscode.Uri;
+            if(typeof(fileUri) !== 'undefined')
+            {
+              URI = fileUri[0];
+            
+            let codeString = JSON.stringify(data.value);
+            let uint8array = new TextEncoder().encode(codeString);
+            fs.writeFile(URI, uint8array);
+
+            }
+            else{
+              console.log("Error");
+            }
+          });
+
           break;
         }
         case "showSidebar": {

@@ -5,7 +5,7 @@
   import { items } from "../store.ts";
   import { text, xlink_attr } from "svelte/internal";
   import Fa from 'svelte-fa'
-  import { faFlag, faTint, faTag, faFont, faArrowCircleRight, faPencilAlt } from '@fortawesome/free-solid-svg-icons'
+  import { faFlag, faTint, faTag, faFont, faArrowCircleRight, faPencilAlt,  faPlusCircle, faTimesCircle} from '@fortawesome/free-solid-svg-icons'
   import {setDebugMode} from "svelte-dnd-action";
 
   function getNonce() {
@@ -314,6 +314,10 @@
     // })
   }
 
+  function onmouseenter(){
+
+  }
+
 
   setDebugMode(true);
 
@@ -322,10 +326,9 @@
 
 <main>
   <input type="text" placeholder="Search" on:change={searchCode} />
-{console.log($items.customSnippets)}
   <section aria-label="{listName}" autoAriaDisabled:true use:dndzone={{ items: $items.customSnippets, flipDurationMs }} on:consider={handleDndConsider} on:finalize={handleDndFinalize}>
     {#each $items.customSnippets as item (item.id)}
-      <div aria-label={item.name} id={item.id} animate:flip={{ duration: flipDurationMs }} on:dblclick={onItemDoubleClick(item)} class="cell" style="border-color:{item.color}; display:{item.visible}">
+      <div aria-label={item.name} id={item.id} animate:flip={{ duration: flipDurationMs }} on:mouseenter={onmouseenter} on:dblclick={onItemDoubleClick(item)} class="cell block" style="border-color:{item.color}; display:{item.visible}">
         <div>
           <div style="background: #3c3c3c;     margin-top: 3px; align-items: center; " class="hide colorInput">
             <Fa icon={faTint}  style="color:yellow; padding-right: 4px;  " />
@@ -347,14 +350,13 @@
         <div>
           <span style="cursor: pointer;" on:click={ShowColorPicker(item)}><Fa icon={faTint}  style="color:yellow; padding-right: 4px;" /> </span>
           <span style="cursor: pointer;" on:click={ShowTags(item)}><Fa icon={faTag}  style="color:#007acc; padding-right: 4px;" /> </span>
-          <span style=" cursor: pointer;" on:click={pasteCodeFromBlock(item)}><Fa icon={faArrowCircleRight}  style="color:#00c300; padding-right: 4px;" /> </span>
-          <span style=" cursor: pointer;" on:click={event => editCodeBlock(event, item)}><Fa icon={faPencilAlt}  style="color:orange; padding-right: 4px;" /> </span>
+          <span style=" cursor: pointer;" on:click={pasteCodeFromBlock(item)}><Fa icon={faPlusCircle}  style="color:#00c300; padding-right: 4px;" /> </span>
+          <!-- <span style=" cursor: pointer;" on:click={event => editCodeBlock(event, item)}><Fa icon={faPencilAlt}  style="color:orange; padding-right: 4px;" /> </span> -->
 
-
-          <span on:click={deleteItem($items.customSnippets, item)} class="show" style="float:right; cursor: pointer;">x</span>
+          <span on:click={deleteItem($items.customSnippets, item)} class="show" style="float:right; cursor: pointer;"><Fa icon={faTimesCircle}  style="color:red; padding-right: 4px; padding-top: 3px;" /></span>
         </div>
-        <div class="hide codeblock">
-          <textarea disabled style="height:100px;"  bind:value={item.code} on:change={(event) => OnCodeChange(event, item)}></textarea>
+        <div class="codeblock">
+          <textarea disabled style="height:100px; width:100%"  bind:value={item.code} on:change={(event) => OnCodeChange(event, item)}></textarea>
         <!-- <span class="tooltiptext">{item.code}</span> -->
           <button on:click={event => CreateTabStop(event, item)}>Selection to variable </button>
 
@@ -428,6 +430,28 @@
 
   textarea{
     width:auto;
+  }
+
+  .codeblock{
+    max-height: 0;
+	overflow: hidden;
+
+  -webkit-transition: max-height 1.0s;
+	-moz-transition: max-height 1.0s;
+	transition: max-height 1.0s;
+  }
+
+
+  .block{
+    /* transition: transform 250ms; */
+    /* overflow: hidden; */
+    /* height: 1px; */
+    /* animation-duration: 250;
+    transition-property: all; */
+    }
+
+  .block:hover .codeblock{
+    max-height: 500px;
   }
 
 </style>

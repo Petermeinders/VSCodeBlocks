@@ -53,9 +53,19 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
 
           let fs = vscode.workspace.fs;
           vscode.window.showOpenDialog(options).then((fileUri) => {
+            let URI:vscode.Uri;
+            if(typeof(fileUri) !== 'undefined')
+            {
+              URI = fileUri[0];
+            
             let codeString = JSON.stringify(data.value);
             let uint8array = new TextEncoder().encode(codeString);
-            fs.writeFile(fileUri[0], uint8array);
+            fs.writeFile(URI, uint8array);
+
+            }
+            else{
+              console.log("Error");
+            }
           });
 
           break;
