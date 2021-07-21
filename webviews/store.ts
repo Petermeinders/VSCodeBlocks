@@ -158,9 +158,12 @@ export const items = writable(originItems, (set) => {
 export const tags = derived(
 	items,
 	$items => {
-    let s = new Set($items.customSnippets.map(item => item.tags).flat());
-    s = ["None", ...s];
-    return Array.from(s);
+      if(typeof($items) !== 'undefined')
+      {
+         let s = new Set($items.customSnippets.map(item => item.tags).flat());
+         s = ["None", ...s];
+         return Array.from(s);
+      }
   }
   
 

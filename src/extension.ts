@@ -158,6 +158,21 @@ export function activate(context: vscode.ExtensionContext) {
 
 		}));
 
+		context.subscriptions.push(
+			vscode.commands.registerCommand('vsblocksnipets.passBlocksToSidebar', (items) => {
+				console.log("Passed Items:");
+				console.log(items);
+	
+				const newString = JSON.stringify(items);
+
+				sidebarProvider._view?.webview.postMessage({
+					type: 'import-code',
+					value: items,
+				});
+	
+	
+			}));
+
 	context.subscriptions.push(
 		vscode.commands.registerCommand('vsblocksnipets.refresh', async () => {
 			// The code you place here will be executed every time your command is executed

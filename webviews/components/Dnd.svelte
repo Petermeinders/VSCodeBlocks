@@ -1,6 +1,6 @@
 <script lang="ts">
   import { flip } from "svelte/animate";
-  import { dndzone, Item, SHADOW_ITEM_MARKER_PROPERTY_NAME, TRIGGERS } from "svelte-dnd-action";
+  import { dndzone, SHADOW_ITEM_MARKER_PROPERTY_NAME, TRIGGERS } from "svelte-dnd-action";
   import { afterUpdate, beforeUpdate, onMount } from "svelte";
   import { items } from "../store";
   import Fa from 'svelte-fa'
@@ -302,7 +302,6 @@
         return x;
       }
     });
-    let test:items = $items
     $items.customSnippets =[...tempItems]
   }
 

@@ -211,7 +211,7 @@ export class HellowWorldPanel {
           }
           vscode.commands.executeCommand("workbench.action.closeActiveEditor");
           vscode.commands.executeCommand("workbench.action.toggleSidebarVisibility");
-
+           vscode.commands.executeCommand("vsblocksnipets.passBlocksToSidebar",data.value);
     //      vscode.commands.executeCommand("vsblocksnipets.startPanel", data.value);
 
           break;
