@@ -165,7 +165,7 @@
       }
       return i;
     })
-    document.getElementById(item.id)?.getElementsByClassName('colorInput')[0].classList.toggle('hide')
+    // document.getElementById(item.id)?.getElementsByClassName('colorInput')[0].classList.toggle('hide')
   }
 
   function ShowTags(item:item){
@@ -207,7 +207,7 @@
       }
       return i;
     })
-    document.getElementById(item.id)?.getElementsByClassName('tagInput')[0].classList.toggle('hide')
+    // document.getElementById(item.id)?.getElementsByClassName('tagInput')[0].classList.toggle('hide')
   }
 
   function editCodeBlock(e:any, item:item){
@@ -350,6 +350,14 @@
   function OnCodeChange(e:any, item:item){
   }
 
+  function onBlockHover(e:any, item:item){
+    console.log("hovered");
+  }
+
+  function onBlockLeave(e:any, item:item){
+    console.log("left");
+  }
+
   setDebugMode(true);
 
   const listName="Code Blocks";
@@ -360,12 +368,13 @@
   <input type="text" placeholder="Search" value={SearchTerm = SearchTerm ?? ""} on:change={(event) => searchCode(event, FullCodeSearch)} />
   <section aria-label="{listName}" autoAriaDisabled:true use:dndzone={{ items: $items.customSnippets, flipDurationMs }} on:consider={() => handleDndConsider} on:finalize={handleDndFinalize}>
     {#each $items.customSnippets as item (item.id)}
-      <div aria-label={item.name} id={item.id} animate:flip={{ duration: flipDurationMs }} on:mouseenter={() => onmouseenter} on:dblclick={() => onItemDoubleClick(item)} class="cell block" style="border-color:{item.color}; display:{item.visible}">
+      <div aria-label={item.name} id={item.id} animate:flip={{ duration: flipDurationMs }} on:mouseleave={(event)=> onBlockLeave(event, item)} on:mouseover={(event) => onBlockHover(event, item)} on:mouseenter={() => onmouseenter} on:dblclick={() => onItemDoubleClick(item)} class="cell block" style="border-color:{item.color}; display:{item.visible}">
         <div>
           <div style="background: #3c3c3c;     margin-top: 3px; align-items: center; " class="hide colorInput">
             <Fa icon={faTint}  style="color:yellow; padding-right: 4px;  " />
-            <input type="text" id="{getNonce()}" style="float:left;" value="{item.color}" class="" placeholder="red" on:change={event => changeColor(event, item)}/>
+            <input type="text" id="{getNonce()}" style="float:left;" value="{item.color}" class="" placeholder="red" on:change={event => changeColor(event, item)} />
           </div>
+
 
             <div style=" background: #3c3c3c;     margin-top: 3px; align-items: center;" class="hide tagInput">
               <Fa icon={faTag}  style="color:#007acc; padding-right: 4px;"/>
@@ -380,8 +389,8 @@
             </div>
         </div>
         <div>
-          <span style="cursor: pointer;" on:click={() => ShowColorPicker(item)}><Fa icon={faTint}  style="color:yellow; padding-right: 4px;" /> </span>
-          <span style="cursor: pointer;" on:click={() => ShowTags(item)}><Fa icon={faTag}  style="color:#007acc; padding-right: 4px;" /> </span>
+          <!-- <span style="cursor: pointer;" on:click={() => ShowColorPicker(item)}><Fa icon={faTint}  style="color:yellow; padding-right: 4px;" /> </span>
+          <span style="cursor: pointer;" on:click={() => ShowTags(item)}><Fa icon={faTag}  style="color:#007acc; padding-right: 4px;" /> </span> -->
           <span style=" cursor: pointer;" on:click={() => pasteCodeFromBlock(item)}><Fa icon={faPlusCircle}  style="color:#00c300; padding-right: 4px;" /> </span>
           <!-- <span style=" cursor: pointer;" on:click={event => editCodeBlock(event, item)}><Fa icon={faPencilAlt}  style="color:orange; padding-right: 4px;" /> </span> -->
 
@@ -484,6 +493,27 @@
 
   .block:hover .codeblock{
     max-height: 500px;
+  }
+
+  .colorInput{
+    max-height: 0px;
+    -webkit-transition: max-height 1.0s;
+	-moz-transition: max-height 1.0s;
+	transition: max-height 1.0s;
+  }
+
+  .block:hover  .colorInput{
+    max-height: 500px;
+    display: flex;
+  }
+
+  .tagInput{
+
+  }
+
+  .block:hover  .tagInput{
+    max-height: 500px;
+    display: flex;
   }
 
 </style>
