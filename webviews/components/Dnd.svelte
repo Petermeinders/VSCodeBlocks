@@ -2,7 +2,8 @@
   import { flip } from "svelte/animate";
   import { dndzone, SHADOW_ITEM_MARKER_PROPERTY_NAME, TRIGGERS } from "svelte-dnd-action";
   import { afterUpdate, beforeUpdate, onMount } from "svelte";
-  import { items } from "../store";
+  import {items } from "../store";
+  import type {item} from "../store";
   import Fa from 'svelte-fa'
   import { faTint, faTag, faFont, faPlusCircle, faTimesCircle} from '@fortawesome/free-solid-svg-icons'
   import {setDebugMode} from "svelte-dnd-action";
@@ -41,14 +42,14 @@
     }
   }
 
-  function deleteItem(itemList, item) {
+  function deleteItem(itemList:any, item:item) {
     console.log($items.customSnippets);
 
-    let itemsLeft = itemList.filter((j) => j.id !== item.id);
+    let itemsLeft = itemList.filter((j:any) => j.id !== item.id);
     $items.customSnippets = [...itemsLeft];
   }
 
-  function changedName(item) {
+  function changedName(item:item) {
     let i = $items.customSnippets.filter((x) => {
       if (x.id === item.id) {
         x.name = item.name;
@@ -61,21 +62,21 @@
 
   console.log("thing here!");
 
-  afterUpdate((e) => {});
+  afterUpdate((e:any) => {});
 
-  function returnFirstLine(item) {
+  function returnFirstLine(item:item) {
     const s = item.code.split("\n");
     return s[0];
   }
 
-  function pasteCodeFromBlock(item) {
+  function pasteCodeFromBlock(item:item) {
     tsvscode.postMessage({
       type: "insertSnippet",
       value: item.code,
     });
   }
 
-   function onItemDoubleClick(item){
+   function onItemDoubleClick(item:item){
     console.log("double clicked. Future implementation.")
    }
 
@@ -101,7 +102,7 @@
     }
     console.log(foundArray);
 
-    let newArray = [];
+    let newArray:any = [];
     if (foundArray.length > 0) {
       foundArray.forEach((element) => {
         let index = $items.customSnippets.indexOf(element);
@@ -125,29 +126,35 @@
     // }
   }
 
-  function ShowColorPicker(item){
+  function ShowColorPicker(item:item){
       console.log(item.id);
       console.log(document.getElementById(item.id));
 
-      if(document.getElementById(item.id).getElementsByClassName('colorInput')[0].classList.contains('hide')) {
-        document.getElementById(item.id).getElementsByClassName('colorInput')[0].classList.remove('hide');
-        document.getElementById(item.id).getElementsByClassName('colorInput')[0].classList.add('show');
+      if(document.getElementById(item.id) === null || item === null)
+      {
+        console.log("color picker is null");
+          return;
+      }
+
+      if(document.getElementById(item.id)?.getElementsByClassName('colorInput')[0].classList.contains('hide')) {
+        document.getElementById(item.id)?.getElementsByClassName('colorInput')[0].classList.remove('hide');
+        document.getElementById(item.id)?.getElementsByClassName('colorInput')[0].classList.add('show');
       }
       else {
-        document.getElementById(item.id).getElementsByClassName('colorInput')[0].classList.add('hide');
-        document.getElementById(item.id).getElementsByClassName('colorInput')[0].classList.remove('show');
+        document.getElementById(item.id)?.getElementsByClassName('colorInput')[0].classList.add('hide');
+        document.getElementById(item.id)?.getElementsByClassName('colorInput')[0].classList.remove('show');
       }
 
 
       //TODO: Refactor out JS mess.
-      if(document.getElementById(item.id).getElementsByClassName('tagInput')[0].classList.contains('show')) {
-        document.getElementById(item.id).getElementsByClassName('tagInput')[0].classList.add('hide');
-        document.getElementById(item.id).getElementsByClassName('tagInput')[0].classList.remove('show');
+      if(document.getElementById(item.id)?.getElementsByClassName('tagInput')[0].classList.contains('show')) {
+        document.getElementById(item.id)?.getElementsByClassName('tagInput')[0].classList.add('hide');
+        document.getElementById(item.id)?.getElementsByClassName('tagInput')[0].classList.remove('show');
       }
 
   }
 
-  function changeColor(e, item) {
+  function changeColor(e:any, item:item) {
     console.log(e);
     console.log(item);
     item.color = e.target.value;
@@ -158,31 +165,37 @@
       }
       return i;
     })
-    document.getElementById(item.id).getElementsByClassName('colorInput')[0].classList.toggle('hide')
+    document.getElementById(item.id)?.getElementsByClassName('colorInput')[0].classList.toggle('hide')
   }
 
-  function ShowTags(item){
+  function ShowTags(item:item){
     console.log(item.id);
       console.log(document.getElementById(item.id));
 
-      if(document.getElementById(item.id).getElementsByClassName('tagInput')[0].classList.contains('hide')) {
-        document.getElementById(item.id).getElementsByClassName('tagInput')[0].classList.remove('hide');
-        document.getElementById(item.id).getElementsByClassName('tagInput')[0].classList.add('show');
+      if(document.getElementById(item.id) === null || item === null)
+      {
+        console.log("tags null");
+          return;
+      }
+
+      if(document.getElementById(item.id)?.getElementsByClassName('tagInput')[0].classList.contains('hide')) {
+        document.getElementById(item.id)?.getElementsByClassName('tagInput')[0].classList.remove('hide');
+        document.getElementById(item.id)?.getElementsByClassName('tagInput')[0].classList.add('show');
       }
       else {
-        document.getElementById(item.id).getElementsByClassName('tagInput')[0].classList.add('hide');
-        document.getElementById(item.id).getElementsByClassName('tagInput')[0].classList.remove('show');
+        document.getElementById(item.id)?.getElementsByClassName('tagInput')[0].classList.add('hide');
+        document.getElementById(item.id)?.getElementsByClassName('tagInput')[0].classList.remove('show');
       }
 
 
       //TODO: Refactor out JS mess.
-      if(document.getElementById(item.id).getElementsByClassName('colorInput')[0].classList.contains('show')) {
-        document.getElementById(item.id).getElementsByClassName('colorInput')[0].classList.add('hide');
-        document.getElementById(item.id).getElementsByClassName('colorInput')[0].classList.remove('show');
+      if(document.getElementById(item.id)?.getElementsByClassName('colorInput')[0].classList.contains('show')) {
+        document.getElementById(item.id)?.getElementsByClassName('colorInput')[0].classList.add('hide');
+        document.getElementById(item.id)?.getElementsByClassName('colorInput')[0].classList.remove('show');
       }
   }
 
-  function changeTags(e, item){
+  function changeTags(e:any, item:item){
     console.log(e);
     console.log(item);
     //  item.tags = e.target.value;
@@ -194,20 +207,20 @@
       }
       return i;
     })
-    document.getElementById(item.id).getElementsByClassName('tagInput')[0].classList.toggle('hide')
+    document.getElementById(item.id)?.getElementsByClassName('tagInput')[0].classList.toggle('hide')
   }
 
-  function editCodeBlock(e, item){
-    document.getElementById(item.id).getElementsByClassName('codeblock')[0].classList.toggle('hide');
+  function editCodeBlock(e:any, item:item){
+    document.getElementById(item.id)?.getElementsByClassName('codeblock')[0].classList.toggle('hide');
   }
 
 
   function getSelectionText() {
     var text = "", startRange=0, endRange=0;
     if (window.getSelection) {
-        text = window.getSelection().toString();
-        startRange = window.getSelection().anchorOffset;
-        endRange = window.getSelection().focusOffset;
+        text = window.getSelection()?.toString();
+        startRange = window.getSelection()?.anchorOffset;
+        endRange = window.getSelection()?.focusOffset;
     } else if (document.selection && document.selection.type != "Control"){
         text = document.selection.createRange().text;
     }
@@ -215,7 +228,7 @@
     return [text, endRange, startRange];
 }
 
-  function CheckExistingPlaceholders(item){
+  function CheckExistingPlaceholders(item:item){
     if(item.placeholders === null || typeof(item.placeholders) === 'undefined' || item.placeholders.length === 0)
         {
           console.log("no placeholders")
@@ -227,7 +240,7 @@
         }
   }
 
-  function CreateTabStop(e, item){
+  function CreateTabStop(e:any, item:item){
     var lastNumber = CheckExistingPlaceholders(item);
     if (lastNumber === -1)
     {
@@ -252,9 +265,14 @@
     var newCode = item.code.replaceAll(selectedString, "${"+lastNumber+":"+selectedString+"}" )
     // item.placeholders.push(selectedString);
 
+
+
     const tempItems = $items.customSnippets.map(x => {
+      if(x.placeholders === null || typeof(x.placeholders) === 'undefined')
+      return;
+
       if(x.id === item.id){
-        x.placeholders.push(selectedString);
+        x.placeholders.push(selectedString.toString());
         x.code = newCode;
         return x;
       }
@@ -284,7 +302,7 @@
   //   // console.log("Previous:" + e.target.getAttribute('data-prev'));
   // }
 
-  function OnPlaceHolderChange(e, item, placeholder) {
+  function OnPlaceHolderChange(e:any, item:item, placeholder:any) {
     let prevValue = placeholder; //e.target.getAttribute('data-prev');
 
     // if (prevValue === null)
@@ -315,8 +333,8 @@
         }
         else{
           x.code = newCode;
-          let index = x.placeholders.indexOf("");
-          x.placeholders.splice(index, 1);
+          let index:any = x.placeholders?.indexOf("");
+          x.placeholders?.splice(index, 1);
           console.log("Clearning Value!")
           console.log(x)
           return x;
@@ -329,7 +347,7 @@
     $items.customSnippets =[...tempItems]
   }
 
-  function OnCodeChange(e, item){
+  function OnCodeChange(e:any, item:item){
   }
 
   setDebugMode(true);
@@ -340,9 +358,9 @@
 <main>
 
   <input type="text" placeholder="Search" value={SearchTerm = SearchTerm ?? ""} on:change={(event) => searchCode(event, FullCodeSearch)} />
-  <section aria-label="{listName}" autoAriaDisabled:true use:dndzone={{ items: $items.customSnippets, flipDurationMs }} on:consider={handleDndConsider} on:finalize={handleDndFinalize}>
+  <section aria-label="{listName}" autoAriaDisabled:true use:dndzone={{ items: $items.customSnippets, flipDurationMs }} on:consider={() => handleDndConsider} on:finalize={handleDndFinalize}>
     {#each $items.customSnippets as item (item.id)}
-      <div aria-label={item.name} id={item.id} animate:flip={{ duration: flipDurationMs }} on:mouseenter={onmouseenter} on:dblclick={onItemDoubleClick(item)} class="cell block" style="border-color:{item.color}; display:{item.visible}">
+      <div aria-label={item.name} id={item.id} animate:flip={{ duration: flipDurationMs }} on:mouseenter={() => onmouseenter} on:dblclick={() => onItemDoubleClick(item)} class="cell block" style="border-color:{item.color}; display:{item.visible}">
         <div>
           <div style="background: #3c3c3c;     margin-top: 3px; align-items: center; " class="hide colorInput">
             <Fa icon={faTint}  style="color:yellow; padding-right: 4px;  " />
@@ -362,12 +380,12 @@
             </div>
         </div>
         <div>
-          <span style="cursor: pointer;" on:click={ShowColorPicker(item)}><Fa icon={faTint}  style="color:yellow; padding-right: 4px;" /> </span>
-          <span style="cursor: pointer;" on:click={ShowTags(item)}><Fa icon={faTag}  style="color:#007acc; padding-right: 4px;" /> </span>
-          <span style=" cursor: pointer;" on:click={pasteCodeFromBlock(item)}><Fa icon={faPlusCircle}  style="color:#00c300; padding-right: 4px;" /> </span>
+          <span style="cursor: pointer;" on:click={() => ShowColorPicker(item)}><Fa icon={faTint}  style="color:yellow; padding-right: 4px;" /> </span>
+          <span style="cursor: pointer;" on:click={() => ShowTags(item)}><Fa icon={faTag}  style="color:#007acc; padding-right: 4px;" /> </span>
+          <span style=" cursor: pointer;" on:click={() => pasteCodeFromBlock(item)}><Fa icon={faPlusCircle}  style="color:#00c300; padding-right: 4px;" /> </span>
           <!-- <span style=" cursor: pointer;" on:click={event => editCodeBlock(event, item)}><Fa icon={faPencilAlt}  style="color:orange; padding-right: 4px;" /> </span> -->
 
-          <span on:click={deleteItem($items.customSnippets, item)} class="show" style="float:right; cursor: pointer;"><Fa icon={faTimesCircle}  style="color:red; padding-right: 4px; padding-top: 3px;" /></span>
+          <span on:click={() => deleteItem($items.customSnippets, item)} class="show" style="float:right; cursor: pointer;"><Fa icon={faTimesCircle}  style="color:red; padding-right: 4px; padding-top: 3px;" /></span>
         </div>
         <div class="codeblock">
           <textarea disabled style="height:100px; width:100%"  bind:value={item.code} on:change={(event) => OnCodeChange(event, item)}></textarea>

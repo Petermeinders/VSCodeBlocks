@@ -114,6 +114,7 @@ let vsSnippets2 = {
 // [{ "id": "0", "name": "test", "code":"if(${1:condition} ||${1:condition}){${2:expression}})", "placeholders":["condition","expression"], "color":'white', "visible":"", "tags":["tag1","tag2"] },{ "id": "1", "name": "test2", "code":"...2", "color":'white', "visible":"", "tags":["tag1","tag2"] }]
 let originTags = [{id: 1, tagName:"code"}, {id: 2, tagName:"command"}];
 let originPage: "code" | "other" = "code";
+// eslint-disable-next-line @typescript-eslint/naming-convention
 
 
 if (tsvscode.getState()?.i !== undefined) {
@@ -168,6 +169,9 @@ export const tags = derived(
   
 
 );
+
+export interface item {id:string, name:string, code:string, color:string, placeholders:Array<string>, innerItems:string, visible:string, tags:Array<string>} ;
+
 
 export const page = writable(originPage, (set) => {
   console.log("Store Tags Set!");

@@ -43,7 +43,6 @@
     //e.target.classList.add('selectedTag')
   }
 
-
   let borderStyle: "solid" | "none" = "none";
 </script>
 
@@ -53,7 +52,7 @@
       <svg style="tran" width="20" height="20" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 16" stroke="currentColor"><path d="M9 5l7 7-7 7" /></svg>
       Tags
     </button>
-    {#if isOpen}
+    {#if isOpen && typeof($tags) !== 'undefined'}
       <ul transition:slide={{ duration: 300 }}>
         {#each $tags as tag (getNonce())}
           <div class="cursorPointer " style="border-width:1px; border-color:white; border-style:{borderStyle};" on:click={(event) => filterBlocksByTag(tag)}>{tag}</div>
