@@ -4,6 +4,7 @@ import { HellowWorldPanel } from './HelloWorldPanel';
 import * as vscode from 'vscode';
 import { SidebarProvider } from './SidebarProvider';
 import { TextDecoder } from 'util';
+import { stringify } from 'querystring';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -29,6 +30,42 @@ export function activate(context: vscode.ExtensionContext) {
 	item.show();
 
 
+	function delay(ms: number) {
+		return new Promise( resolve => setTimeout(resolve, ms) );
+	}
+
+
+	vscode.window.onDidChangeTextEditorSelection((event: vscode.TextEditorSelectionChangeEvent) => {
+		
+			//console.log(event.textEditor.selection);
+			(async () => { 
+				let text1 = event.textEditor.document.getText(event.textEditor.selection);
+		
+				await delay(300);
+
+				let text = event.textEditor.document.getText(event.textEditor.selection);
+				
+				if(text !== null && text !== 'undefined' && text !== "" && text1 === text){
+					console.log('after delay: ' + text);
+
+					const wentToWindow = HellowWorldPanel.PassSearchStringToWindow(text);
+					if(!wentToWindow)
+					{
+						sidebarProvider._view?.webview.postMessage({
+							type: 'selection-to-search',
+							value: text,
+						});
+					}
+				}
+			})();
+
+			
+		
+	});
+
+	
+
+
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
@@ -42,6 +79,7 @@ export function activate(context: vscode.ExtensionContext) {
 			HellowWorldPanel.createOrShow(context.extensionUri, "");
 			vscode.commands.executeCommand("vsblocksnipets.passBlocksToWindow", items);
 		}));
+
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand('vsblocksnipets.addCode', () => {
@@ -79,6 +117,7 @@ export function activate(context: vscode.ExtensionContext) {
 			if (typeof (activeTextEditor) !== 'undefined') {
 				const text = activeTextEditor.document.getText(activeTextEditor.selection);
 				vscode.window.showInformationMessage(text);
+				
 
 				if (items !== null && typeof (items) !== "undefined") {
 					HellowWorldPanel.PassCodeToWindow(items);

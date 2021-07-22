@@ -87,6 +87,19 @@ export class HellowWorldPanel {
 
   }
 
+  public static PassSearchStringToWindow(searchString:string){
+    if(typeof(HellowWorldPanel.currentPanel) !== 'undefined')
+    {
+      HellowWorldPanel.currentPanel._panel.webview.postMessage({
+        type: 'selection-to-search',
+        value:searchString,
+      });
+      return true;
+
+    }
+
+  }
+
   public static kill() {
     HellowWorldPanel.currentPanel?.dispose();
     HellowWorldPanel.currentPanel = undefined;

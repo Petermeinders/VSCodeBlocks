@@ -7,6 +7,16 @@
   import { faTint, faTag, faFont, faPlusCircle, faTimesCircle} from '@fortawesome/free-solid-svg-icons'
   import {setDebugMode} from "svelte-dnd-action";
 
+  export let SearchTerm:string;
+  export let FullCodeSearch:boolean;
+
+  $: {
+  SearchTerm; 
+  console.log("Search Changed: " + SearchTerm);
+  searchCode(SearchTerm, FullCodeSearch);
+
+  }
+
   function getNonce() {
     let text = "";
     const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -69,12 +79,26 @@
     console.log("double clicked. Future implementation.")
    }
 
-  function searchCode(e) {
-    console.log(e);
-    console.log(e.target.value);
-    const foundFirst = $items.customSnippets.find((element) => element.name.toLowerCase().includes(e.target.value.toLowerCase()));
-    // const foundArray = $items.customSnippets.filter((item) => item.name.toLowerCase().indexOf(e.target.value.toLowerCase()) !== -1 || item.tags.indexOf(e.target.value) !== -1);
-    const foundArray = $items.customSnippets.filter((item) => item.name.toLowerCase().indexOf(e.target.value.toLowerCase().trim()) !== -1 || item.tags.findIndex( x => x.toLowerCase().trim() === e.target.value.toLowerCase().trim()) !== -1);
+  export function searchCode(e: any, FullCodeSearch:any) {
+    let searchString: string;
+    if(typeof(e) === "string")
+    {
+      searchString = e;
+    }
+    else{
+      searchString = e.target.value;
+    }
+    console.log(searchString);
+    console.log(searchString);
+
+    let foundArray;
+    if(FullCodeSearch)
+    {
+      foundArray = $items.customSnippets.filter((item) => item.name.toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 || item.tags.findIndex( x => x.toLowerCase().trim() === searchString.toLowerCase().trim()) !== -1 || item.code.includes(searchString.toLowerCase().trim()) === true);
+    }
+    else{
+      foundArray = $items.customSnippets.filter((item) => item.name.toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 || item.tags.findIndex( x => x.toLowerCase().trim() === searchString.toLowerCase().trim()) !== -1);
+    }
     console.log(foundArray);
 
     let newArray = [];
@@ -314,7 +338,8 @@
 </script>
 
 <main>
-  <input type="text" placeholder="Search" on:change={searchCode} />
+
+  <input type="text" placeholder="Search" value={SearchTerm = SearchTerm ?? ""} on:change={(event) => searchCode(event, FullCodeSearch)} />
   <section aria-label="{listName}" autoAriaDisabled:true use:dndzone={{ items: $items.customSnippets, flipDurationMs }} on:consider={handleDndConsider} on:finalize={handleDndFinalize}>
     {#each $items.customSnippets as item (item.id)}
       <div aria-label={item.name} id={item.id} animate:flip={{ duration: flipDurationMs }} on:mouseenter={onmouseenter} on:dblclick={onItemDoubleClick(item)} class="cell block" style="border-color:{item.color}; display:{item.visible}">

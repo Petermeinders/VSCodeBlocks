@@ -6,12 +6,15 @@
   import { items } from "../store";
   import { tags } from "../store";
   import { page } from "../store";
-  import { SHADOW_ITEM_MARKER_PROPERTY_NAME } from "svelte-dnd-action";
+  import { dndzone, SHADOW_ITEM_MARKER_PROPERTY_NAME } from "svelte-dnd-action";
 
   function UpdateTabStop() {}
 
   export let isSidebar: true | false;
   console.log("sidebar: " + isSidebar);
+
+  let SearchTerm:string = "";
+  let FullCodeSearch:boolean = true;
 
   $: {
     if ($items !== null && $items.customSnippets[0] !== undefined) {
@@ -66,6 +69,10 @@
         case "add-code":
           $items = {customSnippets:[{ id: lastId, code: message.value, innerItems:"items4", name: "New Name", visible: "true", color: "white", tags: [""]}, ...$items.customSnippets], vsSnippets:[]};
           console.log({ items });
+          break;
+
+          case "selection-to-search":
+            SearchTerm = message.value;
           break;
 
         case "import-code":
@@ -177,7 +184,7 @@
   {#if isSidebar === true}
     {#if $page === "code"}
       <Tags />
-      <Dnd />
+      <Dnd SearchTerm={SearchTerm} FullCodeSearch={FullCodeSearch} />
       <button
         on:click={() => {
           $page = "other";
@@ -197,7 +204,7 @@
     <div class="container">
       <div class="box">
         <Tags />
-        <Dnd />
+        <Dnd  SearchTerm={SearchTerm} FullCodeSearch={FullCodeSearch} />
       </div>
       <!-- <div class="box" style="width:800px;">
         <div>
