@@ -3,7 +3,7 @@ import { HellowWorldPanel } from './HelloWorldPanel';
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import { SidebarProvider } from './SidebarProvider';
-import { TextDecoder } from 'util';
+import { TextDecoder, TextEncoder } from 'util';
 import { stringify } from 'querystring';
 
 // this method is called when your extension is activated
@@ -36,39 +36,102 @@ export function activate(context: vscode.ExtensionContext) {
 
 
 	function delay(ms: number) {
-		return new Promise( resolve => setTimeout(resolve, ms) );
+		return new Promise(resolve => setTimeout(resolve, ms));
 	}
 
 
 	vscode.window.onDidChangeTextEditorSelection((event: vscode.TextEditorSelectionChangeEvent) => {
-		
-			//console.log(event.textEditor.selection);
-			(async () => { 
-				let text1 = event.textEditor.document.getText(event.textEditor.selection);
-		
-				await delay(300);
 
-				let text = event.textEditor.document.getText(event.textEditor.selection);
-				
-				if(text !== null && text !== 'undefined' && text !== "" && text1 === text){
-					console.log('after delay: ' + text);
+		//console.log(event.textEditor.selection);
+		(async () => {
+			let text1 = event.textEditor.document.getText(event.textEditor.selection);
 
-					const wentToWindow = HellowWorldPanel.PassSearchStringToWindow(text);
-					if(!wentToWindow)
-					{
-						sidebarProvider._view?.webview.postMessage({
-							type: 'selection-to-search',
-							value: text,
-						});
-					}
+			await delay(300);
+
+			let text = event.textEditor.document.getText(event.textEditor.selection);
+
+			if (text !== null && text !== 'undefined' && text !== "" && text1 === text) {
+				console.log('after delay: ' + text);
+
+				const wentToWindow = HellowWorldPanel.PassSearchStringToWindow(text);
+				if (!wentToWindow) {
+					sidebarProvider._view?.webview.postMessage({
+						type: 'selection-to-search',
+						value: text,
+					});
 				}
-			})();
+			}
+		})();
 
-			
-		
+
+
 	});
 
-	
+
+
+	context.subscriptions.push(
+		vscode.commands.registerCommand('vsblocksnipets.SaveDataToFile', (data) => {
+			// vscode.window.showInformationMessage(data.value.customSnippets);
+			const language = 'markdown';
+			const content = JSON.stringify(data);
+
+			const config = vscode.workspace.getConfiguration('vsblocksnipets');
+			const saveLocation = config.get('codeBlockSaveLocation');
+
+			let fs = vscode.workspace.fs;
+			let fileString;
+
+			if(typeof(data) === 'undefined')
+			{
+				console.log("data is null. can't save null data.");
+				return;
+			}
+
+			if (saveLocation === "testvalue") {
+				let uri = vscode.Uri.file('%USERPROFILE%\.vscode\extensions');
+
+				const options: vscode.OpenDialogOptions = {
+					canSelectMany: false,
+					defaultUri: uri,
+					openLabel: 'Select',
+					canSelectFolders: false,
+					canSelectFiles: true,
+
+				};
+
+				vscode.window.showOpenDialog(options).then((fileUri) => {
+					let URI: vscode.Uri;
+					if (typeof (fileUri) !== 'undefined') {
+						URI = fileUri[0];
+
+						let codeString = JSON.stringify(data);
+						let uint8array = new TextEncoder().encode(codeString);
+						fs.writeFile(URI, uint8array);
+
+					}
+					else {
+						console.log("Error");
+					}
+				});
+			}
+			else{
+				vscode.window.showInformationMessage("Saving JSON:  " + saveLocation);
+				let URI = vscode.Uri.file(<string>saveLocation);
+					if (typeof (saveLocation) !== 'undefined') {
+
+						let codeString = JSON.stringify(data);
+						let uint8array = new TextEncoder().encode(codeString);
+						fs.writeFile(URI, uint8array);
+
+					}
+					else {
+						console.log("Error saving file");
+					}
+			}
+		}));
+
+
+
 
 
 	// The command has been defined in the package.json file
@@ -85,15 +148,16 @@ export function activate(context: vscode.ExtensionContext) {
 			vscode.commands.executeCommand("vsblocksnipets.passBlocksToWindow", items);
 		}));
 
-		context.subscriptions.push(
-			vscode.commands.registerCommand('vsblocksnipets.startPanelWithoutItems', () => {
-				// The code you place here will be executed every time your command is executed
-				// Display a message box to the user
-				// vscode.window.showInformationMessage('Hello World!! from VSBlockSnipets!');
-				//vscode.window.showInputBox({value:"test"});
-	
-				HellowWorldPanel.createOrShow(context.extensionUri, "");
-			}));
+	context.subscriptions.push(
+		vscode.commands.registerCommand('vsblocksnipets.startPanelWithoutItems', () => {
+			// The code you place here will be executed every time your command is executed
+			// Display a message box to the user
+			// vscode.window.showInformationMessage('Hello World!! from VSBlockSnipets!');
+			//vscode.window.showInputBox({value:"test"});
+
+			HellowWorldPanel.createOrShow(context.extensionUri, "");
+			vscode.commands.executeCommand("vsblocksnipets.importCodeFromFile", false);
+		}));
 
 
 	context.subscriptions.push(
@@ -132,7 +196,7 @@ export function activate(context: vscode.ExtensionContext) {
 			if (typeof (activeTextEditor) !== 'undefined') {
 				const text = activeTextEditor.document.getText(activeTextEditor.selection);
 				vscode.window.showInformationMessage(text);
-				
+
 
 				if (items !== null && typeof (items) !== "undefined") {
 					HellowWorldPanel.PassCodeToWindow(items);
@@ -160,43 +224,89 @@ export function activate(context: vscode.ExtensionContext) {
 			// }
 			// await vscode.commands.executeCommand("workbench.action.closeSidebar");
 
-
-			let uri = vscode.Uri.file('%USERPROFILE%\.vscode\extensions');
-
-			const options: vscode.OpenDialogOptions = {
-				canSelectMany: false,
-				defaultUri: uri,
-				openLabel: 'Select',
-				canSelectFolders: false,
-				canSelectFiles: true,
-
-			};
+			const config = vscode.workspace.getConfiguration('vsblocksnipets');
+			const saveLocation = config.get('codeBlockSaveLocation');
 
 			let fs = vscode.workspace.fs;
 			let fileString;
-			vscode.window.showOpenDialog(options).then((fileUri) => {
-				if (typeof (fileUri) !== 'undefined') {
-					let URI: vscode.Uri;
-					URI = fileUri[0];
 
-					fs.readFile(URI).then(data => {
-						fileString = new TextDecoder().decode(data, { stream: true });
 
-						if (fromSidebar) {
-							sidebarProvider._view?.webview.postMessage({
-								type: 'import-code-from-file',
-								value: fileString,
-							});
-						}
-						else {
-							// const text = activeTextEditor.document.getText(activeTextEditor.selection);
-							// vscode.window.showInformationMessage(text);
+			if (saveLocation === "testvalue") {
+				vscode.window.showInformationMessage(config.has('codeBlockSaveLocation').toString());
 
-							HellowWorldPanel.PassCodeToWindow(fileString);
-						}
-					});
-				}
-			});
+				let uri = vscode.Uri.file('%USERPROFILE%\.vscode\extensions');
+
+
+				const options: vscode.OpenDialogOptions = {
+					canSelectMany: false,
+					defaultUri: uri,
+					openLabel: 'Select',
+					canSelectFolders: false,
+					canSelectFiles: true,
+
+				};
+
+
+				vscode.window.showOpenDialog(options).then((fileUri) => {
+					if (typeof (fileUri) !== 'undefined') {
+						let URI: vscode.Uri;
+						URI = fileUri[0];
+						vscode.window.showInformationMessage(fileUri[0].fsPath);
+
+						config.update("codeBlockSaveLocation", fileUri[0].fsPath, vscode.ConfigurationTarget.Global).then(() => {
+							//take action here
+						});
+
+
+						fs.readFile(URI).then(data => {
+							fileString = new TextDecoder().decode(data, { stream: true });
+
+
+
+							if (fromSidebar) {
+								sidebarProvider._view?.webview.postMessage({
+									type: 'import-code-from-file',
+									value: fileString,
+								});
+							}
+							else {
+								// const text = activeTextEditor.document.getText(activeTextEditor.selection);
+								// vscode.window.showInformationMessage(text);
+
+								HellowWorldPanel.PassCodeToWindow(fileString);
+							}
+						});
+					}
+				});
+			}
+			else {
+				vscode.window.showInformationMessage("Loading JSON:  " + saveLocation);
+				var save = <string>saveLocation;
+				let uri = vscode.Uri.file(save);
+
+				fs.readFile(uri).then(data => {
+					fileString = new TextDecoder().decode(data, { stream: true });
+
+
+
+					if (fromSidebar) {
+						sidebarProvider._view?.webview.postMessage({
+							type: 'import-code-from-file',
+							value: fileString,
+						});
+					}
+					else {
+						// const text = activeTextEditor.document.getText(activeTextEditor.selection);
+						// vscode.window.showInformationMessage(text);
+
+						HellowWorldPanel.PassCodeToWindow(fileString);
+					}
+				});
+			}
+			//configuration.update("codeBlockSaveLocation", URI, vscode.ConfigurationTarget.Global).then(() => {
+			// take action here
+			//});
+
 		}));
 
 
@@ -212,20 +322,20 @@ export function activate(context: vscode.ExtensionContext) {
 
 		}));
 
-		context.subscriptions.push(
-			vscode.commands.registerCommand('vsblocksnipets.passBlocksToSidebar', (items) => {
-				console.log("Passed Items:");
-				console.log(items);
-	
-				const newString = JSON.stringify(items);
+	context.subscriptions.push(
+		vscode.commands.registerCommand('vsblocksnipets.passBlocksToSidebar', (items) => {
+			console.log("Passed Items:");
+			console.log(items);
 
-				sidebarProvider._view?.webview.postMessage({
-					type: 'import-code',
-					value: items,
-				});
-	
-	
-			}));
+			const newString = JSON.stringify(items);
+
+			sidebarProvider._view?.webview.postMessage({
+				type: 'import-code',
+				value: items,
+			});
+
+
+		}));
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand('vsblocksnipets.refresh', async () => {

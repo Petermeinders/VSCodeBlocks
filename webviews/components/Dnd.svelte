@@ -55,9 +55,13 @@
         x.name = item.name;
         console.log(x);
       }
+      else{
+        x = x
+      }
       return x;
     });
-    tsvscode.setState({ i });
+    //tsvscode.setState({ i });
+    $items.customSnippets = [...i];
   }
 
   console.log("thing here!");
@@ -205,6 +209,9 @@
         var array = e.target.value.split(',');
         i.tags = array;
       }
+      else {
+        i = i;
+      }
       return i;
     })
     // document.getElementById(item.id)?.getElementsByClassName('tagInput')[0].classList.toggle('hide')
@@ -281,7 +288,7 @@
       }
     });
 
-    $items.customSnippets =[...tempItems]
+    $items.customSnippets = [...tempItems]
 
     document.getElementById(item.id).getElementsByClassName('codeblock')[0].classList.remove('hide');
 
@@ -351,11 +358,9 @@
   }
 
   function onBlockHover(e:any, item:item){
-    console.log("hovered");
   }
 
   function onBlockLeave(e:any, item:item){
-    console.log("left");
   }
 
   setDebugMode(true);

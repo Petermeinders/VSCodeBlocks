@@ -13,8 +13,8 @@
   export let isSidebar: true | false;
   console.log("sidebar: " + isSidebar);
 
-  let SearchTerm:string = "";
-  let FullCodeSearch:boolean = true;
+  let SearchTerm: string = "";
+  let FullCodeSearch: boolean = true;
 
   $: {
     if ($items !== null && $items.customSnippets[0] !== undefined) {
@@ -22,17 +22,12 @@
         item.tags = item.tags ?? [""];
       });
 
-      if ($items.vsSnippets === null || typeof($items.vsSnippets) === 'undefined') {
-        $items.vsSnippets = [
-          "vsSnippets1",
-          "vsSnippets2"
-        ];
+      if ($items.vsSnippets === null || typeof $items.vsSnippets === "undefined") {
+        $items.vsSnippets = ["vsSnippets1", "vsSnippets2"];
       }
 
       console.log("Saving Items");
       console.log($items);
-
-      
 
       let i;
       let p;
@@ -50,8 +45,16 @@
       p = $page;
       t = $tags;
 
-      tsvscode.setState({ i, p, t });
-      console.log("STATE SET FROM SIDEBAR!");
+      if (i.customSnippets[0].id === '0') {
+        console.warn("BAD STATE! Not saving. Please check your import file.");
+      }
+      else{
+        tsvscode.setState({ i, p, t });
+      ExportCode();
+      console.log("STATE SET FROM HOME!");
+      }
+
+    
     } else {
       console.warn("BAD STATE!");
     }
@@ -67,34 +70,31 @@
       let lastId = getNonce();
       switch (message.type) {
         case "add-code":
-          $items = {customSnippets:[{ id: lastId, code: message.value, innerItems:"items4", name: "New Name", visible: "true", color: "white", tags: [""]}, ...$items.customSnippets], vsSnippets:[]};
+          $items = {
+            customSnippets: [{ id: lastId, code: message.value, innerItems: "items4", name: "New Name", visible: "true", color: "white", tags: [""] }, ...$items.customSnippets],
+            vsSnippets: [],
+          };
           console.log({ items });
           break;
 
-          case "selection-to-search":
-            SearchTerm = message.value;
+        case "selection-to-search":
+          SearchTerm = message.value;
           break;
 
         case "import-code":
-          if (typeof(message.value) === "string")
-          {
+          if (typeof message.value === "string") {
             $items = JSON.parse(message.value);
-          }
-          else{
+          } else {
             $items = message.value;
-
           }
           console.log($items);
           break;
 
-          case "import-code-from-file":
-          if (typeof(message.value) === "string")
-          {
+        case "import-code-from-file":
+          if (typeof message.value === "string") {
             $items = JSON.parse(message.value);
-          }
-          else{
+          } else {
             $items = message.value;
-
           }
           console.log($items);
           break;
@@ -184,7 +184,7 @@
   {#if isSidebar === true}
     {#if $page === "code"}
       <Tags />
-      <Dnd SearchTerm={SearchTerm} FullCodeSearch={FullCodeSearch} />
+      <Dnd {SearchTerm} {FullCodeSearch} />
       <button
         on:click={() => {
           $page = "other";
@@ -204,7 +204,7 @@
     <div class="container">
       <div class="box">
         <Tags />
-        <Dnd  SearchTerm={SearchTerm} FullCodeSearch={FullCodeSearch} />
+        <Dnd {SearchTerm} {FullCodeSearch} />
       </div>
       <!-- <div class="box" style="width:800px;">
         <div>

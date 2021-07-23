@@ -24,6 +24,17 @@
 	],
 	"main": "./dist/extension.js",
 	"contributes": {
+		"configuration": {
+			"type": "object",
+			"title": "This is my config",
+			"properties": {
+				"vsblocksnipets.codeBlockSaveLocation": {
+					"type": "string",
+					"default": "testvalue",
+					"description": "testdesc"
+				}
+			}
+		},
 		"viewsContainers": {
 			"activitybar": [
 				{
@@ -87,6 +98,11 @@
 				"command": "vsblocksnipets.importCodeFromFile",
 				"category": "VSBlockSnipets",
 				"title": "Import code json file previously exported"
+			},
+			{
+				"command": "vsblocksnipets.SaveDataToFile",
+				"category": "VSBlockSnipets",
+				"title": "SaveDataToFile"
 			}
 		]
 	},
