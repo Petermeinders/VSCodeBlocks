@@ -29,6 +29,11 @@ export function activate(context: vscode.ExtensionContext) {
 	item.command = "vsblocksnipets.addCode";
 	item.show();
 
+	const item3 = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
+	item3.text = "$(beaker) CodeBlocks";
+	item3.command = "vsblocksnipets.startPanelWithoutItems";
+	item3.show();
+
 
 	function delay(ms: number) {
 		return new Promise( resolve => setTimeout(resolve, ms) );
@@ -79,6 +84,16 @@ export function activate(context: vscode.ExtensionContext) {
 			HellowWorldPanel.createOrShow(context.extensionUri, "");
 			vscode.commands.executeCommand("vsblocksnipets.passBlocksToWindow", items);
 		}));
+
+		context.subscriptions.push(
+			vscode.commands.registerCommand('vsblocksnipets.startPanelWithoutItems', () => {
+				// The code you place here will be executed every time your command is executed
+				// Display a message box to the user
+				// vscode.window.showInformationMessage('Hello World!! from VSBlockSnipets!');
+				//vscode.window.showInputBox({value:"test"});
+	
+				HellowWorldPanel.createOrShow(context.extensionUri, "");
+			}));
 
 
 	context.subscriptions.push(

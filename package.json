@@ -12,6 +12,7 @@
 	"publisher": "PeterM",
 	"activationEvents": [
 		"onCommand:vsblocksnipets.startPanel",
+		"onCommand:vsblocksnipets.startPanelWithoutItems",
 		"onCommand:vsblocksnipets.askQuestion",
 		"onCommand:vsblocksnipets.refresh",
 		"onCommand:vsblocksnipets.addCode",
@@ -47,6 +48,10 @@
 			{
 				"command": "vsblocksnipets.startPanel",
 				"title": "Hello World"
+			},
+			{
+				"command": "vsblocksnipets.startPanelWithoutItems",
+				"title": "Start CodeBlocks Panel"
 			},
 			{
 				"command": "vsblocksnipets.askQuestion",
