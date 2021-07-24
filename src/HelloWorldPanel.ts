@@ -13,8 +13,9 @@ export class HellowWorldPanel {
   public readonly _panel: vscode.WebviewPanel;
   public readonly _extensionUri: vscode.Uri;
   public _disposables: vscode.Disposable[] = [];
+  
 
-  public static createOrShow(extensionUri: vscode.Uri, message:string) {
+  public static createOrShow(extensionUri: vscode.Uri, message: string) {
     const column = vscode.window.activeTextEditor
       ? vscode.window.activeTextEditor.viewColumn
       : undefined;
@@ -24,11 +25,10 @@ export class HellowWorldPanel {
       //HellowWorldPanel.currentPanel._panel.reveal(column);
       HellowWorldPanel.currentPanel._update();
 
-      if(message !== "")
-      {
+      if (message !== "") {
         HellowWorldPanel.currentPanel._panel.webview.postMessage({
           type: 'add-code',
-          value:message,
+          value: message,
         });
       }
 
@@ -53,46 +53,64 @@ export class HellowWorldPanel {
     );
 
     HellowWorldPanel.currentPanel = new HellowWorldPanel(panel, extensionUri);
-    if(message !== "")
-    {
+    if (message !== "") {
       HellowWorldPanel.currentPanel._panel.webview.postMessage({
         type: 'add-code',
-        value:message,
+        value: message,
       });
     }
   }
 
-  public static addPanelCode(items: any){
-    if(typeof(HellowWorldPanel.currentPanel) !== 'undefined')
-    {
+  public static delay(ms: number) {
+		return new Promise(resolve => setTimeout(resolve, ms));
+	}
+
+  public static addPanelCode(items: any) {
+    if (typeof (HellowWorldPanel.currentPanel) !== 'undefined') {
       HellowWorldPanel.currentPanel._panel.webview.postMessage({
         type: 'add-code',
-        value:items,
+        value: items,
       });
     }
   }
 
-  public static PassCodeToWindow(items:any){
-    if(typeof(HellowWorldPanel.currentPanel) !== 'undefined')
-    {
+  public static addPanelCodeEditMode(id: string) {
+    if (typeof (HellowWorldPanel.currentPanel) !== 'undefined') {
+      HellowWorldPanel.currentPanel._panel.webview.postMessage({
+        type: 'edit-code',
+        value: id,
+      });
+    }
+  }
+
+
+  public static addPlaceHolder(value: string) {
+    if (typeof (HellowWorldPanel.currentPanel) !== 'undefined') {
+      HellowWorldPanel.currentPanel._panel.webview.postMessage({
+        type: 'add-placeholder',
+        value: value,
+      });
+    }
+  }
+
+  public static PassCodeToWindow(items: any) {
+    if (typeof (HellowWorldPanel.currentPanel) !== 'undefined') {
       HellowWorldPanel.currentPanel._panel.webview.postMessage({
         type: 'import-code',
-        value:items,
+        value: items,
       });
     }
-    else
-    {
+    else {
       console.log("error");
     }
 
   }
 
-  public static PassSearchStringToWindow(searchString:string){
-    if(typeof(HellowWorldPanel.currentPanel) !== 'undefined')
-    {
+  public static PassSearchStringToWindow(searchString: string) {
+    if (typeof (HellowWorldPanel.currentPanel) !== 'undefined') {
       HellowWorldPanel.currentPanel._panel.webview.postMessage({
         type: 'selection-to-search',
-        value:searchString,
+        value: searchString,
       });
       return true;
 
@@ -161,13 +179,14 @@ export class HellowWorldPanel {
           vscode.window.showInformationMessage(data.value);
           break;
         }
+
         case "insertSnippet": {
           if (!data.value) {
 
             return;
           }
           let editor = vscode.window.activeTextEditor;
-          if (typeof(editor) === "undefined"){
+          if (typeof (editor) === "undefined") {
             editor = vscode.window.visibleTextEditors[0];
           }
           const document = editor?.document;
@@ -180,6 +199,7 @@ export class HellowWorldPanel {
           //   let text = document.getText();
           break;
         }
+
         case "saveData": {
           if (!data.value) {
             return;
@@ -205,7 +225,7 @@ export class HellowWorldPanel {
           //   if(typeof(fileUri) !== 'undefined')
           //   {
           //     URI = fileUri[0];
-            
+
           //   let codeString = JSON.stringify(data.value);
           //   let uint8array = new TextEncoder().encode(codeString);
           //   fs.writeFile(URI, uint8array);
@@ -220,17 +240,43 @@ export class HellowWorldPanel {
 
           break;
         }
+
         case "showSidebar": {
           if (!data.value) {
             return;
           }
           vscode.commands.executeCommand("workbench.action.closeActiveEditor");
           vscode.commands.executeCommand("workbench.action.toggleSidebarVisibility");
-           vscode.commands.executeCommand("vsblocksnipets.passBlocksToSidebar",data.value);
-    //      vscode.commands.executeCommand("vsblocksnipets.startPanel", data.value);
+          vscode.commands.executeCommand("vsblocksnipets.passBlocksToSidebar", data.value);
+          //      vscode.commands.executeCommand("vsblocksnipets.startPanel", data.value);
 
           break;
         }
+
+        case "closeEditWindow": {
+          if (!data.value) {
+            return;
+          }
+
+          let filename = vscode.window.visibleTextEditors[0]?.document.fileName;
+          let doc;
+
+          if (filename === 'HelloWorld') {
+            doc = vscode?.window?.visibleTextEditors[1]?.document;
+            vscode.window.showTextDocument(doc);
+            vscode.commands.executeCommand("workbench.action.revertAndCloseActiveEditor");
+          }
+          else{
+            doc = vscode?.window?.visibleTextEditors[0]?.document;
+            //vscode.window.showTextDocument(doc);
+            vscode.commands.executeCommand("workbench.action.focusFirstEditorGroup");
+            await HellowWorldPanel.delay(300);
+            vscode.commands.executeCommand("workbench.action.revertAndCloseActiveEditor");
+          }
+
+          break;
+        }
+
         case "ImportDataFromFile": {
           if (!data.value) {
             return;
@@ -242,6 +288,60 @@ export class HellowWorldPanel {
           //   let text = document.getText();
           break;
         }
+
+        case "editCode": {
+          if (!data.value) {
+            return;
+          }
+          let filename = vscode?.window?.visibleTextEditors[0]?.document.fileName;
+          vscode.commands.executeCommand("vsblocksnipets.editCode", data.value.code, data.value.id);
+
+          // vscode.workspace.openTextDocument(uri).then((document) => {
+          //   let text = document.getText();
+          break;
+        }
+
+        case "UpdateCodeWithNewTabStop": {
+          if (!data.value) {
+            return;
+          }
+          vscode?.window?.activeTextEditor?.edit(builder => {
+            const doc = vscode?.window?.activeTextEditor?.document;
+            if (typeof (doc) !== 'undefined')
+              builder.replace(new vscode.Range(doc.lineAt(0).range.start, doc.lineAt(doc.lineCount - 1).range.end), data.value);
+          });
+
+          break;
+        }
+
+        case "UpdateCodeOnPlaceHolderChange": {
+          if (!data.value) {
+            return;
+          }
+
+          let doc = vscode?.window?.activeTextEditor?.document;
+          let window = vscode?.window?.activeTextEditor;
+
+          if (typeof (doc) === 'undefined') {
+            doc = vscode?.window?.visibleTextEditors[0]?.document;
+            window = vscode?.window?.visibleTextEditors[0];
+            if (typeof (doc) === 'undefined') {
+              //console.log(vscode.window.visibleTextEditors[0].document.fileName);
+              doc = vscode?.window?.visibleTextEditors[1]?.document;
+              window = vscode?.window?.visibleTextEditors[1];
+            }
+
+          }
+          
+          window?.edit(builder => {
+          
+
+            if (typeof (doc) !== 'undefined')
+              builder.replace(new vscode.Range(doc.lineAt(0).range.start, doc.lineAt(doc.lineCount - 1).range.end), data.value);
+          });
+          break;
+        }
+
         case "onError": {
           if (!data.value) {
             return;
@@ -281,7 +381,7 @@ export class HellowWorldPanel {
     const styleMainUri = webview.asWebviewUri(
       vscode.Uri.joinPath(this._extensionUri, "out", "compiled/sidebar.css")
     );
-    
+
 
 
     // Uri to load styles into webview
@@ -302,9 +402,8 @@ export class HellowWorldPanel {
 					Use a content security policy to only allow loading images from https or from our extension directory,
 					and only allow scripts that have a specific nonce.
         -->
-        <meta http-equiv="Content-Security-Policy" content="img-src https: data:; style-src 'unsafe-inline' ${
-      webview.cspSource
-    }; script-src 'nonce-${nonce}';">
+        <meta http-equiv="Content-Security-Policy" content="img-src https: data:; style-src 'unsafe-inline' ${webview.cspSource
+      }; script-src 'nonce-${nonce}';">
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
 				<link href="${stylesResetUri}" rel="stylesheet">
 				<link href="${stylesMainUri}" rel="stylesheet">

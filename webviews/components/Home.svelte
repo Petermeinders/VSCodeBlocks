@@ -3,10 +3,11 @@
   import Tags from "./Tags.svelte";
   import Board from "./Board.svelte";
   import { onMount } from "svelte";
-  import { items } from "../store";
+  import { editItem, editMode, items } from "../store";
   import { tags } from "../store";
   import { page } from "../store";
   import { dndzone, SHADOW_ITEM_MARKER_PROPERTY_NAME } from "svelte-dnd-action";
+import EditScreen from "./EditScreen.svelte";
 
   function UpdateTabStop() {}
 
@@ -45,16 +46,13 @@
       p = $page;
       t = $tags;
 
-      if (i.customSnippets[0].id === '0') {
+      if (i.customSnippets[0].id === "0") {
         console.warn("BAD STATE! Not saving. Please check your import file.");
-      }
-      else{
+      } else {
         tsvscode.setState({ i, p, t });
-      ExportCode();
-      console.log("STATE SET FROM HOME!");
+        ExportCode();
+        console.log("STATE SET FROM HOME!");
       }
-
-    
     } else {
       console.warn("BAD STATE!");
     }
@@ -70,15 +68,36 @@
       let lastId = getNonce();
       switch (message.type) {
         case "add-code":
-          $items = {
-            customSnippets: [{ id: lastId, code: message.value, innerItems: "items4", name: "New Name", visible: "true", color: "white", tags: [""] }, ...$items.customSnippets],
-            vsSnippets: [],
-          };
-          console.log({ items });
+          if (message.value !== "") {
+            // $items = {
+            //   customSnippets: [{ id: lastId, code: message.value, innerItems: "items4", name: "New Name", visible: "true", color: "white", tags: [""] }, ...$items.customSnippets],
+            //   vsSnippets: [],
+            // };
+            $editItem = {id: lastId, code: message.value, innerItems: "items4", name: "New Name", "placeholders":[], visible: "true", color: "white", tags: [""]}
+            $editMode = { id: lastId, state: "true" };
+          }
+
+          break;
+
+          case "edit-code":
+          if (message.value !== "") {
+            // $items = {
+            //   customSnippets: [{ id: lastId, code: message.value, innerItems: "items4", name: "New Name", visible: "true", color: "white", tags: [""] }, ...$items.customSnippets],
+            //   vsSnippets: [],
+            // };
+            $editItem = $items?.customSnippets?.find(x => x?.id === message?.value);
+            $editMode = { id: message?.value, state: "true" };
+          }
+
           break;
 
         case "selection-to-search":
           SearchTerm = message.value;
+          break;
+
+          case "add-placeholder":
+            CreateTabStop(message.value);
+          //SearchTerm = message.value;
           break;
 
         case "import-code":
@@ -134,6 +153,80 @@
     Tags: $tags,
   };
 
+  function CheckExistingPlaceholders(item:item){
+    if(item.placeholders === null || typeof(item.placeholders) === 'undefined' || item.placeholders.length === 0)
+        {
+          console.log("no placeholders")
+          return -1;
+        }
+        else{
+          console.log("Placeholders:" + item.placeholders.length)
+          return item.placeholders.length
+        }
+  }
+
+
+
+  function CreateTabStop(placeholderValue:string){
+    let item = $editItem;
+    var lastNumber = CheckExistingPlaceholders(item)
+    if (lastNumber === -1)
+    {
+      item.placeholders = [];
+      lastNumber = 1;
+    }
+    else{
+      lastNumber = ++lastNumber;
+    }
+
+    var selectedString = placeholderValue;
+
+    if (selectedString === "")
+    {
+      return;
+    }
+
+    console.log(selectedString);
+    console.log(item.code);
+
+    var newCode = item.code.replaceAll(selectedString, "${"+lastNumber+":"+selectedString+"}" )
+    // item.placeholders.push(selectedString);
+
+    let newPlaceholder = $editItem.placeholders;
+    newPlaceholder.push(selectedString.toString())
+    let newItem  = $editItem;
+
+    newItem.placeholders = newPlaceholder;
+    newItem.code = newCode;
+
+
+    // const tempItems = $items.customSnippets.map(x => {
+    //   if(x.placeholders === null || typeof(x.placeholders) === 'undefined')
+    //   return;
+
+    //   if(x.id === item.id){
+    //     x.placeholders.push(selectedString.toString());
+    //     x.code = newCode;
+    //     return x;
+    //   }
+    //   else{
+    //     return x;
+    //   }
+    // });
+
+    //$items.customSnippets = [...tempItems]
+
+    $editItem = {...newItem}
+    console.log("New placeholder on new item.")
+    console.log($editItem)
+
+    UpdateCodeWithNewTabStop();
+
+
+    //var selRange = selObj.getRangeAt(0);
+    //console.log(selRange.toString());
+  }
+
   function getNonce() {
     let text = "";
     const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -141,6 +234,13 @@
       text += possible.charAt(Math.floor(Math.random() * possible.length));
     }
     return text;
+  }
+
+  function UpdateCodeWithNewTabStop(){
+    tsvscode.postMessage({
+      type: "UpdateCodeWithNewTabStop",
+      value: $editItem.code,
+    });
   }
 
   function ExportCode() {
@@ -176,13 +276,33 @@
     });
   }
 
+  function CloseEditWindow() {
+    tsvscode.postMessage({
+      type: "closeEditWindow",
+      value: $items,
+    });
+  }
+
+  function SaveCodeFromEdit(){
+    let foundItem = $items?.customSnippets?.find(x => x?.id === $editItem?.id);
+    if(foundItem)
+    {
+      const index = $items?.customSnippets.indexOf(foundItem);
+      $items.customSnippets.splice(index,1);
+      $items.customSnippets = [$editItem, ...$items.customSnippets];
+    }
+    else{
+      $items.customSnippets = [$editItem, ...$items.customSnippets];
+    }
+  }
+
   let clicked = 0;
 </script>
 
 <main>
   <!-- SIDEBAR -->
   {#if isSidebar === true}
-    {#if $page === "code"}
+    {#if $editMode.state === "false"}
       <Tags />
       <Dnd {SearchTerm} {FullCodeSearch} />
       <button
@@ -191,14 +311,16 @@
         }}>Future Tab</button
       >
     {:else}
-      <div>Test Text!</div>
+      <div>EDIT MODE</div>
+      <EditScreen/>
       <button
         on:click={() => {
-          $page = "code";
+          $editMode.state = "false";
         }}>go back</button
       >
     {/if}
   {:else}
+  {#if $editMode.state === "false"}
     <!-- PANEL -->
     <h1>Panel</h1>
     <div class="container">
@@ -212,8 +334,28 @@
         </div>
       </div> -->
     </div>
+    {:else}
+    <div>EDIT MODE</div>
+    <EditScreen/>
+    <button
+      on:click={() => {
+        $editMode.state = "false";
+        $editItem = {};
+        CloseEditWindow();
+      }}>go back</button
+    >
+    <button
+      on:click={() => {
+        $editMode.state = "false";
+        SaveCodeFromEdit();
+        CloseEditWindow();
+      }}>Save Code Block</button
+    >
+  {/if}
   {/if}
 
+
+  {#if $editMode.state === "false"}
   <div>
     <!-- svelte-ignore missing-declaration -->
     <button
@@ -240,6 +382,7 @@
     <div>
       <button on:click={ShowSidebar}>Sidebar mode</button>
     </div>
+  {/if}
   {/if}
 </main>
 

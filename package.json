@@ -12,10 +12,12 @@
 	"publisher": "PeterM",
 	"activationEvents": [
 		"onCommand:vsblocksnipets.startPanel",
+		"onCommand:vsblocksnipets.addPlaceholder",
 		"onCommand:vsblocksnipets.startPanelWithoutItems",
 		"onCommand:vsblocksnipets.askQuestion",
 		"onCommand:vsblocksnipets.refresh",
 		"onCommand:vsblocksnipets.addCode",
+		"onCommand:vsblocksnipets.editCode",
 		"onCommand:vsblocksnipets.importCode",
 		"onCommand:vsblocksnipets.importCodeFromFile",
 		"onCommand:vsblocksnipets.passBlocksToWindow",
@@ -103,6 +105,16 @@
 				"command": "vsblocksnipets.SaveDataToFile",
 				"category": "VSBlockSnipets",
 				"title": "SaveDataToFile"
+			},
+			{
+				"command": "vsblocksnipets.addPlaceholder",
+				"category": "VSBlockSnipets",
+				"title": "addPlaceholder"
+			},
+			{
+				"command": "vsblocksnipets.editCode",
+				"category": "VSBlockSnipets",
+				"title": "editCode"
 			}
 		]
 	},

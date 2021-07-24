@@ -29,9 +29,14 @@ export function activate(context: vscode.ExtensionContext) {
 	item.command = "vsblocksnipets.addCode";
 	item.show();
 
+	const item2 = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
+	item2.text = "$(beaker) CodeBlocks";
+	item2.command = "vsblocksnipets.startPanelWithoutItems";
+	item2.show();
+
 	const item3 = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
-	item3.text = "$(beaker) CodeBlocks";
-	item3.command = "vsblocksnipets.startPanelWithoutItems";
+	item3.text = "$(beaker) Add Placeholder";
+	item3.command = "vsblocksnipets.addPlaceholder";
 	item3.show();
 
 
@@ -63,8 +68,6 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 		})();
 
-
-
 	});
 
 
@@ -81,8 +84,7 @@ export function activate(context: vscode.ExtensionContext) {
 			let fs = vscode.workspace.fs;
 			let fileString;
 
-			if(typeof(data) === 'undefined')
-			{
+			if (typeof (data) === 'undefined') {
 				console.log("data is null. can't save null data.");
 				return;
 			}
@@ -114,23 +116,37 @@ export function activate(context: vscode.ExtensionContext) {
 					}
 				});
 			}
-			else{
+			else {
 				vscode.window.showInformationMessage("Saving JSON:  " + saveLocation);
 				let URI = vscode.Uri.file(<string>saveLocation);
-					if (typeof (saveLocation) !== 'undefined') {
+				if (typeof (saveLocation) !== 'undefined') {
 
-						let codeString = JSON.stringify(data);
-						let uint8array = new TextEncoder().encode(codeString);
-						fs.writeFile(URI, uint8array);
+					let codeString = JSON.stringify(data);
+					let uint8array = new TextEncoder().encode(codeString);
+					fs.writeFile(URI, uint8array);
 
-					}
-					else {
-						console.log("Error saving file");
-					}
+				}
+				else {
+					console.log("Error saving file");
+				}
 			}
 		}));
 
 
+
+
+
+	context.subscriptions.push(
+		vscode.commands.registerCommand('vsblocksnipets.addPlaceholder', () => {
+			const { activeTextEditor } = vscode.window;
+
+			let text = "";
+			if (typeof (activeTextEditor) !== 'undefined') {
+				text = activeTextEditor.document.getText(activeTextEditor.selection);
+			}
+
+			HellowWorldPanel.addPlaceHolder(text);
+		}));
 
 
 
@@ -161,16 +177,34 @@ export function activate(context: vscode.ExtensionContext) {
 
 
 	context.subscriptions.push(
-		vscode.commands.registerCommand('vsblocksnipets.addCode', () => {
+		vscode.commands.registerCommand('vsblocksnipets.addCode', async () => {
 			const { activeTextEditor } = vscode.window;
 
 			if (!activeTextEditor) {
 				vscode.window.showInformationMessage("no active window");
 				return;
 			}
+
 			const text = activeTextEditor.document.getText(activeTextEditor.selection);
-			vscode.window.showInformationMessage(text);
-			// vscode.window.showInformationMessage(vscode.NotebookCellStatusBarItem.name);
+
+			// const answer = await vscode.window.showInformationMessage(
+			// 	"how was your day",
+			// 	"good", 
+			// 	"bad"	
+			// );
+			// vscode.workspace.openTextDocument({content:text});
+
+			vscode.workspace.openTextDocument({ content: text }).then(document => {
+				vscode.window.showTextDocument(document);
+				//vscode.commands.executeCommand("workbench.action.showCommands");
+				(async () => {
+					await delay(300);
+					vscode.commands.executeCommand("workbench.action.editor.changeLanguageMode");
+				})();
+			}
+			);
+
+			vscode.window.showInformationMessage(vscode.NotebookCellStatusBarItem.name);
 
 			sidebarProvider._view?.webview.postMessage({
 				type: 'add-code',
@@ -180,6 +214,68 @@ export function activate(context: vscode.ExtensionContext) {
 			HellowWorldPanel.addPanelCode(text);
 
 		}));
+
+
+
+	context.subscriptions.push(
+		vscode.commands.registerCommand('vsblocksnipets.editCode', async (text, id) => {
+
+			let filename = vscode?.window?.visibleTextEditors[0]?.document.fileName;
+			let viewColum = vscode?.window?.visibleTextEditors[0]?.viewColumn;
+			let doc;
+
+			if (filename === 'HelloWorld') {
+				doc = vscode?.window?.visibleTextEditors[1]?.document;
+				vscode.window.showTextDocument(doc,viewColum);
+
+				vscode.workspace.openTextDocument({ content: text }).then(document => {
+					vscode.window.showTextDocument(document);
+					//vscode.commands.executeCommand("workbench.action.showCommands");
+					(async () => {
+						await delay(300);
+						vscode.commands.executeCommand("workbench.action.editor.changeLanguageMode");
+					})();
+				});
+			}
+			else {
+				doc = vscode?.window?.visibleTextEditors[0]?.document;
+
+				if (!doc) {
+					vscode.window.showInformationMessage("no active window");
+					return;
+				}
+				
+				vscode.window.showTextDocument(doc,viewColum);
+
+				let textContent = text;
+
+				vscode.workspace.openTextDocument({ content: textContent }).then(document => {
+					const edit = new vscode.WorkspaceEdit();
+					edit.insert(document.uri,new vscode.Position(0,0), textContent);
+					vscode.window.showTextDocument(document);
+					//vscode.commands.executeCommand("workbench.action.showCommands");
+					(async () => {
+						await delay(300);
+						vscode.commands.executeCommand("workbench.action.editor.changeLanguageMode");
+					})();
+				});
+			}
+			
+
+
+
+			// sidebarProvider._view?.webview.postMessage({
+			// 	type: 'add-code',
+			// 	value: text,
+			// });
+
+			HellowWorldPanel.addPanelCodeEditMode(id);
+
+		}));
+
+
+
+
 
 
 	context.subscriptions.push(

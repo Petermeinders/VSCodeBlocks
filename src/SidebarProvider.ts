@@ -55,6 +55,23 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           vscode.commands.executeCommand("vsblocksnipets.startPanel", data.value);
           break;
         }
+        case "UpdateCodeWithNewTabStop": {
+          if (!data.value) {
+            return;
+          }
+
+
+          vscode?.window?.activeTextEditor?.edit(builder => {
+            const doc = vscode?.window?.activeTextEditor?.document;
+            if (typeof (doc) !== 'undefined')
+              builder.replace(new vscode.Range(doc.lineAt(0).range.start, doc.lineAt(doc.lineCount - 1).range.end), data.value);
+          });
+
+
+
+
+          break;
+        }
         case "ImportDataFromFile": {
           if (!data.value) {
             return;

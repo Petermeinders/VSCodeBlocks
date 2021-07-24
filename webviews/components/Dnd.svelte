@@ -2,10 +2,10 @@
   import { flip } from "svelte/animate";
   import { dndzone, SHADOW_ITEM_MARKER_PROPERTY_NAME, TRIGGERS } from "svelte-dnd-action";
   import { afterUpdate, beforeUpdate, onMount } from "svelte";
-  import {items } from "../store";
+  import {editMode, items } from "../store";
   import type {item} from "../store";
   import Fa from 'svelte-fa'
-  import { faTint, faTag, faFont, faPlusCircle, faTimesCircle} from '@fortawesome/free-solid-svg-icons'
+  import { faTint, faTag, faFont, faPlusCircle, faPencilAlt, faTimesCircle} from '@fortawesome/free-solid-svg-icons'
   import {setDebugMode} from "svelte-dnd-action";
 
   export let SearchTerm:string;
@@ -15,7 +15,25 @@
   SearchTerm; 
   console.log("Search Changed: " + SearchTerm);
   searchCode(SearchTerm, FullCodeSearch);
+  }
 
+  $:{
+    $editMode;
+    EditModeChange();
+  }
+
+  function EditModeChange(){
+    console.log("mode was edited: " + $editMode.id + ", " + $editMode.state);
+    if($editMode.state === "true")
+    {
+      // document.getElementById($editMode.id)?.querySelector(".codeblock")?.classList.add("editMode");
+      // document.getElementById("editTextHeader").classList.remove('hide');
+      // document.getElementById($editMode.id)?.querySelector(".editText")?.classList.remove("hide");
+
+    }
+    else{
+      //set element mode to false;
+    }
   }
 
   function getNonce() {
@@ -217,8 +235,12 @@
     // document.getElementById(item.id)?.getElementsByClassName('tagInput')[0].classList.toggle('hide')
   }
 
-  function editCodeBlock(e:any, item:item){
-    document.getElementById(item.id)?.getElementsByClassName('codeblock')[0].classList.toggle('hide');
+  function EditCodeBlock(item:item){
+    tsvscode.postMessage({
+      type: "editCode",
+      value: item,
+    });
+    // document.getElementById(item.id)?.getElementsByClassName('codeblock')[0].classList.toggle('hide');
   }
 
 
@@ -271,6 +293,7 @@
 
     var newCode = item.code.replaceAll(selectedString, "${"+lastNumber+":"+selectedString+"}" )
     // item.placeholders.push(selectedString);
+
 
 
 
@@ -369,6 +392,8 @@
 </script>
 
 <main>
+  <!-- <div id="editTextHeader" class="editText hide" style="Color:Yellow; font-weight:bold">EDIT MODE ENABLED</div> -->
+
 
   <input type="text" placeholder="Search" value={SearchTerm = SearchTerm ?? ""} on:change={(event) => searchCode(event, FullCodeSearch)} />
   <section aria-label="{listName}" autoAriaDisabled:true use:dndzone={{ items: $items.customSnippets, flipDurationMs }} on:consider={() => handleDndConsider} on:finalize={handleDndFinalize}>
@@ -387,17 +412,19 @@
             </div>
 
 
+
             <div style="background: #3c3c3c;     margin-top: 3px; align-items: center;" class="show">
               <Fa icon={faFont}  style="color:{item.color}; padding-right: 4px;"/>
               <input type="text" bind:value={item.name} on:change={() => changedName(item)} />
-
             </div>
+
+
         </div>
         <div>
           <!-- <span style="cursor: pointer;" on:click={() => ShowColorPicker(item)}><Fa icon={faTint}  style="color:yellow; padding-right: 4px;" /> </span>
           <span style="cursor: pointer;" on:click={() => ShowTags(item)}><Fa icon={faTag}  style="color:#007acc; padding-right: 4px;" /> </span> -->
           <span style=" cursor: pointer;" on:click={() => pasteCodeFromBlock(item)}><Fa icon={faPlusCircle}  style="color:#00c300; padding-right: 4px;" /> </span>
-          <!-- <span style=" cursor: pointer;" on:click={event => editCodeBlock(event, item)}><Fa icon={faPencilAlt}  style="color:orange; padding-right: 4px;" /> </span> -->
+          <span style=" cursor: pointer;" on:click={event => EditCodeBlock(item)}><Fa icon={faPencilAlt}  style="color:orange; padding-right: 4px;" /> </span>
 
           <span on:click={() => deleteItem($items.customSnippets, item)} class="show" style="float:right; cursor: pointer;"><Fa icon={faTimesCircle}  style="color:red; padding-right: 4px; padding-top: 3px;" /></span>
         </div>
@@ -514,6 +541,10 @@
 
   .tagInput{
 
+  }
+
+  .editMode{
+    max-height: 500px !important;
   }
 
   .block:hover  .tagInput{
