@@ -69,12 +69,14 @@ import EditScreen from "./EditScreen.svelte";
       switch (message.type) {
         case "add-code":
           if (message.value !== "") {
+            let text = message.value.text
+            let filename = message.value.filename
             // $items = {
             //   customSnippets: [{ id: lastId, code: message.value, innerItems: "items4", name: "New Name", visible: "true", color: "white", tags: [""] }, ...$items.customSnippets],
             //   vsSnippets: [],
             // };
-            $editItem = {id: lastId, code: message.value, innerItems: "items4", name: "New Name", "placeholders":[], visible: "true", color: "white", tags: [""]}
-            $editMode = { id: lastId, state: "true" };
+            $editItem = {id: lastId, code: text, innerItems: "items4", name: "New Name", "placeholders":[], visible: "true", color: "white", tags: [""]}
+            $editMode = { id: lastId, state: "true", fileName:filename };
           }
 
           break;
@@ -85,11 +87,21 @@ import EditScreen from "./EditScreen.svelte";
             //   customSnippets: [{ id: lastId, code: message.value, innerItems: "items4", name: "New Name", visible: "true", color: "white", tags: [""] }, ...$items.customSnippets],
             //   vsSnippets: [],
             // };
-            $editItem = $items?.customSnippets?.find(x => x?.id === message?.value);
-            $editMode = { id: message?.value, state: "true" };
+            let id = message.value.id
+            let filename = message.value.filename
+
+            $editItem = $items?.customSnippets?.find(x => x?.id === id);
+            $editMode = { id: id, state: "true", fileName: filename };
           }
 
           break;
+
+        //TODO:Figure out how to pass code and update respective tabstops
+        // case 'edit-item-string-change':
+        //     let changedCode = message.value;
+        //     EditItemCodeChange(changedCode);
+        //   break;
+
 
         case "selection-to-search":
           SearchTerm = message.value;
@@ -164,6 +176,12 @@ import EditScreen from "./EditScreen.svelte";
           return item.placeholders.length
         }
   }
+
+//TODO:Figure out how to pass code and update respective tabstops
+  // function EditItemCodeChange(code:string){
+  //     let val = code.search($editItem.placeholders[0]);
+  //     console.log(val);
+  // }
 
 
 
@@ -279,7 +297,7 @@ import EditScreen from "./EditScreen.svelte";
   function CloseEditWindow() {
     tsvscode.postMessage({
       type: "closeEditWindow",
-      value: $items,
+      value: $editMode,
     });
   }
 

@@ -34,15 +34,27 @@ export function activate(context: vscode.ExtensionContext) {
 	item2.command = "vsblocksnipets.startPanelWithoutItems";
 	item2.show();
 
-	const item3 = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
-	item3.text = "$(beaker) Add Placeholder";
-	item3.command = "vsblocksnipets.addPlaceholder";
-	item3.show();
+	// const item3 = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
+	// item3.text = "$(beaker) Add Placeholder";
+	// item3.command = "vsblocksnipets.addPlaceholder";
+	// item3.show();
 
 
 	function delay(ms: number) {
 		return new Promise(resolve => setTimeout(resolve, ms));
 	}
+
+	vscode.window.onDidChangeActiveTextEditor(event =>{
+		if(event)
+		{
+			console.log(event.document.isClosed);
+			//console.log(event.document.isUntitled);
+			// (async () => {
+			// 	console.log("TextEditor CHANGED!");
+			// })();
+		}
+		
+	});
 
 
 	vscode.window.onDidChangeTextEditorSelection((event: vscode.TextEditorSelectionChangeEvent) => {
@@ -50,6 +62,10 @@ export function activate(context: vscode.ExtensionContext) {
 		//console.log(event.textEditor.selection);
 		(async () => {
 			let text1 = event.textEditor.document.getText(event.textEditor.selection);
+			let code = event.textEditor.document.getText();
+
+			//TODO:Figure out how to pass code and update respective tabstops
+			//const currentItem = HellowWorldPanel.PassEditItemChange(code);
 
 			await delay(300);
 
@@ -138,11 +154,14 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand('vsblocksnipets.addPlaceholder', () => {
-			const { activeTextEditor } = vscode.window;
+			let editor = vscode.window.activeTextEditor;
+
+			if(!editor)
+			editor = vscode?.window?.visibleTextEditors[0];
 
 			let text = "";
-			if (typeof (activeTextEditor) !== 'undefined') {
-				text = activeTextEditor.document.getText(activeTextEditor.selection);
+			if (typeof (editor) !== 'undefined') {
+				text = editor.document.getText(editor.selection);
 			}
 
 			HellowWorldPanel.addPlaceHolder(text);
@@ -178,14 +197,19 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand('vsblocksnipets.addCode', async () => {
-			const { activeTextEditor } = vscode.window;
+			let fileName;
+			let editor = vscode.window.activeTextEditor;
+			let viewColum = vscode?.window?.visibleTextEditors[0]?.viewColumn;
 
-			if (!activeTextEditor) {
+			if(!editor)
+				editor = vscode?.window?.visibleTextEditors[0];
+
+			if (!editor) {
 				vscode.window.showInformationMessage("no active window");
 				return;
 			}
 
-			const text = activeTextEditor.document.getText(activeTextEditor.selection);
+			const text = editor.document.getText(editor.selection);
 
 			// const answer = await vscode.window.showInformationMessage(
 			// 	"how was your day",
@@ -195,7 +219,10 @@ export function activate(context: vscode.ExtensionContext) {
 			// vscode.workspace.openTextDocument({content:text});
 
 			vscode.workspace.openTextDocument({ content: text }).then(document => {
-				vscode.window.showTextDocument(document);
+				vscode.window.showTextDocument(document, viewColum);
+				fileName = document.fileName;
+				HellowWorldPanel.addPanelCode(text, fileName);
+
 				//vscode.commands.executeCommand("workbench.action.showCommands");
 				(async () => {
 					await delay(300);
@@ -204,14 +231,13 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 			);
 
-			vscode.window.showInformationMessage(vscode.NotebookCellStatusBarItem.name);
+			//vscode.window.showInformationMessage(vscode.NotebookCellStatusBarItem.name);
 
-			sidebarProvider._view?.webview.postMessage({
-				type: 'add-code',
-				value: text,
-			});
+			// sidebarProvider._view?.webview.postMessage({
+			// 	type: 'add-code',
+			// 	value: text,
+			// });
 
-			HellowWorldPanel.addPanelCode(text);
 
 		}));
 
@@ -226,10 +252,13 @@ export function activate(context: vscode.ExtensionContext) {
 
 			if (filename === 'HelloWorld') {
 				doc = vscode?.window?.visibleTextEditors[1]?.document;
+				filename = doc.fileName;
 				vscode.window.showTextDocument(doc,viewColum);
 
 				vscode.workspace.openTextDocument({ content: text }).then(document => {
 					vscode.window.showTextDocument(document);
+					HellowWorldPanel.addPanelCodeEditMode(id,filename);
+
 					//vscode.commands.executeCommand("workbench.action.showCommands");
 					(async () => {
 						await delay(300);
@@ -244,7 +273,6 @@ export function activate(context: vscode.ExtensionContext) {
 					vscode.window.showInformationMessage("no active window");
 					return;
 				}
-				
 				vscode.window.showTextDocument(doc,viewColum);
 
 				let textContent = text;
@@ -253,6 +281,9 @@ export function activate(context: vscode.ExtensionContext) {
 					const edit = new vscode.WorkspaceEdit();
 					edit.insert(document.uri,new vscode.Position(0,0), textContent);
 					vscode.window.showTextDocument(document);
+					filename = document.fileName;
+					HellowWorldPanel.addPanelCodeEditMode(id,filename);
+
 					//vscode.commands.executeCommand("workbench.action.showCommands");
 					(async () => {
 						await delay(300);
@@ -269,7 +300,6 @@ export function activate(context: vscode.ExtensionContext) {
 			// 	value: text,
 			// });
 
-			HellowWorldPanel.addPanelCodeEditMode(id);
 
 		}));
 

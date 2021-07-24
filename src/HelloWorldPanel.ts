@@ -13,7 +13,7 @@ export class HellowWorldPanel {
   public readonly _panel: vscode.WebviewPanel;
   public readonly _extensionUri: vscode.Uri;
   public _disposables: vscode.Disposable[] = [];
-  
+
 
   public static createOrShow(extensionUri: vscode.Uri, message: string) {
     const column = vscode.window.activeTextEditor
@@ -62,23 +62,25 @@ export class HellowWorldPanel {
   }
 
   public static delay(ms: number) {
-		return new Promise(resolve => setTimeout(resolve, ms));
-	}
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
 
-  public static addPanelCode(items: any) {
+  public static addPanelCode(text: string, filename: string) {
     if (typeof (HellowWorldPanel.currentPanel) !== 'undefined') {
+      let editObject = {text, filename};
       HellowWorldPanel.currentPanel._panel.webview.postMessage({
         type: 'add-code',
-        value: items,
+        value: editObject,
       });
     }
   }
 
-  public static addPanelCodeEditMode(id: string) {
+  public static addPanelCodeEditMode(id: string, filename: string) {
     if (typeof (HellowWorldPanel.currentPanel) !== 'undefined') {
+      let editObject = {id, filename};
       HellowWorldPanel.currentPanel._panel.webview.postMessage({
         type: 'edit-code',
-        value: id,
+        value: editObject,
       });
     }
   }
@@ -105,6 +107,16 @@ export class HellowWorldPanel {
     }
 
   }
+
+  //TODO:Figure out how to pass code and update respective tabstops
+  // public static PassEditItemChange(code: string){
+  //   if (typeof (HellowWorldPanel.currentPanel) !== 'undefined') {
+  //     HellowWorldPanel.currentPanel._panel.webview.postMessage({
+  //       type: 'edit-item-string-change',
+  //       value: code,
+  //     });
+  //   });
+  // }
 
   public static PassSearchStringToWindow(searchString: string) {
     if (typeof (HellowWorldPanel.currentPanel) !== 'undefined') {
@@ -200,6 +212,14 @@ export class HellowWorldPanel {
           break;
         }
 
+        case "createTabStop": {
+          if (!data.value) {
+            return;
+          }
+          vscode.commands.executeCommand("vsblocksnipets.addPlaceholder");
+          break;
+        }
+
         case "saveData": {
           if (!data.value) {
             return;
@@ -253,6 +273,16 @@ export class HellowWorldPanel {
           break;
         }
 
+        case "addCodeBlockFromSelection": {
+          if (!data.value) {
+            return;
+          }
+          vscode.commands.executeCommand("vsblocksnipets.addCode");
+          //      vscode.commands.executeCommand("vsblocksnipets.startPanel", data.value);
+
+          break;
+        }
+
         case "closeEditWindow": {
           if (!data.value) {
             return;
@@ -261,19 +291,21 @@ export class HellowWorldPanel {
           let filename = vscode.window.visibleTextEditors[0]?.document.fileName;
           let doc;
 
-          if (filename === 'HelloWorld') {
-            doc = vscode?.window?.visibleTextEditors[1]?.document;
-            vscode.window.showTextDocument(doc);
-            vscode.commands.executeCommand("workbench.action.revertAndCloseActiveEditor");
+          if (filename === data.value.fileName)
+          {
+            if (filename === 'HelloWorld') {
+              doc = vscode?.window?.visibleTextEditors[1]?.document;
+              vscode.window.showTextDocument(doc);
+              vscode.commands.executeCommand("workbench.action.revertAndCloseActiveEditor");
+            }
+            else {
+              doc = vscode?.window?.visibleTextEditors[0]?.document;
+              //vscode.window.showTextDocument(doc);
+              vscode.commands.executeCommand("workbench.action.focusFirstEditorGroup");
+              await HellowWorldPanel.delay(300);
+              vscode.commands.executeCommand("workbench.action.revertAndCloseActiveEditor");
+            }
           }
-          else{
-            doc = vscode?.window?.visibleTextEditors[0]?.document;
-            //vscode.window.showTextDocument(doc);
-            vscode.commands.executeCommand("workbench.action.focusFirstEditorGroup");
-            await HellowWorldPanel.delay(300);
-            vscode.commands.executeCommand("workbench.action.revertAndCloseActiveEditor");
-          }
-
           break;
         }
 
@@ -332,9 +364,9 @@ export class HellowWorldPanel {
             }
 
           }
-          
+
           window?.edit(builder => {
-          
+
 
             if (typeof (doc) !== 'undefined')
               builder.replace(new vscode.Range(doc.lineAt(0).range.start, doc.lineAt(doc.lineCount - 1).range.end), data.value);

@@ -389,12 +389,19 @@
   setDebugMode(true);
 
   const listName="Code Blocks";
+
+  function AddCodeBlockFromSelection() {
+    tsvscode.postMessage({
+      type: "addCodeBlockFromSelection",
+      value: $editMode,
+    });
+  }
 </script>
 
 <main>
   <!-- <div id="editTextHeader" class="editText hide" style="Color:Yellow; font-weight:bold">EDIT MODE ENABLED</div> -->
 
-
+  <button on:click={AddCodeBlockFromSelection}>Add Selection to CodeBlock</button>
   <input type="text" placeholder="Search" value={SearchTerm = SearchTerm ?? ""} on:change={(event) => searchCode(event, FullCodeSearch)} />
   <section aria-label="{listName}" autoAriaDisabled:true use:dndzone={{ items: $items.customSnippets, flipDurationMs }} on:consider={() => handleDndConsider} on:finalize={handleDndFinalize}>
     {#each $items.customSnippets as item (item.id)}
@@ -431,7 +438,7 @@
         <div class="codeblock">
           <textarea disabled style="height:100px; width:100%"  bind:value={item.code} on:change={(event) => OnCodeChange(event, item)}></textarea>
         <!-- <span class="tooltiptext">{item.code}</span> -->
-          <button on:click={event => CreateTabStop(event, item)}>Selection to variable </button>
+          <!-- <button on:click={event => CreateTabStop(event, item)}>Selection to variable </button> -->
 
           {#if item.placeholders !== null && typeof(item.placeholders) !== 'undefined' && item.placeholders.length > 0}
 

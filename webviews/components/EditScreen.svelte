@@ -36,6 +36,14 @@
     $editItem = {...newItem};
     UpdateCodeOnPlaceHolderChange();
   }
+
+
+  function CreateTabStop(){
+    tsvscode.postMessage({
+      type: "createTabStop",
+      value: $editItem,
+    });
+  }
 </script>
 
 <main>

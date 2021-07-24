@@ -115,7 +115,8 @@ let originItems = {
 
 let originEditMode = {
       "state": "false",
-      "id": "-1"
+      "id": "-1",
+      "fileName":""
 };
 
 let originEditItem = {
