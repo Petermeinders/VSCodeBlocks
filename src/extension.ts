@@ -71,7 +71,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 			let text = event.textEditor.document.getText(event.textEditor.selection);
 
-			if (text !== null && text !== 'undefined' && text !== "" && text1 === text) {
+			if (text !== null && text !== 'undefined' && text1 === text) {
 				console.log('after delay: ' + text);
 
 				const wentToWindow = HellowWorldPanel.PassSearchStringToWindow(text);

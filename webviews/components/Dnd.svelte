@@ -407,27 +407,6 @@
     {#each $items.customSnippets as item (item.id)}
       <div aria-label={item.name} id={item.id} animate:flip={{ duration: flipDurationMs }} on:mouseleave={(event)=> onBlockLeave(event, item)} on:mouseover={(event) => onBlockHover(event, item)} on:mouseenter={() => onmouseenter} on:dblclick={() => onItemDoubleClick(item)} class="cell block" style="border-color:{item.color}; display:{item.visible}">
         <div>
-          <div style="background: #3c3c3c;     margin-top: 3px; align-items: center; " class="hide colorInput">
-            <Fa icon={faTint}  style="color:yellow; padding-right: 4px;  " />
-            <input type="text" id="{getNonce()}" style="float:left;" value="{item.color}" class="" placeholder="red" on:change={event => changeColor(event, item)} />
-          </div>
-
-
-            <div style=" background: #3c3c3c;     margin-top: 3px; align-items: center;" class="hide tagInput">
-              <Fa icon={faTag}  style="color:#007acc; padding-right: 4px;"/>
-              <input type="text" id="{getNonce()}" style="float:left;" value="{item.tags}"  placeholder="tag1, tag2" on:change={event => changeTags(event, item)}/>
-            </div>
-
-
-
-            <div style="background: #3c3c3c;     margin-top: 3px; align-items: center;" class="show">
-              <Fa icon={faFont}  style="color:{item.color}; padding-right: 4px;"/>
-              <input type="text" bind:value={item.name} on:change={() => changedName(item)} />
-            </div>
-
-
-        </div>
-        <div>
           <!-- <span style="cursor: pointer;" on:click={() => ShowColorPicker(item)}><Fa icon={faTint}  style="color:yellow; padding-right: 4px;" /> </span>
           <span style="cursor: pointer;" on:click={() => ShowTags(item)}><Fa icon={faTag}  style="color:#007acc; padding-right: 4px;" /> </span> -->
           <span style=" cursor: pointer;" on:click={() => pasteCodeFromBlock(item)}><Fa icon={faPlusCircle}  style="color:#00c300; padding-right: 4px;" /> </span>
@@ -435,6 +414,30 @@
 
           <span on:click={() => deleteItem($items.customSnippets, item)} class="show" style="float:right; cursor: pointer;"><Fa icon={faTimesCircle}  style="color:red; padding-right: 4px; padding-top: 3px;" /></span>
         </div>
+        <div>
+
+
+            <div style="background: #3c3c3c;     margin-top: 3px; align-items: center;" class="show">
+              <Fa icon={faFont}  style="color:{item.color}; padding-right: 4px;"/>
+              <input type="text" bind:value={item.name} on:change={() => changedName(item)} />
+            </div>
+
+            <div style="background: #3c3c3c;     margin-top: 3px; align-items: center; " class="hide colorInput">
+              <Fa icon={faTint}  style="color:yellow; padding-right: 4px;  " />
+              <input type="text" id="{getNonce()}" style="float:left;" value="{item.color}" class="" placeholder="red" on:change={event => changeColor(event, item)} />
+            </div>
+  
+  
+              <div style=" background: #3c3c3c;     margin-top: 3px; align-items: center;" class="hide tagInput">
+                <Fa icon={faTag}  style="color:#007acc; padding-right: 4px;"/>
+                <input type="text" id="{getNonce()}" style="float:left;" value="{item.tags}"  placeholder="tag1, tag2" on:change={event => changeTags(event, item)}/>
+              </div>
+  
+  
+
+
+        </div>
+
         <div class="codeblock">
           <textarea disabled style="height:100px; width:100%"  bind:value={item.code} on:change={(event) => OnCodeChange(event, item)}></textarea>
         <!-- <span class="tooltiptext">{item.code}</span> -->
@@ -443,7 +446,7 @@
           {#if item.placeholders !== null && typeof(item.placeholders) !== 'undefined' && item.placeholders.length > 0}
 
             {#each item.placeholders as placeholder}
-            <input type="text" bind:value={placeholder} on:change={(event) => OnPlaceHolderChange(event, item, placeholder.toString())} />
+            <input type="text" disabled bind:value={placeholder} on:change={(event) => OnPlaceHolderChange(event, item, placeholder.toString())} />
             {/each}
           {/if}
 
