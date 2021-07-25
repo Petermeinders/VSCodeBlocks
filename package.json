@@ -11,6 +11,7 @@
 	],
 	"publisher": "PeterM",
 	"activationEvents": [
+		"onStartupFinished",
 		"onCommand:vsblocksnipets.startPanel",
 		"onCommand:vsblocksnipets.addPlaceholder",
 		"onCommand:vsblocksnipets.startPanelWithoutItems",
@@ -23,6 +24,7 @@
 		"onCommand:vsblocksnipets.passBlocksToWindow",
 		"onCommand:vsblocksnipets.passBlocksToSidebar",
 		"onView:vsblocksnipets-sidebar"
+
 	],
 	"main": "./dist/extension.js",
 	"contributes": {

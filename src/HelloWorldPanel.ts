@@ -16,9 +16,11 @@ export class HellowWorldPanel {
 
 
   public static createOrShow(extensionUri: vscode.Uri, message: string) {
-    const column = vscode.window.activeTextEditor
-      ? vscode.window.activeTextEditor.viewColumn
-      : undefined;
+    // const column = vscode.window.activeTextEditor
+    //   ? vscode.window.activeTextEditor.viewColumn
+    //   : undefined;
+
+    const column = 2;
 
     // If we already have a panel, show it.
     if (HellowWorldPanel.currentPanel) {
