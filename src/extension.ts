@@ -138,7 +138,7 @@ console.log("ACTIVATED!!!!!!!!");
 				});
 			}
 			else {
-				vscode.window.showInformationMessage("Saving JSON:  " + saveLocation);
+				//vscode.window.showInformationMessage("Saving JSON:  " + saveLocation);
 				let URI = vscode.Uri.file(<string>saveLocation);
 				if (typeof (saveLocation) !== 'undefined') {
 

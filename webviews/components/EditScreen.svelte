@@ -1,12 +1,5 @@
 <script lang="ts">
-  import { flip } from "svelte/animate";
-  import { dndzone, SHADOW_ITEM_MARKER_PROPERTY_NAME, TRIGGERS } from "svelte-dnd-action";
-  import { afterUpdate, beforeUpdate, onMount } from "svelte";
-  import { editMode, items, editItem } from "../store";
-  import type { item } from "../store";
-  import Fa from "svelte-fa";
-  import { faTint, faTag, faFont, faPlusCircle, faTimesCircle } from "@fortawesome/free-solid-svg-icons";
-  import { setDebugMode } from "svelte-dnd-action";
+  import {editItem } from "../store";
 
   function UpdateCodeOnPlaceHolderChange() {
     tsvscode.postMessage({
@@ -36,7 +29,6 @@
     $editItem = {...newItem};
     UpdateCodeOnPlaceHolderChange();
   }
-
 
   function CreateTabStop(){
     tsvscode.postMessage({

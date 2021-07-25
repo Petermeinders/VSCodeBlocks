@@ -24,6 +24,7 @@
   }
 
   function EditModeChange(){
+    if ($debug)
     console.log("mode was edited: " + $editMode.id + ", " + $editMode.state);
     if($editMode.state === "true")
     {
@@ -51,17 +52,20 @@
     $items.customSnippets = e.detail.items;
 
     if (e.detail.info.trigger === "draggedEntered") {
+      if ($debug)
       console.log("dragEntered!");
     }
   }
   function handleDndFinalize(e:any) {
     $items.customSnippets = e.detail.items;
     if (e.detail.info.trigger === "draggedEntered") {
+      if ($debug)
       console.log("dragEntered!");
     }
   }
 
   function deleteItem(itemList:any, item:item) {
+    if ($debug)
     console.log($items.customSnippets);
 
     let itemsLeft = itemList.filter((j:any) => j.id !== item.id);
@@ -72,6 +76,7 @@
     let i = $items.customSnippets.filter((x) => {
       if (x.id === item.id) {
         x.name = item.name;
+        if ($debug)
         console.log(x);
       }
       else{
@@ -83,6 +88,7 @@
     $items.customSnippets = [...i];
   }
 
+  if ($debug)
   console.log("thing here!");
 
   afterUpdate((e:any) => {});
@@ -100,6 +106,7 @@
   }
 
    function onItemDoubleClick(item:item){
+    if ($debug)
     console.log("double clicked. Future implementation.")
    }
 
@@ -113,6 +120,7 @@
       searchString = e.target.value;
     }
     if($debug)
+    if ($debug)
       console.log(searchString);
 
     let foundArray;
@@ -123,6 +131,7 @@
     else{
       foundArray = $items.customSnippets.filter((item) => item.name.toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 || item.tags.findIndex( x => x.toLowerCase().trim() === searchString.toLowerCase().trim()) !== -1);
     }
+    if ($debug)
     console.log(foundArray);
 
     let newArray:any = [];
@@ -136,6 +145,7 @@
       $items.customSnippets = [...newArray, ...$items.customSnippets];
       // $items.customSnippets = [{ id: element.id, name: element.name, code: element.code }, ...$items.customSnippets];
     } else {
+      if ($debug)
       console.log("Not found!");
     }
 
@@ -150,11 +160,14 @@
   }
 
   function ShowColorPicker(item:item){
+    if ($debug){
       console.log(item.id);
       console.log(document.getElementById(item.id));
+    }
 
       if(document.getElementById(item.id) === null || item === null)
       {
+        if ($debug)
         console.log("color picker is null");
           return;
       }
@@ -178,8 +191,10 @@
   }
 
   function changeColor(e:any, item:item) {
+    if ($debug) {
     console.log(e);
     console.log(item);
+    }
     item.color = e.target.value;
     $items.customSnippets = $items.customSnippets.map((i) =>{
       if (i.id === item.id)
@@ -192,11 +207,14 @@
   }
 
   function ShowTags(item:item){
+    if ($debug){
     console.log(item.id);
       console.log(document.getElementById(item.id));
+    }
 
       if(document.getElementById(item.id) === null || item === null)
       {
+        if ($debug)
         console.log("tags null");
           return;
       }
@@ -219,9 +237,11 @@
   }
 
   function changeTags(e:any, item:item){
+    if ($debug){
     console.log(e);
     console.log(item);
-    //  item.tags = e.target.value;
+    }
+
     $items.customSnippets = $items.customSnippets.map((i) =>{
       if (i.id === item.id)
       {
@@ -261,10 +281,12 @@
   function CheckExistingPlaceholders(item:item){
     if(item.placeholders === null || typeof(item.placeholders) === 'undefined' || item.placeholders.length === 0)
         {
+          if ($debug)
           console.log("no placeholders")
           return -1;
         }
         else{
+          if ($debug)
           console.log("Placeholders:" + item.placeholders.length)
           return item.placeholders.length
         }
@@ -289,8 +311,10 @@
       return;
     }
 
+    if ($debug){
     console.log(selObj[0]);
     console.log(item.code);
+    }
 
     var newCode = item.code.replaceAll(selectedString, "${"+lastNumber+":"+selectedString+"}" )
     // item.placeholders.push(selectedString);
@@ -338,9 +362,10 @@
 
     // if (prevValue === null)
     //   e.target.setAttribute('data-prev', e.target.value);
-
+if ($debug)
     console.log("Previous:" + e.target.getAttribute('data-prev'));
     e.target.setAttribute('data-prev', e.target.value);
+    if ($debug)
     console.log("NEW:" + e.target.getAttribute('data-prev'));
 
     var indexValue = item.placeholders.indexOf(e.target.value);
@@ -366,8 +391,10 @@
           x.code = newCode;
           let index:any = x.placeholders?.indexOf("");
           x.placeholders?.splice(index, 1);
+          if ($debug){
           console.log("Clearning Value!")
           console.log(x)
+          }
           return x;
         }
       }

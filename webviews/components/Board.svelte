@@ -12,15 +12,6 @@
       name: "TODO",
         
       items: $items,
-        // {id: 41, name: "item41"},
-        // {id: 42, name: "item42"},
-        // {id: 43, name: "item43"},
-        // {id: 44, name: "item44"},
-        // {id: 45, name: "item45"},
-        // {id: 46, name: "item46"},
-        // {id: 47, name: "item47"},
-        // {id: 48, name: "item48"},
-        // {id: 49, name: "item49"}
       
     },
     {
