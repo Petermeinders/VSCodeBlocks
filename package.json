@@ -159,6 +159,8 @@
 	},
 	"dependencies": {
 		"@fortawesome/free-solid-svg-icons": "^5.15.3",
+		"@types/fast-levenshtein": "0.0.2",
+		"fast-levenshtein": "^3.0.0",
 		"svelte-dnd-action": "^0.9.9",
 		"svelte-fa": "^2.2.1",
 		"svelte-material-ui": "^4.2.0"

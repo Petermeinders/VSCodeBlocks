@@ -67,7 +67,7 @@ export class HellowWorldPanel {
 
   public static addPanelCode(text: string, filename: string) {
     if (typeof (HellowWorldPanel.currentPanel) !== 'undefined') {
-      let editObject = {text, filename};
+      let editObject = { text, filename };
       HellowWorldPanel.currentPanel._panel.webview.postMessage({
         type: 'add-code',
         value: editObject,
@@ -77,7 +77,7 @@ export class HellowWorldPanel {
 
   public static addPanelCodeEditMode(id: string, filename: string) {
     if (typeof (HellowWorldPanel.currentPanel) !== 'undefined') {
-      let editObject = {id, filename};
+      let editObject = { id, filename };
       HellowWorldPanel.currentPanel._panel.webview.postMessage({
         type: 'edit-code',
         value: editObject,
@@ -117,6 +117,21 @@ export class HellowWorldPanel {
   //     });
   //   });
   // }
+
+
+  //TODO: AI detect if block is found based on levenshtein.
+  // public static PasCodeChangeToWindow(code: string) {
+  //   if (typeof (HellowWorldPanel.currentPanel) !== 'undefined') {
+  //     HellowWorldPanel.currentPanel._panel.webview.postMessage({
+  //       type: 'code-compare',
+  //       value: code,
+  //     });
+  //     return true;
+
+  //   }
+
+  // }
+
 
   public static PassSearchStringToWindow(searchString: string) {
     if (typeof (HellowWorldPanel.currentPanel) !== 'undefined') {
@@ -291,8 +306,7 @@ export class HellowWorldPanel {
           let filename = vscode.window.visibleTextEditors[0]?.document.fileName;
           let doc;
 
-          if (filename === data.value.fileName)
-          {
+          if (filename === data.value.fileName) {
             if (filename === 'HelloWorld') {
               doc = vscode?.window?.visibleTextEditors[1]?.document;
               vscode.window.showTextDocument(doc);

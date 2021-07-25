@@ -119,6 +119,8 @@ let originEditMode = {
       "fileName":""
 };
 
+let originDebug = false;
+
 let originEditItem = {
    "id": "0", "name": "test", "code":"if(${1:condition} ||${1:condition}){${2:expression}})", "innerItems":"items3", "placeholders":["condition","expression"], "color":'white', "visible":"", "tags":["tag1","tag2"] 
 }
@@ -150,6 +152,13 @@ tsvscode.setState(originItems, originTags, originPage);
 const addItem = () => {
 
 }
+
+export const debug = writable(originDebug, (set) => {
+   console.log("debug: " + originDebug);
+
+   //set([{id:0, name:""}]);
+   return () => { };
+});
 
 export const editItem = writable(originEditItem, (set) => {
    console.log(originEditItem);

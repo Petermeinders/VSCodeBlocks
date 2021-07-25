@@ -7,7 +7,8 @@
   import { tags } from "../store";
   import { page } from "../store";
   import { dndzone, SHADOW_ITEM_MARKER_PROPERTY_NAME } from "svelte-dnd-action";
-import EditScreen from "./EditScreen.svelte";
+  import EditScreen from "./EditScreen.svelte";
+  import levenshtein from "fast-levenshtein";
 
   function UpdateTabStop() {}
 
@@ -69,28 +70,28 @@ import EditScreen from "./EditScreen.svelte";
       switch (message.type) {
         case "add-code":
           if (message.value !== "") {
-            let text = message.value.text
-            let filename = message.value.filename
+            let text = message.value.text;
+            let filename = message.value.filename;
             // $items = {
             //   customSnippets: [{ id: lastId, code: message.value, innerItems: "items4", name: "New Name", visible: "true", color: "white", tags: [""] }, ...$items.customSnippets],
             //   vsSnippets: [],
             // };
-            $editItem = {id: lastId, code: text, innerItems: "items4", name: "New Name", "placeholders":[], visible: "true", color: "white", tags: [""]}
-            $editMode = { id: lastId, state: "true", fileName:filename };
+            $editItem = { id: lastId, code: text, innerItems: "items4", name: "New Name", placeholders: [], visible: "true", color: "white", tags: [""] };
+            $editMode = { id: lastId, state: "true", fileName: filename };
           }
 
           break;
 
-          case "edit-code":
+        case "edit-code":
           if (message.value !== "") {
             // $items = {
             //   customSnippets: [{ id: lastId, code: message.value, innerItems: "items4", name: "New Name", visible: "true", color: "white", tags: [""] }, ...$items.customSnippets],
             //   vsSnippets: [],
             // };
-            let id = message.value.id
-            let filename = message.value.filename
+            let id = message.value.id;
+            let filename = message.value.filename;
 
-            $editItem = $items?.customSnippets?.find(x => x?.id === id);
+            $editItem = $items?.customSnippets?.find((x) => x?.id === id);
             $editMode = { id: id, state: "true", fileName: filename };
           }
 
@@ -102,13 +103,17 @@ import EditScreen from "./EditScreen.svelte";
         //     EditItemCodeChange(changedCode);
         //   break;
 
+        //TODO: AI detect if block is found based on levenshtein.
+        // case "code-compare":
+        //   CodeCompare(message.value);
+        //   break;
 
         case "selection-to-search":
           SearchTerm = message.value;
           break;
 
-          case "add-placeholder":
-            CreateTabStop(message.value);
+        case "add-placeholder":
+          CreateTabStop(message.value);
           //SearchTerm = message.value;
           break;
 
@@ -165,58 +170,50 @@ import EditScreen from "./EditScreen.svelte";
     Tags: $tags,
   };
 
-  function CheckExistingPlaceholders(item:item){
-    if(item.placeholders === null || typeof(item.placeholders) === 'undefined' || item.placeholders.length === 0)
-        {
-          console.log("no placeholders")
-          return -1;
-        }
-        else{
-          console.log("Placeholders:" + item.placeholders.length)
-          return item.placeholders.length
-        }
+  function CheckExistingPlaceholders(item: item) {
+    if (item.placeholders === null || typeof item.placeholders === "undefined" || item.placeholders.length === 0) {
+      console.log("no placeholders");
+      return -1;
+    } else {
+      console.log("Placeholders:" + item.placeholders.length);
+      return item.placeholders.length;
+    }
   }
 
-//TODO:Figure out how to pass code and update respective tabstops
+  //TODO:Figure out how to pass code and update respective tabstops
   // function EditItemCodeChange(code:string){
   //     let val = code.search($editItem.placeholders[0]);
   //     console.log(val);
   // }
 
-
-
-  function CreateTabStop(placeholderValue:string){
+  function CreateTabStop(placeholderValue: string) {
     let item = $editItem;
-    var lastNumber = CheckExistingPlaceholders(item)
-    if (lastNumber === -1)
-    {
+    var lastNumber = CheckExistingPlaceholders(item);
+    if (lastNumber === -1) {
       item.placeholders = [];
       lastNumber = 1;
-    }
-    else{
+    } else {
       lastNumber = ++lastNumber;
     }
 
     var selectedString = placeholderValue;
 
-    if (selectedString === "")
-    {
+    if (selectedString === "") {
       return;
     }
 
     console.log(selectedString);
     console.log(item.code);
 
-    var newCode = item.code.replaceAll(selectedString, "${"+lastNumber+":"+selectedString+"}" )
+    var newCode = item.code.replaceAll(selectedString, "${" + lastNumber + ":" + selectedString + "}");
     // item.placeholders.push(selectedString);
 
     let newPlaceholder = $editItem.placeholders;
-    newPlaceholder.push(selectedString.toString())
-    let newItem  = $editItem;
+    newPlaceholder.push(selectedString.toString());
+    let newItem = $editItem;
 
     newItem.placeholders = newPlaceholder;
     newItem.code = newCode;
-
 
     // const tempItems = $items.customSnippets.map(x => {
     //   if(x.placeholders === null || typeof(x.placeholders) === 'undefined')
@@ -234,16 +231,45 @@ import EditScreen from "./EditScreen.svelte";
 
     //$items.customSnippets = [...tempItems]
 
-    $editItem = {...newItem}
-    console.log("New placeholder on new item.")
-    console.log($editItem)
+    $editItem = { ...newItem };
+    console.log("New placeholder on new item.");
+    console.log($editItem);
 
     UpdateCodeWithNewTabStop();
-
 
     //var selRange = selObj.getRangeAt(0);
     //console.log(selRange.toString());
   }
+
+  //TODO: AI detect if block is found based on levenshtein.
+
+  //   function CodeCompare(changedCode){
+  //     $items.customSnippets.map(x => {
+  //       if(changedCode === "")
+  //       {
+  // return;
+  //       }
+
+  //       let shtein = levenshtein.get(changedCode,x.code);
+  //       if (shtein < 100){
+  //         let changeMinusx = changedCode.length - x.code.length;
+  //         let xMinusChange = x.code.length - changedCode.length;
+  //         if(Math.abs(changeMinusx) < 50)
+  //         {
+  //           console.log(x.name + ": " + changeMinusx + ": " + xMinusChange + ": " + shtein);
+  //           x.visible = "true";
+  //         }
+  //         else{
+  //           x.visible = "false";
+  //         }
+
+  //       }
+  //       return x;
+  //     });
+
+  //     $items = {...$items}
+
+  //   }
 
   function getNonce() {
     let text = "";
@@ -254,7 +280,7 @@ import EditScreen from "./EditScreen.svelte";
     return text;
   }
 
-  function UpdateCodeWithNewTabStop(){
+  function UpdateCodeWithNewTabStop() {
     tsvscode.postMessage({
       type: "UpdateCodeWithNewTabStop",
       value: $editItem.code,
@@ -301,15 +327,13 @@ import EditScreen from "./EditScreen.svelte";
     });
   }
 
-  function SaveCodeFromEdit(){
-    let foundItem = $items?.customSnippets?.find(x => x?.id === $editItem?.id);
-    if(foundItem)
-    {
+  function SaveCodeFromEdit() {
+    let foundItem = $items?.customSnippets?.find((x) => x?.id === $editItem?.id);
+    if (foundItem) {
       const index = $items?.customSnippets.indexOf(foundItem);
-      $items.customSnippets.splice(index,1);
+      $items.customSnippets.splice(index, 1);
       $items.customSnippets = [$editItem, ...$items.customSnippets];
-    }
-    else{
+    } else {
       $items.customSnippets = [$editItem, ...$items.customSnippets];
     }
   }
@@ -330,15 +354,14 @@ import EditScreen from "./EditScreen.svelte";
       >
     {:else}
       <div>EDIT MODE</div>
-      <EditScreen/>
+      <EditScreen />
       <button
         on:click={() => {
           $editMode.state = "false";
         }}>go back</button
       >
     {/if}
-  {:else}
-  {#if $editMode.state === "false"}
+  {:else if $editMode.state === "false"}
     <!-- PANEL -->
     <h1>Panel</h1>
     <div class="container">
@@ -352,9 +375,9 @@ import EditScreen from "./EditScreen.svelte";
         </div>
       </div> -->
     </div>
-    {:else}
+  {:else}
     <div>EDIT MODE</div>
-    <EditScreen/>
+    <EditScreen />
     <button
       on:click={() => {
         $editMode.state = "false";
@@ -370,37 +393,35 @@ import EditScreen from "./EditScreen.svelte";
       }}>Save Code Block</button
     >
   {/if}
-  {/if}
-
 
   {#if $editMode.state === "false"}
-  <div>
-    <!-- svelte-ignore missing-declaration -->
-    <button
-      class="butt butter"
-      on:click={() => {
-        tsvscode.postMessage({
-          type: "onInfo",
-          value: "🐛  on line ",
-        });
-      }}>Test Msg</button
-    >
-  </div>
-  <div>
-    <button on:click={ExportCode}>Export Code </button>
-  </div>
-  <div>
-    <button on:click={ImportCode}>Import Code </button>
-  </div>
-  {#if isSidebar === true}
     <div>
-      <button on:click={FullScreen}>Full Screen</button>
+      <!-- svelte-ignore missing-declaration -->
+      <button
+        class="butt butter"
+        on:click={() => {
+          tsvscode.postMessage({
+            type: "onInfo",
+            value: "🐛  on line ",
+          });
+        }}>Test Msg</button
+      >
     </div>
-  {:else}
     <div>
-      <button on:click={ShowSidebar}>Sidebar mode</button>
+      <button on:click={ExportCode}>Export Code </button>
     </div>
-  {/if}
+    <div>
+      <button on:click={ImportCode}>Import Code </button>
+    </div>
+    {#if isSidebar === true}
+      <div>
+        <button on:click={FullScreen}>Full Screen</button>
+      </div>
+    {:else}
+      <div>
+        <button on:click={ShowSidebar}>Sidebar mode</button>
+      </div>
+    {/if}
   {/if}
 </main>
 

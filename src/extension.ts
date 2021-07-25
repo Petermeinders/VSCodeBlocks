@@ -62,7 +62,9 @@ export function activate(context: vscode.ExtensionContext) {
 		//console.log(event.textEditor.selection);
 		(async () => {
 			let text1 = event.textEditor.document.getText(event.textEditor.selection);
-			let code = event.textEditor.document.getText();
+			//TODO: AI detect if block is found based on levenshtein.
+			// let code = event.textEditor.document.getText();
+			// HellowWorldPanel.PasCodeChangeToWindow(text1);
 
 			//TODO:Figure out how to pass code and update respective tabstops
 			//const currentItem = HellowWorldPanel.PassEditItemChange(code);
@@ -72,7 +74,7 @@ export function activate(context: vscode.ExtensionContext) {
 			let text = event.textEditor.document.getText(event.textEditor.selection);
 
 			if (text !== null && text !== 'undefined' && text1 === text) {
-				console.log('after delay: ' + text);
+				//console.log('after delay: ' + text);
 
 				const wentToWindow = HellowWorldPanel.PassSearchStringToWindow(text);
 				if (!wentToWindow) {

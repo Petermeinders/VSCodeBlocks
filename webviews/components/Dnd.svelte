@@ -2,7 +2,7 @@
   import { flip } from "svelte/animate";
   import { dndzone, SHADOW_ITEM_MARKER_PROPERTY_NAME, TRIGGERS } from "svelte-dnd-action";
   import { afterUpdate, beforeUpdate, onMount } from "svelte";
-  import {editMode, items } from "../store";
+  import {debug, editMode, items } from "../store";
   import type {item} from "../store";
   import Fa from 'svelte-fa'
   import { faTint, faTag, faFont, faPlusCircle, faPencilAlt, faTimesCircle} from '@fortawesome/free-solid-svg-icons'
@@ -13,7 +13,8 @@
 
   $: {
   SearchTerm; 
-  console.log("Search Changed: " + SearchTerm);
+  if($debug)
+    console.log("Search Changed: " + SearchTerm);
   searchCode(SearchTerm, FullCodeSearch);
   }
 
@@ -111,8 +112,8 @@
     else{
       searchString = e.target.value;
     }
-    console.log(searchString);
-    console.log(searchString);
+    if($debug)
+      console.log(searchString);
 
     let foundArray;
     if(FullCodeSearch)
