@@ -77,6 +77,16 @@ export class HellowWorldPanel {
     }
   }
 
+  public static importVSCodeSnippet(text: string, filename: string) {
+    if (typeof (HellowWorldPanel.currentPanel) !== 'undefined') {
+      let editObject = { text, filename };
+      HellowWorldPanel.currentPanel._panel.webview.postMessage({
+        type: 'import-vscode-snip',
+        value: editObject,
+      });
+    }
+  }
+
   public static addPanelCodeEditMode(id: string, filename: string) {
     if (typeof (HellowWorldPanel.currentPanel) !== 'undefined') {
       let editObject = { id, filename };
@@ -108,6 +118,15 @@ export class HellowWorldPanel {
       console.log("error");
     }
 
+  }
+
+  public static GetCodeFromEditScreen(value: string) {
+    if (typeof (HellowWorldPanel.currentPanel) !== 'undefined') {
+      HellowWorldPanel.currentPanel._panel.webview.postMessage({
+        type: 'code-from-active-window',
+        value: value,
+      });
+    }
   }
 
   //TODO:Figure out how to pass code and update respective tabstops
@@ -295,6 +314,39 @@ export class HellowWorldPanel {
             return;
           }
           vscode.commands.executeCommand("vsblocksnipets.addCode");
+          //      vscode.commands.executeCommand("vsblocksnipets.startPanel", data.value);
+
+          break;
+        }
+
+        case "GetCodeFromEditScreen": {
+          if (!data.value) {
+            return;
+          }
+          let editor = vscode.window.activeTextEditor;
+          let viewColum = vscode?.window?.visibleTextEditors[0]?.viewColumn;
+    
+          if(!editor)
+            editor = vscode?.window?.visibleTextEditors[0];
+    
+          if (!editor) {
+            vscode.window.showInformationMessage("no active window");
+            return;
+          }
+
+          let code = editor.document.getText();
+          HellowWorldPanel.GetCodeFromEditScreen(code);
+          //vscode.commands.executeCommand("vsblocksnipets.GetCodeFromEditScreen");
+          //      vscode.commands.executeCommand("vsblocksnipets.startPanel", data.value);
+
+          break;
+        }
+
+        case "ImportVSCodeSnippet": {
+          if (!data.value) {
+            return;
+          }
+          vscode.commands.executeCommand("vsblocksnipets.importVSCodeSnippet");
           //      vscode.commands.executeCommand("vsblocksnipets.startPanel", data.value);
 
           break;

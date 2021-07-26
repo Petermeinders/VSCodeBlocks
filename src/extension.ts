@@ -246,6 +246,44 @@ console.log("ACTIVATED!!!!!!!!");
 
 		}));
 
+		
+	context.subscriptions.push(
+		vscode.commands.registerCommand('vsblocksnipets.importVSCodeSnippet', () => {
+			let fileName;
+			let editor = vscode.window.activeTextEditor;
+			let viewColum = vscode?.window?.visibleTextEditors[0]?.viewColumn;
+
+			if(!editor)
+				editor = vscode?.window?.visibleTextEditors[0];
+
+			if (!editor) {
+				vscode.window.showInformationMessage("no active window");
+				return;
+			}
+
+			const text = editor.document.getText(editor.selection);
+
+			// const answer = await vscode.window.showInformationMessage(
+			// 	"how was your day",
+			// 	"good", 
+			// 	"bad"	
+			// );
+			// vscode.workspace.openTextDocument({content:text});
+
+			vscode.workspace.openTextDocument({ content: text }).then(document => {
+				vscode.window.showTextDocument(document, viewColum);
+				fileName = document.fileName;
+				HellowWorldPanel.importVSCodeSnippet(text, fileName);
+
+				//vscode.commands.executeCommand("workbench.action.showCommands");
+				// (async () => {
+				// 	await delay(300);
+				// 	vscode.commands.executeCommand("workbench.action.editor.changeLanguageMode");
+				// })();
+			}
+			);
+		}));
+
 
 
 	context.subscriptions.push(

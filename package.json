@@ -18,6 +18,7 @@
 		"onCommand:vsblocksnipets.askQuestion",
 		"onCommand:vsblocksnipets.refresh",
 		"onCommand:vsblocksnipets.addCode",
+		"onCommand:vsblocksnipets.importVSCodeSnippet",
 		"onCommand:vsblocksnipets.editCode",
 		"onCommand:vsblocksnipets.importCode",
 		"onCommand:vsblocksnipets.importCodeFromFile",

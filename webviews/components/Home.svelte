@@ -90,8 +90,19 @@
         //   CodeCompare(message.value);
         //   break;
 
+        case "import-vscode-snip":
+          let text = message.value.text;
+          let filename = message.value.filename;
+          ParseVSCodeSnippet(text);
+          break;
+
         case "selection-to-search":
           SearchTerm = message.value;
+          break;
+
+        case "code-from-active-window":
+          let activeScreenCode = message.value;
+          SaveCodeFromEdit(activeScreenCode);
           break;
 
         case "add-placeholder":
@@ -119,6 +130,79 @@
       }
     });
   });
+
+  function ParseVSCodeSnippet(text) {
+    //TODO: add vscode message on parse failure.
+    const vsSnip = JSON.parse(text);
+    const bodArray = vsSnip[Object.keys(vsSnip)[0]].body;
+    const description = vsSnip[Object.keys(vsSnip)[0]].description;
+    const prefix = vsSnip[Object.keys(vsSnip)[0]].prefix;
+    const name = Object.keys(vsSnip)[0];
+    const body = bodArray.join("\n");
+    let regex = /\$\{\d*:|\$\{\\d*\|/g;
+    let placeholdersArray: any[] = [];
+
+    bodArray.forEach((line) => {
+      let str = line,
+        re = regex,
+        match;
+
+      let openBrackets = [];
+
+      while ((match = re.exec(str))) {
+        openBrackets.push(match.index);
+        //console.log(match.index); // logs 1 through 9
+      }
+
+      // let openBracket = regex.exec(line);
+
+      if (openBrackets.length > 0) {
+        openBrackets.forEach((bracket) => {
+          if (bracket !== -1) bracket = ++bracket;
+
+          if (bracket !== -1) {
+            let closingBracket = findOpenParen(line, bracket);
+
+            if (line[closingBracket] !== "}") closingBracket = --closingBracket;
+
+            let snipValue = line.substring(bracket, ++closingBracket);
+
+            const indexMinusOne = snipValue.length - 1;
+            const cleanedSnip = snipValue.substring(3, indexMinusOne);
+            console.log(cleanedSnip);
+
+            placeholdersArray.push(cleanedSnip);
+          }
+        });
+      }
+    });
+
+    let filteredArray = [...new Set(placeholdersArray)];
+
+    let tags = [];
+    if (Array.isArray(prefix)) tags = prefix;
+
+    let importItem = { id: getNonce(), name: name.substr(0, 25), code: body, innerItems: "temp", placeholders: filteredArray, color: "white", visible: "true", tags: tags };
+
+    $items.customSnippets.push(importItem);
+    console.log($items);
+  }
+
+  function findOpenParen(text: string, openPos) {
+    let closePos = openPos;
+    let counter = 1;
+    while (counter > 0) {
+      let c = text[++closePos];
+      if (c == "{") {
+        counter++;
+      } else if (c == "}") {
+        counter--;
+      } else if (typeof c === "undefined") {
+        return -1;
+      }
+    }
+    return closePos;
+  }
 
   function CheckExistingPlaceholders(item: item) {
     if (item.placeholders === null || typeof item.placeholders === "undefined" || item.placeholders.length === 0) {
@@ -264,13 +348,30 @@
     });
   }
 
-  function SaveCodeFromEdit() {
-    let foundItem = $items?.customSnippets?.find((x) => x?.id === $editItem?.id);
-    if (foundItem) {
-      const index = $items?.customSnippets.indexOf(foundItem);
+  function ImportVSSnippet() {
+    tsvscode.postMessage({
+      type: "ImportVSCodeSnippet",
+      value: $editMode,
+    });
+  }
+
+  function GetCodeFromEditScreenAndSave() {
+    tsvscode.postMessage({
+      type: "GetCodeFromEditScreen",
+      value: $editMode,
+    });
+  }
+
+  function SaveCodeFromEdit(latesCode: string) {
+    let existingBlock = $items?.customSnippets?.find((x) => x?.id === $editItem?.id);
+    console.log(latesCode);
+    if (existingBlock) {
+      existingBlock.code = latesCode;
+      const index = $items?.customSnippets.indexOf(existingBlock);
       $items.customSnippets.splice(index, 1);
       $items.customSnippets = [$editItem, ...$items.customSnippets];
     } else {
+      $editItem.code = latesCode;
       $items.customSnippets = [$editItem, ...$items.customSnippets];
     }
   }
@@ -325,7 +426,7 @@
     <button
       on:click={() => {
         $editMode.state = "false";
-        SaveCodeFromEdit();
+        GetCodeFromEditScreenAndSave();
         CloseEditWindow();
       }}>Save Code Block</button
     >
@@ -349,6 +450,9 @@
     </div>
     <div>
       <button on:click={ImportCode}>Import Code </button>
+    </div>
+    <div>
+      <button on:click={ImportVSSnippet}>Import VS Snippet</button>
     </div>
     {#if isSidebar === true}
       <div>

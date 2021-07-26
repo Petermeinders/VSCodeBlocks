@@ -126,7 +126,7 @@
     let foundArray;
     if(FullCodeSearch)
     {
-      foundArray = $items.customSnippets.filter((item) => item.name.toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 || item.tags.findIndex( x => x.toLowerCase().trim() === searchString.toLowerCase().trim()) !== -1 || item.code.includes(searchString.toLowerCase().trim()) === true);
+      foundArray = $items.customSnippets.filter((item) => item.name.toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 || item?.tags?.findIndex( x => x?.toLowerCase()?.trim() === searchString?.toLowerCase()?.trim()) !== -1 || item.code.includes(searchString.toLowerCase().trim()) === true);
     }
     else{
       foundArray = $items.customSnippets.filter((item) => item.name.toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 || item.tags.findIndex( x => x.toLowerCase().trim() === searchString.toLowerCase().trim()) !== -1);
