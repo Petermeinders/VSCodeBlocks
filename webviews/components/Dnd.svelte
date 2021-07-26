@@ -134,9 +134,14 @@
     if ($debug)
     console.log(foundArray);
 
+    $items.customSnippets.map(item => {
+      item.visible = "false";
+    })
+
     let newArray:any = [];
     if (foundArray.length > 0) {
       foundArray.forEach((element) => {
+        element.visible = "true";
         let index = $items.customSnippets.indexOf(element);
         $items.customSnippets.splice(index, 1);
         newArray.push(element);
@@ -145,6 +150,7 @@
       $items.customSnippets = [...newArray, ...$items.customSnippets];
       // $items.customSnippets = [{ id: element.id, name: element.name, code: element.code }, ...$items.customSnippets];
     } else {
+      $items.customSnippets = [...$items.customSnippets];
       if ($debug)
       console.log("Not found!");
     }
@@ -433,7 +439,7 @@ if ($debug)
   <input type="text" placeholder="Search" value={SearchTerm = SearchTerm ?? ""} on:change={(event) => searchCode(event, FullCodeSearch)} />
   <section aria-label="{listName}" autoAriaDisabled:true use:dndzone={{ items: $items.customSnippets, flipDurationMs }} on:consider={() => handleDndConsider} on:finalize={handleDndFinalize}>
     {#each $items.customSnippets as item (item.id)}
-      <div aria-label={item.name} id={item.id} animate:flip={{ duration: flipDurationMs }} on:mouseleave={(event)=> onBlockLeave(event, item)} on:mouseover={(event) => onBlockHover(event, item)} on:mouseenter={() => onmouseenter} on:dblclick={() => onItemDoubleClick(item)} class="cell block" style="border-color:{item.color}; display:{item.visible}">
+      <div aria-label={item.name} id={item.id}  class="cell block {item.visible === "false" ? "hide" : "showBlock"}" animate:flip={{ duration: flipDurationMs }} on:mouseleave={(event)=> onBlockLeave(event, item)} on:mouseover={(event) => onBlockHover(event, item)} on:mouseenter={() => onmouseenter} on:dblclick={() => onItemDoubleClick(item)} style="border-color:{item.color}; display:{item.visible}">
         <div>
           <!-- <span style="cursor: pointer;" on:click={() => ShowColorPicker(item)}><Fa icon={faTint}  style="color:yellow; padding-right: 4px;" /> </span>
           <span style="cursor: pointer;" on:click={() => ShowTags(item)}><Fa icon={faTag}  style="color:#007acc; padding-right: 4px;" /> </span> -->
@@ -537,6 +543,10 @@ if ($debug)
 
   .show {
 		display: flex;
+	}
+
+  .showBlock {
+		display: block;
 	}
 
   textarea{
