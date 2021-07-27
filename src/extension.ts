@@ -24,24 +24,13 @@ console.log("ACTIVATED!!!!!!!!");
 		)
 	);
 
+	//Run extension on vscode start!
 	vscode.commands.executeCommand("vsblocksnipets.startPanelWithoutItems");
-
-
-	const item = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
-	item.text = "$(beaker) Add Code";
-	item.command = "vsblocksnipets.addCode";
-	item.show();
 
 	const item2 = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
 	item2.text = "$(beaker) CodeBlocks";
 	item2.command = "vsblocksnipets.startPanelWithoutItems";
 	item2.show();
-
-	// const item3 = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
-	// item3.text = "$(beaker) Add Placeholder";
-	// item3.command = "vsblocksnipets.addPlaceholder";
-	// item3.show();
-
 
 	function delay(ms: number) {
 		return new Promise(resolve => setTimeout(resolve, ms));
@@ -449,7 +438,7 @@ console.log("ACTIVATED!!!!!!!!");
 				});
 			}
 			else {
-				vscode.window.showInformationMessage("Loading JSON:  " + saveLocation);
+				//vscode.window.showInformationMessage("Loading JSON:  " + saveLocation);
 				var save = <string>saveLocation;
 				let uri = vscode.Uri.file(save);
 

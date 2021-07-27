@@ -67,15 +67,12 @@
 
         case "edit-code":
           if (message.value !== "") {
-            // $items = {
-            //   customSnippets: [{ id: lastId, code: message.value, innerItems: "items4", name: "New Name", visible: "true", color: "white", tags: [""] }, ...$items.customSnippets],
-            //   vsSnippets: [],
-            // };
             let id = message.value.id;
             let filename = message.value.filename;
 
             $editItem = $items?.customSnippets?.find((x) => x?.id === id);
             $editMode = { id: id, state: "true", fileName: filename };
+            InfoMessage("Edit Mode started. Press cancel to return.")
           }
           break;
 
@@ -185,7 +182,9 @@
     let importItem = { id: getNonce(), name: name.substr(0, 25), code: body, innerItems: "temp", placeholders: filteredArray, color: "white", visible: "true", tags: tags };
 
     $items.customSnippets.push(importItem);
-    console.log($items);
+    if ($debug) console.log($items);
+
+    InfoMessage("VSCode Snippet Imported!");
   }
 
   function findOpenParen(text: string, openPos) {
@@ -346,6 +345,7 @@
       type: "closeEditWindow",
       value: $editMode,
     });
+    InfoMessage("Edit Mode ended.");
   }
 
   function ImportVSSnippet() {
@@ -362,6 +362,13 @@
     });
   }
 
+  function InfoMessage(message) {
+    tsvscode.postMessage({
+      type: "onInfo",
+      value: message,
+    });
+  }
+
   function SaveCodeFromEdit(latesCode: string) {
     let existingBlock = $items?.customSnippets?.find((x) => x?.id === $editItem?.id);
     console.log(latesCode);
@@ -370,9 +377,11 @@
       const index = $items?.customSnippets.indexOf(existingBlock);
       $items.customSnippets.splice(index, 1);
       $items.customSnippets = [$editItem, ...$items.customSnippets];
+      InfoMessage("Saved changes to ." + existingBlock.name);
     } else {
       $editItem.code = latesCode;
       $items.customSnippets = [$editItem, ...$items.customSnippets];
+      InfoMessage("Added new codeblock.");
     }
   }
 
@@ -401,7 +410,7 @@
     {/if}
   {:else if $editMode.state === "false"}
     <!-- PANEL -->
-    <h1>Panel</h1>
+    <h1>CodeBlocks</h1>
     <div class="container">
       <div class="box">
         <Tags />
@@ -414,14 +423,14 @@
       </div> -->
     </div>
   {:else}
-    <div>EDIT MODE</div>
+    <h1>EDIT MODE</h1>
     <EditScreen />
     <button
       on:click={() => {
         $editMode.state = "false";
-        $editItem = {};
+        $editItem = {...$editItem, placeholders: []};
         CloseEditWindow();
-      }}>go back</button
+      }}>Cancel</button
     >
     <button
       on:click={() => {
@@ -434,34 +443,24 @@
 
   {#if $editMode.state === "false"}
     <div>
-      <!-- svelte-ignore missing-declaration -->
-      <button
-        class="butt butter"
-        on:click={() => {
-          tsvscode.postMessage({
-            type: "onInfo",
-            value: "🐛  on line ",
-          });
-        }}>Test Msg</button
-      >
-    </div>
-    <div>
-      <button on:click={ExportCode}>Export Code </button>
+      <button class="tooltip" on:click={ExportCode}>Export Code<span class="tooltiptext">Export JSON Code to chosen file. </span> </button>
     </div>
     <div>
       <button on:click={ImportCode}>Import Code </button>
     </div>
     <div>
-      <button on:click={ImportVSSnippet}>Import VS Snippet</button>
+      <button class="tooltip" on:click={ImportVSSnippet}>Import VS Snippet 
+        <span class="tooltiptext">Import selected text in the VSCode snippet format. Make sure json starts and ends with brackets.</span>
+      </button>
     </div>
     {#if isSidebar === true}
       <div>
         <button on:click={FullScreen}>Full Screen</button>
       </div>
     {:else}
-      <div>
+      <!-- <div>
         <button on:click={ShowSidebar}>Sidebar mode</button>
-      </div>
+      </div> -->
     {/if}
   {/if}
 </main>
@@ -470,4 +469,32 @@
   .container {
     display: flex; /* or inline-flex */
   }
+
+  
+  .tooltip {
+    position: relative;
+    display: inline-block;
+    /* border-bottom: 1px dotted black; */
+  }
+
+  .tooltip .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+
+    /* Position the tooltip */
+    position: absolute;
+    top:-25px;
+    left:45px;
+    z-index: 1;
+  }
+
+  .tooltip:hover .tooltiptext {
+    visibility: visible;
+  }
+
 </style>

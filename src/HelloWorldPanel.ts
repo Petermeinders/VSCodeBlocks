@@ -40,7 +40,7 @@ export class HellowWorldPanel {
     // Otherwise, create a new panel.
     const panel = vscode.window.createWebviewPanel(
       HellowWorldPanel.viewType,
-      "HelloWorld",
+      "CodeBlocks",
       column || vscode.ViewColumn.One,
       {
         // Enable javascript in the webview
@@ -405,8 +405,20 @@ export class HellowWorldPanel {
           if (!data.value) {
             return;
           }
-          vscode?.window?.activeTextEditor?.edit(builder => {
-            const doc = vscode?.window?.activeTextEditor?.document;
+
+          let editor = vscode.window.activeTextEditor;
+          let viewColum = vscode?.window?.visibleTextEditors[0]?.viewColumn;
+    
+          if(!editor)
+            editor = vscode?.window?.visibleTextEditors[0];
+    
+          if (!editor) {
+            vscode.window.showInformationMessage("no active window");
+            return;
+          }
+
+          editor.edit(builder => {
+            const doc = editor?.document;
             if (typeof (doc) !== 'undefined')
               builder.replace(new vscode.Range(doc.lineAt(0).range.start, doc.lineAt(doc.lineCount - 1).range.end), data.value);
           });

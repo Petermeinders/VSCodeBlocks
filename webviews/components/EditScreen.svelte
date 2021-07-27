@@ -40,15 +40,41 @@
 
 <main>
   <div>
-    <button on:click={(event) => CreateTabStop(event, $editItem)}>Selection to variable </button>
+    <button on:click={(event) => CreateTabStop(event, $editItem)}>Selection to tabstop </button>
 
     {#if $editItem.placeholders !== null && typeof $editItem.placeholders !== "undefined" && $editItem.placeholders.length > 0}
+    <h3>TabStops</h3>
       {#each $editItem.placeholders as placeholder}
-        <input type="text" bind:value={placeholder} on:change={(event) => OnPlaceHolderChange(event, placeholder.toString())} />
+     <input type="text" bind:value={placeholder} on:change={(event) => OnPlaceHolderChange(event, placeholder.toString())} />
       {/each}
     {/if}
   </div>
 </main>
 
 <style>
+    .tooltip {
+    position: relative;
+    display: inline-block;
+    /* border-bottom: 1px dotted black; */
+  }
+
+  .tooltip .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+
+    /* Position the tooltip */
+    position: absolute;
+    top:-25px;
+    left:45px;
+    z-index: 1;
+  }
+
+  .tooltip:hover .tooltiptext {
+    visibility: visible;
+  }
 </style>

@@ -40,26 +40,6 @@
 				}
 			}
 		},
-		"viewsContainers": {
-			"activitybar": [
-				{
-					"id": "vsblocksnipets-sidebar-view",
-					"title": "VSBlockSnipets",
-					"icon": "media/circuit-board.svg"
-				}
-			]
-		},
-		"views": {
-			"vsblocksnipets-sidebar-view": [
-				{
-					"type": "webview",
-					"id": "vsblocksnipets-sidebar",
-					"name": "VSBlockSnipets",
-					"icon": "media/circuit-board.svg",
-					"contextualTitle": "VSBlockSnipets"
-				}
-			]
-		},
 		"commands": [
 			{
 				"command": "vsblocksnipets.startPanel",
