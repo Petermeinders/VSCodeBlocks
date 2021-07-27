@@ -5,6 +5,7 @@ import * as vscode from 'vscode';
 import { SidebarProvider } from './SidebarProvider';
 import { TextDecoder, TextEncoder } from 'util';
 import { stringify } from 'querystring';
+import {Item} from './Models';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -86,6 +87,15 @@ console.log("ACTIVATED!!!!!!!!");
 		vscode.commands.registerCommand('vsblocksnipets.SaveDataToFile', (data) => {
 			// vscode.window.showInformationMessage(data.value.customSnippets);
 			const language = 'markdown';
+
+			data.customSnippets.forEach((element:Item) => {
+				if(element.id.includes("id:"))
+				{
+					let index = data.customSnippets.indexOf(element);
+					console.log(index);
+					data.customSnippets.splice(index,1);
+				}
+			});
 			const content = JSON.stringify(data);
 
 			const config = vscode.workspace.getConfiguration('vsblocksnipets');

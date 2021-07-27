@@ -88,6 +88,7 @@ let originItems = {
          ],
          "color": "white",
          "visible": "",
+         "linkedBlocks": [],
          "tags": [
             "tag1",
             "tag2"
@@ -98,6 +99,7 @@ let originItems = {
          "name": "test2",
          "innerItems": "items4",
          "code": "...2",
+         "linkedBlocks": [],
          "color": "white",
          "visible": "",
          "tags": [
@@ -122,8 +124,12 @@ let originEditMode = {
 let originDebug = false;
 
 let originEditItem = {
-   "id": "0", "name": "test", "code":"if(${1:condition} ||${1:condition}){${2:expression}})", "innerItems":"items3", "placeholders":["condition","expression"], "color":'white', "visible":"", "tags":["tag1","tag2"] 
+   "id": "0", "name": "test", "code":"if(${1:condition} ||${1:condition}){${2:expression}})", "linkedBlocks": [], "innerItems":"items3", "placeholders":["condition","expression"], "color":'white', "visible":"", "tags":["tag1","tag2"] 
 }
+
+
+let originLinkedBlocks = [];
+
 // [{ "id": "0", "name": "test", "code":"if(${1:condition} ||${1:condition}){${2:expression}})", "placeholders":["condition","expression"], "color":'white', "visible":"", "tags":["tag1","tag2"] },{ "id": "1", "name": "test2", "code":"...2", "color":'white', "visible":"", "tags":["tag1","tag2"] }]
 let originTags = [{ id: 1, tagName: "code" }, { id: 2, tagName: "command" }];
 let originPage: "code" | "other" = "code";
@@ -152,6 +158,13 @@ tsvscode.setState(originItems, originTags, originPage);
 const addItem = () => {
 
 }
+
+export const linkedBlocks = writable(originLinkedBlocks, (set) => {
+   console.log("debug: " + originLinkedBlocks);
+
+   //set([{id:0, name:""}]);
+   return () => { };
+});
 
 export const debug = writable(originDebug, (set) => {
    console.log("debug: " + originDebug);

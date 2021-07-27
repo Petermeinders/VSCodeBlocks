@@ -51,10 +51,10 @@
   function handleDndConsider(e:any) {
     $items.customSnippets = e.detail.items;
 
-    if (e.detail.info.trigger === "draggedEntered") {
-      if ($debug)
-      console.log("dragEntered!");
-    }
+    // if (e.detail.info.trigger === "draggedEntered") {
+    //   if ($debug)
+    //   console.log("dragEntered!");
+    // }
   }
   function handleDndFinalize(e:any) {
     $items.customSnippets = e.detail.items;
@@ -432,12 +432,12 @@ if ($debug)
   }
 </script>
 
-<main>
+<main class="item">
   <!-- <div id="editTextHeader" class="editText hide" style="Color:Yellow; font-weight:bold">EDIT MODE ENABLED</div> -->
 
   <button class="tooltip" on:click={AddCodeBlockFromSelection} style="height: 50px;">Add Current Selection to CodeBlock</button>
   <input type="text" placeholder="Search" value={SearchTerm = SearchTerm ?? ""} on:change={(event) => searchCode(event, FullCodeSearch)} />
-  <section aria-label="{listName}" autoAriaDisabled:true use:dndzone={{ items: $items.customSnippets, flipDurationMs }} on:consider={() => handleDndConsider} on:finalize={handleDndFinalize}>
+  <section aria-label="{listName}" autoAriaDisabled:true use:dndzone={{ items: $items.customSnippets, flipDurationMs }} on:consider={handleDndConsider} on:finalize={handleDndFinalize}>
     {#each $items.customSnippets as item (item.id)}
       <div aria-label={item.name} id={item.id}  class="cell block {item.visible === "false" ? "hide" : "showBlock"}" animate:flip={{ duration: flipDurationMs }} on:mouseleave={(event)=> onBlockLeave(event, item)} on:mouseover={(event) => onBlockHover(event, item)} on:mouseenter={() => onmouseenter} on:dblclick={() => onItemDoubleClick(item)} style="border-color:{item.color}; display:{item.visible}">
         <div>
@@ -572,9 +572,9 @@ if ($debug)
     transition-property: all; */
     }
 
-  .block:hover .codeblock{
+  /* .block:hover .codeblock{
     max-height: 500px;
-  }
+  } */
 
   .colorInput{
     max-height: 0px;
@@ -583,10 +583,10 @@ if ($debug)
 	transition: max-height 1.0s;
   }
 
-  .block:hover  .colorInput{
+  /* .block:hover  .colorInput{
     max-height: 500px;
     display: flex;
-  }
+  } */
 
   .tagInput{
 
@@ -596,9 +596,9 @@ if ($debug)
     max-height: 500px !important;
   }
 
-  .block:hover  .tagInput{
+  /* .block:hover  .tagInput{
     max-height: 500px;
     display: flex;
-  }
+  } */
 
 </style>

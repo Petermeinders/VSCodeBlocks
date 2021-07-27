@@ -7,6 +7,7 @@
   import { page } from "../store";
   import EditScreen from "./EditScreen.svelte";
   import levenshtein from "fast-levenshtein";
+  import LinkedBlocks from "./LinkedBlocks.svelte";
 
   export let isSidebar: true | false;
 
@@ -38,6 +39,28 @@
       p = $page;
       t = $tags;
 
+      i.customSnippets.forEach((element) => {
+        if (element.id.includes("id:")) {
+          let index = i.customSnippets.indexOf(element);
+          console.log(index);
+          i.customSnippets.splice(index, 1);
+        }
+        // let findDuplicates = i.customSnippets.foreach(item => {
+        //   if(i.customSnippets.filter())
+        // })
+
+        let findDuplicates = i.customSnippets.filter(item => item.id === element.id)
+
+        if(findDuplicates.length > 1)
+        {
+          if(debug)
+            ErrorMessage("Duplicate codeblock found. Removing item.");
+            let duplicateIndex = i.customSnippets.indexOf(findDuplicates[0]);
+            i.customSnippets.splice(duplicateIndex, 1);
+
+        }
+      });
+
       if (i.customSnippets[0].id === "0") {
         console.warn("BAD STATE! Not saving. Please check your import file.");
       } else {
@@ -60,7 +83,7 @@
             let text = message.value.text;
             let filename = message.value.filename;
 
-            $editItem = { id: lastId, code: text, innerItems: "items4", name: "New Name", placeholders: [], visible: "true", color: "white", tags: [""] };
+            $editItem = { id: lastId, code: text, innerItems: "items4", linkedBlocks:[], name: "New Name", placeholders: [], visible: "true", color: "white", tags: [""] };
             $editMode = { id: lastId, state: "true", fileName: filename };
           }
           break;
@@ -72,7 +95,7 @@
 
             $editItem = $items?.customSnippets?.find((x) => x?.id === id);
             $editMode = { id: id, state: "true", fileName: filename };
-            InfoMessage("Edit Mode started. Press cancel to return.")
+            InfoMessage("Edit Mode started. Press cancel to return.");
           }
           break;
 
@@ -108,8 +131,30 @@
 
         case "import-code":
           if (typeof message.value === "string") {
-            $items = JSON.parse(message.value);
+            try {
+              $items = JSON.parse(message.value);
+
+              $items.customSnippets.forEach((element) => {
+                if (element.id.includes("id:")) {
+                  let index = $items.customSnippets.indexOf(element);
+                  console.log(index);
+                  $items.customSnippets.splice(index, 1);
+                }
+              });
+
+            } catch {
+              ErrorMessage("JSON Import Error");
+
+            }
           } else {
+            $items.customSnippets.forEach((element) => {
+                if (element.id.includes("id:")) {
+                  let index = $items.customSnippets.indexOf(element);
+                  console.log(index);
+                  $items.customSnippets.splice(index, 1);
+                }
+              });
+
             $items = message.value;
           }
 
@@ -369,6 +414,13 @@
     });
   }
 
+  function ErrorMessage(message) {
+    tsvscode.postMessage({
+      type: "onError",
+      value: message,
+    });
+  }
+
   function SaveCodeFromEdit(latesCode: string) {
     let existingBlock = $items?.customSnippets?.find((x) => x?.id === $editItem?.id);
     console.log(latesCode);
@@ -412,8 +464,9 @@
     <!-- PANEL -->
     <h1>CodeBlocks</h1>
     <div class="container">
-      <div class="box">
+      <div class="code-container">
         <Tags />
+        <LinkedBlocks />
         <Dnd {SearchTerm} {FullCodeSearch} />
       </div>
       <!-- <div class="box" style="width:800px;">
@@ -428,7 +481,7 @@
     <button
       on:click={() => {
         $editMode.state = "false";
-        $editItem = {...$editItem, placeholders: []};
+        $editItem = { ...$editItem, placeholders: [] };
         CloseEditWindow();
       }}>Cancel</button
     >
@@ -449,7 +502,8 @@
       <button on:click={ImportCode}>Import Code </button>
     </div>
     <div>
-      <button class="tooltip" on:click={ImportVSSnippet}>Import VS Snippet 
+      <button class="tooltip" on:click={ImportVSSnippet}
+        >Import VS Snippet
         <span class="tooltiptext">Import selected text in the VSCode snippet format. Make sure json starts and ends with brackets.</span>
       </button>
     </div>
@@ -470,7 +524,6 @@
     display: flex; /* or inline-flex */
   }
 
-  
   .tooltip {
     position: relative;
     display: inline-block;
@@ -488,13 +541,21 @@
 
     /* Position the tooltip */
     position: absolute;
-    top:-25px;
-    left:45px;
+    top: -25px;
+    left: 45px;
     z-index: 1;
   }
 
-  .tooltip:hover .tooltiptext {
+  :global(.tooltip:hover .tooltiptext) {
     visibility: visible;
   }
 
+  .code-container {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  :global(.item) {
+    min-width: 200px;
+  }
 </style>
