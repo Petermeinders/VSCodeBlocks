@@ -9,19 +9,24 @@
   import levenshtein from "fast-levenshtein";
   import { flip } from "svelte/animate";
   import { dndzone } from "svelte-dnd-action";
+  import type { Item } from "../../src/Models";
 
   let isOpen = false;
   const toggle = () => (isOpen = !isOpen);
 
-//   let linkedBlocks = [
-//     { id: 1, name: "item1" },
-//     { id: 2, name: "item2" },
-//     { id: 3, name: "item3" },
-//     { id: 4, name: "item4" },
-//   ];
+  //   let linkedBlocks = [
+  //     { id: 1, name: "item1" },
+  //     { id: 2, name: "item2" },
+  //     { id: 3, name: "item3" },
+  //     { id: 4, name: "item4" },
+  //   ];
   const flipDurationMs = 300;
   function handleDndConsider2(e) {
     $linkedBlocks = e.detail.items;
+    // $linkedBlocks.map(linkItem => {
+    //     linkItem.id = e.detail.items[0].id;
+    //     return linkItem;
+    // })
   }
   function handleDndFinalize2(e) {
     $linkedBlocks = e.detail.items;
@@ -36,8 +41,38 @@
     return text;
   }
 
+  function InfoMessage(message: any) {
+    tsvscode.postMessage({
+      type: "onInfo",
+      value: message,
+    });
+  }
+
   function LinkBlocks() {
-      console.log($linkedBlocks);
+    console.log($linkedBlocks);
+    InfoMessage("Blocks linked.");
+    let newItems = $items.customSnippets;
+    newItems.map((item: Item) => {
+      if ($linkedBlocks.some((x) => x.id === item.id)) {
+        $linkedBlocks.forEach((linkedBlock) => {
+          if (item.id !== linkedBlock.id) {
+            if (item.linkedBlocks.indexOf(linkedBlock.id) === -1) {
+              item.linkedBlocks.push(linkedBlock.id);
+              console.log("Push  " + linkedBlock.id);
+              return item;
+            }
+            return item;
+          }
+          return item;
+        });
+      }
+      return item;
+
+      //   let linkedItem = $linkedBlocks.find(x => x.id)
+      //   item.linkedBlocks.push(linkedItem.id);
+    });
+    $items.customSnippets = [...newItems];
+    $linkedBlocks = [];
   }
 </script>
 
@@ -47,7 +82,7 @@
     Linked
   </button>
   {#if isOpen && typeof linkedBlocks !== "undefined"}
-  <button on:click={LinkBlocks}>Link Blocks</button>
+    <button on:click={LinkBlocks}>Link Blocks</button>
 
     <section use:dndzone={{ items: $linkedBlocks, flipDurationMs }} on:consider={handleDndConsider2} on:finalize={handleDndFinalize2}>
       {#each $linkedBlocks as item (getNonce())}

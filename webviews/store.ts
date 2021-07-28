@@ -79,6 +79,7 @@ let originItems = {
    "customSnippets": [
       {
          "id": "0",
+         "tempId":"",
          "name": "test",
          "code": "if(${1:condition} ||${1:condition}){${2:expression}})",
          "innerItems": "items3",
@@ -96,6 +97,7 @@ let originItems = {
       },
       {
          "id": "1",
+         "tempId":"",
          "name": "test2",
          "innerItems": "items4",
          "code": "...2",
@@ -124,7 +126,7 @@ let originEditMode = {
 let originDebug = false;
 
 let originEditItem = {
-   "id": "0", "name": "test", "code":"if(${1:condition} ||${1:condition}){${2:expression}})", "linkedBlocks": [], "innerItems":"items3", "placeholders":["condition","expression"], "color":'white', "visible":"", "tags":["tag1","tag2"] 
+   "id": "0", "tempId":"", "name": "test", "code":"if(${1:condition} ||${1:condition}){${2:expression}})", "linkedBlocks": [], "innerItems":"items3", "placeholders":["condition","expression"], "color":'white', "visible":"", "tags":["tag1","tag2"] 
 }
 
 

@@ -7,6 +7,7 @@
   import Fa from 'svelte-fa'
   import { faTint, faTag, faFont, faPlusCircle, faPencilAlt, faTimesCircle} from '@fortawesome/free-solid-svg-icons'
   import {setDebugMode} from "svelte-dnd-action";
+import type { Item } from "../../src/Models";
 
   export let SearchTerm:string;
   export let FullCodeSearch:boolean;
@@ -47,21 +48,62 @@
     return text;
   }
 
+  let shouldIgnoreDndEvents = false;
   const flipDurationMs = 300;
   function handleDndConsider(e:any) {
-    $items.customSnippets = e.detail.items;
+    //$items.customSnippets = e.detail.items;
 
     // if (e.detail.info.trigger === "draggedEntered") {
     //   if ($debug)
     //   console.log("dragEntered!");
     // }
+
+    //console.warn(`got consider ${JSON.stringify(e.detail, null, 2)}`);
+        const {trigger, id} = e.detail.info;
+        if (trigger === TRIGGERS.DRAG_STARTED) {
+           // console.warn(`copying ${id}`);
+            const idx = $items.customSnippets.findIndex(item => item.id === id);
+            const newId = `${id}_copy_${Math.round(Math.random()*100000)}`;
+						// the line below was added in order to be compatible with version svelte-dnd-action 0.7.4 and above 
+					  e.detail.items = e.detail.items.filter(item => !item[SHADOW_ITEM_MARKER_PROPERTY_NAME]);
+            e.detail.items.splice(idx, 0, {...$items.customSnippets[idx], id: newId, tempId:id});
+            $items.customSnippets = e.detail.items;
+            shouldIgnoreDndEvents = true;
+        }
+        else if (!shouldIgnoreDndEvents) {
+          $items.customSnippets = e.detail.items;
+        }
+        else {
+          $items.customSnippets = [...$items.customSnippets];
+        }
   }
   function handleDndFinalize(e:any) {
-    $items.customSnippets = e.detail.items;
-    if (e.detail.info.trigger === "draggedEntered") {
-      if ($debug)
-      console.log("dragEntered!");
-    }
+
+    if (!shouldIgnoreDndEvents) {
+      $items.customSnippets = e.detail.items;
+        }
+        else {
+          let newItems = $items.customSnippets;
+          newItems.map(item => {
+            if(item.tempId === e.detail.info.id)
+            {
+              item.id = item.tempId;
+              item.tempId = "";
+              return item;
+            }
+            else{
+              return item;
+            }
+          })
+          $items.customSnippets = [...newItems];
+            shouldIgnoreDndEvents = false;
+        }
+
+    // $items.customSnippets = e.detail.items;
+    // if (e.detail.info.trigger === "draggedEntered") {
+    //   if ($debug)
+    //   console.log("dragEntered!");
+    // }
   }
 
   function deleteItem(itemList:any, item:item) {
@@ -70,6 +112,18 @@
 
     let itemsLeft = itemList.filter((j:any) => j.id !== item.id);
     $items.customSnippets = [...itemsLeft];
+  }
+
+  function deleteCodeLink(item:Item, linkId:string){
+    let newItems = $items.customSnippets;
+    let linkedIds = item.linkedBlocks;
+    linkedIds.includes(linkId) && linkedIds.splice(linkedIds.indexOf(linkId), 1)
+    console.log(linkedIds);
+    item.linkedBlocks = linkedIds;
+    let itemIndex = $items.customSnippets.indexOf(item);
+    newItems.splice(itemIndex,1,item);
+    $items.customSnippets = [...newItems];
+    console.log($items.customSnippets);
   }
 
   function changedName(item:item) {
@@ -430,6 +484,15 @@ if ($debug)
       value: $editMode,
     });
   }
+  function getLinkedName(linkid:string){
+    let linkedItem = $items.customSnippets.find(item => 
+      item.id === linkid
+    )
+    if(linkedItem)
+      return linkedItem.name;
+      else
+      return "linknull";
+  }
 </script>
 
 <main class="item">
@@ -441,10 +504,10 @@ if ($debug)
     {#each $items.customSnippets as item (item.id)}
       <div aria-label={item.name} id={item.id}  class="cell block {item.visible === "false" ? "hide" : "showBlock"}" animate:flip={{ duration: flipDurationMs }} on:mouseleave={(event)=> onBlockLeave(event, item)} on:mouseover={(event) => onBlockHover(event, item)} on:mouseenter={() => onmouseenter} on:dblclick={() => onItemDoubleClick(item)} style="border-color:{item.color}; display:{item.visible}">
         <div>
-          <!-- <span style="cursor: pointer;" on:click={() => ShowColorPicker(item)}><Fa icon={faTint}  style="color:yellow; padding-right: 4px;" /> </span>
-          <span style="cursor: pointer;" on:click={() => ShowTags(item)}><Fa icon={faTag}  style="color:#007acc; padding-right: 4px;" /> </span> -->
           <span style=" cursor: pointer;" on:click={() => pasteCodeFromBlock(item)}><Fa icon={faPlusCircle}  style="color:#00c300; padding-right: 4px;" /> </span>
           <span style=" cursor: pointer;" on:click={event => EditCodeBlock(item)}><Fa icon={faPencilAlt}  style="color:orange; padding-right: 4px;" /> </span>
+          <span style="cursor: pointer;" on:click={() => ShowColorPicker(item)}><Fa icon={faTint}  style="color:yellow; padding-right: 4px;" /> </span>
+          <span style="cursor: pointer;" on:click={() => ShowTags(item)}><Fa icon={faTag}  style="color:#007acc; padding-right: 4px;" /> </span>
 
           <span on:click={() => deleteItem($items.customSnippets, item)} class="show" style="float:right; cursor: pointer;"><Fa icon={faTimesCircle}  style="color:red; padding-right: 4px; padding-top: 3px;" /></span>
         </div>
@@ -477,12 +540,25 @@ if ($debug)
           <!-- <button on:click={event => CreateTabStop(event, item)}>Selection to variable </button> -->
 
           {#if item.placeholders !== null && typeof(item.placeholders) !== 'undefined' && item.placeholders.length > 0}
-
             {#each item.placeholders as placeholder}
             <input type="text" disabled bind:value={placeholder} on:change={(event) => OnPlaceHolderChange(event, item, placeholder.toString())} />
+
             {/each}
           {/if}
+          
+        
 
+        </div>
+        <div class="linkedStyles">
+          {#if item.linkedBlocks !== null && typeof(item.linkedBlocks) !== 'undefined' && item.linkedBlocks.length > 0}
+          {#each item.linkedBlocks as linkedBlock}
+          <div class="linkedStyleBlock">
+          <input type="text"  disabled value={getLinkedName(linkedBlock)} />
+          <span on:click={() => deleteCodeLink(item,linkedBlock)} class="show" style="float:right; cursor: pointer;"><Fa icon={faTimesCircle}  style="color:red; padding-right: 4px; " /></span>
+          </div>
+
+          {/each}
+        {/if}
         </div>
       </div>
     {/each}
@@ -577,7 +653,7 @@ if ($debug)
   } */
 
   .colorInput{
-    max-height: 0px;
+    /* max-height: 0px; */
     -webkit-transition: max-height 1.0s;
 	-moz-transition: max-height 1.0s;
 	transition: max-height 1.0s;
@@ -600,5 +676,21 @@ if ($debug)
     max-height: 500px;
     display: flex;
   } */
+
+  .linkedStyles{
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+    background:#3c3c3c;
+  }
+
+  .linkedStyleBlock{
+border: black;
+border-width: 1px;
+    border-style: solid;
+    align-items: center;
+    display:flex;
+  }
 
 </style>

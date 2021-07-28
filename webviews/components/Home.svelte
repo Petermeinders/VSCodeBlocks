@@ -22,6 +22,10 @@
         item.tags = item.tags ?? [""];
       });
 
+      $items.customSnippets.map((item) => {
+        item.linkedBlocks = item.linkedBlocks ?? [];
+      });
+
       if ($items.vsSnippets === null || typeof $items.vsSnippets === "undefined") {
         $items.vsSnippets = ["vsSnippets1", "vsSnippets2"];
       }
@@ -83,7 +87,7 @@
             let text = message.value.text;
             let filename = message.value.filename;
 
-            $editItem = { id: lastId, code: text, innerItems: "items4", linkedBlocks:[], name: "New Name", placeholders: [], visible: "true", color: "white", tags: [""] };
+            $editItem = { id: lastId, tempId:"", code: text, innerItems: "items4", linkedBlocks:[], name: "New Name", placeholders: [], visible: "true", color: "white", tags: [""] };
             $editMode = { id: lastId, state: "true", fileName: filename };
           }
           break;
