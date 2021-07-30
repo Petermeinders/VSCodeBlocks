@@ -5,7 +5,7 @@
   import { debug, editMode, items } from "../store";
   import type { item } from "../store";
   import Fa from "svelte-fa";
-  import { faTint, faTag, faFont, faPlusCircle, faPencilAlt, faTimesCircle } from "@fortawesome/free-solid-svg-icons";
+  import { faTint, faTag, faFont, faPlusCircle, faPencilAlt, faTimesCircle, faSearch } from "@fortawesome/free-solid-svg-icons";
   import { setDebugMode } from "svelte-dnd-action";
   import type { Item } from "../../src/Models";
   import levenshtein from "fast-levenshtein";
@@ -150,7 +150,7 @@
   }
 
   export function searchCode(e: any, FullCodeSearch: any) {
-    let searchString: string;
+    let searchString:string;
     if (typeof e === "string") {
       searchString = e;
     } else {
@@ -164,12 +164,15 @@
       foundArray = $items.customSnippets.filter(
         (item) =>
           item.name.toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 ||
+          item.id.toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 ||
           item?.tags?.findIndex((x) => x?.toLowerCase()?.trim() === searchString?.toLowerCase()?.trim()) !== -1 ||
           FuzzyCheck(item, searchString)
       );
     } else {
       foundArray = $items.customSnippets.filter(
-        (item) => item.name.toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 || item.tags.findIndex((x) => x.toLowerCase().trim() === searchString.toLowerCase().trim()) !== -1
+        (item) => item.name.toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 || 
+        item.id.toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 ||
+        item.tags.findIndex((x) => x.toLowerCase().trim() === searchString.toLowerCase().trim()) !== -1
       );
     }
     if ($debug) console.log(foundArray);
@@ -603,6 +606,7 @@
           {#if item.linkedBlocks !== null && typeof item.linkedBlocks !== "undefined" && item.linkedBlocks.length > 0}
             {#each item.linkedBlocks as linkedBlock}
               <div class="linkedStyleBlock">
+                <span style="cursor: pointer;" on:click={(event) => searchCode(linkedBlock, FullCodeSearch)}><Fa icon={faSearch} style="color:#23f1de; padding-right: 4px;" /> </span>
                 <input type="text" disabled value={getLinkedName(linkedBlock)} />
                 <span on:click={() => deleteCodeLink(item, linkedBlock)} class="show" style="float:right; cursor: pointer;"><Fa icon={faTimesCircle} style="color:red; padding-right: 4px; " /></span>
               </div>

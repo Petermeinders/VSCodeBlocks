@@ -166,7 +166,7 @@ export class HellowWorldPanel {
 
   }
 
-  public static GetActiveEditor(hasText) {
+  public static GetActiveEditor(hasText:any) {
 
 		let editor = vscode.window.activeTextEditor;
 		let viewColum = vscode?.window?.visibleTextEditors[0]?.viewColumn;
@@ -355,7 +355,7 @@ export class HellowWorldPanel {
           if (!data.value) {
             return;
           }
-          let editor = HellowWorldPanel.GetActiveEditor();
+          let editor = HellowWorldPanel.GetActiveEditor(false);
 
           if (!editor) {
             vscode.window.showInformationMessage("no active window");

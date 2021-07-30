@@ -234,7 +234,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 		}));
 
-	function GetActiveEditor(hasText) {
+	function GetActiveEditor(hasText: any) {
 
 		let editor = vscode.window.activeTextEditor;
 		let viewColum = vscode?.window?.visibleTextEditors[0]?.viewColumn;
