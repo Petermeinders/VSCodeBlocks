@@ -5,12 +5,12 @@ import * as vscode from 'vscode';
 import { SidebarProvider } from './SidebarProvider';
 import { TextDecoder, TextEncoder } from 'util';
 import { stringify } from 'querystring';
-import {Item} from './Models';
+import { Item } from './Models';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-console.log("ACTIVATED!!!!!!!!");
+	console.log("ACTIVATED!!!!!!!!");
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
 	// console.log('Congratulations, your extension "vsblocksnipets" is now active!');
@@ -37,16 +37,15 @@ console.log("ACTIVATED!!!!!!!!");
 		return new Promise(resolve => setTimeout(resolve, ms));
 	}
 
-	vscode.window.onDidChangeActiveTextEditor(event =>{
-		if(event)
-		{
+	vscode.window.onDidChangeActiveTextEditor(event => {
+		if (event) {
 			console.log(event.document.isClosed);
 			//console.log(event.document.isUntitled);
 			// (async () => {
 			// 	console.log("TextEditor CHANGED!");
 			// })();
 		}
-		
+
 	});
 
 
@@ -88,12 +87,11 @@ console.log("ACTIVATED!!!!!!!!");
 			// vscode.window.showInformationMessage(data.value.customSnippets);
 			const language = 'markdown';
 
-			data.customSnippets.forEach((element:Item) => {
-				if(element.id.includes("id:"))
-				{
+			data.customSnippets.forEach((element: Item) => {
+				if (element.id.includes("id:")) {
 					let index = data.customSnippets.indexOf(element);
 					console.log(index);
-					data.customSnippets.splice(index,1);
+					data.customSnippets.splice(index, 1);
 				}
 			});
 			const content = JSON.stringify(data);
@@ -160,8 +158,8 @@ console.log("ACTIVATED!!!!!!!!");
 		vscode.commands.registerCommand('vsblocksnipets.addPlaceholder', () => {
 			let editor = vscode.window.activeTextEditor;
 
-			if(!editor)
-			editor = vscode?.window?.visibleTextEditors[0];
+			if (!editor)
+				editor = vscode?.window?.visibleTextEditors[0];
 
 			let text = "";
 			if (typeof (editor) !== 'undefined') {
@@ -202,25 +200,16 @@ console.log("ACTIVATED!!!!!!!!");
 	context.subscriptions.push(
 		vscode.commands.registerCommand('vsblocksnipets.addCode', async () => {
 			let fileName;
-			let editor = vscode.window.activeTextEditor;
-			let viewColum = vscode?.window?.visibleTextEditors[0]?.viewColumn;
 
-			if(!editor)
-				editor = vscode?.window?.visibleTextEditors[0];
+			let editor = GetActiveEditor(true);
 
 			if (!editor) {
 				vscode.window.showInformationMessage("no active window");
 				return;
 			}
 
-			const text = editor.document.getText(editor.selection);
-
-			// const answer = await vscode.window.showInformationMessage(
-			// 	"how was your day",
-			// 	"good", 
-			// 	"bad"	
-			// );
-			// vscode.workspace.openTextDocument({content:text});
+			let text = editor.document.getText(editor.selection);
+			let viewColum = editor.viewColumn;
 
 			vscode.workspace.openTextDocument({ content: text }).then(document => {
 				vscode.window.showTextDocument(document, viewColum);
@@ -245,14 +234,41 @@ console.log("ACTIVATED!!!!!!!!");
 
 		}));
 
-		
+	function GetActiveEditor(hasText) {
+
+		let editor = vscode.window.activeTextEditor;
+		let viewColum = vscode?.window?.visibleTextEditors[0]?.viewColumn;
+		let text;
+
+		if (!editor)
+			editor = vscode?.window?.visibleTextEditors[0];
+
+		if(hasText)
+		{
+			text = editor.document.getText(editor.selection);
+
+			if (text === '' && vscode?.window?.visibleTextEditors.length > 1) {
+				editor = vscode?.window?.visibleTextEditors[1];
+				viewColum = vscode?.window?.visibleTextEditors[1]?.viewColumn;
+			}
+	
+		}
+			
+		if (!editor) {
+			vscode.window.showInformationMessage("no active window");
+			return;
+		}
+		return editor;
+	}
+
+
 	context.subscriptions.push(
 		vscode.commands.registerCommand('vsblocksnipets.importVSCodeSnippet', () => {
 			let fileName;
 			let editor = vscode.window.activeTextEditor;
 			let viewColum = vscode?.window?.visibleTextEditors[0]?.viewColumn;
 
-			if(!editor)
+			if (!editor)
 				editor = vscode?.window?.visibleTextEditors[0];
 
 			if (!editor) {
@@ -287,19 +303,20 @@ console.log("ACTIVATED!!!!!!!!");
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand('vsblocksnipets.editCode', async (text, id) => {
+			let editor = GetActiveEditor(false);
+			let doc = editor?.document; 
+			let filename = doc?.fileName ?? "";
+			let viewColum = 1;
 
-			let filename = vscode?.window?.visibleTextEditors[0]?.document.fileName;
-			let viewColum = vscode?.window?.visibleTextEditors[0]?.viewColumn;
-			let doc;
-
-			if (filename === 'HelloWorld') {
+			if (filename === 'HelloWorld' || filename === 'tasks') {
 				doc = vscode?.window?.visibleTextEditors[1]?.document;
-				filename = doc.fileName;
-				vscode.window.showTextDocument(doc,viewColum);
+				
+				//vscode.window.showTextDocument(doc, viewColum);
 
 				vscode.workspace.openTextDocument({ content: text }).then(document => {
-					vscode.window.showTextDocument(document);
-					HellowWorldPanel.addPanelCodeEditMode(id,filename);
+					vscode.window.showTextDocument(document, viewColum);
+					filename = document.fileName;
+					HellowWorldPanel.addPanelCodeEditMode(id, filename);
 
 					//vscode.commands.executeCommand("workbench.action.showCommands");
 					(async () => {
@@ -309,22 +326,22 @@ console.log("ACTIVATED!!!!!!!!");
 				});
 			}
 			else {
-				doc = vscode?.window?.visibleTextEditors[0]?.document;
+				
 
 				if (!doc) {
 					vscode.window.showInformationMessage("no active window");
 					return;
 				}
-				vscode.window.showTextDocument(doc,viewColum);
+				vscode.window.showTextDocument(doc, viewColum);
 
 				let textContent = text;
 
 				vscode.workspace.openTextDocument({ content: textContent }).then(document => {
 					const edit = new vscode.WorkspaceEdit();
-					edit.insert(document.uri,new vscode.Position(0,0), textContent);
+					edit.insert(document.uri, new vscode.Position(0, 0), textContent);
 					vscode.window.showTextDocument(document);
 					filename = document.fileName;
-					HellowWorldPanel.addPanelCodeEditMode(id,filename);
+					HellowWorldPanel.addPanelCodeEditMode(id, filename);
 
 					//vscode.commands.executeCommand("workbench.action.showCommands");
 					(async () => {
@@ -333,7 +350,7 @@ console.log("ACTIVATED!!!!!!!!");
 					})();
 				});
 			}
-			
+
 
 
 

@@ -573,14 +573,15 @@ if ($debug)
     border: 1px solid black;
     /* this will allow the dragged element to scroll the list */
     overflow: scroll;
-    height: 600px;
+    height: 400px;
   }
   .cell {
     /* width: 100%; */
     width:auto;
     padding: 0.2em;
     border: 1px solid rgb(255, 255, 255);
-    margin: 0.15em 0;
+    margin-bottom:5px;
+    /* margin: 0.15em 0; */
   }
 
   .tooltip {

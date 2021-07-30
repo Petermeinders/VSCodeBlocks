@@ -166,6 +166,38 @@ export class HellowWorldPanel {
 
   }
 
+  public static GetActiveEditor(hasText) {
+
+		let editor = vscode.window.activeTextEditor;
+		let viewColum = vscode?.window?.visibleTextEditors[0]?.viewColumn;
+		let text;
+
+		if (!editor)
+			editor = vscode?.window?.visibleTextEditors[0];
+
+		if(hasText)
+		{
+			text = editor.document.getText(editor.selection);
+
+			if (text === '' && vscode?.window?.visibleTextEditors.length > 1) {
+				editor = vscode?.window?.visibleTextEditors[1];
+				viewColum = vscode?.window?.visibleTextEditors[1]?.viewColumn;
+			}
+	
+		}
+    if(editor.document.fileName === 'tasks' && vscode?.window?.visibleTextEditors.length > 1){
+      if(typeof(vscode?.window?.visibleTextEditors[0]?.viewColumn) === 'undefined')
+      return vscode?.window?.visibleTextEditors[1];
+    }
+
+			
+		if (!editor) {
+			vscode.window.showInformationMessage("no active window");
+			return;
+		}
+		return editor;
+	}
+
   public static kill() {
     HellowWorldPanel.currentPanel?.dispose();
     HellowWorldPanel.currentPanel = undefined;
@@ -323,16 +355,15 @@ export class HellowWorldPanel {
           if (!data.value) {
             return;
           }
-          let editor = vscode.window.activeTextEditor;
-          let viewColum = vscode?.window?.visibleTextEditors[0]?.viewColumn;
-    
-          if(!editor)
-            editor = vscode?.window?.visibleTextEditors[0];
-    
+          let editor = HellowWorldPanel.GetActiveEditor();
+
           if (!editor) {
             vscode.window.showInformationMessage("no active window");
             return;
           }
+    
+          let text = editor.document.getText();
+          let viewColum = editor.viewColumn;
 
           let code = editor.document.getText();
           HellowWorldPanel.GetCodeFromEditScreen(code);
@@ -357,8 +388,9 @@ export class HellowWorldPanel {
             return;
           }
 
-          let filename = vscode.window.visibleTextEditors[0]?.document.fileName;
-          let doc;
+          //let filename = vscode.window.visibleTextEditors[0]?.document.fileName;
+          let filename = HellowWorldPanel.GetActiveEditor(false)?.document.fileName;
+          let doc = HellowWorldPanel.GetActiveEditor(false)?.document;
 
           if (filename === data.value.fileName) {
             if (filename === 'HelloWorld') {
@@ -367,7 +399,7 @@ export class HellowWorldPanel {
               vscode.commands.executeCommand("workbench.action.revertAndCloseActiveEditor");
             }
             else {
-              doc = vscode?.window?.visibleTextEditors[0]?.document;
+              //doc = vscode?.window?.visibleTextEditors[0]?.document;
               //vscode.window.showTextDocument(doc);
               vscode.commands.executeCommand("workbench.action.focusFirstEditorGroup");
               await HellowWorldPanel.delay(300);
