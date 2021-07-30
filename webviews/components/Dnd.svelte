@@ -2,39 +2,35 @@
   import { flip } from "svelte/animate";
   import { dndzone, SHADOW_ITEM_MARKER_PROPERTY_NAME, TRIGGERS } from "svelte-dnd-action";
   import { afterUpdate, beforeUpdate, onMount } from "svelte";
-  import {debug, editMode, items } from "../store";
-  import type {item} from "../store";
-  import Fa from 'svelte-fa'
-  import { faTint, faTag, faFont, faPlusCircle, faPencilAlt, faTimesCircle} from '@fortawesome/free-solid-svg-icons'
-  import {setDebugMode} from "svelte-dnd-action";
-import type { Item } from "../../src/Models";
+  import { debug, editMode, items } from "../store";
+  import type { item } from "../store";
+  import Fa from "svelte-fa";
+  import { faTint, faTag, faFont, faPlusCircle, faPencilAlt, faTimesCircle } from "@fortawesome/free-solid-svg-icons";
+  import { setDebugMode } from "svelte-dnd-action";
+  import type { Item } from "../../src/Models";
+  import levenshtein from "fast-levenshtein";
 
-  export let SearchTerm:string;
-  export let FullCodeSearch:boolean;
+  export let SearchTerm: string;
+  export let FullCodeSearch: boolean;
 
   $: {
-  SearchTerm; 
-  if($debug)
-    console.log("Search Changed: " + SearchTerm);
-  searchCode(SearchTerm, FullCodeSearch);
+    SearchTerm;
+    if ($debug) console.log("Search Changed: " + SearchTerm);
+    searchCode(SearchTerm, FullCodeSearch);
   }
 
-  $:{
+  $: {
     $editMode;
     EditModeChange();
   }
 
-  function EditModeChange(){
-    if ($debug)
-    console.log("mode was edited: " + $editMode.id + ", " + $editMode.state);
-    if($editMode.state === "true")
-    {
+  function EditModeChange() {
+    if ($debug) console.log("mode was edited: " + $editMode.id + ", " + $editMode.state);
+    if ($editMode.state === "true") {
       // document.getElementById($editMode.id)?.querySelector(".codeblock")?.classList.add("editMode");
       // document.getElementById("editTextHeader").classList.remove('hide');
       // document.getElementById($editMode.id)?.querySelector(".editText")?.classList.remove("hide");
-
-    }
-    else{
+    } else {
       //set element mode to false;
     }
   }
@@ -50,7 +46,7 @@ import type { Item } from "../../src/Models";
 
   let shouldIgnoreDndEvents = false;
   const flipDurationMs = 300;
-  function handleDndConsider(e:any) {
+  function handleDndConsider(e: any) {
     //$items.customSnippets = e.detail.items;
 
     // if (e.detail.info.trigger === "draggedEntered") {
@@ -59,45 +55,39 @@ import type { Item } from "../../src/Models";
     // }
 
     //console.warn(`got consider ${JSON.stringify(e.detail, null, 2)}`);
-        const {trigger, id} = e.detail.info;
-        if (trigger === TRIGGERS.DRAG_STARTED) {
-           // console.warn(`copying ${id}`);
-            const idx = $items.customSnippets.findIndex(item => item.id === id);
-            const newId = `${id}_copy_${Math.round(Math.random()*100000)}`;
-						// the line below was added in order to be compatible with version svelte-dnd-action 0.7.4 and above 
-					  e.detail.items = e.detail.items.filter(item => !item[SHADOW_ITEM_MARKER_PROPERTY_NAME]);
-            e.detail.items.splice(idx, 0, {...$items.customSnippets[idx], id: newId, tempId:id});
-            $items.customSnippets = e.detail.items;
-            shouldIgnoreDndEvents = true;
-        }
-        else if (!shouldIgnoreDndEvents) {
-          $items.customSnippets = e.detail.items;
-        }
-        else {
-          $items.customSnippets = [...$items.customSnippets];
-        }
+    const { trigger, id } = e.detail.info;
+    if (trigger === TRIGGERS.DRAG_STARTED) {
+      // console.warn(`copying ${id}`);
+      const idx = $items.customSnippets.findIndex((item) => item.id === id);
+      const newId = `${id}_copy_${Math.round(Math.random() * 100000)}`;
+      // the line below was added in order to be compatible with version svelte-dnd-action 0.7.4 and above
+      e.detail.items = e.detail.items.filter((item) => !item[SHADOW_ITEM_MARKER_PROPERTY_NAME]);
+      e.detail.items.splice(idx, 0, { ...$items.customSnippets[idx], id: newId, tempId: id });
+      $items.customSnippets = e.detail.items;
+      shouldIgnoreDndEvents = true;
+    } else if (!shouldIgnoreDndEvents) {
+      $items.customSnippets = e.detail.items;
+    } else {
+      $items.customSnippets = [...$items.customSnippets];
+    }
   }
-  function handleDndFinalize(e:any) {
-
+  function handleDndFinalize(e: any) {
     if (!shouldIgnoreDndEvents) {
       $items.customSnippets = e.detail.items;
+    } else {
+      let newItems = $items.customSnippets;
+      newItems.map((item) => {
+        if (item.tempId === e.detail.info.id) {
+          item.id = item.tempId;
+          item.tempId = "";
+          return item;
+        } else {
+          return item;
         }
-        else {
-          let newItems = $items.customSnippets;
-          newItems.map(item => {
-            if(item.tempId === e.detail.info.id)
-            {
-              item.id = item.tempId;
-              item.tempId = "";
-              return item;
-            }
-            else{
-              return item;
-            }
-          })
-          $items.customSnippets = [...newItems];
-            shouldIgnoreDndEvents = false;
-        }
+      });
+      $items.customSnippets = [...newItems];
+      shouldIgnoreDndEvents = false;
+    }
 
     // $items.customSnippets = e.detail.items;
     // if (e.detail.info.trigger === "draggedEntered") {
@@ -106,35 +96,32 @@ import type { Item } from "../../src/Models";
     // }
   }
 
-  function deleteItem(itemList:any, item:item) {
-    if ($debug)
-    console.log($items.customSnippets);
+  function deleteItem(itemList: any, item: item) {
+    if ($debug) console.log($items.customSnippets);
 
-    let itemsLeft = itemList.filter((j:any) => j.id !== item.id);
+    let itemsLeft = itemList.filter((j: any) => j.id !== item.id);
     $items.customSnippets = [...itemsLeft];
   }
 
-  function deleteCodeLink(item:Item, linkId:string){
+  function deleteCodeLink(item: Item, linkId: string) {
     let newItems = $items.customSnippets;
     let linkedIds = item.linkedBlocks;
-    linkedIds.includes(linkId) && linkedIds.splice(linkedIds.indexOf(linkId), 1)
+    linkedIds.includes(linkId) && linkedIds.splice(linkedIds.indexOf(linkId), 1);
     console.log(linkedIds);
     item.linkedBlocks = linkedIds;
     let itemIndex = $items.customSnippets.indexOf(item);
-    newItems.splice(itemIndex,1,item);
+    newItems.splice(itemIndex, 1, item);
     $items.customSnippets = [...newItems];
     console.log($items.customSnippets);
   }
 
-  function changedName(item:item) {
+  function changedName(item: item) {
     let i = $items.customSnippets.filter((x) => {
       if (x.id === item.id) {
         x.name = item.name;
-        if ($debug)
-        console.log(x);
-      }
-      else{
-        x = x
+        if ($debug) console.log(x);
+      } else {
+        x = x;
       }
       return x;
     });
@@ -142,57 +129,56 @@ import type { Item } from "../../src/Models";
     $items.customSnippets = [...i];
   }
 
-  if ($debug)
-  console.log("thing here!");
+  if ($debug) console.log("thing here!");
 
-  afterUpdate((e:any) => {});
+  afterUpdate((e: any) => {});
 
-  function returnFirstLine(item:item) {
+  function returnFirstLine(item: item) {
     const s = item.code.split("\n");
     return s[0];
   }
 
-  function pasteCodeFromBlock(item:item) {
+  function pasteCodeFromBlock(item: item) {
     tsvscode.postMessage({
       type: "insertSnippet",
       value: item.code,
     });
   }
 
-   function onItemDoubleClick(item:item){
-    if ($debug)
-    console.log("double clicked. Future implementation.")
-   }
+  function onItemDoubleClick(item: item) {
+    if ($debug) console.log("double clicked. Future implementation.");
+  }
 
-  export function searchCode(e: any, FullCodeSearch:any) {
+  export function searchCode(e: any, FullCodeSearch: any) {
     let searchString: string;
-    if(typeof(e) === "string")
-    {
+    if (typeof e === "string") {
       searchString = e;
-    }
-    else{
+    } else {
       searchString = e.target.value;
     }
-    if($debug)
-    if ($debug)
-      console.log(searchString);
+
+    if ($debug) console.log(searchString);
 
     let foundArray;
-    if(FullCodeSearch)
-    {
-      foundArray = $items.customSnippets.filter((item) => item.name.toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 || item?.tags?.findIndex( x => x?.toLowerCase()?.trim() === searchString?.toLowerCase()?.trim()) !== -1 || item.code.includes(searchString.toLowerCase().trim()) === true);
+    if (FullCodeSearch) {
+      foundArray = $items.customSnippets.filter(
+        (item) =>
+          item.name.toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 ||
+          item?.tags?.findIndex((x) => x?.toLowerCase()?.trim() === searchString?.toLowerCase()?.trim()) !== -1 ||
+          FuzzyCheck(item, searchString)
+      );
+    } else {
+      foundArray = $items.customSnippets.filter(
+        (item) => item.name.toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 || item.tags.findIndex((x) => x.toLowerCase().trim() === searchString.toLowerCase().trim()) !== -1
+      );
     }
-    else{
-      foundArray = $items.customSnippets.filter((item) => item.name.toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 || item.tags.findIndex( x => x.toLowerCase().trim() === searchString.toLowerCase().trim()) !== -1);
-    }
-    if ($debug)
-    console.log(foundArray);
+    if ($debug) console.log(foundArray);
 
-    $items.customSnippets.map(item => {
+    $items.customSnippets.map((item) => {
       item.visible = "false";
-    })
+    });
 
-    let newArray:any = [];
+    let newArray: any = [];
     if (foundArray.length > 0) {
       foundArray.forEach((element) => {
         element.visible = "true";
@@ -205,8 +191,7 @@ import type { Item } from "../../src/Models";
       // $items.customSnippets = [{ id: element.id, name: element.name, code: element.code }, ...$items.customSnippets];
     } else {
       $items.customSnippets = [...$items.customSnippets];
-      if ($debug)
-      console.log("Not found!");
+      if ($debug) console.log("Not found!");
     }
 
     // const index = $items.customSnippets.indexOf(foundFirst);
@@ -219,104 +204,196 @@ import type { Item } from "../../src/Models";
     // }
   }
 
-  function ShowColorPicker(item:item){
-    if ($debug){
+  function FuzzyCheck(item: Item, searchString: string) {
+    // if (item.code.includes(searchString.toLowerCase().trim()) === true){
+    //   return true;
+    // }
+    // else {
+    //   return false;
+    // }
+    // return CodeCompareForEachItem(item, searchString)
+    return CodeCompareWholeFile(item, searchString);
+  }
+
+  function CodeCompareWholeFile(item: Item, searchString: string) {
+    const x = item;
+    let found = -1;
+    if (searchString === "") {
+      return false;
+    }
+
+    let CodeBlocks = searchString.split(/\n\s*\n/);
+
+    CodeBlocks.forEach((Block) => {
+      let shtein = levenshtein.get(Block, x.code);
+      if (shtein < 200) {
+        let changeMinusx = Block.length - x.code.length;
+        let xMinusChange = x.code.length - Block.length;
+        if (Math.abs(changeMinusx) < 100) {
+          console.log("Name: " + x.name + ": " + changeMinusx + ": " + xMinusChange + ": " + "Stein: " + shtein);
+          found = ++found;
+
+          // return true;
+        } else {
+          //return false;
+        }
+      }
+    });
+
+    if (found >= 0) {
+      x.visible = "true";
+      let index = $items.customSnippets.indexOf(x);
+
+      $items.customSnippets.splice(index, 1, x);
+
+      return true;
+    } else {
+      //return x;
+      return false;
+    }
+  }
+
+  function CodeCompareForEachItem(item: Item, searchString: string) {
+    const x = item;
+    if (searchString === "") {
+      return false;
+    }
+
+    let shtein = levenshtein.get(searchString, x.code);
+    if (shtein < 100) {
+      let changeMinusx = searchString.length - x.code.length;
+      let xMinusChange = x.code.length - searchString.length;
+      if (Math.abs(changeMinusx) < 50) {
+        console.log("Name: " + x.name + ": " + changeMinusx + ": " + xMinusChange + ": " + "Stein: " + shtein);
+        //x.visible = "true";
+        return true;
+      } else {
+        // x.visible = "false";
+        return false;
+      }
+    }
+    //return x;
+    return false;
+
+    $items = { ...$items };
+  }
+
+  //TODO: AI detect if block is found based on levenshtein.
+
+  //   function CodeCompare(changedCode){
+  //     $items.customSnippets.map(x => {
+  //       if(changedCode === "")
+  //       {
+  // return;
+  //       }
+
+  //       let shtein = levenshtein.get(changedCode,x.code);
+  //       if (shtein < 100){
+  //         let changeMinusx = changedCode.length - x.code.length;
+  //         let xMinusChange = x.code.length - changedCode.length;
+  //         if(Math.abs(changeMinusx) < 50)
+  //         {
+  //           console.log(x.name + ": " + changeMinusx + ": " + xMinusChange + ": " + shtein);
+  //           x.visible = "true";
+  //         }
+  //         else{
+  //           x.visible = "false";
+  //         }
+
+  //       }
+  //       return x;
+  //     });
+
+  //     $items = {...$items}
+
+  //   }
+
+  function ShowColorPicker(item: item) {
+    if ($debug) {
       console.log(item.id);
       console.log(document.getElementById(item.id));
     }
 
-      if(document.getElementById(item.id) === null || item === null)
-      {
-        if ($debug)
-        console.log("color picker is null");
-          return;
-      }
+    if (document.getElementById(item.id) === null || item === null) {
+      if ($debug) console.log("color picker is null");
+      return;
+    }
 
-      if(document.getElementById(item.id)?.getElementsByClassName('colorInput')[0].classList.contains('hide')) {
-        document.getElementById(item.id)?.getElementsByClassName('colorInput')[0].classList.remove('hide');
-        document.getElementById(item.id)?.getElementsByClassName('colorInput')[0].classList.add('show');
-      }
-      else {
-        document.getElementById(item.id)?.getElementsByClassName('colorInput')[0].classList.add('hide');
-        document.getElementById(item.id)?.getElementsByClassName('colorInput')[0].classList.remove('show');
-      }
+    if (document.getElementById(item.id)?.getElementsByClassName("colorInput")[0].classList.contains("hide")) {
+      document.getElementById(item.id)?.getElementsByClassName("colorInput")[0].classList.remove("hide");
+      document.getElementById(item.id)?.getElementsByClassName("colorInput")[0].classList.add("show");
+    } else {
+      document.getElementById(item.id)?.getElementsByClassName("colorInput")[0].classList.add("hide");
+      document.getElementById(item.id)?.getElementsByClassName("colorInput")[0].classList.remove("show");
+    }
 
-
-      //TODO: Refactor out JS mess.
-      if(document.getElementById(item.id)?.getElementsByClassName('tagInput')[0].classList.contains('show')) {
-        document.getElementById(item.id)?.getElementsByClassName('tagInput')[0].classList.add('hide');
-        document.getElementById(item.id)?.getElementsByClassName('tagInput')[0].classList.remove('show');
-      }
-
+    //TODO: Refactor out JS mess.
+    if (document.getElementById(item.id)?.getElementsByClassName("tagInput")[0].classList.contains("show")) {
+      document.getElementById(item.id)?.getElementsByClassName("tagInput")[0].classList.add("hide");
+      document.getElementById(item.id)?.getElementsByClassName("tagInput")[0].classList.remove("show");
+    }
   }
 
-  function changeColor(e:any, item:item) {
+  function changeColor(e: any, item: item) {
     if ($debug) {
-    console.log(e);
-    console.log(item);
+      console.log(e);
+      console.log(item);
     }
     item.color = e.target.value;
-    $items.customSnippets = $items.customSnippets.map((i) =>{
-      if (i.id === item.id)
-      {
+    $items.customSnippets = $items.customSnippets.map((i) => {
+      if (i.id === item.id) {
         i.color = item.color;
       }
       return i;
-    })
+    });
     // document.getElementById(item.id)?.getElementsByClassName('colorInput')[0].classList.toggle('hide')
   }
 
-  function ShowTags(item:item){
-    if ($debug){
-    console.log(item.id);
+  function ShowTags(item: item) {
+    if ($debug) {
+      console.log(item.id);
       console.log(document.getElementById(item.id));
     }
 
-      if(document.getElementById(item.id) === null || item === null)
-      {
-        if ($debug)
-        console.log("tags null");
-          return;
-      }
-
-      if(document.getElementById(item.id)?.getElementsByClassName('tagInput')[0].classList.contains('hide')) {
-        document.getElementById(item.id)?.getElementsByClassName('tagInput')[0].classList.remove('hide');
-        document.getElementById(item.id)?.getElementsByClassName('tagInput')[0].classList.add('show');
-      }
-      else {
-        document.getElementById(item.id)?.getElementsByClassName('tagInput')[0].classList.add('hide');
-        document.getElementById(item.id)?.getElementsByClassName('tagInput')[0].classList.remove('show');
-      }
-
-
-      //TODO: Refactor out JS mess.
-      if(document.getElementById(item.id)?.getElementsByClassName('colorInput')[0].classList.contains('show')) {
-        document.getElementById(item.id)?.getElementsByClassName('colorInput')[0].classList.add('hide');
-        document.getElementById(item.id)?.getElementsByClassName('colorInput')[0].classList.remove('show');
-      }
-  }
-
-  function changeTags(e:any, item:item){
-    if ($debug){
-    console.log(e);
-    console.log(item);
+    if (document.getElementById(item.id) === null || item === null) {
+      if ($debug) console.log("tags null");
+      return;
     }
 
-    $items.customSnippets = $items.customSnippets.map((i) =>{
-      if (i.id === item.id)
-      {
-        var array = e.target.value.split(',');
+    if (document.getElementById(item.id)?.getElementsByClassName("tagInput")[0].classList.contains("hide")) {
+      document.getElementById(item.id)?.getElementsByClassName("tagInput")[0].classList.remove("hide");
+      document.getElementById(item.id)?.getElementsByClassName("tagInput")[0].classList.add("show");
+    } else {
+      document.getElementById(item.id)?.getElementsByClassName("tagInput")[0].classList.add("hide");
+      document.getElementById(item.id)?.getElementsByClassName("tagInput")[0].classList.remove("show");
+    }
+
+    //TODO: Refactor out JS mess.
+    if (document.getElementById(item.id)?.getElementsByClassName("colorInput")[0].classList.contains("show")) {
+      document.getElementById(item.id)?.getElementsByClassName("colorInput")[0].classList.add("hide");
+      document.getElementById(item.id)?.getElementsByClassName("colorInput")[0].classList.remove("show");
+    }
+  }
+
+  function changeTags(e: any, item: item) {
+    if ($debug) {
+      console.log(e);
+      console.log(item);
+    }
+
+    $items.customSnippets = $items.customSnippets.map((i) => {
+      if (i.id === item.id) {
+        var array = e.target.value.split(",");
         i.tags = array;
-      }
-      else {
+      } else {
         i = i;
       }
       return i;
-    })
+    });
     // document.getElementById(item.id)?.getElementsByClassName('tagInput')[0].classList.toggle('hide')
   }
 
-  function EditCodeBlock(item:item){
+  function EditCodeBlock(item: item) {
     tsvscode.postMessage({
       type: "editCode",
       value: item,
@@ -324,88 +401,74 @@ import type { Item } from "../../src/Models";
     // document.getElementById(item.id)?.getElementsByClassName('codeblock')[0].classList.toggle('hide');
   }
 
-
   function getSelectionText() {
-    var text = "", startRange=0, endRange=0;
+    var text = "",
+      startRange = 0,
+      endRange = 0;
     if (window.getSelection) {
-        text = window.getSelection()?.toString();
-        startRange = window.getSelection()?.anchorOffset;
-        endRange = window.getSelection()?.focusOffset;
-    } else if (document.selection && document.selection.type != "Control"){
-        text = document.selection.createRange().text;
+      text = window.getSelection()?.toString();
+      startRange = window.getSelection()?.anchorOffset;
+      endRange = window.getSelection()?.focusOffset;
+    } else if (document.selection && document.selection.type != "Control") {
+      text = document.selection.createRange().text;
     }
 
     return [text, endRange, startRange];
-}
-
-  function CheckExistingPlaceholders(item:item){
-    if(item.placeholders === null || typeof(item.placeholders) === 'undefined' || item.placeholders.length === 0)
-        {
-          if ($debug)
-          console.log("no placeholders")
-          return -1;
-        }
-        else{
-          if ($debug)
-          console.log("Placeholders:" + item.placeholders.length)
-          return item.placeholders.length
-        }
   }
 
-  function CreateTabStop(e:any, item:item){
+  function CheckExistingPlaceholders(item: item) {
+    if (item.placeholders === null || typeof item.placeholders === "undefined" || item.placeholders.length === 0) {
+      if ($debug) console.log("no placeholders");
+      return -1;
+    } else {
+      if ($debug) console.log("Placeholders:" + item.placeholders.length);
+      return item.placeholders.length;
+    }
+  }
+
+  function CreateTabStop(e: any, item: item) {
     var lastNumber = CheckExistingPlaceholders(item);
-    if (lastNumber === -1)
-    {
+    if (lastNumber === -1) {
       item.placeholders = [];
       lastNumber = 1;
-    }
-    else{
+    } else {
       lastNumber = ++lastNumber;
     }
 
     var selObj = getSelectionText();
     var selectedString = selObj[0];
 
-    if (selectedString === "")
-    {
+    if (selectedString === "") {
       return;
     }
 
-    if ($debug){
-    console.log(selObj[0]);
-    console.log(item.code);
+    if ($debug) {
+      console.log(selObj[0]);
+      console.log(item.code);
     }
 
-    var newCode = item.code.replaceAll(selectedString, "${"+lastNumber+":"+selectedString+"}" )
+    var newCode = item.code.replaceAll(selectedString, "${" + lastNumber + ":" + selectedString + "}");
     // item.placeholders.push(selectedString);
 
+    const tempItems = $items.customSnippets.map((x) => {
+      if (x.placeholders === null || typeof x.placeholders === "undefined") return;
 
-
-
-    const tempItems = $items.customSnippets.map(x => {
-      if(x.placeholders === null || typeof(x.placeholders) === 'undefined')
-      return;
-
-      if(x.id === item.id){
+      if (x.id === item.id) {
         x.placeholders.push(selectedString.toString());
         x.code = newCode;
         return x;
-      }
-      else{
+      } else {
         return x;
       }
     });
 
-    $items.customSnippets = [...tempItems]
+    $items.customSnippets = [...tempItems];
 
-    document.getElementById(item.id).getElementsByClassName('codeblock')[0].classList.remove('hide');
-
-
+    document.getElementById(item.id).getElementsByClassName("codeblock")[0].classList.remove("hide");
 
     //var selRange = selObj.getRangeAt(0);
     //console.log(selRange.toString());
   }
-
 
   // function OnPlaceholderFocus(e, item, placeholder){
   //   // e.target.setAttribute('data-prev', e.target.value);
@@ -417,66 +480,56 @@ import type { Item } from "../../src/Models";
   //   // console.log("Previous:" + e.target.getAttribute('data-prev'));
   // }
 
-  function OnPlaceHolderChange(e:any, item:item, placeholder:any) {
+  function OnPlaceHolderChange(e: any, item: item, placeholder: any) {
     let prevValue = placeholder; //e.target.getAttribute('data-prev');
 
     // if (prevValue === null)
     //   e.target.setAttribute('data-prev', e.target.value);
-if ($debug)
-    console.log("Previous:" + e.target.getAttribute('data-prev'));
-    e.target.setAttribute('data-prev', e.target.value);
-    if ($debug)
-    console.log("NEW:" + e.target.getAttribute('data-prev'));
+    if ($debug) console.log("Previous:" + e.target.getAttribute("data-prev"));
+    e.target.setAttribute("data-prev", e.target.value);
+    if ($debug) console.log("NEW:" + e.target.getAttribute("data-prev"));
 
     var indexValue = item.placeholders.indexOf(e.target.value);
 
-      indexValue = ++indexValue;
+    indexValue = ++indexValue;
 
-
-    if (e.target.value === "")
-    {
-      var newCode = item.code.replaceAll("${"+indexValue+":"+prevValue+"}", prevValue  )
+    if (e.target.value === "") {
+      var newCode = item.code.replaceAll("${" + indexValue + ":" + prevValue + "}", prevValue);
+    } else {
+      var newCode = item.code.replaceAll("${" + indexValue + ":" + prevValue + "}", "${" + indexValue + ":" + e.target.value + "}");
     }
-    else{
-      var newCode = item.code.replaceAll("${"+indexValue+":"+prevValue+"}", "${"+indexValue+":"+e.target.value+"}"  )
-    }
-    const tempItems = $items.customSnippets.map(x => {
-      if(x.id === item.id){
-        if (e.target.value !== "") //If empty, delete!
-        {
+    const tempItems = $items.customSnippets.map((x) => {
+      if (x.id === item.id) {
+        if (e.target.value !== "") {
+          //If empty, delete!
           x.code = newCode;
           return x;
-        }
-        else{
+        } else {
           x.code = newCode;
-          let index:any = x.placeholders?.indexOf("");
+          let index: any = x.placeholders?.indexOf("");
           x.placeholders?.splice(index, 1);
-          if ($debug){
-          console.log("Clearning Value!")
-          console.log(x)
+          if ($debug) {
+            console.log("Clearning Value!");
+            console.log(x);
           }
           return x;
         }
-      }
-      else{
+      } else {
         return x;
       }
     });
-    $items.customSnippets =[...tempItems]
+    $items.customSnippets = [...tempItems];
   }
 
-  function OnCodeChange(e:any, item:item){
-  }
+  function OnCodeChange(e: any, item: item) {}
 
-  function onBlockHover(e:any, item:item){
-  }
+  function onBlockHover(e: any, item: item) {}
 
-  function onBlockLeave(e:any, item:item){
-  }
+  function onBlockLeave(e: any, item: item) {}
 
   setDebugMode(true);
 
-  const listName="Code Blocks";
+  const listName = "Code Blocks";
 
   function AddCodeBlockFromSelection() {
     tsvscode.postMessage({
@@ -484,14 +537,10 @@ if ($debug)
       value: $editMode,
     });
   }
-  function getLinkedName(linkid:string){
-    let linkedItem = $items.customSnippets.find(item => 
-      item.id === linkid
-    )
-    if(linkedItem)
-      return linkedItem.name;
-      else
-      return "linknull";
+  function getLinkedName(linkid: string) {
+    let linkedItem = $items.customSnippets.find((item) => item.id === linkid);
+    if (linkedItem) return linkedItem.name;
+    else return "linknull";
   }
 </script>
 
@@ -499,66 +548,66 @@ if ($debug)
   <!-- <div id="editTextHeader" class="editText hide" style="Color:Yellow; font-weight:bold">EDIT MODE ENABLED</div> -->
 
   <button class="tooltip" on:click={AddCodeBlockFromSelection} style="height: 50px;">Add Current Selection to CodeBlock</button>
-  <input type="text" placeholder="Search" value={SearchTerm = SearchTerm ?? ""} on:change={(event) => searchCode(event, FullCodeSearch)} />
-  <section aria-label="{listName}" autoAriaDisabled:true use:dndzone={{ items: $items.customSnippets, flipDurationMs }} on:consider={handleDndConsider} on:finalize={handleDndFinalize}>
+  <input type="text" placeholder="Search" value={(SearchTerm = SearchTerm ?? "")} on:change={(event) => searchCode(event, FullCodeSearch)} />
+  <section aria-label={listName} autoAriaDisabled:true use:dndzone={{ items: $items.customSnippets, flipDurationMs }} on:consider={handleDndConsider} on:finalize={handleDndFinalize}>
     {#each $items.customSnippets as item (item.id)}
-      <div aria-label={item.name} id={item.id}  class="cell block {item.visible === "false" ? "hide" : "showBlock"}" animate:flip={{ duration: flipDurationMs }} on:mouseleave={(event)=> onBlockLeave(event, item)} on:mouseover={(event) => onBlockHover(event, item)} on:mouseenter={() => onmouseenter} on:dblclick={() => onItemDoubleClick(item)} style="border-color:{item.color}; display:{item.visible}">
+      <div
+        aria-label={item.name}
+        id={item.id}
+        class="cell block {item.visible === 'false' ? 'hide' : 'showBlock'}"
+        animate:flip={{ duration: flipDurationMs }}
+        on:mouseleave={(event) => onBlockLeave(event, item)}
+        on:mouseover={(event) => onBlockHover(event, item)}
+        on:mouseenter={() => onmouseenter}
+        on:dblclick={() => onItemDoubleClick(item)}
+        style="border-color:{item.color}; display:{item.visible}"
+      >
         <div>
-          <span style=" cursor: pointer;" on:click={() => pasteCodeFromBlock(item)}><Fa icon={faPlusCircle}  style="color:#00c300; padding-right: 4px;" /> </span>
-          <span style=" cursor: pointer;" on:click={event => EditCodeBlock(item)}><Fa icon={faPencilAlt}  style="color:orange; padding-right: 4px;" /> </span>
-          <span style="cursor: pointer;" on:click={() => ShowColorPicker(item)}><Fa icon={faTint}  style="color:yellow; padding-right: 4px;" /> </span>
-          <span style="cursor: pointer;" on:click={() => ShowTags(item)}><Fa icon={faTag}  style="color:#007acc; padding-right: 4px;" /> </span>
+          <span style=" cursor: pointer;" on:click={() => pasteCodeFromBlock(item)}><Fa icon={faPlusCircle} style="color:#00c300; padding-right: 4px;" /> </span>
+          <span style=" cursor: pointer;" on:click={(event) => EditCodeBlock(item)}><Fa icon={faPencilAlt} style="color:orange; padding-right: 4px;" /> </span>
+          <span style="cursor: pointer;" on:click={() => ShowColorPicker(item)}><Fa icon={faTint} style="color:yellow; padding-right: 4px;" /> </span>
+          <span style="cursor: pointer;" on:click={() => ShowTags(item)}><Fa icon={faTag} style="color:#007acc; padding-right: 4px;" /> </span>
 
-          <span on:click={() => deleteItem($items.customSnippets, item)} class="show" style="float:right; cursor: pointer;"><Fa icon={faTimesCircle}  style="color:red; padding-right: 4px; padding-top: 3px;" /></span>
+          <span on:click={() => deleteItem($items.customSnippets, item)} class="show" style="float:right; cursor: pointer;"
+            ><Fa icon={faTimesCircle} style="color:red; padding-right: 4px; padding-top: 3px;" /></span
+          >
         </div>
         <div>
+          <div style="background: #3c3c3c;     margin-top: 3px; align-items: center;" class="show">
+            <Fa icon={faFont} style="color:{item.color}; padding-right: 4px;" />
+            <input type="text" bind:value={item.name} on:change={() => changedName(item)} />
+          </div>
 
+          <div style="background: #3c3c3c;     margin-top: 3px; align-items: center; " class="hide colorInput">
+            <Fa icon={faTint} style="color:yellow; padding-right: 4px;  " />
+            <input type="text" id={getNonce()} style="float:left;" value={item.color} class="" placeholder="red" on:change={(event) => changeColor(event, item)} />
+          </div>
 
-            <div style="background: #3c3c3c;     margin-top: 3px; align-items: center;" class="show">
-              <Fa icon={faFont}  style="color:{item.color}; padding-right: 4px;"/>
-              <input type="text" bind:value={item.name} on:change={() => changedName(item)} />
-            </div>
-
-            <div style="background: #3c3c3c;     margin-top: 3px; align-items: center; " class="hide colorInput">
-              <Fa icon={faTint}  style="color:yellow; padding-right: 4px;  " />
-              <input type="text" id="{getNonce()}" style="float:left;" value="{item.color}" class="" placeholder="red" on:change={event => changeColor(event, item)} />
-            </div>
-  
-  
-              <div style=" background: #3c3c3c;     margin-top: 3px; align-items: center;" class="hide tagInput">
-                <Fa icon={faTag}  style="color:#007acc; padding-right: 4px;"/>
-                <input type="text" id="{getNonce()}" style="float:left;" value="{item.tags}"  placeholder="tag1, tag2" on:change={event => changeTags(event, item)}/>
-              </div>
-  
-  
-
-
+          <div style=" background: #3c3c3c;     margin-top: 3px; align-items: center;" class="hide tagInput">
+            <Fa icon={faTag} style="color:#007acc; padding-right: 4px;" />
+            <input type="text" id={getNonce()} style="float:left;" value={item.tags} placeholder="tag1, tag2" on:change={(event) => changeTags(event, item)} />
+          </div>
         </div>
 
         <div class="codeblock">
-          <textarea disabled style="height:100px; width:100%"  bind:value={item.code} on:change={(event) => OnCodeChange(event, item)}></textarea>
+          <textarea disabled style="height:100px; width:100%" bind:value={item.code} on:change={(event) => OnCodeChange(event, item)} />
           <!-- <button on:click={event => CreateTabStop(event, item)}>Selection to variable </button> -->
 
-          {#if item.placeholders !== null && typeof(item.placeholders) !== 'undefined' && item.placeholders.length > 0}
+          {#if item.placeholders !== null && typeof item.placeholders !== "undefined" && item.placeholders.length > 0}
             {#each item.placeholders as placeholder}
-            <input type="text" disabled bind:value={placeholder} on:change={(event) => OnPlaceHolderChange(event, item, placeholder.toString())} />
-
+              <input type="text" disabled bind:value={placeholder} on:change={(event) => OnPlaceHolderChange(event, item, placeholder.toString())} />
             {/each}
           {/if}
-          
-        
-
         </div>
         <div class="linkedStyles">
-          {#if item.linkedBlocks !== null && typeof(item.linkedBlocks) !== 'undefined' && item.linkedBlocks.length > 0}
-          {#each item.linkedBlocks as linkedBlock}
-          <div class="linkedStyleBlock">
-          <input type="text"  disabled value={getLinkedName(linkedBlock)} />
-          <span on:click={() => deleteCodeLink(item,linkedBlock)} class="show" style="float:right; cursor: pointer;"><Fa icon={faTimesCircle}  style="color:red; padding-right: 4px; " /></span>
-          </div>
-
-          {/each}
-        {/if}
+          {#if item.linkedBlocks !== null && typeof item.linkedBlocks !== "undefined" && item.linkedBlocks.length > 0}
+            {#each item.linkedBlocks as linkedBlock}
+              <div class="linkedStyleBlock">
+                <input type="text" disabled value={getLinkedName(linkedBlock)} />
+                <span on:click={() => deleteCodeLink(item, linkedBlock)} class="show" style="float:right; cursor: pointer;"><Fa icon={faTimesCircle} style="color:red; padding-right: 4px; " /></span>
+              </div>
+            {/each}
+          {/if}
         </div>
       </div>
     {/each}
@@ -568,7 +617,7 @@ if ($debug)
 <style lang="css">
   section {
     /* width: 100%; */
-    width:auto;
+    width: auto;
     padding: 0.3em;
     border: 1px solid black;
     /* this will allow the dragged element to scroll the list */
@@ -577,10 +626,10 @@ if ($debug)
   }
   .cell {
     /* width: 100%; */
-    width:auto;
+    width: auto;
     padding: 0.2em;
     border: 1px solid rgb(255, 255, 255);
-    margin-bottom:5px;
+    margin-bottom: 5px;
     /* margin: 0.15em 0; */
   }
 
@@ -601,8 +650,8 @@ if ($debug)
 
     /* Position the tooltip */
     position: absolute;
-    top:-25px;
-    left:45px;
+    top: -25px;
+    left: 45px;
     z-index: 1;
   }
 
@@ -616,48 +665,47 @@ if ($debug)
   }
 
   .hide {
-		display: none;
-	}
+    display: none;
+  }
 
   .show {
-		display: flex;
-	}
+    display: flex;
+  }
 
   .showBlock {
-		display: block;
-	}
-
-  textarea{
-    width:auto;
+    display: block;
   }
 
-  .codeblock{
+  textarea {
+    width: auto;
+  }
+
+  .codeblock {
     max-height: 0;
-	overflow: hidden;
+    overflow: hidden;
 
-  -webkit-transition: max-height 1.0s;
-	-moz-transition: max-height 1.0s;
-	transition: max-height 1.0s;
+    -webkit-transition: max-height 1s;
+    -moz-transition: max-height 1s;
+    transition: max-height 1s;
   }
 
-
-  .block{
+  .block {
     /* transition: transform 250ms; */
     /* overflow: hidden; */
     /* height: 1px; */
     /* animation-duration: 250;
     transition-property: all; */
-    }
+  }
 
   /* .block:hover .codeblock{
     max-height: 500px;
   } */
 
-  .colorInput{
+  .colorInput {
     /* max-height: 0px; */
-    -webkit-transition: max-height 1.0s;
-	-moz-transition: max-height 1.0s;
-	transition: max-height 1.0s;
+    -webkit-transition: max-height 1s;
+    -moz-transition: max-height 1s;
+    transition: max-height 1s;
   }
 
   /* .block:hover  .colorInput{
@@ -665,11 +713,10 @@ if ($debug)
     display: flex;
   } */
 
-  .tagInput{
-
+  .tagInput {
   }
 
-  .editMode{
+  .editMode {
     max-height: 500px !important;
   }
 
@@ -678,20 +725,19 @@ if ($debug)
     display: flex;
   } */
 
-  .linkedStyles{
+  .linkedStyles {
     display: flex;
     align-items: center;
     flex-direction: row;
     flex-wrap: wrap;
-    background:#3c3c3c;
+    background: #3c3c3c;
   }
 
-  .linkedStyleBlock{
-border: black;
-border-width: 1px;
+  .linkedStyleBlock {
+    border: black;
+    border-width: 1px;
     border-style: solid;
     align-items: center;
-    display:flex;
+    display: flex;
   }
-
 </style>

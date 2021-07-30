@@ -308,35 +308,7 @@
     UpdateCodeWithNewTabStop();
   }
 
-  //TODO: AI detect if block is found based on levenshtein.
-
-  //   function CodeCompare(changedCode){
-  //     $items.customSnippets.map(x => {
-  //       if(changedCode === "")
-  //       {
-  // return;
-  //       }
-
-  //       let shtein = levenshtein.get(changedCode,x.code);
-  //       if (shtein < 100){
-  //         let changeMinusx = changedCode.length - x.code.length;
-  //         let xMinusChange = x.code.length - changedCode.length;
-  //         if(Math.abs(changeMinusx) < 50)
-  //         {
-  //           console.log(x.name + ": " + changeMinusx + ": " + xMinusChange + ": " + shtein);
-  //           x.visible = "true";
-  //         }
-  //         else{
-  //           x.visible = "false";
-  //         }
-
-  //       }
-  //       return x;
-  //     });
-
-  //     $items = {...$items}
-
-  //   }
+  
 
   function getNonce() {
     let text = "";

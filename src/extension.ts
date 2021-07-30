@@ -243,17 +243,21 @@ export function activate(context: vscode.ExtensionContext) {
 		if (!editor)
 			editor = vscode?.window?.visibleTextEditors[0];
 
-		if(hasText)
-		{
+		if (hasText) {
 			text = editor.document.getText(editor.selection);
 
 			if (text === '' && vscode?.window?.visibleTextEditors.length > 1) {
 				editor = vscode?.window?.visibleTextEditors[1];
 				viewColum = vscode?.window?.visibleTextEditors[1]?.viewColumn;
 			}
-	
+
 		}
-			
+		if (editor.document.fileName === 'tasks' && vscode?.window?.visibleTextEditors.length > 1) {
+			if (typeof (vscode?.window?.visibleTextEditors[0]?.viewColumn) === 'undefined')
+				return vscode?.window?.visibleTextEditors[1];
+		}
+
+
 		if (!editor) {
 			vscode.window.showInformationMessage("no active window");
 			return;
@@ -304,13 +308,13 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(
 		vscode.commands.registerCommand('vsblocksnipets.editCode', async (text, id) => {
 			let editor = GetActiveEditor(false);
-			let doc = editor?.document; 
+			let doc = editor?.document;
 			let filename = doc?.fileName ?? "";
 			let viewColum = 1;
 
 			if (filename === 'HelloWorld' || filename === 'tasks') {
 				doc = vscode?.window?.visibleTextEditors[1]?.document;
-				
+
 				//vscode.window.showTextDocument(doc, viewColum);
 
 				vscode.workspace.openTextDocument({ content: text }).then(document => {
@@ -326,7 +330,7 @@ export function activate(context: vscode.ExtensionContext) {
 				});
 			}
 			else {
-				
+
 
 				if (!doc) {
 					vscode.window.showInformationMessage("no active window");
