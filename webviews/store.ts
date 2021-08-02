@@ -220,7 +220,7 @@ export const tags = derived(
 
 );
 
-export interface item { id: string, name: string, code: string, color: string, placeholders: Array<string>, innerItems: string, visible: string, tags: Array<string> };
+export interface item { id: string, name: string, code: string, color: string, placeholders: Array<string>, innerItems: string, visible: string, tempId:string, linkedBlocks:[], tags: Array<string> };
 
 
 export const page = writable(originPage, (set) => {

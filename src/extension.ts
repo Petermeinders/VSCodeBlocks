@@ -326,6 +326,8 @@ export function activate(context: vscode.ExtensionContext) {
 					(async () => {
 						await delay(300);
 						vscode.commands.executeCommand("workbench.action.editor.changeLanguageMode");
+						//vscode.window.activeTextEditor?.document.languageId
+						vscode.languages.getLanguages();
 					})();
 				});
 			}
@@ -533,7 +535,6 @@ export function activate(context: vscode.ExtensionContext) {
 			vscode.window.showInformationMessage('Hello World!! from VSBlockSnipets!');
 			await vscode.commands.executeCommand("workbench.action.closeSidebar");
 			await vscode.commands.executeCommand("workbench.view.extension.vsblocksnipets-sidebar-view");
-
 			// HellowWorldPanel.kill();
 			// HellowWorldPanel.createOrShow(context.extensionUri);
 		})

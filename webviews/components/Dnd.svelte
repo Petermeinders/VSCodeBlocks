@@ -4,6 +4,7 @@
   import { afterUpdate, beforeUpdate, onMount } from "svelte";
   import { debug, editMode, items } from "../store";
   import type { item } from "../store";
+  import Common from './Common.svelte';
   import Fa from "svelte-fa";
   import { faTint, faTag, faFont, faPlusCircle, faPencilAlt, faTimesCircle, faSearch } from "@fortawesome/free-solid-svg-icons";
   import { setDebugMode } from "svelte-dnd-action";
@@ -12,6 +13,8 @@
 
   export let SearchTerm: string;
   export let FullCodeSearch: boolean;
+
+  let common: Common;
 
   $: {
     SearchTerm;
@@ -115,19 +118,7 @@
     console.log($items.customSnippets);
   }
 
-  function changedName(item: item) {
-    let i = $items.customSnippets.filter((x) => {
-      if (x.id === item.id) {
-        x.name = item.name;
-        if ($debug) console.log(x);
-      } else {
-        x = x;
-      }
-      return x;
-    });
-    //tsvscode.setState({ i });
-    $items.customSnippets = [...i];
-  }
+  
 
   if ($debug) console.log("thing here!");
 
@@ -524,7 +515,8 @@
     $items.customSnippets = [...tempItems];
   }
 
-  function OnCodeChange(e: any, item: item) {}
+  function OnCodeChange(e: any, item: item) {
+  }
 
   function onBlockHover(e: any, item: item) {}
 
@@ -545,10 +537,12 @@
     if (linkedItem) return linkedItem.name;
     else return "linknull";
   }
+
 </script>
 
 <main class="item">
   <!-- <div id="editTextHeader" class="editText hide" style="Color:Yellow; font-weight:bold">EDIT MODE ENABLED</div> -->
+  <Common bind:this="{common}" />
 
   <button class="tooltip" on:click={AddCodeBlockFromSelection} style="height: 50px;">Add Current Selection to CodeBlock</button>
   <input type="text" placeholder="Search" value={(SearchTerm = SearchTerm ?? "")} on:change={(event) => searchCode(event, FullCodeSearch)} />
@@ -578,7 +572,7 @@
         <div>
           <div style="background: #3c3c3c;     margin-top: 3px; align-items: center;" class="show">
             <Fa icon={faFont} style="color:{item.color}; padding-right: 4px;" />
-            <input type="text" bind:value={item.name} on:change={() => changedName(item)} />
+            <input type="text" bind:value={item.name} on:change={() => common.changedName(item)} />
           </div>
 
           <div style="background: #3c3c3c;     margin-top: 3px; align-items: center; " class="hide colorInput">

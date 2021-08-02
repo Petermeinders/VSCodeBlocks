@@ -1,5 +1,10 @@
 <script lang="ts">
   import {editItem } from "../store";
+  import Fa from "svelte-fa";
+  import { faTint, faTag, faFont, faPlusCircle, faPencilAlt, faTimesCircle, faSearch } from "@fortawesome/free-solid-svg-icons";
+  import Common from './Common.svelte';
+
+  let common: Common;
 
   function UpdateCodeOnPlaceHolderChange() {
     tsvscode.postMessage({
@@ -39,6 +44,13 @@
 </script>
 
 <main>
+  <Common bind:this="{common}" />
+  <div>
+    <div style="background: #3c3c3c;     margin-top: 3px; align-items: center; display:flex" class="show">
+      <Fa icon={faFont} style="color:{$editItem.color}; padding-right: 4px;" />
+      <input type="text" bind:value={$editItem.name} on:change={() => common.changedName($editItem)} />
+    </div>
+  </div>
   <div>
     <button on:click={(event) => CreateTabStop(event, $editItem)}>Selection to tabstop </button>
 
