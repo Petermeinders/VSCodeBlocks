@@ -4,7 +4,7 @@
   import { afterUpdate, beforeUpdate, onMount } from "svelte";
   import { debug, editMode, items } from "../store";
   import type { item } from "../store";
-  import Common from './Common.svelte';
+  import Common from "./Common.svelte";
   import Fa from "svelte-fa";
   import { faTint, faTag, faFont, faPlusCircle, faPencilAlt, faTimesCircle, faSearch } from "@fortawesome/free-solid-svg-icons";
   import { setDebugMode } from "svelte-dnd-action";
@@ -36,15 +36,6 @@
     } else {
       //set element mode to false;
     }
-  }
-
-  function getNonce() {
-    let text = "";
-    const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    for (let i = 0; i < 32; i++) {
-      text += possible.charAt(Math.floor(Math.random() * possible.length));
-    }
-    return text;
   }
 
   let shouldIgnoreDndEvents = false;
@@ -328,20 +319,6 @@
     }
   }
 
-  function changeColor(e: any, item: item) {
-    if ($debug) {
-      console.log(e);
-      console.log(item);
-    }
-    item.color = e.target.value;
-    $items.customSnippets = $items.customSnippets.map((i) => {
-      if (i.id === item.id) {
-        i.color = item.color;
-      }
-      return i;
-    });
-    // document.getElementById(item.id)?.getElementsByClassName('colorInput')[0].classList.toggle('hide')
-  }
 
   function ShowTags(item: item) {
     if ($debug) {
@@ -369,23 +346,6 @@
     }
   }
 
-  function changeTags(e: any, item: item) {
-    if ($debug) {
-      console.log(e);
-      console.log(item);
-    }
-
-    $items.customSnippets = $items.customSnippets.map((i) => {
-      if (i.id === item.id) {
-        var array = e.target.value.split(",");
-        i.tags = array;
-      } else {
-        i = i;
-      }
-      return i;
-    });
-    // document.getElementById(item.id)?.getElementsByClassName('tagInput')[0].classList.toggle('hide')
-  }
 
   function EditCodeBlock(item: item) {
     tsvscode.postMessage({
@@ -538,11 +498,12 @@
     else return "linknull";
   }
 
+  
+
 </script>
 
 <main class="item">
   <!-- <div id="editTextHeader" class="editText hide" style="Color:Yellow; font-weight:bold">EDIT MODE ENABLED</div> -->
-  <Common bind:this="{common}" />
 
   <button class="tooltip" on:click={AddCodeBlockFromSelection} style="height: 50px;">Add Current Selection to CodeBlock</button>
   <input type="text" placeholder="Search" value={(SearchTerm = SearchTerm ?? "")} on:change={(event) => searchCode(event, FullCodeSearch)} />
@@ -560,6 +521,9 @@
         style="border-color:{item.color}; display:{item.visible}"
       >
         <div>
+  <Common bind:this={common} />
+
+
           <span style=" cursor: pointer;" on:click={() => pasteCodeFromBlock(item)}><Fa icon={faPlusCircle} style="color:#00c300; padding-right: 4px;" /> </span>
           <span style=" cursor: pointer;" on:click={(event) => EditCodeBlock(item)}><Fa icon={faPencilAlt} style="color:orange; padding-right: 4px;" /> </span>
           <span style="cursor: pointer;" on:click={() => ShowColorPicker(item)}><Fa icon={faTint} style="color:yellow; padding-right: 4px;" /> </span>
@@ -572,19 +536,22 @@
         <div>
           <div style="background: #3c3c3c;     margin-top: 3px; align-items: center;" class="show">
             <Fa icon={faFont} style="color:{item.color}; padding-right: 4px;" />
-            <input type="text" bind:value={item.name} on:change={() => common.changedName(item)} />
+            <input type="text" bind:value={item.name} on:change={() => common.changedName(item, false)} />
           </div>
 
+          {#if common}
           <div style="background: #3c3c3c;     margin-top: 3px; align-items: center; " class="hide colorInput">
             <Fa icon={faTint} style="color:yellow; padding-right: 4px;  " />
-            <input type="text" id={getNonce()} style="float:left;" value={item.color} class="" placeholder="red" on:change={(event) => changeColor(event, item)} />
+            <input type="text" id={common.getNonce()} style="float:left;" value={item.color} class="" placeholder="red" on:change={(event) => common.changeColor(event, item, false)} />
           </div>
 
           <div style=" background: #3c3c3c;     margin-top: 3px; align-items: center;" class="hide tagInput">
             <Fa icon={faTag} style="color:#007acc; padding-right: 4px;" />
-            <input type="text" id={getNonce()} style="float:left;" value={item.tags} placeholder="tag1, tag2" on:change={(event) => changeTags(event, item)} />
+            <input type="text" id={common.getNonce()} style="float:left;" value={item.tags} placeholder="tag1, tag2" on:change={(event) => common.changeTags(event, item, false)} />
           </div>
+          {/if}
         </div>
+
 
         <div class="codeblock">
           <textarea disabled style="height:100px; width:100%" bind:value={item.code} on:change={(event) => OnCodeChange(event, item)} />

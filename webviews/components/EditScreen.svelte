@@ -1,8 +1,8 @@
 <script lang="ts">
-  import {editItem } from "../store";
+  import { editItem } from "../store";
   import Fa from "svelte-fa";
   import { faTint, faTag, faFont, faPlusCircle, faPencilAlt, faTimesCircle, faSearch } from "@fortawesome/free-solid-svg-icons";
-  import Common from './Common.svelte';
+  import Common from "./Common.svelte";
 
   let common: Common;
 
@@ -15,8 +15,7 @@
 
   function OnPlaceHolderChange(e, placeholder: string) {
     let prevValue = placeholder; //e.target.getAttribute('data-prev');
-    let currentVal = e.target.value
-
+    let currentVal = e.target.value;
 
     var indexValue = $editItem.placeholders.indexOf(currentVal);
 
@@ -25,17 +24,17 @@
     if (currentVal === "") {
       var newCode = $editItem.code.replaceAll("${" + indexValue + ":" + prevValue + "}", prevValue);
       let index = indexValue - 1;
-      $editItem.placeholders.splice(index,1)
+      $editItem.placeholders.splice(index, 1);
     } else {
       var newCode = $editItem.code.replaceAll("${" + indexValue + ":" + prevValue + "}", "${" + indexValue + ":" + currentVal + "}");
     }
     let newItem = $editItem;
     newItem.code = newCode;
-    $editItem = {...newItem};
+    $editItem = { ...newItem };
     UpdateCodeOnPlaceHolderChange();
   }
 
-  function CreateTabStop(){
+  function CreateTabStop() {
     tsvscode.postMessage({
       type: "createTabStop",
       value: $editItem,
@@ -44,27 +43,40 @@
 </script>
 
 <main>
-  <Common bind:this="{common}" />
+  <Common bind:this={common} />
   <div>
+    {#if common}
+      <div style="background: #3c3c3c;     margin-top: 3px; align-items: center; display:flex" class="hide colorInput">
+        <Fa icon={faTint} style="color:yellow; padding-right: 4px;  " />
+        <input type="text" id={common.getNonce()} style="float:left;" value={$editItem.color} class="" placeholder="red" on:change={(event) => common.changeColor(event, $editItem, true)} />
+      </div>
+
+      <div style=" background: #3c3c3c;     margin-top: 3px; align-items: center; display:flex" class="hide tagInput">
+        <Fa icon={faTag} style="color:#007acc; padding-right: 4px;" />
+        <input type="text" id={common.getNonce()} style="float:left;" value={$editItem.tags} placeholder="tag1, tag2" on:change={(event) => common.changeTags(event, $editItem, true)} />
+      </div>
+    {/if}
+
     <div style="background: #3c3c3c;     margin-top: 3px; align-items: center; display:flex" class="show">
       <Fa icon={faFont} style="color:{$editItem.color}; padding-right: 4px;" />
       <input type="text" bind:value={$editItem.name} on:change={() => common.changedName($editItem)} />
     </div>
+    
   </div>
   <div>
     <button on:click={(event) => CreateTabStop(event, $editItem)}>Selection to tabstop </button>
 
     {#if $editItem.placeholders !== null && typeof $editItem.placeholders !== "undefined" && $editItem.placeholders.length > 0}
-    <h3>TabStops</h3>
+      <h3>TabStops</h3>
       {#each $editItem.placeholders as placeholder}
-     <input type="text" bind:value={placeholder} on:change={(event) => OnPlaceHolderChange(event, placeholder.toString())} />
+        <input type="text" bind:value={placeholder} on:change={(event) => OnPlaceHolderChange(event, placeholder.toString())} />
       {/each}
     {/if}
   </div>
 </main>
 
 <style>
-    .tooltip {
+  .tooltip {
     position: relative;
     display: inline-block;
     /* border-bottom: 1px dotted black; */
@@ -81,8 +93,8 @@
 
     /* Position the tooltip */
     position: absolute;
-    top:-25px;
-    left:45px;
+    top: -25px;
+    left: 45px;
     z-index: 1;
   }
 
