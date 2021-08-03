@@ -85,10 +85,12 @@
     <svg style="tran" width="20" height="20" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 16" stroke="currentColor"><path d="M9 5l7 7-7 7" /></svg>
     Linked
   </button>
+  
   {#if isOpen && typeof linkedBlocks !== "undefined"}
     <button on:click={LinkBlocks}>Link Blocks</button>
+
     {#if $linkedBlocks.length > 0}
-    <button on:click={RemoveBlocks}>Cancel</button>
+      <button on:click={RemoveBlocks}>Cancel</button>
     {/if}
 
 

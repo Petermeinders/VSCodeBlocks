@@ -428,7 +428,7 @@
         <span style="cursor: pointer; " on:click={() => ShowSettings()}><Fa size="1x" icon={faCog} style="color:#007acc; padding-right: 4px; float:right" />
         </span>
       </h1> 
-      
+
     </div>
     <div class="container">
       <div class="code-container">

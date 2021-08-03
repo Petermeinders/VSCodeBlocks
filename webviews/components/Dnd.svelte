@@ -520,7 +520,7 @@
 
 </script>
 
-<main class="item">
+<main class="item" style="max-width: 300px;">
   <!-- <div id="editTextHeader" class="editText hide" style="Color:Yellow; font-weight:bold">EDIT MODE ENABLED</div> -->
 
   <button class="tooltip" on:click={AddCodeBlockFromSelection} style="height: 50px;">Add Current Selection to CodeBlock</button>
@@ -539,7 +539,7 @@
         style="border-color:{item.color}; display:{item.visible}"
       >
         <div>
-  <Common bind:this={common} />
+        <Common bind:this={common} />
 
 
           <span style=" cursor: pointer;" on:click={() => pasteCodeFromBlock(item)}><Fa icon={faPlusCircle} style="color:#00c300; padding-right: 4px;" /> </span>
