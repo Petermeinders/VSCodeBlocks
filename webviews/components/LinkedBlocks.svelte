@@ -74,6 +74,10 @@
     $items.customSnippets = [...newItems];
     $linkedBlocks = [];
   }
+
+  function RemoveBlocks(){
+    $linkedBlocks = [];
+  }
 </script>
 
 <main class="item">
@@ -83,6 +87,10 @@
   </button>
   {#if isOpen && typeof linkedBlocks !== "undefined"}
     <button on:click={LinkBlocks}>Link Blocks</button>
+    {#if $linkedBlocks.length > 0}
+    <button on:click={RemoveBlocks}>Cancel</button>
+    {/if}
+
 
     <section use:dndzone={{ items: $linkedBlocks, flipDurationMs }} on:consider={ handleDndConsider2} on:finalize={handleDndFinalize2}>
       {#each $linkedBlocks as item (getNonce())}
