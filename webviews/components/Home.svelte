@@ -8,6 +8,10 @@
   import EditScreen from "./EditScreen.svelte";
   import levenshtein from "fast-levenshtein";
   import LinkedBlocks from "./LinkedBlocks.svelte";
+  import {faCog} from "@fortawesome/free-solid-svg-icons";
+  import Fa from "svelte-fa";
+
+
 
   export let isSidebar: true | false;
 
@@ -413,6 +417,10 @@
     }
   }
 
+  function ShowSettings(){
+    console.log("not yet implemented")
+  }
+
   let clicked = 0;
 </script>
 
@@ -438,7 +446,13 @@
     {/if}
   {:else if $editMode.state === "false"}
     <!-- PANEL -->
-    <h1>CodeBlocks</h1>
+    <div style="display: flex, align-items: center">
+
+      <h1 style="display: flex, align-items: center, justify-content: space-between;">CodeBlocks <span style="cursor: pointer; " on:click={() => ShowSettings()}><Fa size="1x" icon={faCog} style="color:#007acc; padding-right: 4px; float:right" /></span></h1> 
+      
+
+
+    </div>
     <div class="container">
       <div class="code-container">
         <Tags />

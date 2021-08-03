@@ -2,17 +2,18 @@ import { xlink_attr } from "svelte/internal";
 import { writable, derived } from "svelte/store";
 
 // export const items = writable([{id:0,name:""}]);
-let items3 = [
-   { id: 31, name: "item31" },
-   { id: 32, name: "item32" },
-   { id: 33, name: "item33" },
-];
-
-let items4 = [
-   { id: 31, name: "item36" },
-   { id: 32, name: "item37" },
-   { id: 33, name: "item38" },
-];
+export interface Item {
+   id: string;
+   tempId:string;
+   name: string;
+   code: string;
+   innerItems: string;
+   linkedBlocks:[] | never[];
+   placeholders:[] | string[];
+   color:string;
+   visible:string;
+   tags:[] | string[];
+}
 
 let vsSnippets1 = {
    "Constructor": {
@@ -75,41 +76,30 @@ let vsSnippets2 = {
 //     vsSnippets1, vsSnippets2
 //   ]};
 
+let customSnippets:Item[] =
+[
+   {
+      id: "0",
+      tempId:"",
+      name: "test",
+      code: "if(${1:condition} ||${1:condition}){${2:expression}})",
+      innerItems: "items3",
+      placeholders: [
+         "condition",
+         "expression"
+      ],
+      color: "white",
+      visible: "",
+      linkedBlocks: [],
+      tags: [
+         "tag1",
+         "tag2"
+      ]
+   }
+]
+
 let originItems = {
-   "customSnippets": [
-      {
-         "id": "0",
-         "tempId":"",
-         "name": "test",
-         "code": "if(${1:condition} ||${1:condition}){${2:expression}})",
-         "innerItems": "items3",
-         "placeholders": [
-            "condition",
-            "expression"
-         ],
-         "color": "white",
-         "visible": "",
-         "linkedBlocks": [],
-         "tags": [
-            "tag1",
-            "tag2"
-         ]
-      },
-      {
-         "id": "1",
-         "tempId":"",
-         "name": "test2",
-         "innerItems": "items4",
-         "code": "...2",
-         "linkedBlocks": [],
-         "color": "white",
-         "visible": "",
-         "tags": [
-            "tag1",
-            "tag2"
-         ]
-      }
-   ],
+   customSnippets,
    "vsSnippets": [
       "vsSnippets1",
       "vsSnippets2"
@@ -130,7 +120,7 @@ let originEditItem = {
 }
 
 
-let originLinkedBlocks = [];
+let originLinkedBlocks:any[] = [];
 
 // [{ "id": "0", "name": "test", "code":"if(${1:condition} ||${1:condition}){${2:expression}})", "placeholders":["condition","expression"], "color":'white', "visible":"", "tags":["tag1","tag2"] },{ "id": "1", "name": "test2", "code":"...2", "color":'white', "visible":"", "tags":["tag1","tag2"] }]
 let originTags = [{ id: 1, tagName: "code" }, { id: 2, tagName: "command" }];
@@ -149,7 +139,7 @@ if (tsvscode.getState()?.p !== undefined) {
    originPage = tsvscode.getState()?.p;
 }
 
-tsvscode.setState(originItems, originTags, originPage);
+//tsvscode.setState(originItems, originTags, originPage);
 
 
 // if (tsvscode.getState()?.t !== undefined) {
@@ -212,7 +202,8 @@ export const tags = derived(
    $items => {
       if (typeof ($items) !== 'undefined') {
          let s = new Set($items.customSnippets.map(item => item.tags).flat());
-         s = ["None", ...s];
+         let setArray = Array.from(s);
+         setArray = ["None", ...s];
          return Array.from(s);
       }
    }

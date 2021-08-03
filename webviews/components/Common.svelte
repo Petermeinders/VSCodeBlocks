@@ -1,6 +1,6 @@
 <script lang="ts">
   import { debug, editItem, editMode, items } from "../store";
-  import type { item } from "../store";
+  import type { Item } from "../store";
 
   export const getNonce = () => {
     let text = "";
@@ -11,7 +11,7 @@
     return text;
   };
 
-  export const changedName = (item: item, isEditItem: boolean) => {
+  export const changedName = (item: Item, isEditItem: boolean) => {
     if (!isEditItem) {
       let i = $items.customSnippets.filter((x) => {
         if (x.id === item.id) {
@@ -25,14 +25,14 @@
       //tsvscode.setState({ i });
       $items.customSnippets = [...i];
     } else {
-      let i: item = $editItem;
+      let i: Item = $editItem;
       i.name = item.name;
       //tsvscode.setState({ i });
       $editItem = i;
     }
   };
 
-  export const changeColor = (e: any, item: item, isEditItem: boolean) => {
+  export const changeColor = (e: any, item: Item, isEditItem: boolean) => {
     if ($debug) {
       console.log(e);
       console.log(item);
@@ -55,13 +55,13 @@
     // document.getElementById(item.id)?.getElementsByClassName('colorInput')[0].classList.toggle('hide')
   };
 
-  export const changeTags = (e: any, item: item, isEditItem: boolean) => {
+  export const changeTags = (e: any, item: Item, isEditItem: boolean) => {
     if ($debug) {
       console.log(e);
       console.log(item);
     }
 
-    if (isEditItem) {
+    if (!isEditItem) {
       $items.customSnippets = $items.customSnippets.map((i) => {
         if (i.id === item.id) {
           var array = e.target.value.split(",");
@@ -73,13 +73,16 @@
       });
     } else {
       let i = $editItem;
-      i.tags = item.tags;
+      var array = e.target.value.split(",");
+      i.tags = array;
       $editItem = i;
     }
   };
 </script>
 
-<main />
+<main>
+
+</main>
 
 <style>
 </style>

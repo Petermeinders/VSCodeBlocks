@@ -13,7 +13,7 @@
     });
   }
 
-  function OnPlaceHolderChange(e, placeholder: string) {
+  function OnPlaceHolderChange(e: any, placeholder: string) {
     let prevValue = placeholder; //e.target.getAttribute('data-prev');
     let currentVal = e.target.value;
 
@@ -59,12 +59,12 @@
 
     <div style="background: #3c3c3c;     margin-top: 3px; align-items: center; display:flex" class="show">
       <Fa icon={faFont} style="color:{$editItem.color}; padding-right: 4px;" />
-      <input type="text" bind:value={$editItem.name} on:change={() => common.changedName($editItem)} />
+      <input type="text" bind:value={$editItem.name} on:change={() => common.changedName($editItem, true)} />
     </div>
     
   </div>
   <div>
-    <button on:click={(event) => CreateTabStop(event, $editItem)}>Selection to tabstop </button>
+    <button on:click={() => CreateTabStop()}>Selection to tabstop </button>
 
     {#if $editItem.placeholders !== null && typeof $editItem.placeholders !== "undefined" && $editItem.placeholders.length > 0}
       <h3>TabStops</h3>

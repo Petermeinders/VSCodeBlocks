@@ -9,7 +9,7 @@
   import levenshtein from "fast-levenshtein";
   import { flip } from "svelte/animate";
   import { dndzone } from "svelte-dnd-action";
-  import type { Item } from "../../src/Models";
+  import type { Item } from "../store";
 
   let isOpen = false;
   const toggle = () => (isOpen = !isOpen);
@@ -21,7 +21,7 @@
   //     { id: 4, name: "item4" },
   //   ];
   const flipDurationMs = 300;
-  function handleDndConsider2(e) {
+  function handleDndConsider2(e:any) {
     $linkedBlocks = e.detail.items;
     // $linkedBlocks.map(linkItem => {
     //     linkItem.id = e.detail.items[0].id;
@@ -52,7 +52,7 @@
     console.log($linkedBlocks);
     InfoMessage("Blocks linked.");
     let newItems = $items.customSnippets;
-    newItems.map((item: Item) => {
+    newItems.map((item) => {
       if ($linkedBlocks.some((x) => x.id === item.id)) {
         $linkedBlocks.forEach((linkedBlock) => {
           if (item.id !== linkedBlock.id) {
@@ -84,7 +84,7 @@
   {#if isOpen && typeof linkedBlocks !== "undefined"}
     <button on:click={LinkBlocks}>Link Blocks</button>
 
-    <section use:dndzone={{ items: $linkedBlocks, flipDurationMs }} on:consider={handleDndConsider2} on:finalize={handleDndFinalize2}>
+    <section use:dndzone={{ items: $linkedBlocks, flipDurationMs }} on:consider={ handleDndConsider2} on:finalize={handleDndFinalize2}>
       {#each $linkedBlocks as item (getNonce())}
         <div animate:flip={{ duration: flipDurationMs }}>{item.name}</div>
       {/each}

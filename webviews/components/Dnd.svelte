@@ -3,13 +3,14 @@
   import { dndzone, SHADOW_ITEM_MARKER_PROPERTY_NAME, TRIGGERS } from "svelte-dnd-action";
   import { afterUpdate, beforeUpdate, onMount } from "svelte";
   import { debug, editMode, items } from "../store";
-  import type { item } from "../store";
+  // import type { item } from "../store";
   import Common from "./Common.svelte";
   import Fa from "svelte-fa";
   import { faTint, faTag, faFont, faPlusCircle, faPencilAlt, faTimesCircle, faSearch } from "@fortawesome/free-solid-svg-icons";
   import { setDebugMode } from "svelte-dnd-action";
-  import type { Item } from "../../src/Models";
   import levenshtein from "fast-levenshtein";
+  import type { Item } from "../store";
+
 
   export let SearchTerm: string;
   export let FullCodeSearch: boolean;
@@ -55,7 +56,7 @@
       const idx = $items.customSnippets.findIndex((item) => item.id === id);
       const newId = `${id}_copy_${Math.round(Math.random() * 100000)}`;
       // the line below was added in order to be compatible with version svelte-dnd-action 0.7.4 and above
-      e.detail.items = e.detail.items.filter((item) => !item[SHADOW_ITEM_MARKER_PROPERTY_NAME]);
+      e.detail.items = e.detail.items.filter((item:any) => !item[SHADOW_ITEM_MARKER_PROPERTY_NAME]);
       e.detail.items.splice(idx, 0, { ...$items.customSnippets[idx], id: newId, tempId: id });
       $items.customSnippets = e.detail.items;
       shouldIgnoreDndEvents = true;
@@ -90,14 +91,15 @@
     // }
   }
 
-  function deleteItem(itemList: any, item: item) {
+  function deleteItem(itemList: any, item: Item) {
     if ($debug) console.log($items.customSnippets);
 
     let itemsLeft = itemList.filter((j: any) => j.id !== item.id);
     $items.customSnippets = [...itemsLeft];
   }
 
-  function deleteCodeLink(item: Item, linkId: string) {
+  function deleteCodeLink(item: Item, linkId:string = "") {
+    const bob = "";
     let newItems = $items.customSnippets;
     let linkedIds = item.linkedBlocks;
     linkedIds.includes(linkId) && linkedIds.splice(linkedIds.indexOf(linkId), 1);
@@ -141,15 +143,22 @@
 
     if ($debug) console.log(searchString);
 
-    let foundArray;
+    let foundArray:Item[];
     if (FullCodeSearch) {
-      foundArray = $items.customSnippets.filter(
+      try{
+        foundArray = $items.customSnippets.filter(
         (item) =>
           item.name.toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 ||
           item.id.toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 ||
           item?.tags?.findIndex((x) => x?.toLowerCase()?.trim() === searchString?.toLowerCase()?.trim()) !== -1 ||
           FuzzyCheck(item, searchString)
       );
+      }
+      catch{
+        foundArray = [];
+        console.log("Tags/Search error!");
+      }
+    
     } else {
       foundArray = $items.customSnippets.filter(
         (item) => item.name.toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 || 
@@ -498,8 +507,6 @@
     else return "linknull";
   }
 
-  
-
 </script>
 
 <main class="item">
@@ -536,7 +543,7 @@
         <div>
           <div style="background: #3c3c3c;     margin-top: 3px; align-items: center;" class="show">
             <Fa icon={faFont} style="color:{item.color}; padding-right: 4px;" />
-            <input type="text" bind:value={item.name} on:change={() => common.changedName(item, false)} />
+            <input type="text" class="blockTitle" style="color:{item.color};" bind:value={item.name} on:change={() => common.changedName(item, false)} />
           </div>
 
           {#if common}
@@ -568,7 +575,7 @@
             {#each item.linkedBlocks as linkedBlock}
               <div class="linkedStyleBlock">
                 <span style="cursor: pointer;" on:click={(event) => searchCode(linkedBlock, FullCodeSearch)}><Fa icon={faSearch} style="color:#23f1de; padding-right: 4px;" /> </span>
-                <input type="text" disabled value={getLinkedName(linkedBlock)} />
+                <input type="text" style="color:#b3fffb" disabled value={getLinkedName(linkedBlock)} />
                 <span on:click={() => deleteCodeLink(item, linkedBlock)} class="show" style="float:right; cursor: pointer;"><Fa icon={faTimesCircle} style="color:red; padding-right: 4px; " /></span>
               </div>
             {/each}
@@ -596,6 +603,10 @@
     border: 1px solid rgb(255, 255, 255);
     margin-bottom: 5px;
     /* margin: 0.15em 0; */
+  }
+
+  .blockTitle{
+    font-size: 1.3em;
   }
 
   .tooltip {

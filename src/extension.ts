@@ -5,7 +5,6 @@ import * as vscode from 'vscode';
 import { SidebarProvider } from './SidebarProvider';
 import { TextDecoder, TextEncoder } from 'util';
 import { stringify } from 'querystring';
-import { Item } from './Models';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -87,7 +86,7 @@ export function activate(context: vscode.ExtensionContext) {
 			// vscode.window.showInformationMessage(data.value.customSnippets);
 			const language = 'markdown';
 
-			data.customSnippets.forEach((element: Item) => {
+			data.customSnippets.forEach((element) => {
 				if (element.id.includes("id:")) {
 					let index = data.customSnippets.indexOf(element);
 					console.log(index);
