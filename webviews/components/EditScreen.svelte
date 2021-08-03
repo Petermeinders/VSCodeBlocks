@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { editItem } from "../store";
+  import { debug, editItem, editMode } from "../store";
   import Fa from "svelte-fa";
   import { faTint, faTag, faFont, faPlusCircle, faPencilAlt, faTimesCircle, faSearch } from "@fortawesome/free-solid-svg-icons";
   import Common from "./Common.svelte";
@@ -40,6 +40,38 @@
       value: $editItem,
     });
   }
+
+  // function ShowSidebar() {
+  //   if ($debug) console.log("Sidebar mode");
+  //   tsvscode.postMessage({
+  //     type: "showSidebar",
+  //     value: $items,
+  //   });
+  // }
+
+  function InfoMessage(message:any) {
+    tsvscode.postMessage({
+      type: "onInfo",
+      value: message,
+    });
+  }
+
+
+  function CloseEditWindow() {
+    tsvscode.postMessage({
+      type: "closeEditWindow",
+      value: $editMode,
+    });
+    InfoMessage("Edit Mode ended.");
+  }
+
+
+  function GetCodeFromEditScreenAndSave() {
+    tsvscode.postMessage({
+      type: "GetCodeFromEditScreen",
+      value: $editMode,
+    });
+  }
 </script>
 
 <main>
@@ -73,6 +105,31 @@
       {/each}
     {/if}
   </div>
+
+  <div>
+    <button
+      on:click={() => {
+        $editMode.state = "false";
+        $editItem = { ...$editItem, placeholders: [] };
+        CloseEditWindow();
+      }}>Cancel</button
+    >
+    <button
+      on:click={() => {
+        $editMode.state = "false";
+        GetCodeFromEditScreenAndSave();
+        CloseEditWindow();
+      }}>Save Code Block</button
+    >
+  </div>
+
+  <!-- <div>
+    <button
+    on:click={() => {
+      $editMode.state = "false";
+    }}>go back</button
+  >
+  </div> -->
 </main>
 
 <style>

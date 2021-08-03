@@ -91,15 +91,26 @@
     // }
   }
 
-  function deleteItem(itemList: any, item: Item) {
+  function deleteItem(itemList: any, selectedItem: Item) {
     if ($debug) console.log($items.customSnippets);
 
-    let itemsLeft = itemList.filter((j: any) => j.id !== item.id);
+    //let removedItem = itemList.filter((j: any) => j.id === selectedItem.id);
+
+    itemList.map(item => {
+      item.linkedBlocks.map(linkedBlock => {
+        if (linkedBlock === selectedItem.id){
+            console.log(item);
+            const index = item.linkedBlocks.indexOf(selectedItem.id);
+            item.linkedBlocks.splice(index, 1);
+        }
+      });
+    });
+
+    let itemsLeft = itemList.filter((j: any) => j.id !== selectedItem.id);
     $items.customSnippets = [...itemsLeft];
   }
 
   function deleteCodeLink(item: Item, linkId:string = "") {
-    const bob = "";
     let newItems = $items.customSnippets;
     let linkedIds = item.linkedBlocks;
     linkedIds.includes(linkId) && linkedIds.splice(linkedIds.indexOf(linkId), 1);

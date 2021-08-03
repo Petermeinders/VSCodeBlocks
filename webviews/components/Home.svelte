@@ -357,22 +357,7 @@
     });
   }
 
-  function ShowSidebar() {
-    if ($debug) console.log("Sidebar mode");
-    tsvscode.postMessage({
-      type: "showSidebar",
-      value: $items,
-    });
-  }
-
-  function CloseEditWindow() {
-    tsvscode.postMessage({
-      type: "closeEditWindow",
-      value: $editMode,
-    });
-    InfoMessage("Edit Mode ended.");
-  }
-
+  
   function ImportVSSnippet() {
     tsvscode.postMessage({
       type: "ImportVSCodeSnippet",
@@ -380,21 +365,16 @@
     });
   }
 
-  function GetCodeFromEditScreenAndSave() {
-    tsvscode.postMessage({
-      type: "GetCodeFromEditScreen",
-      value: $editMode,
-    });
-  }
+ 
 
-  function InfoMessage(message) {
+  function InfoMessage(message:any) {
     tsvscode.postMessage({
       type: "onInfo",
       value: message,
     });
   }
 
-  function ErrorMessage(message) {
+  function ErrorMessage(message:any) {
     tsvscode.postMessage({
       type: "onError",
       value: message,
@@ -438,20 +418,17 @@
     {:else}
       <div>EDIT MODE</div>
       <EditScreen />
-      <button
-        on:click={() => {
-          $editMode.state = "false";
-        }}>go back</button
-      >
     {/if}
   {:else if $editMode.state === "false"}
     <!-- PANEL -->
     <div style="display: flex, align-items: center">
 
-      <h1 style="display: flex, align-items: center, justify-content: space-between;">CodeBlocks <span style="cursor: pointer; " on:click={() => ShowSettings()}><Fa size="1x" icon={faCog} style="color:#007acc; padding-right: 4px; float:right" /></span></h1> 
+      <h1 style="display: flex, align-items: center, justify-content: space-between;">
+        CodeBlocks 
+        <span style="cursor: pointer; " on:click={() => ShowSettings()}><Fa size="1x" icon={faCog} style="color:#007acc; padding-right: 4px; float:right" />
+        </span>
+      </h1> 
       
-
-
     </div>
     <div class="container">
       <div class="code-container">
@@ -468,20 +445,7 @@
   {:else}
     <h1>EDIT MODE</h1>
     <EditScreen />
-    <button
-      on:click={() => {
-        $editMode.state = "false";
-        $editItem = { ...$editItem, placeholders: [] };
-        CloseEditWindow();
-      }}>Cancel</button
-    >
-    <button
-      on:click={() => {
-        $editMode.state = "false";
-        GetCodeFromEditScreenAndSave();
-        CloseEditWindow();
-      }}>Save Code Block</button
-    >
+    
   {/if}
 
 
