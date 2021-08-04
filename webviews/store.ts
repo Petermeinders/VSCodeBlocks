@@ -103,7 +103,8 @@ let originItems = {
    "vsSnippets": [
       "vsSnippets1",
       "vsSnippets2"
-   ]
+   ],
+   selectedTags: []
 
 };
 
@@ -202,9 +203,12 @@ export const tags = derived(
    $items => {
       if (typeof ($items) !== 'undefined') {
          let s = new Set($items.customSnippets.map(item => item.tags).flat());
-         let setArray = Array.from(s);
-         setArray = ["None", ...s];
-         return Array.from(s);
+         let newSet = Array.from(s);
+         newSet = newSet.map(x => { return x.toUpperCase().trim();});
+         newSet = newSet.sort((a, b) => a.localeCompare(b));
+         let setArray = Array.from(new Set(newSet));
+         setArray = ["None", ...setArray];
+         return setArray;
       }
    }
 

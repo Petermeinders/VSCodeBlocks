@@ -17,27 +17,91 @@
   console.log("Tags:");
   console.log($tags);
 
-  function filterBlocksByTag(tag: string) {
-    console.log("TIME TOFIND TAGS!");
-    let i = $items.customSnippets.filter((x) => { 
-      if (typeof x.tags !== "undefined") { //Tag found
-        if (x.tags.findIndex((y) => y.includes(tag)) !== -1 || tag === "None") {
-          x.visible = "";
-        } else {
-          x.visible = "none";
-        }
-      } else { //Tag missing
-        if( tag === "None") //Selected tag is none so make everything visible
-        {
-          x.visible = "";
-        }
-        else { //Selected tag is none so hide anything missing selected tag
-          x.visible = "none";
-        }
+  function filterBlocksByTag(e, tag: string) {
+    tag = tag.toUpperCase();
+    let selectedTags = $items.selectedTags ?? [];
+
+    if (tag !== "NONE") { 
+      if (selectedTags.indexOf(tag) === -1) {
+        //Tag not yet added.
+        selectedTags.push(tag);
+
+        $items.selectedTags = [...selectedTags];
+
+        console.log($items.selectedTags);
+        e.target.classList.add("tagSelected");
+      } else {
+        //Duplicate found
+        e.target.classList.remove("tagSelected");
+        let x = selectedTags.includes(tag) && selectedTags.splice(selectedTags.indexOf(tag), 1)
       }
-      return x;
-    });
-    $items.customSnippets = [...i];
+
+      let i = $items.customSnippets.filter((item) => {
+        let found = 0;
+
+        if (typeof item.tags !== "undefined" && typeof $items.selectedTags !== "undefined") {
+          if (selectedTags.length === 0) {
+            //EMTPY
+            item.visible = "";
+            return item;
+          } else {
+            //NOT EMTPY
+            
+            selectedTags.forEach((selectedTag) => {
+              if (item.tags.findIndex((tagName) => tagName.toUpperCase().includes(selectedTag)) !== -1) {
+                // x.visible = "";
+                found = ++found;
+              } else {
+                //x.visible = "None";
+              }
+            });
+           
+          }
+        }
+        // } else {
+        //   //Tag missing
+        //   if ($items.selectedTags.length === 0) {
+        //     //Selected tag is none so make everything visible
+        //     $items.selectedTags = [];
+        //     x.visible = "";
+        //   } else {
+        //     //Selected tag is none so hide anything missing selected tag
+        //     x.visible = "None";
+        //   }
+        // }
+        if(found > 0)
+            {
+              item.visible = "";
+            }
+            else{
+              item.visible = "None";
+            }
+
+        return item;
+      });
+
+      // if (selectedTags.indexOf(tag) === -1) {
+      //   $items.customSnippets = [...i];
+      // }
+      //$items.selectedTags = [...selectedTags];
+
+      $items.customSnippets = [...i];
+
+      $items.customSnippets.forEach(item =>{
+        if(item.visible !== "None")
+        console.log(item);
+      })
+      
+    } else { //Show ALL
+      $items.selectedTags = [];
+      let i = $items.customSnippets.filter((x) => {
+        if (typeof x.tags !== "undefined" && typeof $items.selectedTags !== "undefined") {
+          x.visible = "";
+          return x;
+        }
+      });
+      $items.customSnippets = [...i];
+    }
 
     //This doesn't work since the component gets reloaded after new derived value
     //e.target.classList.add('selectedTag')
@@ -47,15 +111,16 @@
 </script>
 
 <main class="item">
+  <div class="tagSelected" />
   <div>
     <button on:click={toggle} aria-expanded={isOpen}>
       <svg style="tran" width="20" height="20" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 16" stroke="currentColor"><path d="M9 5l7 7-7 7" /></svg>
       Tags
     </button>
-    {#if isOpen && typeof($tags) !== 'undefined'}
+    {#if isOpen && typeof $tags !== "undefined"}
       <ul transition:slide={{ duration: 300 }}>
-        {#each $tags as tag (getNonce())}
-          <div class="cursorPointer " style="border-width:1px; border-color:white; border-style:{borderStyle};" on:click={(event) => filterBlocksByTag(tag)}>{tag}</div>
+        {#each $tags as tag (tag)}
+          <div class="cursorPointer " style="border-width:1px; border-color:white; border-style:{borderStyle};" on:click={(event) => filterBlocksByTag(event, tag)}>{tag}</div>
         {/each}
       </ul>
     {/if}
@@ -66,7 +131,6 @@
   .cursorPointer {
     cursor: pointer;
   }
-
 
   button {
     border: none;
@@ -87,6 +151,10 @@
 
   [aria-expanded="true"] svg {
     transform: rotate(0.25turn);
+  }
+
+  .tagSelected {
+    font-weight: bold;
   }
 
   /* .selectedTag {
