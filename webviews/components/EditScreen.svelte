@@ -72,6 +72,13 @@
       value: $editMode,
     });
   }
+
+  function ConvertSnippetToBlock() {
+    tsvscode.postMessage({
+      type: "ConvertSnippetToBlock",
+      value: $editMode,
+    });
+  }
 </script>
 
 <main>
@@ -121,6 +128,13 @@
         CloseEditWindow();
       }}>Save Code Block</button
     >
+    <button
+    on:click={() => {
+      $editMode.state = "false";
+      ConvertSnippetToBlock();
+      CloseEditWindow();
+    }}>Convert Snippet To Block</button
+  >
   </div>
 
   <!-- <div>

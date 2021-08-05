@@ -34,6 +34,13 @@
         $items.vsSnippets = ["vsSnippets1", "vsSnippets2"];
       }
 
+      if ($items.settings === null || typeof $items.settings === "undefined") {
+        $items.settings = {
+          isFuzzy: false,
+          searchCode:false,
+        };
+      }
+
       if ($debug) {
         console.log("Saving Items");
         console.log($items);
@@ -121,7 +128,10 @@
         case "import-vscode-snip":
           let text = message.value.text;
           let filename = message.value.filename;
-          ParseVSCodeSnippet(text);
+          $editItem = { id: lastId, tempId:"", code: text, innerItems: "items4", linkedBlocks:[], name: "New Name", placeholders: [], visible: "true", color: "white", tags: [""] };
+          $editMode = { id: lastId, state: "true", fileName: filename };
+
+          //ParseVSCodeSnippet(text);
           break;
 
         case "selection-to-search":
@@ -131,6 +141,11 @@
         case "code-from-active-window":
           let activeScreenCode = message.value;
           SaveCodeFromEdit(activeScreenCode);
+          break;
+
+          case "code-vssnippet-from-active-window":
+          let snippetCode = message.value;
+          ParseVSCodeSnippet(snippetCode);
           break;
 
         case "add-placeholder":
@@ -184,10 +199,15 @@
   function ParseVSCodeSnippet(text) {
     //TODO: add vscode message on parse failure.
     const vsSnip = JSON.parse(text);
-    const bodArray = vsSnip[Object.keys(vsSnip)[0]].body;
-    const description = vsSnip[Object.keys(vsSnip)[0]].description;
-    const prefix = vsSnip[Object.keys(vsSnip)[0]].prefix;
-    const name = Object.keys(vsSnip)[0];
+    const snippetNumber = Object.keys(vsSnip).length;
+
+    for (let snip in vsSnip)
+    { 
+      
+    const bodArray = vsSnip[snip].body;
+    const description = vsSnip[snip].description;
+    const prefix = vsSnip[snip].prefix;
+    const name = snip;
     const body = bodArray.join("\n");
     let regex = /\$\{\d*:|\$\{\\d*\|/g;
     let placeholdersArray: any[] = [];
@@ -229,13 +249,24 @@
 
     let filteredArray = [...new Set(placeholdersArray)];
 
-    let tags = [];
-    if (Array.isArray(prefix)) tags = prefix;
+    let tags:string[] = [];
+    if (Array.isArray(prefix)){ 
+      tags = prefix;
+    }
 
-    let importItem = { id: getNonce(), name: name.substr(0, 25), code: body, innerItems: "temp", placeholders: filteredArray, color: "white", visible: "true", tags: tags };
+    $editItem.tags.forEach(tag => {
+        tags.push(tag);
+    });
+
+
+    //let importItem = { id: getNonce(), name: name.substr(0, 25), code: body, innerItems: "temp", placeholders: filteredArray, color: "white", visible: "true", tags: tags };
+    let importItem = { id: getNonce(), tempId:"", linkedBlocks:[], name: name.substr(0, 25), code: body, innerItems: "temp", placeholders: filteredArray, color: "white", visible: "true", tags: tags };
 
     $items.customSnippets.push(importItem);
-    if ($debug) console.log($items);
+    if ($debug) console.log(importItem);
+
+    }
+   
 
     InfoMessage("VSCode Snippet Imported!");
   }

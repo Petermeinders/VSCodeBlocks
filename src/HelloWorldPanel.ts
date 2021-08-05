@@ -129,6 +129,15 @@ export class HellowWorldPanel {
     }
   }
 
+  public static GetCodeFromEditScreenForSnippet(value: string) {
+    if (typeof (HellowWorldPanel.currentPanel) !== 'undefined') {
+      HellowWorldPanel.currentPanel._panel.webview.postMessage({
+        type: 'code-vssnippet-from-active-window',
+        value: value,
+      });
+    }
+  }
+
   //TODO:Figure out how to pass code and update respective tabstops
   // public static PassEditItemChange(code: string){
   //   if (typeof (HellowWorldPanel.currentPanel) !== 'undefined') {
@@ -367,6 +376,28 @@ export class HellowWorldPanel {
 
           let code = editor.document.getText();
           HellowWorldPanel.GetCodeFromEditScreen(code);
+          //vscode.commands.executeCommand("vsblocksnipets.GetCodeFromEditScreen");
+          //      vscode.commands.executeCommand("vsblocksnipets.startPanel", data.value);
+
+          break;
+        }
+
+        case "ConvertSnippetToBlock": {
+          if (!data.value) {
+            return;
+          }
+          let editor = HellowWorldPanel.GetActiveEditor(false);
+
+          if (!editor) {
+            vscode.window.showInformationMessage("no active window");
+            return;
+          }
+    
+          let text = editor.document.getText();
+          let viewColum = editor.viewColumn;
+
+          let code = editor.document.getText();
+          HellowWorldPanel.GetCodeFromEditScreenForSnippet(code);
           //vscode.commands.executeCommand("vsblocksnipets.GetCodeFromEditScreen");
           //      vscode.commands.executeCommand("vsblocksnipets.startPanel", data.value);
 

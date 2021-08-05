@@ -104,7 +104,11 @@ let originItems = {
       "vsSnippets1",
       "vsSnippets2"
    ],
-   selectedTags: []
+   selectedTags: [],
+   settings:{
+      isFuzzy:false,
+      searchCode:false
+   }
 
 };
 

@@ -11,7 +11,6 @@
   import levenshtein from "fast-levenshtein";
   import type { Item } from "../store";
 
-
   export let SearchTerm: string;
   export let FullCodeSearch: boolean;
 
@@ -56,7 +55,7 @@
       const idx = $items.customSnippets.findIndex((item) => item.id === id);
       const newId = `${id}_copy_${Math.round(Math.random() * 100000)}`;
       // the line below was added in order to be compatible with version svelte-dnd-action 0.7.4 and above
-      e.detail.items = e.detail.items.filter((item:any) => !item[SHADOW_ITEM_MARKER_PROPERTY_NAME]);
+      e.detail.items = e.detail.items.filter((item: any) => !item[SHADOW_ITEM_MARKER_PROPERTY_NAME]);
       e.detail.items.splice(idx, 0, { ...$items.customSnippets[idx], id: newId, tempId: id });
       $items.customSnippets = e.detail.items;
       shouldIgnoreDndEvents = true;
@@ -96,12 +95,12 @@
 
     //let removedItem = itemList.filter((j: any) => j.id === selectedItem.id);
 
-    itemList.map(item => {
-      item.linkedBlocks.map(linkedBlock => {
-        if (linkedBlock === selectedItem.id){
-            console.log(item);
-            const index = item.linkedBlocks.indexOf(selectedItem.id);
-            item.linkedBlocks.splice(index, 1);
+    itemList.map((item) => {
+      item.linkedBlocks.map((linkedBlock) => {
+        if (linkedBlock === selectedItem.id) {
+          console.log(item);
+          const index = item.linkedBlocks.indexOf(selectedItem.id);
+          item.linkedBlocks.splice(index, 1);
         }
       });
     });
@@ -110,7 +109,7 @@
     $items.customSnippets = [...itemsLeft];
   }
 
-  function deleteCodeLink(item: Item, linkId:string = "") {
+  function deleteCodeLink(item: Item, linkId: string = "") {
     let newItems = $items.customSnippets;
     let linkedIds = item.linkedBlocks;
     linkedIds.includes(linkId) && linkedIds.splice(linkedIds.indexOf(linkId), 1);
@@ -121,8 +120,6 @@
     $items.customSnippets = [...newItems];
     console.log($items.customSnippets);
   }
-
-  
 
   if ($debug) console.log("thing here!");
 
@@ -145,7 +142,7 @@
   }
 
   export function searchCode(e: any, FullCodeSearch: any) {
-    let searchString:string;
+    let searchString: string;
     if (typeof e === "string") {
       searchString = e;
     } else {
@@ -154,27 +151,26 @@
 
     if ($debug) console.log(searchString);
 
-    let foundArray:Item[];
-    if (FullCodeSearch) {
-      try{
+    let foundArray: Item[];
+    if ($items.settings.searchCode) {
+      try {
         foundArray = $items.customSnippets.filter(
-        (item) =>
-          item.name.toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 ||
-          item.id.toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 ||
-          item?.tags?.findIndex((x) => x?.toLowerCase()?.trim() === searchString?.toLowerCase()?.trim()) !== -1 ||
-          FuzzyCheck(item, searchString)
-      );
-      }
-      catch{
+          (item) =>
+            item.name.toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 ||
+            item.id.toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 ||
+            item?.tags?.findIndex((x) => x?.toLowerCase()?.trim() === searchString?.toLowerCase()?.trim()) !== -1 ||
+            FuzzyCheck(item, searchString)
+        );
+      } catch {
         foundArray = [];
         console.log("Tags/Search error!");
       }
-    
     } else {
       foundArray = $items.customSnippets.filter(
-        (item) => item.name.toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 || 
-        item.id.toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 ||
-        item.tags.findIndex((x) => x.toLowerCase().trim() === searchString.toLowerCase().trim()) !== -1
+        (item) =>
+          item.name.toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 ||
+          item.id.toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 ||
+          item?.tags?.findIndex((x) => x?.toLowerCase()?.trim() === searchString?.toLowerCase()?.trim()) !== -1
       );
     }
     if ($debug) console.log(foundArray);
@@ -210,14 +206,18 @@
   }
 
   function FuzzyCheck(item: Item, searchString: string) {
-    // if (item.code.includes(searchString.toLowerCase().trim()) === true){
-    //   return true;
-    // }
-    // else {
-    //   return false;
-    // }
-    // return CodeCompareForEachItem(item, searchString)
-    return CodeCompareWholeFile(item, searchString);
+    if ($items.settings.isFuzzy) {
+      return CodeCompareWholeFile(item, searchString);
+    } else {
+      if (item.code.includes(searchString.toLowerCase().trim()) === true) {
+        return true;
+      } else {
+        return false;
+      }
+      //return CodeCompareForEachItem(item, searchString)
+
+      // return false;
+    }
   }
 
   function CodeCompareWholeFile(item: Item, searchString: string) {
@@ -339,7 +339,6 @@
     }
   }
 
-
   function ShowTags(item: item) {
     if ($debug) {
       console.log(item.id);
@@ -365,7 +364,6 @@
       document.getElementById(item.id)?.getElementsByClassName("colorInput")[0].classList.remove("show");
     }
   }
-
 
   function EditCodeBlock(item: item) {
     tsvscode.postMessage({
@@ -495,8 +493,7 @@
     $items.customSnippets = [...tempItems];
   }
 
-  function OnCodeChange(e: any, item: item) {
-  }
+  function OnCodeChange(e: any, item: item) {}
 
   function onBlockHover(e: any, item: item) {}
 
@@ -517,14 +514,25 @@
     if (linkedItem) return linkedItem.name;
     else return "linknull";
   }
-
 </script>
 
 <main class="item">
   <!-- <div id="editTextHeader" class="editText hide" style="Color:Yellow; font-weight:bold">EDIT MODE ENABLED</div> -->
 
-  <button class="tooltip" on:click={AddCodeBlockFromSelection} style="height: 50px;">Add Current Selection to CodeBlock</button>
-  <input type="text" placeholder="Search" value={(SearchTerm = SearchTerm ?? "")} on:change={(event) => searchCode(event, FullCodeSearch)} />
+  <button class="tooltip" on:click={AddCodeBlockFromSelection} style="height: 50px;">Add Current Selection to CodeBlock<span class="tooltiptext">Text</span></button>
+  <div style="display:flex; align-items: center; background: #3c3c3c">
+    <input type="text" placeholder="Search" value={(SearchTerm = SearchTerm ?? "")} on:change={(event) => searchCode(event, FullCodeSearch)} />
+    <span class="tooltip">
+      <input type="checkbox" id="searchCode" name="searchCode" value="false" bind:checked={$items.settings.searchCode} />
+      <span class="tooltiptext">Search Code</span>
+    </span>
+    <span class="tooltip"
+      ><input title="Text to show" type="checkbox" id="isFuzzy" name="isFuzzy" bind:checked={$items.settings.isFuzzy} />
+      <span class="tooltiptext">Fuzzy Search</span>
+    </span>
+  
+  </div>
+
   <section aria-label={listName} autoAriaDisabled:true use:dndzone={{ items: $items.customSnippets, flipDurationMs }} on:consider={handleDndConsider} on:finalize={handleDndFinalize}>
     {#each $items.customSnippets as item (item.id)}
       <div
@@ -539,8 +547,7 @@
         style="border-color:{item.color}; display:{item.visible}"
       >
         <div>
-  <Common bind:this={common} />
-
+          <Common bind:this={common} />
 
           <span style=" cursor: pointer;" on:click={() => pasteCodeFromBlock(item)}><Fa icon={faPlusCircle} style="color:#00c300; padding-right: 4px;" /> </span>
           <span style=" cursor: pointer;" on:click={(event) => EditCodeBlock(item)}><Fa icon={faPencilAlt} style="color:orange; padding-right: 4px;" /> </span>
@@ -558,18 +565,17 @@
           </div>
 
           {#if common}
-          <div style="background: #3c3c3c;     margin-top: 3px; align-items: center; " class="hide colorInput">
-            <Fa icon={faTint} style="color:yellow; padding-right: 4px;  " />
-            <input type="text" id={common.getNonce()} style="float:left;" value={item.color} class="" placeholder="red" on:change={(event) => common.changeColor(event, item, false)} />
-          </div>
+            <div style="background: #3c3c3c;     margin-top: 3px; align-items: center; " class="hide colorInput">
+              <Fa icon={faTint} style="color:yellow; padding-right: 4px;  " />
+              <input type="text" id={common.getNonce()} style="float:left;" value={item.color} class="" placeholder="red" on:change={(event) => common.changeColor(event, item, false)} />
+            </div>
 
-          <div style=" background: #3c3c3c;     margin-top: 3px; align-items: center;" class="hide tagInput">
-            <Fa icon={faTag} style="color:#007acc; padding-right: 4px;" />
-            <input type="text" id={common.getNonce()} style="float:left;" value={item.tags} placeholder="tag1, tag2" on:change={(event) => common.changeTags(event, item, false)} />
-          </div>
+            <div style=" background: #3c3c3c;     margin-top: 3px; align-items: center;" class="hide tagInput">
+              <Fa icon={faTag} style="color:#007acc; padding-right: 4px;" />
+              <input type="text" id={common.getNonce()} style="float:left;" value={item.tags} placeholder="tag1, tag2" on:change={(event) => common.changeTags(event, item, false)} />
+            </div>
           {/if}
         </div>
-
 
         <div class="codeblock">
           <textarea disabled style="height:100px; width:100%" bind:value={item.code} on:change={(event) => OnCodeChange(event, item)} />
@@ -616,7 +622,7 @@
     /* margin: 0.15em 0; */
   }
 
-  .blockTitle{
+  .blockTitle {
     font-size: 1.3em;
   }
 
@@ -637,8 +643,8 @@
 
     /* Position the tooltip */
     position: absolute;
-    top: -25px;
-    left: 45px;
+    top: -35px;
+    left: -65px;
     z-index: 1;
   }
 
