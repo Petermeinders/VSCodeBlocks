@@ -32,6 +32,10 @@
     }
   };
 
+  export const ChangeLanguage = (e) => {
+    $editItem.language = e.target.value;
+  }
+
   export const changeColor = (e: any, item: Item, isEditItem: boolean) => {
     if ($debug) {
       console.log(e);

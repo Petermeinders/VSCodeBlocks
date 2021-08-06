@@ -218,7 +218,12 @@ export function activate(context: vscode.ExtensionContext) {
 				//vscode.commands.executeCommand("workbench.action.showCommands");
 				(async () => {
 					await delay(300);
-					vscode.commands.executeCommand("workbench.action.editor.changeLanguageMode");
+
+					vscode.commands.executeCommand("workbench.action.editor.changeLanguageMode").then(lang => {
+						let langId = vscode.window.activeTextEditor.document.languageId;
+						HellowWorldPanel.updateLanguage(langId);
+					});
+
 				})();
 			}
 			);
@@ -305,7 +310,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 
 	context.subscriptions.push(
-		vscode.commands.registerCommand('vsblocksnipets.editCode', async (text, id) => {
+		vscode.commands.registerCommand('vsblocksnipets.editCode', async (text, id, language) => {
 			let editor = GetActiveEditor(false);
 			let doc = editor?.document;
 			let filename = doc?.fileName ?? "";
@@ -324,9 +329,19 @@ export function activate(context: vscode.ExtensionContext) {
 					//vscode.commands.executeCommand("workbench.action.showCommands");
 					(async () => {
 						await delay(300);
-						vscode.commands.executeCommand("workbench.action.editor.changeLanguageMode");
-						//vscode.window.activeTextEditor?.document.languageId
-						vscode.languages.getLanguages();
+						if (language === "") {
+							vscode.commands.executeCommand("workbench.action.editor.changeLanguageMode").then(lang => {
+								let langId = vscode.window.activeTextEditor.document.languageId;
+
+								console.log(langId);
+							});
+						}
+						else {
+							vscode.languages.setTextDocumentLanguage(vscode.window.activeTextEditor.document, language);
+						}
+
+
+
 					})();
 				});
 			}
@@ -351,7 +366,21 @@ export function activate(context: vscode.ExtensionContext) {
 					//vscode.commands.executeCommand("workbench.action.showCommands");
 					(async () => {
 						await delay(300);
-						vscode.commands.executeCommand("workbench.action.editor.changeLanguageMode");
+
+						if (language === "") {
+							//call to check for language on edit item
+
+
+							vscode.commands.executeCommand("workbench.action.editor.changeLanguageMode").then(lang => {
+								let langId = vscode.window.activeTextEditor.document.languageId;
+								console.log(langId);
+								HellowWorldPanel.updateLanguage(langId);
+							});
+						}
+						else {
+							vscode.languages.setTextDocumentLanguage(vscode.window.activeTextEditor.document, language);
+
+						}
 					})();
 				});
 			}

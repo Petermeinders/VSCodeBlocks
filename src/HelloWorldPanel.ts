@@ -97,6 +97,15 @@ export class HellowWorldPanel {
     }
   }
 
+  public static updateLanguage(langId:string) {
+    if (typeof (HellowWorldPanel.currentPanel) !== 'undefined') {
+      HellowWorldPanel.currentPanel._panel.webview.postMessage({
+        type: 'update-lang',
+        value: langId,
+      });
+    }
+  }
+
 
   public static addPlaceHolder(value: string) {
     if (typeof (HellowWorldPanel.currentPanel) !== 'undefined') {
@@ -457,7 +466,7 @@ export class HellowWorldPanel {
             return;
           }
           let filename = vscode?.window?.visibleTextEditors[0]?.document.fileName;
-          vscode.commands.executeCommand("vsblocksnipets.editCode", data.value.code, data.value.id);
+          vscode.commands.executeCommand("vsblocksnipets.editCode", data.value.code, data.value.id, data.value.language);
 
           // vscode.workspace.openTextDocument(uri).then((document) => {
           //   let text = document.getText();

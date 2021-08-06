@@ -49,13 +49,12 @@
   //   });
   // }
 
-  function InfoMessage(message:any) {
+  function InfoMessage(message: any) {
     tsvscode.postMessage({
       type: "onInfo",
       value: message,
     });
   }
-
 
   function CloseEditWindow() {
     tsvscode.postMessage({
@@ -64,7 +63,6 @@
     });
     InfoMessage("Edit Mode ended.");
   }
-
 
   function GetCodeFromEditScreenAndSave() {
     tsvscode.postMessage({
@@ -86,6 +84,11 @@
   <div>
     {#if common}
       <div style="background: #3c3c3c;     margin-top: 3px; align-items: center; display:flex" class="hide colorInput">
+        <!-- <Fa icon={faTint} style="color:yellow; padding-right: 4px;  " /> -->
+        <input type="text" id={common.getNonce()} style="float:left;" value={$editItem.language} class="" placeholder="programming language" on:change={(event) => common.ChangeLanguage(event)} />
+      </div>
+
+      <div style="background: #3c3c3c;     margin-top: 3px; align-items: center; display:flex" class="hide colorInput">
         <Fa icon={faTint} style="color:yellow; padding-right: 4px;  " />
         <input type="text" id={common.getNonce()} style="float:left;" value={$editItem.color} class="" placeholder="red" on:change={(event) => common.changeColor(event, $editItem, true)} />
       </div>
@@ -100,7 +103,6 @@
       <Fa icon={faFont} style="color:{$editItem.color}; padding-right: 4px;" />
       <input type="text" bind:value={$editItem.name} on:change={() => common.changedName($editItem, true)} />
     </div>
-    
   </div>
   <div>
     <button on:click={() => CreateTabStop()}>Selection to tabstop </button>
@@ -121,20 +123,23 @@
         CloseEditWindow();
       }}>Cancel</button
     >
-    <button
-      on:click={() => {
-        $editMode.state = "false";
-        GetCodeFromEditScreenAndSave();
-        CloseEditWindow();
-      }}>Save Code Block</button
-    >
-    <button
-    on:click={() => {
-      $editMode.state = "false";
-      ConvertSnippetToBlock();
-      CloseEditWindow();
-    }}>Convert Snippet To Block</button
-  >
+    {#if $editMode.importType === "vsSnippet"}
+      <button
+        on:click={() => {
+          $editMode.state = "false";
+          ConvertSnippetToBlock();
+          CloseEditWindow();
+        }}>Convert Snippet To Block</button
+      >
+    {:else}
+      <button
+        on:click={() => {
+          $editMode.state = "false";
+          GetCodeFromEditScreenAndSave();
+          CloseEditWindow();
+        }}>Save Code Block</button
+      >
+    {/if}
   </div>
 
   <!-- <div>

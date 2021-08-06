@@ -98,8 +98,8 @@
             let text = message.value.text;
             let filename = message.value.filename;
 
-            $editItem = { id: lastId, tempId:"", code: text, innerItems: "items4", linkedBlocks:[], name: "New Name", placeholders: [], visible: "true", color: "white", tags: [""] };
-            $editMode = { id: lastId, state: "true", fileName: filename };
+            $editItem = { id: lastId, tempId:"", code: text, language: "", linkedBlocks:[], name: "New Name", placeholders: [], visible: "true", color: "white", tags: [""] };
+            $editMode = { id: lastId, state: "true", fileName: filename, importType:"addBlock"  };
           }
           break;
 
@@ -109,8 +109,15 @@
             let filename = message.value.filename;
 
             $editItem = $items?.customSnippets?.find((x) => x?.id === id);
-            $editMode = { id: id, state: "true", fileName: filename };
+            $editMode = { id: id, state: "true", fileName: filename, importType:"editBlock" };
             InfoMessage("Edit Mode started. Press cancel to return.");
+          }
+          break;
+
+          case "update-lang":
+          if (message.value !== "") {
+            let langId = message.value;
+            $editItem.language = langId;
           }
           break;
 
@@ -128,8 +135,8 @@
         case "import-vscode-snip":
           let text = message.value.text;
           let filename = message.value.filename;
-          $editItem = { id: lastId, tempId:"", code: text, innerItems: "items4", linkedBlocks:[], name: "New Name", placeholders: [], visible: "true", color: "white", tags: [""] };
-          $editMode = { id: lastId, state: "true", fileName: filename };
+          $editItem = { id: lastId, tempId:"", code: text, language: "", linkedBlocks:[], name: "autofilled", placeholders: [], visible: "true", color: "white", tags: [""] };
+          $editMode = { id: lastId, state: "true", fileName: filename, importType:"vsSnippet" };
 
           //ParseVSCodeSnippet(text);
           break;
@@ -259,8 +266,8 @@
     });
 
 
-    //let importItem = { id: getNonce(), name: name.substr(0, 25), code: body, innerItems: "temp", placeholders: filteredArray, color: "white", visible: "true", tags: tags };
-    let importItem = { id: getNonce(), tempId:"", linkedBlocks:[], name: name.substr(0, 25), code: body, innerItems: "temp", placeholders: filteredArray, color: "white", visible: "true", tags: tags };
+    //let importItem = { id: getNonce(), name: name.substr(0, 25), code: body, language: "temp", placeholders: filteredArray, color: "white", visible: "true", tags: tags };
+    let importItem = { id: getNonce(), tempId:"", linkedBlocks:[], name: name.substr(0, 25), code: body, language: $editItem.language, placeholders: filteredArray, color: "white", visible: "true", tags: tags };
 
     $items.customSnippets.push(importItem);
     if ($debug) console.log(importItem);

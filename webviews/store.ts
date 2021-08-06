@@ -7,7 +7,7 @@ export interface Item {
    tempId:string;
    name: string;
    code: string;
-   innerItems: string;
+   language: string;
    linkedBlocks:[] | never[];
    placeholders:[] | string[];
    color:string;
@@ -69,8 +69,8 @@ let vsSnippets2 = {
 
 // let originItems = {
 //   "customSnippets":[
-//     { "id": "0", "name": "test", "code":"if(${1:condition} ||${1:condition}){${2:expression}})", "innerItems":"items3", "placeholders":["condition","expression"], "color":'white', "visible":"", "tags":["tag1","tag2"] },
-//     { "id": "1", "name": "test2", "innerItems":"items4", "code":"...2", "color":'white', "visible":"", "tags":["tag1","tag2"] }
+//     { "id": "0", "name": "test", "code":"if(${1:condition} ||${1:condition}){${2:expression}})", "language":"items3", "placeholders":["condition","expression"], "color":'white', "visible":"", "tags":["tag1","tag2"] },
+//     { "id": "1", "name": "test2", "language":"items4", "code":"...2", "color":'white', "visible":"", "tags":["tag1","tag2"] }
 //   ],
 //   vsSnippets:[
 //     vsSnippets1, vsSnippets2
@@ -83,7 +83,7 @@ let customSnippets:Item[] =
       tempId:"",
       name: "test",
       code: "if(${1:condition} ||${1:condition}){${2:expression}})",
-      innerItems: "items3",
+      language: "typescript",
       placeholders: [
          "condition",
          "expression"
@@ -115,13 +115,14 @@ let originItems = {
 let originEditMode = {
       "state": "false",
       "id": "-1",
-      "fileName":""
+      "fileName":"",
+      "importType":""
 };
 
 let originDebug = false;
 
 let originEditItem = {
-   "id": "0", "tempId":"", "name": "test", "code":"if(${1:condition} ||${1:condition}){${2:expression}})", "linkedBlocks": [], "innerItems":"items3", "placeholders":["condition","expression"], "color":'white', "visible":"", "tags":["tag1","tag2"] 
+   "id": "0", "tempId":"", "name": "test", "code":"if(${1:condition} ||${1:condition}){${2:expression}})", "linkedBlocks": [], "language":"java", "placeholders":["condition","expression"], "color":'white', "visible":"", "tags":["tag1","tag2"] 
 }
 
 
@@ -219,7 +220,7 @@ export const tags = derived(
 
 );
 
-export interface item { id: string, name: string, code: string, color: string, placeholders: Array<string>, innerItems: string, visible: string, tempId:string, linkedBlocks:[], tags: Array<string> };
+export interface item { id: string, name: string, code: string, color: string, placeholders: Array<string>, language: string, visible: string, tempId:string, linkedBlocks:[], tags: Array<string> };
 
 
 export const page = writable(originPage, (set) => {

@@ -365,7 +365,7 @@
     }
   }
 
-  function EditCodeBlock(item: item) {
+  function EditCodeBlock(item: Item) {
     tsvscode.postMessage({
       type: "editCode",
       value: item,
@@ -554,9 +554,12 @@
           <span style="cursor: pointer;" on:click={() => ShowColorPicker(item)}><Fa icon={faTint} style="color:yellow; padding-right: 4px;" /> </span>
           <span style="cursor: pointer;" on:click={() => ShowTags(item)}><Fa icon={faTag} style="color:#007acc; padding-right: 4px;" /> </span>
 
+
           <span on:click={() => deleteItem($items.customSnippets, item)} class="show" style="float:right; cursor: pointer;"
             ><Fa icon={faTimesCircle} style="color:red; padding-right: 4px; padding-top: 3px;" /></span
           >
+          <span style="float:right; font-weight: bold; margin-right:10px;">{item.language}</span>
+
         </div>
         <div>
           <div style="background: #3c3c3c;     margin-top: 3px; align-items: center;" class="show">

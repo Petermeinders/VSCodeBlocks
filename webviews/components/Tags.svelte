@@ -2,9 +2,28 @@
   import { items } from "../store";
   import { tags } from "../store";
   import { slide } from "svelte/transition";
-  // export let entry
+
+
+
+// $:{
+//   $items.selectedTags
+//   updateActiveTagsCSS();
+// }
+
+
   let isOpen = false;
-  const toggle = () => (isOpen = !isOpen);
+  const ToggleTags = (e: MouseEvent) => {
+    // $tags?.forEach(tag => {
+    //   $items.selectedTags.forEach(selectedTag => {
+    //   if(tag === selectedTag)
+    //   {
+
+    //   }
+    // })
+    // })
+
+    isOpen = !isOpen;
+  };
 
   function getNonce() {
     let text = "";
@@ -21,7 +40,7 @@
     tag = tag.toUpperCase();
     let selectedTags = $items.selectedTags ?? [];
 
-    if (tag !== "NONE") { 
+    if (tag !== "NONE") {
       if (selectedTags.indexOf(tag) === -1) {
         //Tag not yet added.
         selectedTags.push(tag);
@@ -29,11 +48,11 @@
         $items.selectedTags = [...selectedTags];
 
         console.log($items.selectedTags);
-        e.target.classList.add("tagSelected");
+       // e.target.classList.add("tagSelected");
       } else {
         //Duplicate found
-        e.target.classList.remove("tagSelected");
-        let x = selectedTags.includes(tag) && selectedTags.splice(selectedTags.indexOf(tag), 1)
+        //e.target.classList.remove("tagSelected");
+        let x = selectedTags.includes(tag) && selectedTags.splice(selectedTags.indexOf(tag), 1);
       }
 
       let i = $items.customSnippets.filter((item) => {
@@ -46,7 +65,7 @@
             return item;
           } else {
             //NOT EMTPY
-            
+
             selectedTags.forEach((selectedTag) => {
               if (item.tags.findIndex((tagName) => tagName.toUpperCase().includes(selectedTag)) !== -1) {
                 // x.visible = "";
@@ -55,7 +74,6 @@
                 //x.visible = "None";
               }
             });
-           
           }
         }
         // } else {
@@ -69,13 +87,11 @@
         //     x.visible = "None";
         //   }
         // }
-        if(found > 0)
-            {
-              item.visible = "";
-            }
-            else{
-              item.visible = "None";
-            }
+        if (found > 0) {
+          item.visible = "";
+        } else {
+          item.visible = "None";
+        }
 
         return item;
       });
@@ -87,12 +103,11 @@
 
       $items.customSnippets = [...i];
 
-      $items.customSnippets.forEach(item =>{
-        if(item.visible !== "None")
-        console.log(item);
-      })
-      
-    } else { //Show ALL
+      $items.customSnippets.forEach((item) => {
+        if (item.visible !== "None") console.log(item);
+      });
+    } else {
+      //Show ALL
       $items.selectedTags = [];
       let i = $items.customSnippets.filter((x) => {
         if (typeof x.tags !== "undefined" && typeof $items.selectedTags !== "undefined") {
@@ -108,19 +123,50 @@
   }
 
   let borderStyle: "solid" | "none" = "none";
+
+  const updateActiveTagsCSS = (tag) => {
+      $items.selectedTags.forEach((selectedTag) => {
+        if (tag === selectedTag) {
+          return "true";
+        }
+      });
+
+
+    return "false";
+  }
+
+  let x = false;
 </script>
 
 <main class="item">
   <div class="tagSelected" />
   <div>
-    <button on:click={toggle} aria-expanded={isOpen}>
+    <button on:click={(event) => ToggleTags(event)} aria-expanded={isOpen}>
       <svg style="tran" width="20" height="20" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 16" stroke="currentColor"><path d="M9 5l7 7-7 7" /></svg>
       Tags
     </button>
     {#if isOpen && typeof $tags !== "undefined"}
       <ul transition:slide={{ duration: 300 }}>
         {#each $tags as tag (tag)}
-          <div class="cursorPointer " style="border-width:1px; border-color:white; border-style:{borderStyle};" on:click={(event) => filterBlocksByTag(event, tag)}>{tag}</div>
+         {#if $items.selectedTags.indexOf(tag) === -1}
+         <div
+         class="cursorPointer"
+         style="border-width:1px; border-color:white; border-style:{borderStyle};"
+         on:click={(event) => filterBlocksByTag(event, tag)}
+       >
+         {tag}
+       </div>
+       {:else}
+       <div
+       class="cursorPointer selected"
+       style="border-width:1px; border-color:white; border-style:{borderStyle};"
+       on:click={(event) => filterBlocksByTag(event, tag)}
+     >
+       {tag}
+     </div>
+         {/if}
+
+
         {/each}
       </ul>
     {/if}
@@ -130,6 +176,12 @@
 <style>
   .cursorPointer {
     cursor: pointer;
+  }
+
+  .selected {
+    /* background-color: #ff3e00; */
+    /* color: white; */
+    font-weight: bold;
   }
 
   button {
