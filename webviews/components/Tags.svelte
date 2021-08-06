@@ -2,8 +2,9 @@
   import { items } from "../store";
   import { tags } from "../store";
   import { slide } from "svelte/transition";
+  import Common from "./Common.svelte";
 
-
+  let common: Common;
 
 // $:{
 //   $items.selectedTags
@@ -47,6 +48,7 @@
 
         $items.selectedTags = [...selectedTags];
 
+       
         console.log($items.selectedTags);
        // e.target.classList.add("tagSelected");
       } else {
@@ -55,57 +57,13 @@
         let x = selectedTags.includes(tag) && selectedTags.splice(selectedTags.indexOf(tag), 1);
       }
 
-      let i = $items.customSnippets.filter((item) => {
-        let found = 0;
+  //Gets list of active tags and updates blocks.
+  common.updateTagView();
 
-        if (typeof item.tags !== "undefined" && typeof $items.selectedTags !== "undefined") {
-          if (selectedTags.length === 0) {
-            //EMTPY
-            item.visible = "";
-            return item;
-          } else {
-            //NOT EMTPY
 
-            selectedTags.forEach((selectedTag) => {
-              if (item.tags.findIndex((tagName) => tagName.toUpperCase().includes(selectedTag)) !== -1) {
-                // x.visible = "";
-                found = ++found;
-              } else {
-                //x.visible = "None";
-              }
-            });
-          }
-        }
-        // } else {
-        //   //Tag missing
-        //   if ($items.selectedTags.length === 0) {
-        //     //Selected tag is none so make everything visible
-        //     $items.selectedTags = [];
-        //     x.visible = "";
-        //   } else {
-        //     //Selected tag is none so hide anything missing selected tag
-        //     x.visible = "None";
-        //   }
-        // }
-        if (found > 0) {
-          item.visible = "";
-        } else {
-          item.visible = "None";
-        }
-
-        return item;
-      });
-
-      // if (selectedTags.indexOf(tag) === -1) {
-      //   $items.customSnippets = [...i];
-      // }
-      //$items.selectedTags = [...selectedTags];
-
-      $items.customSnippets = [...i];
-
-      $items.customSnippets.forEach((item) => {
-        if (item.visible !== "None") console.log(item);
-      });
+      // $items.customSnippets.forEach((item) => {
+      //   if (item.visible !== "None") console.log(item);
+      // });
     } else {
       //Show ALL
       $items.selectedTags = [];
@@ -121,6 +79,8 @@
     //This doesn't work since the component gets reloaded after new derived value
     //e.target.classList.add('selectedTag')
   }
+
+  
 
   let borderStyle: "solid" | "none" = "none";
 
@@ -139,6 +99,7 @@
 </script>
 
 <main class="item">
+  <Common bind:this={common} />
   <div class="tagSelected" />
   <div>
     <button on:click={(event) => ToggleTags(event)} aria-expanded={isOpen}>

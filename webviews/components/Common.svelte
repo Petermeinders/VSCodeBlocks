@@ -82,6 +82,43 @@
       $editItem = i;
     }
   };
+
+  export const updateTagView = () => {
+    let selectedTags = $items.selectedTags ?? [];
+
+    let i = $items.customSnippets.filter((item) => {
+        let found = 0;
+
+        if (typeof item.tags !== "undefined" && typeof $items.selectedTags !== "undefined") {
+          if (selectedTags.length === 0) {
+            //EMTPY
+            item.visible = "";
+            return item;
+          } else {
+            //NOT EMTPY
+
+            selectedTags.forEach((selectedTag) => {
+              if (item.tags.findIndex((tagName) => tagName.toUpperCase().includes(selectedTag)) !== -1) {
+                // x.visible = "";
+                found = ++found;
+              } else {
+                //x.visible = "None";
+              }
+            });
+          }
+        }
+
+        if (found > 0) {
+          item.visible = "";
+        } else {
+          item.visible = "None";
+        }
+
+        return item;
+      });
+
+      $items.customSnippets = [...i];
+  }
 </script>
 
 <main>

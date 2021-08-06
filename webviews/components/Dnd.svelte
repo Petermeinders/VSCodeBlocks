@@ -30,11 +30,13 @@
   function EditModeChange() {
     if ($debug) console.log("mode was edited: " + $editMode.id + ", " + $editMode.state);
     if ($editMode.state === "true") {
+     
       // document.getElementById($editMode.id)?.querySelector(".codeblock")?.classList.add("editMode");
       // document.getElementById("editTextHeader").classList.remove('hide');
       // document.getElementById($editMode.id)?.querySelector(".editText")?.classList.remove("hide");
     } else {
       //set element mode to false;
+      console.log($items.customSnippets);
     }
   }
 
@@ -209,7 +211,7 @@
     if ($items.settings.isFuzzy) {
       return CodeCompareWholeFile(item, searchString);
     } else {
-      if (item.code.includes(searchString.toLowerCase().trim()) === true) {
+      if (item.code.toLowerCase().includes(searchString.toLowerCase().trim()) === true) {
         return true;
       } else {
         return false;
@@ -452,6 +454,9 @@
   //   // console.log("Previous:" + e.target.getAttribute('data-prev'));
   // }
 
+
+
+
   function OnPlaceHolderChange(e: any, item: item, placeholder: any) {
     let prevValue = placeholder; //e.target.getAttribute('data-prev');
 
@@ -514,6 +519,9 @@
     if (linkedItem) return linkedItem.name;
     else return "linknull";
   }
+
+  // if(typeof(common) !== 'undefined')
+  //       common.updateTagView();
 </script>
 
 <main class="item">
@@ -548,6 +556,11 @@
       >
         <div>
           <Common bind:this={common} />
+          
+            {#if typeof(common) !== 'undefined'}
+            <span style="display:none;">{common.updateTagView()}</span>
+            {/if}
+          
 
           <span style=" cursor: pointer;" on:click={() => pasteCodeFromBlock(item)}><Fa icon={faPlusCircle} style="color:#00c300; padding-right: 4px;" /> </span>
           <span style=" cursor: pointer;" on:click={(event) => EditCodeBlock(item)}><Fa icon={faPencilAlt} style="color:orange; padding-right: 4px;" /> </span>
