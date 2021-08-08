@@ -699,7 +699,6 @@
         </div>
         <div>
           <div class="show inputStyle">
-            <Fa icon={faFont} style="color:{item.color}; padding-right: 4px;" />
             <input
               type="text"
               class="blockTitle"
