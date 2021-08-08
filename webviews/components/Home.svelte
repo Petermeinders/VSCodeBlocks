@@ -8,14 +8,8 @@
   import EditScreen from "./EditScreen.svelte";
   import levenshtein from "fast-levenshtein";
   import LinkedBlocks from "./LinkedBlocks.svelte";
-  import {faCog} from "@fortawesome/free-solid-svg-icons";
+  import { faCog } from "@fortawesome/free-solid-svg-icons";
   import Fa from "svelte-fa";
-
-
-
-  export let isSidebar: true | false;
-
-  if ($debug) console.log("sidebar: " + isSidebar);
 
   let SearchTerm: string = "";
   let FullCodeSearch: boolean = true;
@@ -30,14 +24,17 @@
         item.linkedBlocks = item.linkedBlocks ?? [];
       });
 
-      if ($items.vsSnippets === null || typeof $items.vsSnippets === "undefined") {
+      if (
+        $items.vsSnippets === null ||
+        typeof $items.vsSnippets === "undefined"
+      ) {
         $items.vsSnippets = ["vsSnippets1", "vsSnippets2"];
       }
 
       if ($items.settings === null || typeof $items.settings === "undefined") {
         $items.settings = {
           isFuzzy: false,
-          searchCode:false,
+          searchCode: false,
         };
       }
 
@@ -64,15 +61,14 @@
         //   if(i.customSnippets.filter())
         // })
 
-        let findDuplicates = i.customSnippets.filter(item => item.id === element.id)
+        let findDuplicates = i.customSnippets.filter(
+          (item) => item.id === element.id
+        );
 
-        if(findDuplicates.length > 1)
-        {
-          if(debug)
-            ErrorMessage("Duplicate codeblock found. Removing item.");
-            let duplicateIndex = i.customSnippets.indexOf(findDuplicates[0]);
-            i.customSnippets.splice(duplicateIndex, 1);
-
+        if (findDuplicates.length > 1) {
+          if (debug) ErrorMessage("Duplicate codeblock found. Removing item.");
+          let duplicateIndex = i.customSnippets.indexOf(findDuplicates[0]);
+          i.customSnippets.splice(duplicateIndex, 1);
         }
       });
 
@@ -98,8 +94,24 @@
             let text = message.value.text;
             let filename = message.value.filename;
 
-            $editItem = { id: lastId, tempId:"", code: text, language: "", linkedBlocks:[], name: "New Name", placeholders: [], visible: "true", color: "white", tags: [""] };
-            $editMode = { id: lastId, state: "true", fileName: filename, importType:"addBlock"  };
+            $editItem = {
+              id: lastId,
+              tempId: "",
+              code: text,
+              language: "",
+              linkedBlocks: [],
+              name: "New Name",
+              placeholders: [],
+              visible: "true",
+              color: "white",
+              tags: [""],
+            };
+            $editMode = {
+              id: lastId,
+              state: "true",
+              fileName: filename,
+              importType: "addBlock",
+            };
           }
           break;
 
@@ -109,12 +121,17 @@
             let filename = message.value.filename;
 
             $editItem = $items?.customSnippets?.find((x) => x?.id === id);
-            $editMode = { id: id, state: "true", fileName: filename, importType:"editBlock" };
+            $editMode = {
+              id: id,
+              state: "true",
+              fileName: filename,
+              importType: "editBlock",
+            };
             InfoMessage("Edit Mode started. Press cancel to return.");
           }
           break;
 
-          case "update-lang":
+        case "update-lang":
           if (message.value !== "") {
             let langId = message.value;
             $editItem.language = langId;
@@ -135,8 +152,24 @@
         case "import-vscode-snip":
           let text = message.value.text;
           let filename = message.value.filename;
-          $editItem = { id: lastId, tempId:"", code: text, language: "", linkedBlocks:[], name: "autofilled", placeholders: [], visible: "true", color: "white", tags: [""] };
-          $editMode = { id: lastId, state: "true", fileName: filename, importType:"vsSnippet" };
+          $editItem = {
+            id: lastId,
+            tempId: "",
+            code: text,
+            language: "",
+            linkedBlocks: [],
+            name: "autofilled",
+            placeholders: [],
+            visible: "true",
+            color: "white",
+            tags: [""],
+          };
+          $editMode = {
+            id: lastId,
+            state: "true",
+            fileName: filename,
+            importType: "vsSnippet",
+          };
 
           //ParseVSCodeSnippet(text);
           break;
@@ -150,7 +183,7 @@
           SaveCodeFromEdit(activeScreenCode);
           break;
 
-          case "code-vssnippet-from-active-window":
+        case "code-vssnippet-from-active-window":
           let snippetCode = message.value;
           ParseVSCodeSnippet(snippetCode);
           break;
@@ -171,19 +204,17 @@
                   $items.customSnippets.splice(index, 1);
                 }
               });
-
             } catch {
               ErrorMessage("JSON Import Error");
-
             }
           } else {
             $items.customSnippets.forEach((element) => {
-                if (element.id.includes("id:")) {
-                  let index = $items.customSnippets.indexOf(element);
-                  console.log(index);
-                  $items.customSnippets.splice(index, 1);
-                }
-              });
+              if (element.id.includes("id:")) {
+                let index = $items.customSnippets.indexOf(element);
+                console.log(index);
+                $items.customSnippets.splice(index, 1);
+              }
+            });
 
             $items = message.value;
           }
@@ -208,72 +239,79 @@
     const vsSnip = JSON.parse(text);
     const snippetNumber = Object.keys(vsSnip).length;
 
-    for (let snip in vsSnip)
-    { 
-      
-    const bodArray = vsSnip[snip].body;
-    const description = vsSnip[snip].description;
-    const prefix = vsSnip[snip].prefix;
-    const name = snip;
-    const body = bodArray.join("\n");
-    let regex = /\$\{\d*:|\$\{\\d*\|/g;
-    let placeholdersArray: any[] = [];
+    for (let snip in vsSnip) {
+      const bodArray = vsSnip[snip].body;
+      const description = vsSnip[snip].description;
+      const prefix = vsSnip[snip].prefix;
+      const name = snip;
+      const body = bodArray.join("\n");
+      let regex = /\$\{\d*:|\$\{\\d*\|/g;
+      let placeholdersArray: any[] = [];
 
-    bodArray.forEach((line) => {
-      let str = line,
-        re = regex,
-        match;
+      bodArray.forEach((line) => {
+        let str = line,
+          re = regex,
+          match;
 
-      let openBrackets = [];
+        let openBrackets = [];
 
-      while ((match = re.exec(str))) {
-        openBrackets.push(match.index);
-        //console.log(match.index); // logs 1 through 9
+        while ((match = re.exec(str))) {
+          openBrackets.push(match.index);
+          //console.log(match.index); // logs 1 through 9
+        }
+
+        // let openBracket = regex.exec(line);
+
+        if (openBrackets.length > 0) {
+          openBrackets.forEach((bracket) => {
+            if (bracket !== -1) bracket = ++bracket;
+
+            if (bracket !== -1) {
+              let closingBracket = findOpenParen(line, bracket);
+
+              if (line[closingBracket] !== "}")
+                closingBracket = --closingBracket;
+
+              let snipValue = line.substring(bracket, ++closingBracket);
+
+              const indexMinusOne = snipValue.length - 1;
+              const cleanedSnip = snipValue.substring(3, indexMinusOne);
+              console.log(cleanedSnip);
+
+              placeholdersArray.push(cleanedSnip);
+            }
+          });
+        }
+      });
+
+      let filteredArray = [...new Set(placeholdersArray)];
+
+      let tags: string[] = [];
+      if (Array.isArray(prefix)) {
+        tags = prefix;
       }
 
-      // let openBracket = regex.exec(line);
-
-      if (openBrackets.length > 0) {
-        openBrackets.forEach((bracket) => {
-          if (bracket !== -1) bracket = ++bracket;
-
-          if (bracket !== -1) {
-            let closingBracket = findOpenParen(line, bracket);
-
-            if (line[closingBracket] !== "}") closingBracket = --closingBracket;
-
-            let snipValue = line.substring(bracket, ++closingBracket);
-
-            const indexMinusOne = snipValue.length - 1;
-            const cleanedSnip = snipValue.substring(3, indexMinusOne);
-            console.log(cleanedSnip);
-
-            placeholdersArray.push(cleanedSnip);
-          }
-        });
-      }
-    });
-
-    let filteredArray = [...new Set(placeholdersArray)];
-
-    let tags:string[] = [];
-    if (Array.isArray(prefix)){ 
-      tags = prefix;
-    }
-
-    $editItem.tags.forEach(tag => {
+      $editItem.tags.forEach((tag) => {
         tags.push(tag);
-    });
+      });
 
+      //let importItem = { id: getNonce(), name: name.substr(0, 25), code: body, language: "temp", placeholders: filteredArray, color: "white", visible: "true", tags: tags };
+      let importItem = {
+        id: getNonce(),
+        tempId: "",
+        linkedBlocks: [],
+        name: name.substr(0, 25),
+        code: body,
+        language: $editItem.language,
+        placeholders: filteredArray,
+        color: "white",
+        visible: "true",
+        tags: tags,
+      };
 
-    //let importItem = { id: getNonce(), name: name.substr(0, 25), code: body, language: "temp", placeholders: filteredArray, color: "white", visible: "true", tags: tags };
-    let importItem = { id: getNonce(), tempId:"", linkedBlocks:[], name: name.substr(0, 25), code: body, language: $editItem.language, placeholders: filteredArray, color: "white", visible: "true", tags: tags };
-
-    $items.customSnippets.push(importItem);
-    if ($debug) console.log(importItem);
-
+      $items.customSnippets.push(importItem);
+      if ($debug) console.log(importItem);
     }
-   
 
     InfoMessage("VSCode Snippet Imported!");
   }
@@ -295,7 +333,11 @@
   }
 
   function CheckExistingPlaceholders(item: item) {
-    if (item.placeholders === null || typeof item.placeholders === "undefined" || item.placeholders.length === 0) {
+    if (
+      item.placeholders === null ||
+      typeof item.placeholders === "undefined" ||
+      item.placeholders.length === 0
+    ) {
       if ($debug) console.log("no placeholders");
       return -1;
     } else {
@@ -331,7 +373,10 @@
       console.log(item.code);
     }
 
-    var newCode = item.code.replaceAll(selectedString, "${" + lastNumber + ":" + selectedString + "}");
+    var newCode = item.code.replaceAll(
+      selectedString,
+      "${" + lastNumber + ":" + selectedString + "}"
+    );
     // item.placeholders.push(selectedString);
 
     let newPlaceholder = $editItem.placeholders;
@@ -350,11 +395,10 @@
     UpdateCodeWithNewTabStop();
   }
 
-  
-
   function getNonce() {
     let text = "";
-    const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    const possible =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     for (let i = 0; i < 32; i++) {
       text += possible.charAt(Math.floor(Math.random() * possible.length));
     }
@@ -395,7 +439,6 @@
     });
   }
 
-  
   function ImportVSSnippet() {
     tsvscode.postMessage({
       type: "ImportVSCodeSnippet",
@@ -403,16 +446,14 @@
     });
   }
 
- 
-
-  function InfoMessage(message:any) {
+  function InfoMessage(message: any) {
     tsvscode.postMessage({
       type: "onInfo",
       value: message,
     });
   }
 
-  function ErrorMessage(message:any) {
+  function ErrorMessage(message: any) {
     tsvscode.postMessage({
       type: "onError",
       value: message,
@@ -420,7 +461,9 @@
   }
 
   function SaveCodeFromEdit(latesCode: string) {
-    let existingBlock = $items?.customSnippets?.find((x) => x?.id === $editItem?.id);
+    let existingBlock = $items?.customSnippets?.find(
+      (x) => x?.id === $editItem?.id
+    );
     console.log(latesCode);
     if (existingBlock) {
       existingBlock.code = latesCode;
@@ -435,38 +478,30 @@
     }
   }
 
-  function ShowSettings(){
-    console.log("not yet implemented")
+  function ShowSettings() {
+    console.log("not yet implemented");
   }
 
   let clicked = 0;
+
 </script>
 
 <main>
-  <!-- SIDEBAR -->
-  {#if isSidebar === true}
-    {#if $editMode.state === "false"}
-      <Tags />
-      <Dnd {SearchTerm} {FullCodeSearch} />
-      <button
-        on:click={() => {
-          $page = "other";
-        }}>Future Tab</button
-      >
-    {:else}
-      <div>EDIT MODE</div>
-      <EditScreen />
-    {/if}
-  {:else if $editMode.state === "false"}
+  {#if $editMode.state === "false"}
     <!-- PANEL -->
     <div style="display: flex, align-items: center">
-
-      <h1 style="display: flex, align-items: center, justify-content: space-between;">
-        CodeBlocks 
-        <span style="cursor: pointer; " on:click={() => ShowSettings()}><Fa size="1x" icon={faCog} style="color:#007acc; padding-right: 4px; float:right" />
+      <h1
+        style="display: flex, align-items: center, justify-content: space-between;"
+      >
+        CodeBlocks
+        <span style="cursor: pointer; " on:click={() => ShowSettings()}
+          ><Fa
+            size="1x"
+            icon={faCog}
+            style="color:#007acc; padding-right: 4px; float:right"
+          />
         </span>
-      </h1> 
-      
+      </h1>
     </div>
     <div class="container">
       <div class="code-container">
@@ -474,24 +509,20 @@
         <LinkedBlocks />
         <Dnd {SearchTerm} {FullCodeSearch} />
       </div>
-      <!-- <div class="box" style="width:800px;">
-        <div>
-          <Board/>
-        </div>
-      </div> -->
     </div>
   {:else}
     <h1>EDIT MODE</h1>
     <EditScreen />
-    
   {/if}
 
-
-  
-
+<!-- BUTTONS -->
   {#if $editMode.state === "false"}
     <div>
-      <button class="tooltip" on:click={ExportCode}>Export Code<span class="tooltiptext">Export JSON Code to chosen file. </span> </button>
+      <button class="tooltip" on:click={ExportCode}
+        >Export Code<span class="tooltiptext"
+          >Export JSON Code to chosen file.
+        </span>
+      </button>
     </div>
     <div>
       <button on:click={ImportCode}>Import Code </button>
@@ -499,33 +530,27 @@
     <div>
       <button class="tooltip" on:click={ImportVSSnippet}
         >Import VS Snippet
-        <span class="tooltiptext">Import selected text in the VSCode snippet format. Make sure json starts and ends with brackets.</span>
+        <span class="tooltiptext"
+          >Import selected text in the VSCode snippet format. Make sure json
+          starts and ends with brackets.</span
+        >
       </button>
     </div>
-    {#if isSidebar === true}
-      <div>
-        <button on:click={FullScreen}>Full Screen</button>
-      </div>
-    {:else}
-      <!-- <div>
-        <button on:click={ShowSidebar}>Sidebar mode</button>
-      </div> -->
-    {/if}
   {/if}
 </main>
 
 <style>
-  .container {
+  :global(.container) {
     display: flex; /* or inline-flex */
   }
 
-  .tooltip {
+  :global(.tooltip) {
     position: relative;
     display: inline-block;
     /* border-bottom: 1px dotted black; */
   }
 
-  .tooltip .tooltiptext {
+  :global(.tooltip .tooltiptext) {
     visibility: hidden;
     width: 120px;
     background-color: black;
@@ -537,7 +562,7 @@
     /* Position the tooltip */
     position: absolute;
     top: -25px;
-    left: 45px;
+    left: -65px;
     z-index: 1;
   }
 
@@ -545,12 +570,25 @@
     visibility: visible;
   }
 
-  .code-container {
+  :global(.code-container) {
     display: flex;
     flex-wrap: wrap;
   }
 
   :global(.item) {
     min-width: 200px;
+  }
+
+  :global(.colorInput) {
+    /* max-height: 0px; */
+    -webkit-transition: max-height 1s;
+    -moz-transition: max-height 1s;
+    transition: max-height 1s;
+  }
+
+  :global(.inputStyle) {
+    background: #3c3c3c;
+    margin-top: 3px;
+    align-items: center;
   }
 </style>

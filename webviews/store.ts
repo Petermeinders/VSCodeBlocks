@@ -1,4 +1,3 @@
-import { xlink_attr } from "svelte/internal";
 import { writable, derived } from "svelte/store";
 
 // export const items = writable([{id:0,name:""}]);
@@ -15,66 +14,7 @@ export interface Item {
    tags:[] | string[];
 }
 
-let vsSnippets1 = {
-   "Constructor": {
-      "prefix": "ctor",
-      "body": [
-         "/**",
-         " *",
-         " */",
-         "constructor() {",
-         "\tsuper();",
-         "\t$0",
-         "}"
-      ],
-      "description": "Constructor"
-   },
-   "Class Definition": {
-      "prefix": "class",
-      "body": [
-         "class ${1:name} {",
-         "\tconstructor(${2:parameters}) {",
-         "\t\t$0",
-         "\t}",
-         "}"
-      ],
-      "description": "Class Definition"
-   }
-};
-
-let vsSnippets2 = {
-   "Public Method Definition": {
-      "prefix": "public method",
-      "body": [
-         "/**",
-         " * ${1:name}",
-         " */",
-         "public ${1:name}() {",
-         "\t$0",
-         "}"
-      ],
-      "description": "Public Method Definition"
-   },
-   "Private Method Definition": {
-      "prefix": "private method",
-      "body": [
-         "private ${1:name}() {",
-         "\t$0",
-         "}"
-      ],
-      "description": "Private Method Definition"
-   }
-}
-
-
-// let originItems = {
-//   "customSnippets":[
-//     { "id": "0", "name": "test", "code":"if(${1:condition} ||${1:condition}){${2:expression}})", "language":"items3", "placeholders":["condition","expression"], "color":'white', "visible":"", "tags":["tag1","tag2"] },
-//     { "id": "1", "name": "test2", "language":"items4", "code":"...2", "color":'white', "visible":"", "tags":["tag1","tag2"] }
-//   ],
-//   vsSnippets:[
-//     vsSnippets1, vsSnippets2
-//   ]};
+let originActiveScreen = "";
 
 let customSnippets:Item[] =
 [

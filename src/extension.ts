@@ -9,12 +9,7 @@ import { stringify } from 'querystring';
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-	console.log("ACTIVATED!!!!!!!!");
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	// console.log('Congratulations, your extension "vsblocksnipets" is now active!');
-
-
+	// This function of code will only be executed once when your extension is activated
 
 	const sidebarProvider = new SidebarProvider(context.extensionUri);
 	context.subscriptions.push(

@@ -56,7 +56,6 @@
       $editItem = i;
     }
 
-    // document.getElementById(item.id)?.getElementsByClassName('colorInput')[0].classList.toggle('hide')
   };
 
   export const changeTags = (e: any, item: Item, isEditItem: boolean) => {

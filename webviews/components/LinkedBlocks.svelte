@@ -1,33 +1,16 @@
 <script lang="ts">
-  import Dnd from "./Dnd.svelte";
-  import Tags from "./Tags.svelte";
-  import { onMount } from "svelte";
-  import { debug, editItem, editMode, items, linkedBlocks } from "../store";
-  import { tags } from "../store";
-  import { page } from "../store";
-  import EditScreen from "./EditScreen.svelte";
-  import levenshtein from "fast-levenshtein";
+  import { items, linkedBlocks } from "../store";
   import { flip } from "svelte/animate";
   import { dndzone } from "svelte-dnd-action";
-  import type { Item } from "../store";
 
   let isOpen = false;
   const toggle = () => (isOpen = !isOpen);
 
-  //   let linkedBlocks = [
-  //     { id: 1, name: "item1" },
-  //     { id: 2, name: "item2" },
-  //     { id: 3, name: "item3" },
-  //     { id: 4, name: "item4" },
-  //   ];
   const flipDurationMs = 300;
   function handleDndConsider2(e:any) {
     $linkedBlocks = e.detail.items;
-    // $linkedBlocks.map(linkItem => {
-    //     linkItem.id = e.detail.items[0].id;
-    //     return linkItem;
-    // })
   }
+
   function handleDndFinalize2(e) {
     $linkedBlocks = e.detail.items;
   }
@@ -67,9 +50,6 @@
         });
       }
       return item;
-
-      //   let linkedItem = $linkedBlocks.find(x => x.id)
-      //   item.linkedBlocks.push(linkedItem.id);
     });
     $items.customSnippets = [...newItems];
     $linkedBlocks = [];
@@ -90,7 +70,6 @@
     {#if $linkedBlocks.length > 0}
     <button on:click={RemoveBlocks}>Cancel</button>
     {/if}
-
 
     <section use:dndzone={{ items: $linkedBlocks, flipDurationMs }} on:consider={ handleDndConsider2} on:finalize={handleDndFinalize2}>
       {#each $linkedBlocks as item (getNonce())}
