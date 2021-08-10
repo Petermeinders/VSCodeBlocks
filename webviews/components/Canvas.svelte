@@ -96,7 +96,7 @@
     $: console.log(moving);
 </script>
 
-<main style="width:100px; height:100px; position:relative;">
+<main style="width:100px; height:100px; position:fixed;">
   <!-- {#await filteredTree}
   <p>Loading...</p>
   {:then dataValue}
@@ -120,7 +120,7 @@
     {/await} -->
 
 
-  {#if $filteredTree}
+  <!-- {#if $filteredTree}
     <div class="zoom">
       {#each $filteredTree.children as child, i}
         <Card card={child} top={top + i*10} left={left + i*10}>
@@ -128,7 +128,15 @@
         </Card>
       {/each}
     </div>
-  {/if}
+  {/if} -->
+
+  {#if $filteredTree}
+  <div class="zoom">
+    <Card tree={$filteredTree.children} let:treeItem={treeItem} top={top} left={left}>
+      <b>{treeItem.name}</b>
+    </Card>
+  </div>
+{/if}
 
   <!-- <div class="zoom">  
       <h1>Zoom meeeee</h1>
