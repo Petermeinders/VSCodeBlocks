@@ -23,8 +23,7 @@ export interface FilteredTree {
   extension:string
 }
 
-
-let originActiveScreen = "";
+let originFilteredTree;
 
 let customSnippets:Item[] =
 [
@@ -106,6 +105,13 @@ if (tsvscode.getState()?.p !== undefined) {
 const addItem = () => {
 
 }
+
+export const filteredTree = writable(originFilteredTree, (set) => {
+   console.log("debug: " + originFilteredTree);
+
+   //set([{id:0, name:""}]);
+   return () => { };
+});
 
 export const linkedBlocks = writable(originLinkedBlocks, (set) => {
    console.log("debug: " + originLinkedBlocks);

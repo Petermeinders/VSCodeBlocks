@@ -5,6 +5,7 @@
   import { debug, editItem, editMode, items } from "../store";
   import { tags } from "../store";
   import { page } from "../store";
+  import {filteredTree} from "../store"
   import EditScreen from "./EditScreen.svelte";
   import levenshtein from "fast-levenshtein";
   import LinkedBlocks from "./LinkedBlocks.svelte";
@@ -14,7 +15,7 @@ import Canvas from "./Canvas.svelte";
 
   let SearchTerm: string = "";
   let FullCodeSearch: boolean = true;
-  let FilteredTree;
+
 
   $: {
     if ($items !== null && $items.customSnippets[0] !== undefined) {
@@ -177,10 +178,9 @@ import Canvas from "./Canvas.svelte";
           break;
 
         case "filtered-tree":
-          let filteredTree = message.value;
+          $filteredTree = message.value;
           console.log("FILTERED TREE RETURNSSS");
-          console.log(filteredTree);
-          FilteredTree = filteredTree;
+          console.log($filteredTree);
           //FilteredTreeExample(filteredTree);
           break;
 
@@ -243,10 +243,6 @@ import Canvas from "./Canvas.svelte";
       }
     });
   });
-
-  function FilteredTreeExample(fileredTree){
-
-  }
 
   function ParseVSCodeSnippet(text) {
     //TODO: add vscode message on parse failure.
@@ -551,7 +547,7 @@ import Canvas from "./Canvas.svelte";
       </button>
     </div>
   {/if}
-  <Canvas filteredTree={FilteredTree}/>
+  <Canvas/>
 
 </main>
 

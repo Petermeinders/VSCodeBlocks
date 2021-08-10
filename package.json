@@ -123,6 +123,7 @@
 		"@typescript-eslint/eslint-plugin": "^4.28.3",
 		"@typescript-eslint/parser": "^4.28.3",
 		"concurrently": "^6.2.0",
+		"dragselect": "^2.2.2",
 		"eslint": "^7.27.0",
 		"glob": "^7.1.7",
 		"mocha": "^8.4.0",
@@ -141,6 +142,7 @@
 	},
 	"dependencies": {
 		"@fortawesome/free-solid-svg-icons": "^5.15.3",
+		"@types/dragselect": "^1.13.1",
 		"@types/fast-levenshtein": "0.0.2",
 		"directory-tree": "^2.2.9",
 		"fast-levenshtein": "^3.0.0",

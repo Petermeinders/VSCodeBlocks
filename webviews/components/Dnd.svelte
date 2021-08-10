@@ -1,24 +1,12 @@
 <script lang="ts">
   import { flip } from "svelte/animate";
-  import {
-    dndzone,
-    SHADOW_ITEM_MARKER_PROPERTY_NAME,
-    TRIGGERS,
-  } from "svelte-dnd-action";
+  import { dndzone, SHADOW_ITEM_MARKER_PROPERTY_NAME, TRIGGERS } from "svelte-dnd-action";
   import { afterUpdate, beforeUpdate, onMount } from "svelte";
   import { debug, editMode, items } from "../store";
   // import type { item } from "../store";
   import Common from "./Common.svelte";
   import Fa from "svelte-fa";
-  import {
-    faTint,
-    faTag,
-    faFont,
-    faPlusCircle,
-    faPencilAlt,
-    faTimesCircle,
-    faSearch,
-  } from "@fortawesome/free-solid-svg-icons";
+  import { faTint, faTag, faFont, faPlusCircle, faPencilAlt, faTimesCircle, faSearch } from "@fortawesome/free-solid-svg-icons";
   import { setDebugMode } from "svelte-dnd-action";
   import levenshtein from "fast-levenshtein";
   import type { Item } from "../store";
@@ -40,11 +28,9 @@
     $editMode;
     EditModeChange();
   }
-  
 
   function EditModeChange() {
-    if ($debug)
-      console.log("mode was edited: " + $editMode.id + ", " + $editMode.state);
+    if ($debug) console.log("mode was edited: " + $editMode.id + ", " + $editMode.state);
     if ($editMode.state === "true") {
       if (debug) console.log("edit mode activated!");
     } else {
@@ -52,7 +38,6 @@
       console.log($items.customSnippets);
     }
   }
-
 
   function handleDndConsider(e: any) {
     //$items.customSnippets = e.detail.items;
@@ -69,9 +54,7 @@
       const idx = $items.customSnippets.findIndex((item) => item.id === id);
       const newId = `${id}_copy_${Math.round(Math.random() * 100000)}`;
       // the line below was added in order to be compatible with version svelte-dnd-action 0.7.4 and above
-      e.detail.items = e.detail.items.filter(
-        (item: any) => !item[SHADOW_ITEM_MARKER_PROPERTY_NAME]
-      );
+      e.detail.items = e.detail.items.filter((item: any) => !item[SHADOW_ITEM_MARKER_PROPERTY_NAME]);
       e.detail.items.splice(idx, 0, {
         ...$items.customSnippets[idx],
         id: newId,
@@ -85,7 +68,6 @@
       $items.customSnippets = [...$items.customSnippets];
     }
   }
-
 
   function handleDndFinalize(e: any) {
     if (!shouldIgnoreDndEvents) {
@@ -112,7 +94,6 @@
     // }
   }
 
-
   function deleteItem(itemList: any, selectedItem: Item) {
     if ($debug) console.log($items.customSnippets);
 
@@ -132,12 +113,10 @@
     $items.customSnippets = [...itemsLeft];
   }
 
-
   function deleteCodeLink(item: Item, linkId: string = "") {
     let newItems = $items.customSnippets;
     let linkedIds = item.linkedBlocks;
-    linkedIds.includes(linkId) &&
-      linkedIds.splice(linkedIds.indexOf(linkId), 1);
+    linkedIds.includes(linkId) && linkedIds.splice(linkedIds.indexOf(linkId), 1);
     console.log(linkedIds);
     item.linkedBlocks = linkedIds;
     let itemIndex = $items.customSnippets.indexOf(item);
@@ -146,7 +125,6 @@
     console.log($items.customSnippets);
   }
 
-
   function pasteCodeFromBlock(item: item) {
     tsvscode.postMessage({
       type: "insertSnippet",
@@ -154,12 +132,10 @@
     });
   }
 
-
   function onItemDoubleClick(item: item) {
     if ($debug) console.log("double clicked. Future implementation.");
   }
 
-  
   export function searchCode(e: any, FullCodeSearch: any) {
     let searchString: string;
     if (typeof e === "string") {
@@ -175,15 +151,9 @@
       try {
         foundArray = $items.customSnippets.filter(
           (item) =>
-            item.name
-              .toLowerCase()
-              .indexOf(searchString.toLowerCase().trim()) !== -1 ||
-            item.id.toLowerCase().indexOf(searchString.toLowerCase().trim()) !==
-              -1 ||
-            item?.tags?.findIndex(
-              (x) =>
-                x?.toLowerCase()?.trim() === searchString?.toLowerCase()?.trim()
-            ) !== -1 ||
+            item.name.toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 ||
+            item.id.toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 ||
+            item?.tags?.findIndex((x) => x?.toLowerCase()?.trim() === searchString?.toLowerCase()?.trim()) !== -1 ||
             FuzzyCheck(item, searchString)
         );
       } catch {
@@ -193,14 +163,9 @@
     } else {
       foundArray = $items.customSnippets.filter(
         (item) =>
-          item.name.toLowerCase().indexOf(searchString.toLowerCase().trim()) !==
-            -1 ||
-          item.id.toLowerCase().indexOf(searchString.toLowerCase().trim()) !==
-            -1 ||
-          item?.tags?.findIndex(
-            (x) =>
-              x?.toLowerCase()?.trim() === searchString?.toLowerCase()?.trim()
-          ) !== -1
+          item.name.toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 ||
+          item.id.toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 ||
+          item?.tags?.findIndex((x) => x?.toLowerCase()?.trim() === searchString?.toLowerCase()?.trim()) !== -1
       );
     }
     if ($debug) console.log(foundArray);
@@ -235,15 +200,11 @@
     // }
   }
 
-
   function FuzzyCheck(item: Item, searchString: string) {
     if ($items.settings.isFuzzy) {
       return CodeCompareWholeFile(item, searchString);
     } else {
-      if (
-        item.code.toLowerCase().includes(searchString.toLowerCase().trim()) ===
-        true
-      ) {
+      if (item.code.toLowerCase().includes(searchString.toLowerCase().trim()) === true) {
         return true;
       } else {
         return false;
@@ -253,7 +214,6 @@
       // return false;
     }
   }
-
 
   function CodeCompareWholeFile(item: Item, searchString: string) {
     const x = item;
@@ -270,17 +230,7 @@
         let changeMinusx = Block.length - x.code.length;
         let xMinusChange = x.code.length - Block.length;
         if (Math.abs(changeMinusx) < 100) {
-          console.log(
-            "Name: " +
-              x.name +
-              ": " +
-              changeMinusx +
-              ": " +
-              xMinusChange +
-              ": " +
-              "Stein: " +
-              shtein
-          );
+          console.log("Name: " + x.name + ": " + changeMinusx + ": " + xMinusChange + ": " + "Stein: " + shtein);
           found = ++found;
 
           // return true;
@@ -302,7 +252,6 @@
       return false;
     }
   }
-
 
   // function CodeCompareForEachItem(item: Item, searchString: string) {
   //   const x = item;
@@ -369,7 +318,6 @@
 
   //   }
 
-
   function ShowColorPicker(item: item) {
     if ($debug) {
       console.log(item.id);
@@ -381,49 +329,20 @@
       return;
     }
 
-    if (
-      document
-        .getElementById(item.id)
-        ?.getElementsByClassName("colorInput")[0]
-        .classList.contains("hide")
-    ) {
-      document
-        .getElementById(item.id)
-        ?.getElementsByClassName("colorInput")[0]
-        .classList.remove("hide");
-      document
-        .getElementById(item.id)
-        ?.getElementsByClassName("colorInput")[0]
-        .classList.add("show");
+    if (document.getElementById(item.id)?.getElementsByClassName("colorInput")[0].classList.contains("hide")) {
+      document.getElementById(item.id)?.getElementsByClassName("colorInput")[0].classList.remove("hide");
+      document.getElementById(item.id)?.getElementsByClassName("colorInput")[0].classList.add("show");
     } else {
-      document
-        .getElementById(item.id)
-        ?.getElementsByClassName("colorInput")[0]
-        .classList.add("hide");
-      document
-        .getElementById(item.id)
-        ?.getElementsByClassName("colorInput")[0]
-        .classList.remove("show");
+      document.getElementById(item.id)?.getElementsByClassName("colorInput")[0].classList.add("hide");
+      document.getElementById(item.id)?.getElementsByClassName("colorInput")[0].classList.remove("show");
     }
 
     //TODO: Refactor out JS mess.
-    if (
-      document
-        .getElementById(item.id)
-        ?.getElementsByClassName("tagInput")[0]
-        .classList.contains("show")
-    ) {
-      document
-        .getElementById(item.id)
-        ?.getElementsByClassName("tagInput")[0]
-        .classList.add("hide");
-      document
-        .getElementById(item.id)
-        ?.getElementsByClassName("tagInput")[0]
-        .classList.remove("show");
+    if (document.getElementById(item.id)?.getElementsByClassName("tagInput")[0].classList.contains("show")) {
+      document.getElementById(item.id)?.getElementsByClassName("tagInput")[0].classList.add("hide");
+      document.getElementById(item.id)?.getElementsByClassName("tagInput")[0].classList.remove("show");
     }
   }
-
 
   function ShowTags(item: item) {
     if ($debug) {
@@ -436,49 +355,20 @@
       return;
     }
 
-    if (
-      document
-        .getElementById(item.id)
-        ?.getElementsByClassName("tagInput")[0]
-        .classList.contains("hide")
-    ) {
-      document
-        .getElementById(item.id)
-        ?.getElementsByClassName("tagInput")[0]
-        .classList.remove("hide");
-      document
-        .getElementById(item.id)
-        ?.getElementsByClassName("tagInput")[0]
-        .classList.add("show");
+    if (document.getElementById(item.id)?.getElementsByClassName("tagInput")[0].classList.contains("hide")) {
+      document.getElementById(item.id)?.getElementsByClassName("tagInput")[0].classList.remove("hide");
+      document.getElementById(item.id)?.getElementsByClassName("tagInput")[0].classList.add("show");
     } else {
-      document
-        .getElementById(item.id)
-        ?.getElementsByClassName("tagInput")[0]
-        .classList.add("hide");
-      document
-        .getElementById(item.id)
-        ?.getElementsByClassName("tagInput")[0]
-        .classList.remove("show");
+      document.getElementById(item.id)?.getElementsByClassName("tagInput")[0].classList.add("hide");
+      document.getElementById(item.id)?.getElementsByClassName("tagInput")[0].classList.remove("show");
     }
 
     //TODO: Refactor out JS mess.
-    if (
-      document
-        .getElementById(item.id)
-        ?.getElementsByClassName("colorInput")[0]
-        .classList.contains("show")
-    ) {
-      document
-        .getElementById(item.id)
-        ?.getElementsByClassName("colorInput")[0]
-        .classList.add("hide");
-      document
-        .getElementById(item.id)
-        ?.getElementsByClassName("colorInput")[0]
-        .classList.remove("show");
+    if (document.getElementById(item.id)?.getElementsByClassName("colorInput")[0].classList.contains("show")) {
+      document.getElementById(item.id)?.getElementsByClassName("colorInput")[0].classList.add("hide");
+      document.getElementById(item.id)?.getElementsByClassName("colorInput")[0].classList.remove("show");
     }
   }
-
 
   function EditCodeBlock(item: Item) {
     tsvscode.postMessage({
@@ -487,7 +377,6 @@
     });
     // document.getElementById(item.id)?.getElementsByClassName('codeblock')[0].classList.toggle('hide');
   }
-
 
   function getSelectionText() {
     var text = "",
@@ -504,13 +393,8 @@
     return [text, endRange, startRange];
   }
 
-
   function CheckExistingPlaceholders(item: item) {
-    if (
-      item.placeholders === null ||
-      typeof item.placeholders === "undefined" ||
-      item.placeholders.length === 0
-    ) {
+    if (item.placeholders === null || typeof item.placeholders === "undefined" || item.placeholders.length === 0) {
       if ($debug) console.log("no placeholders");
       return -1;
     } else {
@@ -518,7 +402,6 @@
       return item.placeholders.length;
     }
   }
-
 
   // function OnPlaceholderFocus(e, item, placeholder){
   //   // e.target.setAttribute('data-prev', e.target.value);
@@ -544,15 +427,9 @@
     indexValue = ++indexValue;
 
     if (e.target.value === "") {
-      var newCode = item.code.replaceAll(
-        "${" + indexValue + ":" + prevValue + "}",
-        prevValue
-      );
+      var newCode = item.code.replaceAll("${" + indexValue + ":" + prevValue + "}", prevValue);
     } else {
-      var newCode = item.code.replaceAll(
-        "${" + indexValue + ":" + prevValue + "}",
-        "${" + indexValue + ":" + e.target.value + "}"
-      );
+      var newCode = item.code.replaceAll("${" + indexValue + ":" + prevValue + "}", "${" + indexValue + ":" + e.target.value + "}");
     }
     const tempItems = $items.customSnippets.map((x) => {
       if (x.id === item.id) {
@@ -598,42 +475,20 @@
     if (linkedItem) return linkedItem.name;
     else return "linknull";
   }
-
 </script>
 
 <main class="item">
-  <button
-    class="tooltip"
-    on:click={AddCodeBlockFromSelection}
-    style="height: 50px;"
-    >Add Current Selection to CodeBlock<span class="tooltiptext">Text</span
-    ></button
+  <button class="tooltip" on:click={AddCodeBlockFromSelection} style="height: 50px;"
+    >Add Current Selection to CodeBlock<span class="tooltiptext">Text</span></button
   >
   <div style="display:flex; align-items: center; background: #3c3c3c">
-    <input
-      type="text"
-      placeholder="Search"
-      value={(SearchTerm = SearchTerm ?? "")}
-      on:change={(event) => searchCode(event, FullCodeSearch)}
-    />
+    <input type="text" placeholder="Search" value={(SearchTerm = SearchTerm ?? "")} on:change={(event) => searchCode(event, FullCodeSearch)} />
     <span class="tooltip">
-      <input
-        type="checkbox"
-        id="searchCode"
-        name="searchCode"
-        value="false"
-        bind:checked={$items.settings.searchCode}
-      />
+      <input type="checkbox" id="searchCode" name="searchCode" value="false" bind:checked={$items.settings.searchCode} />
       <span class="tooltiptext">Search Code</span>
     </span>
     <span class="tooltip"
-      ><input
-        title="Text to show"
-        type="checkbox"
-        id="isFuzzy"
-        name="isFuzzy"
-        bind:checked={$items.settings.isFuzzy}
-      />
+      ><input title="Text to show" type="checkbox" id="isFuzzy" name="isFuzzy" bind:checked={$items.settings.isFuzzy} />
       <span class="tooltiptext">Fuzzy Search</span>
     </span>
   </div>
@@ -664,38 +519,19 @@
             <span style="display:none;">{common.updateTagView()}</span>
           {/if}
 
-          <span
-            style=" cursor: pointer;"
-            on:click={() => pasteCodeFromBlock(item)}
-            ><Fa
-              icon={faPlusCircle}
-              style="color:#00c300; padding-right: 4px;"
-            />
+          <span style=" cursor: pointer;" on:click={() => pasteCodeFromBlock(item)}
+            ><Fa icon={faPlusCircle} style="color:#00c300; padding-right: 4px;" />
           </span>
-          <span
-            style=" cursor: pointer;"
-            on:click={(event) => EditCodeBlock(item)}
+          <span style=" cursor: pointer;" on:click={(event) => EditCodeBlock(item)}
             ><Fa icon={faPencilAlt} style="color:orange; padding-right: 4px;" />
           </span>
-          <span style="cursor: pointer;" on:click={() => ShowColorPicker(item)}
-            ><Fa icon={faTint} style="color:yellow; padding-right: 4px;" />
-          </span>
-          <span style="cursor: pointer;" on:click={() => ShowTags(item)}
-            ><Fa icon={faTag} style="color:#007acc; padding-right: 4px;" />
-          </span>
+          <span style="cursor: pointer;" on:click={() => ShowColorPicker(item)}><Fa icon={faTint} style="color:yellow; padding-right: 4px;" /> </span>
+          <span style="cursor: pointer;" on:click={() => ShowTags(item)}><Fa icon={faTag} style="color:#007acc; padding-right: 4px;" /> </span>
 
-          <span
-            on:click={() => deleteItem($items.customSnippets, item)}
-            class="show"
-            style="float:right; cursor: pointer;"
-            ><Fa
-              icon={faTimesCircle}
-              style="color:red; padding-right: 4px; padding-top: 3px;"
-            /></span
+          <span on:click={() => deleteItem($items.customSnippets, item)} class="show" style="float:right; cursor: pointer;"
+            ><Fa icon={faTimesCircle} style="color:red; padding-right: 4px; padding-top: 3px;" /></span
           >
-          <span style="float:right; font-weight: bold; margin-right:10px;"
-            >{item.language}</span
-          >
+          <span style="float:right; font-weight: bold; margin-right:10px;">{item.language}</span>
         </div>
         <div>
           <div class="show inputStyle">
@@ -737,21 +573,10 @@
         </div>
 
         <div class="codeblock">
-          <textarea
-            disabled
-            style="height:100px; width:100%"
-            bind:value={item.code}
-            on:change={(event) => OnCodeChange(event, item)}
-          />
+          <textarea disabled style="height:100px; width:100%" bind:value={item.code} on:change={(event) => OnCodeChange(event, item)} />
           {#if item.placeholders !== null && typeof item.placeholders !== "undefined" && item.placeholders.length > 0}
             {#each item.placeholders as placeholder}
-              <input
-                type="text"
-                disabled
-                bind:value={placeholder}
-                on:change={(event) =>
-                  OnPlaceHolderChange(event, item, placeholder.toString())}
-              />
+              <input type="text" disabled bind:value={placeholder} on:change={(event) => OnPlaceHolderChange(event, item, placeholder.toString())} />
             {/each}
           {/if}
         </div>
@@ -759,28 +584,12 @@
           {#if item.linkedBlocks !== null && typeof item.linkedBlocks !== "undefined" && item.linkedBlocks.length > 0}
             {#each item.linkedBlocks as linkedBlock}
               <div class="linkedStyleBlock">
-                <span
-                  style="cursor: pointer;"
-                  on:click={(event) => searchCode(linkedBlock, FullCodeSearch)}
-                  ><Fa
-                    icon={faSearch}
-                    style="color:#23f1de; padding-right: 4px;"
-                  />
+                <span style="cursor: pointer;" on:click={(event) => searchCode(linkedBlock, FullCodeSearch)}
+                  ><Fa icon={faSearch} style="color:#23f1de; padding-right: 4px;" />
                 </span>
-                <input
-                  type="text"
-                  style="color:#b3fffb"
-                  disabled
-                  value={getLinkedName(linkedBlock)}
-                />
-                <span
-                  on:click={() => deleteCodeLink(item, linkedBlock)}
-                  class="show"
-                  style="float:right; cursor: pointer;"
-                  ><Fa
-                    icon={faTimesCircle}
-                    style="color:red; padding-right: 4px; "
-                  /></span
+                <input type="text" style="color:#b3fffb" disabled value={getLinkedName(linkedBlock)} />
+                <span on:click={() => deleteCodeLink(item, linkedBlock)} class="show" style="float:right; cursor: pointer;"
+                  ><Fa icon={faTimesCircle} style="color:red; padding-right: 4px; " /></span
                 >
               </div>
             {/each}

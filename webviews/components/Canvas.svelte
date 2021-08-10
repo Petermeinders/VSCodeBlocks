@@ -1,76 +1,148 @@
 <script lang="ts">
-import type { FilteredTree } from '../store';
+  import type { FilteredTree } from "../store";
+  import {filteredTree} from "../store";
+  import Card from "./Card.svelte";
+  import { onMount, afterUpdate } from "svelte";
+  import DragSelect from "dragselect";
 
-import Card from './Card.svelte';
-
-export let filteredTree: FilteredTree;
-
-let blocks = [
-    {id:1, name:"block1", content:"nothing", top:50, left:10},
-    {id:2, name:"block2", content:"nothing2", top:10, left:30},
-    {id:2, name:"block3", content:"nothing3", top:90, left:80}
-]
+   //export let filteredTree: FilteredTree;
 
 
-const GetFiles = () => {
+  export let left = 30;
+  export let top = 30;
+
+  onMount(async () => {
+   
+  });
+
+  afterUpdate(() => {
+    if (typeof($filteredTree) !== "undefined" && document.getElementsByClassName("card").length > 0) {
+      new DragSelect({
+      selectables: document.getElementsByClassName("card"),
+      callback: (e) => console.log(e),
+    });
+
+ 
+     }
+	});
+
+  // function DragCall(){
+
+  //   }
+
+  // $:{
+  //   filteredTree;
+  //   DragCall();
+    
+  // }
+
+  document.addEventListener("wheel", function (e) {
+    const zoomElement = document.querySelector(".zoom");
+
+    if (e.deltaY > 0) {
+      zoomElement.style.transform = `scale(${(zoom -= ZOOM_SPEED)})`;
+    } else {
+      zoomElement.style.transform = `scale(${(zoom += ZOOM_SPEED)})`;
+    }
+    console.log("changed!");
+  });
+
+  let blocks = [
+    { id: 1, name: "block1", content: "nothing", top: 50, left: 10 },
+    { id: 2, name: "block2", content: "nothing2", top: 10, left: 30 },
+    { id: 2, name: "block3", content: "nothing3", top: 90, left: 80 },
+  ];
+
+  let block = blocks[0];
+
+  const GetFiles = () => {
     tsvscode.postMessage({
       type: "GetFiles",
       value: "",
     });
-  }
+  };
 
   GetFiles();
 
-let zoom = 1;
-const ZOOM_SPEED = 0.1;
+  let zoom = 1;
+  const ZOOM_SPEED = 0.1;
 
-document.addEventListener("wheel", function(e) {  
-  const zoomElement = document.querySelector(".zoom");
 
-    
-    if(e.deltaY > 0){    
-        zoomElement.style.transform = `scale(${zoom -= ZOOM_SPEED})`;  
-    }else{    
-        zoomElement.style.transform = `scale(${zoom += ZOOM_SPEED})`;  }
 
-});
+      let moving = false;
 
+    function start() {
+      moving = true;
+    }
+
+    function stop() {
+      moving = false;
+    }
+
+    function move(e) {
+         let zoomFactor = 1;
+
+        if (currentZoom > 1)
+          zoomFactor = 1 - currentZoom;
+        if (currentZoom < 1)
+          zoomFactor = 1 + currentZoom;
+
+      if (moving) {
+        left += e.movementX * zoomFactor ;
+        top += e.movementY * zoomFactor;
+      }
+    }
+
+    $: console.log(moving);
 </script>
 
-
-
 <main style="width:100px; height:100px; position:relative;">
-    <!-- {#each blocks as block}
-    <Draggable top={block.top} left={block.left}>
+  <!-- {#await filteredTree}
+  <p>Loading...</p>
+  {:then dataValue}
+  {#each blocks as block}
+    <Card top={block.top} left={block.left}>
     <h1>{block.name}</h1>
-    </Draggable>
-    {/each} -->
-
-
-    {#if filteredTree}
-    <div class="zoom">  
-    {#each filteredTree.children as child}
-    <Card card={child} currentZoom={zoom} top={50} left={50}>
-    <h1>{child.name}</h1>
     </Card>
     {/each}
-  </div>
-    {/if}
+    {/await} -->
+<!-- 
+    {#await filteredTree}
+    <p>Loading...</p>
+    {:then dataValue}
+    <div class="zoom">
+      {#each filteredTree.children as child}
+        <Card card={child} currentZoom={zoom} top={50} left={50}>
+          <h1>{child.name}</h1>
+        </Card>
+      {/each}
+    </div>
+    {/await} -->
 
-    
-    <!-- <div class="zoom">  
+
+  {#if $filteredTree}
+    <div class="zoom">
+      {#each $filteredTree.children as child, i}
+        <Card card={child} top={top + i*10} left={left + i*10}>
+          <h1 style="border: 1px solid black;">{child.name}</h1>
+        </Card>
+      {/each}
+    </div>
+  {/if}
+
+  <!-- <div class="zoom">  
       <h1>Zoom meeeee</h1>
   </div> -->
 </main>
 
 <style>
-.zoom{  
-    height:1vh;  
-    width:100%;  
-    display:grid;  
-    place-items:center;  
+  .zoom {
+    height: 1vh;
+    width: 100%;
+    display: grid;
+    place-items: center;
     /* position:fixed;   */
-    top:0;  
-    left:0;
-}
+    top: 0;
+    left: 0;
+  }
 </style>
