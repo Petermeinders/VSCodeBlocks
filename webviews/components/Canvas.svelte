@@ -97,6 +97,8 @@
 </script>
 
 <main style="width:100px; height:100px; position:fixed;">
+  <div class="ds-selected" style="display:none"></div>
+
   <!-- {#await filteredTree}
   <p>Loading...</p>
   {:then dataValue}
@@ -133,7 +135,7 @@
   {#if $filteredTree}
   <div class="zoom">
     <Card tree={$filteredTree.children} let:treeItem={treeItem} top={top} left={left}>
-      <b>{treeItem.name}</b>
+      <button style="top:{top}px; left:{left}px" class="card  {treeItem.type === 'directory' ? 'directory' : 'file'}" type="button" >{treeItem.name}</button>
     </Card>
   </div>
 {/if}
@@ -153,4 +155,39 @@
     top: 0;
     left: 0;
   }
+
+  .card {
+    padding:20px;
+    user-select: none;
+    /* width: 50px;
+  height: 50px; */
+    /* position: absolute; */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    border: 0;
+  }
+
+  .ds-selected {
+    outline: 3px solid black;
+    outline-offset: 3px;
+    color: black;
+    font-weight: bold;
+  }
+
+  .card:focus {
+    border: 1px solid blue;
+  }
+
+  .directory {
+    border: solid 3px #864fc5;
+    background: #b26effcc;
+  }
+
+  .file {
+    border: solid 3px #4e58bf;
+    background: #6e88ffcc;
+  }
+
 </style>
