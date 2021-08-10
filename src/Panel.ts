@@ -1,6 +1,8 @@
-import { TextEncoder } from "util";
 import * as vscode from "vscode";
 import { getNonce } from "./getNonce";
+import * as fs from "fs";
+import { Console } from "console";
+import * as dirTree from "directory-tree";
 
 export class HellowWorldPanel {
   /**
@@ -13,7 +15,6 @@ export class HellowWorldPanel {
   public readonly _panel: vscode.WebviewPanel;
   public readonly _extensionUri: vscode.Uri;
   public _disposables: vscode.Disposable[] = [];
-
 
   public static createOrShow(extensionUri: vscode.Uri, message: string) {
     // const column = vscode.window.activeTextEditor
@@ -29,7 +30,7 @@ export class HellowWorldPanel {
 
       if (message !== "") {
         HellowWorldPanel.currentPanel._panel.webview.postMessage({
-          type: 'add-code',
+          type: "add-code",
           value: message,
         });
       }
@@ -38,110 +39,99 @@ export class HellowWorldPanel {
     }
 
     // Otherwise, create a new panel.
-    const panel = vscode.window.createWebviewPanel(
-      HellowWorldPanel.viewType,
-      "CodeBlocks",
-      column || vscode.ViewColumn.One,
-      {
-        // Enable javascript in the webview
-        enableScripts: true,
+    const panel = vscode.window.createWebviewPanel(HellowWorldPanel.viewType, "CodeBlocks", column || vscode.ViewColumn.One, {
+      // Enable javascript in the webview
+      enableScripts: true,
 
-        // And restrict the webview to only loading content from our extension's `media` directory.
-        localResourceRoots: [
-          vscode.Uri.joinPath(extensionUri, "media"),
-          vscode.Uri.joinPath(extensionUri, "out/compiled"),
-        ],
-      }
-    );
+      // And restrict the webview to only loading content from our extension's `media` directory.
+      localResourceRoots: [vscode.Uri.joinPath(extensionUri, "media"), vscode.Uri.joinPath(extensionUri, "out/compiled")],
+    });
 
     HellowWorldPanel.currentPanel = new HellowWorldPanel(panel, extensionUri);
     if (message !== "") {
       HellowWorldPanel.currentPanel._panel.webview.postMessage({
-        type: 'add-code',
+        type: "add-code",
         value: message,
       });
     }
   }
 
   public static delay(ms: number) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   public static addPanelCode(text: string, filename: string) {
-    if (typeof (HellowWorldPanel.currentPanel) !== 'undefined') {
+    if (typeof HellowWorldPanel.currentPanel !== "undefined") {
       let editObject = { text, filename };
       HellowWorldPanel.currentPanel._panel.webview.postMessage({
-        type: 'add-code',
+        type: "add-code",
         value: editObject,
       });
     }
   }
 
   public static importVSCodeSnippet(text: string, filename: string) {
-    if (typeof (HellowWorldPanel.currentPanel) !== 'undefined') {
+    if (typeof HellowWorldPanel.currentPanel !== "undefined") {
       let editObject = { text, filename };
       HellowWorldPanel.currentPanel._panel.webview.postMessage({
-        type: 'import-vscode-snip',
+        type: "import-vscode-snip",
         value: editObject,
       });
     }
   }
 
   public static addPanelCodeEditMode(id: string, filename: string) {
-    if (typeof (HellowWorldPanel.currentPanel) !== 'undefined') {
+    if (typeof HellowWorldPanel.currentPanel !== "undefined") {
       let editObject = { id, filename };
       HellowWorldPanel.currentPanel._panel.webview.postMessage({
-        type: 'edit-code',
+        type: "edit-code",
         value: editObject,
       });
     }
   }
 
-  public static updateLanguage(langId:string) {
-    if (typeof (HellowWorldPanel.currentPanel) !== 'undefined') {
+  public static updateLanguage(langId: string) {
+    if (typeof HellowWorldPanel.currentPanel !== "undefined") {
       HellowWorldPanel.currentPanel._panel.webview.postMessage({
-        type: 'update-lang',
+        type: "update-lang",
         value: langId,
       });
     }
   }
 
-
   public static addPlaceHolder(value: string) {
-    if (typeof (HellowWorldPanel.currentPanel) !== 'undefined') {
+    if (typeof HellowWorldPanel.currentPanel !== "undefined") {
       HellowWorldPanel.currentPanel._panel.webview.postMessage({
-        type: 'add-placeholder',
+        type: "add-placeholder",
         value: value,
       });
     }
   }
 
   public static PassCodeToWindow(items: any) {
-    if (typeof (HellowWorldPanel.currentPanel) !== 'undefined') {
+    if (typeof HellowWorldPanel.currentPanel !== "undefined") {
       HellowWorldPanel.currentPanel._panel.webview.postMessage({
-        type: 'import-code',
+        type: "import-code",
         value: items,
       });
-    }
-    else {
+    } else {
       console.log("error");
     }
-
   }
 
   public static GetCodeFromEditScreen(value: string) {
-    if (typeof (HellowWorldPanel.currentPanel) !== 'undefined') {
+    if (typeof HellowWorldPanel.currentPanel !== "undefined") {
       HellowWorldPanel.currentPanel._panel.webview.postMessage({
-        type: 'code-from-active-window',
+        type: "code-from-active-window",
         value: value,
       });
     }
   }
 
   public static GetCodeFromEditScreenForSnippet(value: string) {
-    if (typeof (HellowWorldPanel.currentPanel) !== 'undefined') {
+    if (typeof HellowWorldPanel.currentPanel !== "undefined") {
       HellowWorldPanel.currentPanel._panel.webview.postMessage({
-        type: 'code-vssnippet-from-active-window',
+        type: "code-vssnippet-from-active-window",
         value: value,
       });
     }
@@ -157,7 +147,6 @@ export class HellowWorldPanel {
   //   });
   // }
 
-
   //TODO: AI detect if block is found based on levenshtein.
   // public static PasCodeChangeToWindow(code: string) {
   //   if (typeof (HellowWorldPanel.currentPanel) !== 'undefined') {
@@ -171,50 +160,41 @@ export class HellowWorldPanel {
 
   // }
 
-
   public static PassSearchStringToWindow(searchString: string) {
-    if (typeof (HellowWorldPanel.currentPanel) !== 'undefined') {
+    if (typeof HellowWorldPanel.currentPanel !== "undefined") {
       HellowWorldPanel.currentPanel._panel.webview.postMessage({
-        type: 'selection-to-search',
+        type: "selection-to-search",
         value: searchString,
       });
       return true;
-
     }
-
   }
 
-  public static GetActiveEditor(hasText:any) {
+  public static GetActiveEditor(hasText: any) {
+    let editor = vscode.window.activeTextEditor;
+    let viewColum = vscode?.window?.visibleTextEditors[0]?.viewColumn;
+    let text;
 
-		let editor = vscode.window.activeTextEditor;
-		let viewColum = vscode?.window?.visibleTextEditors[0]?.viewColumn;
-		let text;
+    if (!editor) editor = vscode?.window?.visibleTextEditors[0];
 
-		if (!editor)
-			editor = vscode?.window?.visibleTextEditors[0];
+    if (hasText) {
+      text = editor.document.getText(editor.selection);
 
-		if(hasText)
-		{
-			text = editor.document.getText(editor.selection);
-
-			if (text === '' && vscode?.window?.visibleTextEditors.length > 1) {
-				editor = vscode?.window?.visibleTextEditors[1];
-				viewColum = vscode?.window?.visibleTextEditors[1]?.viewColumn;
-			}
-	
-		}
-    if(editor.document.fileName === 'tasks' && vscode?.window?.visibleTextEditors.length > 1){
-      if(typeof(vscode?.window?.visibleTextEditors[0]?.viewColumn) === 'undefined')
-      return vscode?.window?.visibleTextEditors[1];
+      if (text === "" && vscode?.window?.visibleTextEditors.length > 1) {
+        editor = vscode?.window?.visibleTextEditors[1];
+        viewColum = vscode?.window?.visibleTextEditors[1]?.viewColumn;
+      }
+    }
+    if (editor.document.fileName === "tasks" && vscode?.window?.visibleTextEditors.length > 1) {
+      if (typeof vscode?.window?.visibleTextEditors[0]?.viewColumn === "undefined") return vscode?.window?.visibleTextEditors[1];
     }
 
-			
-		if (!editor) {
-			vscode.window.showInformationMessage("no active window");
-			return;
-		}
-		return editor;
-	}
+    if (!editor) {
+      vscode.window.showInformationMessage("no active window");
+      return;
+    }
+    return editor;
+  }
 
   public static kill() {
     HellowWorldPanel.currentPanel?.dispose();
@@ -250,6 +230,45 @@ export class HellowWorldPanel {
     // );
   }
 
+  public ReturnFileTree(filteredTree: any) {
+    if (typeof HellowWorldPanel.currentPanel !== "undefined") {
+      HellowWorldPanel.currentPanel._panel.webview.postMessage({
+        type: "filtered-tree",
+        value: filteredTree,
+      });
+    } else {
+      console.log("tree error");
+    }
+  }
+
+
+  public GetFilesInFolder(uri: vscode.Uri, fileFolders, prevFolderName) {
+
+    // const filteredTree = dirTree("/some/path", { extensions: /\.txt/ });
+    // vscode.workspace.fs.readDirectory(uri).then((files) => {
+    //   files.forEach((file) => {
+    //     let newstring = uri.fsPath+ "/" + file[0];
+    //     if (file[1] === vscode.FileType.Directory) { 
+    //       //FOLDER
+    //       //console.log("folder: " + file[0]);
+    //       const newURI = vscode.Uri.file(newstring);
+    //       let newFolder = {name:"", val:uri, subFolder:{}};
+    //       newFolder.name = file[0];
+    //       newFolder.val = uri;
+    //       // newFolder.subFolder = 
+    //       fileFolders.folders[prevFolderName].subFolder[file[0]] = newFolder;
+    //       this.GetFilesInFolder(newURI, fileFolders, file[0]);
+    //     }
+    //     else{
+    //       //FILE
+    //       //console.log("file: " + file[0]);
+
+    //     }
+    //   });
+    // });
+    
+  }
+
   public dispose() {
     HellowWorldPanel.currentPanel = undefined;
 
@@ -280,11 +299,10 @@ export class HellowWorldPanel {
 
         case "insertSnippet": {
           if (!data.value) {
-
             return;
           }
           let editor = vscode.window.activeTextEditor;
-          if (typeof (editor) === "undefined") {
+          if (typeof editor === "undefined") {
             editor = vscode.window.visibleTextEditors[0];
           }
           const document = editor?.document;
@@ -303,6 +321,51 @@ export class HellowWorldPanel {
             return;
           }
           vscode.commands.executeCommand("vsblocksnipets.addPlaceholder");
+          break;
+        }
+
+        case "GetFiles": {
+          //vscode.commands.executeCommand("vsblocksnipets.addPlaceholder");
+          let rootFolder = vscode.workspace.workspaceFolders[0];
+          let fileFolders = {folders:{}, files:[]};
+
+          const filteredTree = dirTree(rootFolder.uri.fsPath);
+          console.log(filteredTree);
+
+          this.ReturnFileTree(filteredTree);
+
+          // let files = vscode.workspace.fs.readDirectory(rootFolder.uri).then((files) => {
+          //   files.forEach((file) => {
+          //     let newstring = rootFolder.uri.fsPath+ "/" + file[0];
+          //     const uri:vscode.Uri = vscode.Uri.file(newstring);
+          //     vscode.workspace.workspaceFolders;
+          //     // const stats = vscode.workspace.fs.stat(uri).then(stat =>{
+          //     //     console.log(stat);
+          //     // });
+
+          //     if (file[1] === vscode.FileType.Directory) {
+          //       let newFolder = {name:"", val:uri, subFolder:{}};
+          //       newFolder.name = file[0];
+          //       newFolder.val = uri;
+          //       // newFolder.subFolder = 
+
+          //       fileFolders.folders[file[0]] = newFolder;
+          //       this.GetFilesInFolder(uri, fileFolders, newFolder.name);
+          //       //console.log(uri);
+          //       //console.log(vscode.workspace.workspaceFolders?.map(folder => folder.uri.path));
+          //       console.log(fileFolders);
+          //     }
+          //   });
+          // });
+
+          //   => {
+          //     files.forEach((file) => {
+          //         const uri = vscode.Uri.file(file);
+          //         console.log(uri);
+          //     });
+          // });
+
+          //console.log("getfiles");
           break;
         }
 
@@ -379,7 +442,7 @@ export class HellowWorldPanel {
             vscode.window.showInformationMessage("no active window");
             return;
           }
-    
+
           let text = editor.document.getText();
           let viewColum = editor.viewColumn;
 
@@ -401,7 +464,7 @@ export class HellowWorldPanel {
             vscode.window.showInformationMessage("no active window");
             return;
           }
-    
+
           let text = editor.document.getText();
           let viewColum = editor.viewColumn;
 
@@ -433,12 +496,11 @@ export class HellowWorldPanel {
           let doc = HellowWorldPanel.GetActiveEditor(false)?.document;
 
           if (filename === data.value.fileName) {
-            if (filename === 'HelloWorld') {
+            if (filename === "HelloWorld") {
               doc = vscode?.window?.visibleTextEditors[1]?.document;
               vscode.window.showTextDocument(doc);
               vscode.commands.executeCommand("workbench.action.revertAndCloseActiveEditor");
-            }
-            else {
+            } else {
               //doc = vscode?.window?.visibleTextEditors[0]?.document;
               //vscode.window.showTextDocument(doc);
               vscode.commands.executeCommand("workbench.action.focusFirstEditorGroup");
@@ -480,18 +542,17 @@ export class HellowWorldPanel {
 
           let editor = vscode.window.activeTextEditor;
           let viewColum = vscode?.window?.visibleTextEditors[0]?.viewColumn;
-    
-          if(!editor)
-            editor = vscode?.window?.visibleTextEditors[0];
-    
+
+          if (!editor) editor = vscode?.window?.visibleTextEditors[0];
+
           if (!editor) {
             vscode.window.showInformationMessage("no active window");
             return;
           }
 
-          editor.edit(builder => {
+          editor.edit((builder) => {
             const doc = editor?.document;
-            if (typeof (doc) !== 'undefined')
+            if (typeof doc !== "undefined")
               builder.replace(new vscode.Range(doc.lineAt(0).range.start, doc.lineAt(doc.lineCount - 1).range.end), data.value);
           });
 
@@ -506,21 +567,18 @@ export class HellowWorldPanel {
           let doc = vscode?.window?.activeTextEditor?.document;
           let window = vscode?.window?.activeTextEditor;
 
-          if (typeof (doc) === 'undefined') {
+          if (typeof doc === "undefined") {
             doc = vscode?.window?.visibleTextEditors[0]?.document;
             window = vscode?.window?.visibleTextEditors[0];
-            if (typeof (doc) === 'undefined') {
+            if (typeof doc === "undefined") {
               //console.log(vscode.window.visibleTextEditors[0].document.fileName);
               doc = vscode?.window?.visibleTextEditors[1]?.document;
               window = vscode?.window?.visibleTextEditors[1];
             }
-
           }
 
-          window?.edit(builder => {
-
-
-            if (typeof (doc) !== 'undefined')
+          window?.edit((builder) => {
+            if (typeof doc !== "undefined")
               builder.replace(new vscode.Range(doc.lineAt(0).range.start, doc.lineAt(doc.lineCount - 1).range.end), data.value);
           });
           break;
@@ -547,26 +605,13 @@ export class HellowWorldPanel {
     const scriptUri = webview.asWebviewUri(
       vscode.Uri.joinPath(this._extensionUri, "out/compiled", "HelloWorld.js")
       // vscode.Uri.joinPath(this._extensionUri, "media", "compiled/main.js")
-
     );
 
     // Local path to css styles
-    const styleResetPath = vscode.Uri.joinPath(
-      this._extensionUri,
-      "media",
-      "reset.css"
-    );
-    const stylesPathMainPath = vscode.Uri.joinPath(
-      this._extensionUri,
-      "media",
-      "vscode.css"
-    );
+    const styleResetPath = vscode.Uri.joinPath(this._extensionUri, "media", "reset.css");
+    const stylesPathMainPath = vscode.Uri.joinPath(this._extensionUri, "media", "vscode.css");
 
-    const styleMainUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, "out", "compiled/sidebar.css")
-    );
-
-
+    const styleMainUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, "out", "compiled/sidebar.css"));
 
     // Uri to load styles into webview
     const stylesResetUri = webview.asWebviewUri(styleResetPath);
@@ -586,8 +631,7 @@ export class HellowWorldPanel {
 					Use a content security policy to only allow loading images from https or from our extension directory,
 					and only allow scripts that have a specific nonce.
         -->
-        <meta http-equiv="Content-Security-Policy" content="img-src https: data:; style-src 'unsafe-inline' ${webview.cspSource
-      }; script-src 'nonce-${nonce}';">
+        <meta http-equiv="Content-Security-Policy" content="img-src https: data:; style-src 'unsafe-inline' ${webview.cspSource}; script-src 'nonce-${nonce}';">
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
 				<link href="${stylesResetUri}" rel="stylesheet">
 				<link href="${stylesMainUri}" rel="stylesheet">

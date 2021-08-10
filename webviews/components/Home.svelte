@@ -10,9 +10,11 @@
   import LinkedBlocks from "./LinkedBlocks.svelte";
   import { faCog } from "@fortawesome/free-solid-svg-icons";
   import Fa from "svelte-fa";
+import Canvas from "./Canvas.svelte";
 
   let SearchTerm: string = "";
   let FullCodeSearch: boolean = true;
+  let FilteredTree;
 
   $: {
     if ($items !== null && $items.customSnippets[0] !== undefined) {
@@ -174,6 +176,14 @@
           //ParseVSCodeSnippet(text);
           break;
 
+        case "filtered-tree":
+          let filteredTree = message.value;
+          console.log("FILTERED TREE RETURNSSS");
+          console.log(filteredTree);
+          FilteredTree = filteredTree;
+          //FilteredTreeExample(filteredTree);
+          break;
+
         case "selection-to-search":
           SearchTerm = message.value;
           break;
@@ -233,6 +243,10 @@
       }
     });
   });
+
+  function FilteredTreeExample(fileredTree){
+
+  }
 
   function ParseVSCodeSnippet(text) {
     //TODO: add vscode message on parse failure.
@@ -537,6 +551,8 @@
       </button>
     </div>
   {/if}
+  <Canvas filteredTree={FilteredTree}/>
+
 </main>
 
 <style>

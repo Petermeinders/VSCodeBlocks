@@ -1,4 +1,4 @@
-import { HellowWorldPanel } from './HelloWorldPanel';
+import { HellowWorldPanel } from './Panel';
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
@@ -535,6 +535,16 @@ export function activate(context: vscode.ExtensionContext) {
 			HellowWorldPanel.PassCodeToWindow(newString);
 
 		}));
+
+		context.subscriptions.push(
+			vscode.commands.registerCommand('vsblocksnipets.returnFileTree', (fileTree) => {
+	
+				const fileTreeString = JSON.stringify(fileTree);
+	
+	
+				HellowWorldPanel.PassCodeToWindow(fileTreeString);
+	
+			}));
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand('vsblocksnipets.passBlocksToSidebar', (items) => {

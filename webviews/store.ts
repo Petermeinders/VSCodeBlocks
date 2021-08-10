@@ -14,6 +14,16 @@ export interface Item {
    tags:[] | string[];
 }
 
+export interface FilteredTree {
+  path:string,
+  name:string,
+  size:number,
+  type:string,
+  children:[],
+  extension:string
+}
+
+
 let originActiveScreen = "";
 
 let customSnippets:Item[] =

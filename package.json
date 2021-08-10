@@ -142,6 +142,7 @@
 	"dependencies": {
 		"@fortawesome/free-solid-svg-icons": "^5.15.3",
 		"@types/fast-levenshtein": "0.0.2",
+		"directory-tree": "^2.2.9",
 		"fast-levenshtein": "^3.0.0",
 		"svelte-dnd-action": "^0.9.9",
 		"svelte-fa": "^2.2.1",
