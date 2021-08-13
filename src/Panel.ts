@@ -3,11 +3,16 @@ import { getNonce } from "./getNonce";
 import * as fs from "fs";
 import { Console } from "console";
 import * as dirTree from "directory-tree";
+// import _ from 'lodash-es';
+import deepdash from 'deepdash';
+
+
 
 export class HellowWorldPanel {
   /**
    * Track the currently panel. Only allow a single panel to exist at a time.
    */
+  
   public static currentPanel: HellowWorldPanel | undefined;
 
   public static readonly viewType = "hello-world";
@@ -329,8 +334,44 @@ export class HellowWorldPanel {
           let rootFolder = vscode.workspace.workspaceFolders[0];
           let fileFolders = {folders:{}, files:[]};
 
-          const filteredTree = dirTree(rootFolder.uri.fsPath);
-          console.log(filteredTree);
+          const filteredTree = dirTree(rootFolder.uri.fsPath, { exclude: new RegExp(/node_modules/)});
+
+          const _ = require('lodash');
+          require('deepdash')(_);
+          let i = 0;
+
+          let filtrate = _.eachDeep(filteredTree, (value, key, parentValue, context, options={pathFormat:"array"}) => {
+            if(typeof(value) === "object" && !Array.isArray(value))
+            {
+              value.id = i;
+              i = ++i;
+
+              if (!value.x1)
+              {
+                value.x1 = 0;
+                value.y1 = 0;
+                value.x2 = 0;
+                value.y2 = 0;
+              }
+
+              if (value.children){
+                value.children.forEach(child => {
+                  child.parentId = value.id;
+                })
+              }
+
+            
+              }
+
+
+            }
+          );
+        
+         console.log('Filtrate',filtrate);
+
+          // console.log(filteredTree);
+
+
 
           this.ReturnFileTree(filteredTree);
 

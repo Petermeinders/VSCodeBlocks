@@ -1,9 +1,14 @@
-<script>
+<script lang="ts">
+// import { filteredTree  } from "../store";
+// import type {FilteredTree} from "../store";
+
+
 
   export let left = 30;
   export let top = 30;
   export let currentZoom = 1;
   export let card;
+
 
 
   export let tree;
@@ -19,7 +24,7 @@
 </section> -->
 <!-- {@debug treeItem} -->
 
-{#if tree}
+<!-- {#if tree}
 <ul>
     {#each tree as treeItem, i}
     {#if i < 5}
@@ -34,6 +39,24 @@
         {/if}
     {/each}
   </ul>
+{/if} -->
+
+
+{#if tree}
+    {#each tree as treeItem, i}
+    {#if i < 20}
+    {#if treeItem.name === "AddUser.vue"}
+    <!-- {@debug $filteredTree, treeItem} -->
+    {/if}
+            <slot {treeItem}>No slot</slot>
+            {#if treeItem.children}
+                <svelte:self tree={treeItem.children} let:treeItem={treeItem}>
+                    <slot {treeItem}>No slot</slot>
+                </svelte:self>
+            {/if}
+
+            {/if}
+    {/each}
 {/if}
 
 <style>

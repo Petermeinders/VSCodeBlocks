@@ -19,11 +19,21 @@ export interface FilteredTree {
   name:string,
   size:number,
   type:string,
+  outputx:number,
+  outputy:number,
+  inputx:number,
+  inputy:number,
   children:[],
   extension:string
 }
 
-let originFilteredTree;
+
+
+let originNewRender = 0;
+
+let originFilteredTree:FilteredTree;
+
+let originFlatTree = [];
 
 let customSnippets:Item[] =
 [
@@ -102,9 +112,20 @@ if (tsvscode.getState()?.p !== undefined) {
 //   tsvscode.setState(originTags);
 // }
 
-const addItem = () => {
 
-}
+export const newRender = writable(originNewRender, (set) => {
+   console.log("debug: " + originNewRender);
+
+   //set([{id:0, name:""}]);
+   return () => { };
+});
+
+export const flatTree = writable(originFlatTree, (set) => {
+   console.log("debug: " + originFlatTree);
+
+   //set([{id:0, name:""}]);
+   return () => { };
+});
 
 export const filteredTree = writable(originFilteredTree, (set) => {
    console.log("debug: " + originFilteredTree);

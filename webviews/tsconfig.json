@@ -3,10 +3,11 @@
     "include": ["./**/*", ],
     "exclude": ["../node_modules/*"],
     "compilerOptions": {
-      "strict": true, 
+      "strict": true,
+      "esModuleInterop": true, 
       "types": ["node", "svelte", "ts"],
       "lib": [
-        "es2021"
+        "es6","es2021"
       ],
   }
 }

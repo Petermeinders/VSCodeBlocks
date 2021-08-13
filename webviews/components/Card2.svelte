@@ -1,0 +1,141 @@
+<script lang="ts">
+import { filteredTree, flatTree, newRender  } from "../store";
+import type {FilteredTree} from "../store";
+import lodash, { flatten } from 'lodash';
+import deepdash from 'deepdash';
+import { afterUpdate } from "svelte";
+
+
+const _ = deepdash(lodash);
+  export let left = 30;
+  export let top = 30;
+  export let currentZoom = 1;
+  export let card;
+
+
+
+  export let treeItem;
+  
+  afterUpdate(() => {
+    $newRender = $newRender++;
+  })
+
+
+// function FlattenTree(newTree){
+//   newTree.forEach(item => {
+//     let c = item.children;
+//     item.children = null;
+//     $flatTree.push(item)
+//     if(Array.isArray(c))
+//     {
+      
+
+//       FlattenTree(c)
+//     }
+
+//   })
+// }
+
+// FlattenTree($filteredTree.children);
+
+</script>
+<div class="ds-selected" style="display:none" />
+
+<main>
+  <button style="top:{top}px; left:{left}px" class="card  {treeItem.type === 'directory' ? 'directory' : 'file'}" type="button"
+        id={treeItem.id} 
+        data-fileType={treeItem.type} 
+        data-x1={treeItem.x1}
+        data-x2={treeItem.x2} 
+        data-y1={treeItem.y1} 
+        data-y2={treeItem.y2}>
+
+        {treeItem.name}</button>
+</main>
+<!-- <button type="button" class="card one">1</button> -->
+
+
+<!-- <section style="top:{top}px; left:{left}px" class="card  {card.type === 'directory' ? 'directory' : 'file'}">
+  <div class="card-inner">
+    <slot></slot>
+  </div>
+</section> -->
+<!-- {@debug treeItem} -->
+
+<!-- {#if tree}
+<ul>
+    {#each tree as treeItem, i}
+    {#if i < 5}
+    <li>
+            <slot {treeItem}>No slot</slot>
+            {#if treeItem.children}
+                <svelte:self tree={treeItem.children} let:treeItem={treeItem}>
+                    <slot {treeItem}>No slot</slot>
+                </svelte:self>
+            {/if}
+          </li>
+        {/if}
+    {/each}
+  </ul>
+{/if} -->
+
+
+<!-- {#if tree && $flatTree}
+<div style="display:none;"></div>
+    {#each tree as treeItem, i}
+    {#if i < 20}
+
+            <slot {treeItem}>No slot</slot>
+            {$flatTree.push(treeItem)}
+            {#if treeItem.children}
+                <svelte:self tree={treeItem.children} let:treeItem={treeItem}>
+                    <slot {treeItem}>No slot</slot>
+                    {$flatTree.push(treeItem)}
+                </svelte:self>
+            {/if}
+
+            {/if}
+    {/each}
+  </div>
+{/if} -->
+
+<style>
+  * {
+    user-select: none;
+  }
+  .card {
+    padding: 20px;
+    user-select: none;
+    /* width: 50px;
+  height: 50px; */
+    /* position: absolute; */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    border: 0;
+  }
+
+  .ds-selected {
+    outline: 3px solid black;
+    outline-offset: 3px;
+    color: black;
+    font-weight: bold;
+  }
+
+  .card:focus {
+    border: 1px solid blue;
+  }
+
+  .directory {
+    border: solid 3px #864fc5;
+    background: #b26effcc;
+  }
+
+  .file {
+    border: solid 3px #4e58bf;
+    background: #6e88ffcc;
+  }
+ 
+
+</style>
