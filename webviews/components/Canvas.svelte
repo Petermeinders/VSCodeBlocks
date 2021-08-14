@@ -3,124 +3,118 @@
   import Card2 from "./Card2.svelte";
   import { onMount, afterUpdate } from "svelte";
   import DragSelect from "dragselect";
-  import { each } from "svelte/internal";
   import lodash from "lodash";
   import deepdash from "deepdash";
-import { TreeItem } from "vscode";
-import Line from "./Line.svelte";
+  import Line from "./Line.svelte";
 
   //export let filteredTree: FilteredTree;
 
   export let left = 30;
   export let top = 30;
   const _ = deepdash(lodash);
+  let ds;
   // const _ = require('lodash');
   //         require('deepdash')(_);
 
   let lines = [];
+  let isMoving = false;
+  $: isMoving;
 
   $: {
+    lines;
+  }
+  $: {
     $flatTree;
-    $newRender
-    Drag();
+    $newRender;
   }
 
-  onMount(async () => {});
+  onMount(async () => {
+    ds = new DragSelect({
+      selectables: document.getElementsByClassName("card"),
+      callback: (e) => console.log(e),
+    });
+
+    ds.subscribe("dragstart", (DragStartObject) => {
+      isMoving = true;
+    });
+
+    ds.subscribe("dragmove", (DragMovedObject) => {
+      //console.log("moving");
+      let x = DragMovedObject.event.offsetX;
+      let y = DragMovedObject.event.offsetY;
+      let id = DragMovedObject.event.target.id;
+
+      DragMovedObject.event.preventDefault();
+    });
+
+    ds.subscribe("callback", (DragEndedObject) => {
+      let x = DragEndedObject.event.offsetX;
+      let y = DragEndedObject.event.offsetY;
+      let id = DragEndedObject.event.target.id;
+      isMoving = false;
+      console.log("drag ended");
+      if (DragEndedObject.event.target.getAttribute("data-fileType") === "directory") {
+        let id = DragEndedObject.event.target.id;
+
+        let foundItem = _.findDeep($filteredTree, (value, key, parentValue, context) => {
+          if (parentValue?.id.toString() === id) {
+            console.log("Found IT!");
+            console.log(value);
+            return true;
+          }
+        });
+      }
+    });
+  });
 
   function Drag() {
     if (typeof $flatTree !== "undefined" && document.getElementsByClassName("card").length > 0) {
-      const ds = new DragSelect({
-        selectables: document.getElementsByClassName("card"),
-        callback: (e) => console.log(e),
-      });
-
-      ds.subscribe("dragstart", (DragStartObject) => {});
-
-      ds.subscribe("dragmove", (DragMovedObject) => {
-        //console.log("moving");
-        let x = DragMovedObject.event.offsetX;
-        let y = DragMovedObject.event.offsetY;
-        let id = DragMovedObject.event.target.id;
-
-        DragMovedObject.event.preventDefault();
-
-        let newIndex = _.index($filteredTree);
-
-
-        // $flatTree.forEach(block => {
-        //   if (block.type === "file")
-        //   {
-            
-        //   }
-        // })
-
-
-        //if ($flatTree) console.log($flatTree);
-        //console.log(newIndex);
-
-        //   for (const i in newIndex){
-        //     console.log(`${i}: ${newIndex[i]}`);
-        //   }
-
-        //  let foundItem = _.findDeep($filteredTree, (value, key, parentValue, context) =>{
-        //         if(parentValue?.id.toString() === id)
-        //         {
-        //           console.log("Found IT!");
-        //           console.log(value);
-        //             return true;
-        //         }
-        //     });
-
-        //     if(foundItem && foundItem.parent)
-        //     {
-        //     foundItem.parent.x1 = x;
-        //     foundItem.parent.y1 = y;
-        //     }
-      });
-
-      ds.subscribe("callback", (DragEndedObject) => {
-        console.log("drag ended");
-        if (DragEndedObject.event.target.getAttribute("data-fileType") === "directory") {
-          let id = DragEndedObject.event.target.id;
-
-          let foundItem = _.findDeep($filteredTree, (value, key, parentValue, context) => {
-            if (parentValue?.id.toString() === id) {
-              console.log("Found IT!");
-              console.log(value);
-              return true;
-            }
-          });
-
-          //console.log(foundItem);
-        }
-      });
+      //console.log(foundItem);
     }
+
+    lines.forEach((line) => {
+      if (line.childId === id) {
+        line.x2 = x;
+        line.y2 = y;
+      }
+    });
+
+    lines = lines;
+
+    $flatTree.forEach((block) => {
+      if (block.id === id && block.type === "file") {
+        block.x1 = x;
+        block.y1 = y;
+      }
+    });
   }
 
   afterUpdate(() => {
-    if ($filteredTree) 
-      FlattenTree($filteredTree.children);
+    if (!isMoving) {
+      if ($filteredTree) {
+        FlattenTree($filteredTree.children);
 
-      faketree.forEach(item => {
-        if(item.type === "file")
-        {
+        faketree.forEach((item) => {
+          if (item.type === "file") {
+            faketree.forEach((parent) => {
+              if (parent.type === "directory")
+                if (parent.id === item.parentId) {
+                  let line = { childId: item.id, parentId: item.parentId, x1: item.x1, y1: item.y1, x2: parent.x2, y2: parent.y2 };
+                  lines.push(line);
+                  lines = lines;
+                }
+            });
+          }
+        });
 
-          faketree.forEach(parent =>{
-            if(parent.type === "directory")
-              if (parent.id === item.parentId)
-              {
-                let line = {x1:item.x1, y1:item.y1, x2:parent.x2, y2:parent.y2}
-                lines.push(line);
-              } 
-          })
+        $flatTree = [...faketree];
+        let cards = document.getElementsByClassName("card");
+        ds.addSelectables(cards);
+
+        if (typeof $flatTree !== "undefined" && document.getElementsByClassName("card").length > 0) {
+          Drag();
         }
-      })
-
-
-    $flatTree = [...faketree];
-
-    if (typeof $flatTree !== "undefined" && document.getElementsByClassName("card").length > 0) {
-      Drag();
+      }
     }
   });
 
@@ -211,6 +205,28 @@ import Line from "./Line.svelte";
       }
     });
   }
+
+  function LineCheck(line) {
+    let lineid = "line" + line.childId;
+    let foundElement = document.getElementById(lineid);
+    let x1;
+    let x2;
+    let y1;
+    let y2;
+    if (foundElement) {
+      x1 = foundElement.getAttribute("x1");
+      x2 = foundElement.getAttribute("x2");
+      y1 = foundElement.getAttribute("y1");
+      y2 = foundElement.getAttribute("y2");
+    }
+    console.log(foundElement);
+    console.log(line);
+    if (line.x1.toString() !== x1 || line.x2.toString() !== x2 || line.y1.toString() !== y1 || line.y2.toString() !== y2) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 </script>
 
 <main style="width:100px; height:100px; position:fixed;">
@@ -277,12 +293,13 @@ import Line from "./Line.svelte";
       {/each}
     </div>
     <div>
-     {#each lines as line}
-      <Line x1={line.x1} x2={line.x2} y1={line.y1} y2={line.y2}/>
-     {/each}
+      <!-- {#each lines as line}
+      {#if LineCheck(line) === true}
+      
+      <Line id={line.childId} x1={line.x1} x2={line.x2} y1={line.y1} y2={line.y2}/>
+      {/if}
+     {/each} -->
     </div>
-
-    <div style="display:none;">{Drag()}</div>
   {/if}
 
   <!-- <div class="zoom">  
