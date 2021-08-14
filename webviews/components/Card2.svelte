@@ -1,60 +1,55 @@
 <script lang="ts">
-import { filteredTree, flatTree, newRender  } from "../store";
-import type {FilteredTree} from "../store";
-import lodash, { flatten } from 'lodash';
-import deepdash from 'deepdash';
-import { afterUpdate } from "svelte";
+  import { filteredTree, flatTree, newRender } from "../store";
+  import type { FilteredTree } from "../store";
+  import lodash, { flatten } from "lodash";
+  import deepdash from "deepdash";
+  import { afterUpdate } from "svelte";
 
-
-const _ = deepdash(lodash);
+  const _ = deepdash(lodash);
   export let left = 30;
   export let top = 30;
   export let currentZoom = 1;
   export let card;
 
-
-
   export let treeItem;
-  
+
   afterUpdate(() => {
     $newRender = $newRender++;
-  })
+  });
 
+  // function FlattenTree(newTree){
+  //   newTree.forEach(item => {
+  //     let c = item.children;
+  //     item.children = null;
+  //     $flatTree.push(item)
+  //     if(Array.isArray(c))
+  //     {
 
-// function FlattenTree(newTree){
-//   newTree.forEach(item => {
-//     let c = item.children;
-//     item.children = null;
-//     $flatTree.push(item)
-//     if(Array.isArray(c))
-//     {
-      
+  //       FlattenTree(c)
+  //     }
 
-//       FlattenTree(c)
-//     }
+  //   })
+  // }
 
-//   })
-// }
-
-// FlattenTree($filteredTree.children);
-
+  // FlattenTree($filteredTree.children);
 </script>
+
 <div class="ds-selected ds-hover" style="display:none" />
 
-<main style="z-index:101" class="card  {treeItem.type === 'directory' ? 'directory' : 'file'}" >
-  <button type="button" class="inner-hide"
-        id={treeItem.id} 
-        data-fileType={treeItem.type} 
-        data-x1={treeItem.x1}
-        data-x2={treeItem.x2} 
-        data-y1={treeItem.y1} 
-        data-y2={treeItem.y2}>
-
-        {treeItem.name}</button>
+<main
+  id={treeItem.id}
+  data-fileType={treeItem.type}
+  data-x1={treeItem.x1}
+  data-x2={treeItem.x2}
+  data-y1={treeItem.y1}
+  data-y2={treeItem.y2}
+  style="z-index:101; top:0px; left:0px;"
+  class="card  {treeItem.type === 'directory' ? 'directory' : 'file'}"
+>
+  <button type="button" class="inner-hide"> {treeItem.name}</button>
 </main>
 
 <!-- <button type="button" class="card one">1</button> -->
-
 
 <!-- <section style="top:{top}px; left:{left}px" class="card  {card.type === 'directory' ? 'directory' : 'file'}">
   <div class="card-inner">
@@ -80,7 +75,6 @@ const _ = deepdash(lodash);
   </ul>
 {/if} -->
 
-
 <!-- {#if tree && $flatTree}
 <div style="display:none;"></div>
     {#each tree as treeItem, i}
@@ -99,7 +93,6 @@ const _ = deepdash(lodash);
     {/each}
   </div>
 {/if} -->
-
 <style>
   * {
     user-select: none;
@@ -109,7 +102,7 @@ const _ = deepdash(lodash);
     user-select: none;
     /* width: 50px;
   height: 50px; */
-    /* position: absolute; */
+    position: absolute;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -142,8 +135,7 @@ const _ = deepdash(lodash);
     background: #6e88ffcc;
   }
 
-  .ds-hover{
-background:red;  }
- 
-
+  .ds-hover {
+    background: red;
+  }
 </style>

@@ -3,7 +3,7 @@
   import Card2 from "./Card2.svelte";
   import { onMount, afterUpdate, beforeUpdate } from "svelte";
   import DragSelect from "dragselect";
-  import lodash from "lodash";
+  import lodash, { set } from "lodash";
   import deepdash from "deepdash";
   import Line from "./Line.svelte";
 
@@ -28,11 +28,15 @@
     $newRender;
   }
 
+  $: $filteredTree,  RenderBlocks();
+   
+  
+
   onMount(async () => {
     ds = new DragSelect({
       selectables: document.getElementsByClassName("card"),
       callback: (e) => console.log(e),
-      // area: document.getElementById('area'),
+      area: document.getElementById("area"),
     });
 
     ds.subscribe("dragstart", (DragStartObject) => {
@@ -49,25 +53,32 @@
     });
 
     ds.subscribe("callback", (DragEndedObject) => {
-      let x = DragEndedObject.event.offsetX;
-      let y = DragEndedObject.event.offsetY;
-      let id = DragEndedObject.event.target.id;
-      isMoving = false;
-      console.log("drag ended");
-      if (DragEndedObject.event.target.getAttribute("data-fileType") === "directory") {
+      // let x = DragEndedObject.event.screenX;
+      // let y = DragEndedObject.event.screenY;
+      if(typeof(DragEndedObject?.items[0]) !== 'undefined'){
+      let x = DragEndedObject.event.layerX;
+      let y = DragEndedObject.event.layerY;
+        // let x = DragEndedObject.items[0].getBoundingClientRect().x
+        // let y = DragEndedObject.items[0].getBoundingClientRect().y
+        console.log("x2:" + x + " y2:" + y)
         let id = DragEndedObject.event.target.id;
+        isMoving = false;
+        console.log("drag ended");
+        // if (DragEndedObject.event.target.getAttribute("data-fileType") === "directory") {
+        //   let id = DragEndedObject.event.target.id;
 
-        let foundItem = _.findDeep($filteredTree, (value, key, parentValue, context) => {
-          if (parentValue?.id.toString() === id) {
-            console.log("Found IT!");
-            console.log(value);
-            return true;
-          }
-        });
+        //   // let foundItem = _.findDeep($filteredTree, (value, key, parentValue, context) => {
+        //   //   if (parentValue?.id.toString() === id) {
+        //   //     console.log("Found IT!");
+        //   //     console.log(value);
+        //   //     return true;
+        //   //   }
+        //   // });
+        // }
+
+        RenderLines(x, y, id);
       }
-
-      //RenderLines(x, y, id);
-
+     
     });
   });
 
@@ -93,48 +104,59 @@
   //   });
   // }
 
-  beforeUpdate(() => {
-    
-  })
+  beforeUpdate(() => {});
 
   afterUpdate(() => {
-    RenderBlocks();
+   
   });
 
-  function RenderBlocks(){
+  function RenderBlocks() {
     if (!isMoving) {
       if ($filteredTree) {
         FlattenTree($filteredTree.children);
+        $flatTree = [...new Set(faketree)];
+        let cardsCheck = document.getElementsByClassName("card");
+
+        if(cardsCheck.length > 0) {
+          let cards = document.getElementsByClassName("card");
+          let newCarsArray = [...new Set(cards)];
+          ds.setSelectables(newCarsArray);
+
+          // if (typeof $flatTree !== "undefined" && document.getElementsByClassName("card").length > 0) {
+          //   Drag();
+          // }
+        }
 
        
-        $flatTree = [...faketree];
-        let cards = document.getElementsByClassName("card");
-        ds.addSelectables(cards);
-
-        // if (typeof $flatTree !== "undefined" && document.getElementsByClassName("card").length > 0) {
-        //   Drag();
-        // }
       }
     }
   }
 
+  function RenderLines(x, y, id) {
+    $flatTree.forEach((item) => {
+      if (item.id.toString() === id) {
+        item.x2 = x;
+        item.y2 = y;
 
-  function RenderLines(x, y, id){
- faketree.forEach((item) => {
-          if (item.type === "file") {
-            faketree.forEach((parent) => {
-              if (parent.type === "directory")
-                if (parent.id === item.parentId) {
-                  parent.x2 = x;
-                  parent.y2 = y;
-                  let line = { childId: item.id, parentId: item.parentId, x1: item.x1, y1: item.y1, x2: parent.x2, y2: parent.y2 };
-                  lines.push(line);
-                  lines = lines;
-                }
-            });
-          }
-        });
+        let lineExists = lines.find(line => line.childId.toString() === id)
+        let indexOfLine = lines.indexOf(lineExists);
 
+        if(lineExists && indexOfLine !== -1){
+          lineExists.x2 = item.x2;
+          lineExists.y2 = item.y2;
+
+          lines.splice(indexOfLine,1,lineExists);
+        }
+        else{
+          let line = { childId: item.id, x1: 0, y1: 0, x2: item.x2, y2: item.y2 };
+          lines.push(line);
+        }
+
+        lines = lines;
+
+      
+      }
+    });
   }
 
   // function DragCall(){
@@ -147,16 +169,16 @@
 
   // }
 
-  document.addEventListener("wheel", function (e) {
-    const zoomElement = document.querySelector(".zoom");
+  // document.addEventListener("wheel", function (e) {
+  //   const zoomElement = document.querySelector(".zoom");
 
-    if (e.deltaY > 0) {
-      zoomElement.style.transform = `scale(${(zoom -= ZOOM_SPEED)})`;
-    } else {
-      zoomElement.style.transform = `scale(${(zoom += ZOOM_SPEED)})`;
-    }
-    console.log("changed!");
-  });
+  //   if (e.deltaY > 0) {
+  //     zoomElement.style.transform = `scale(${(zoom -= ZOOM_SPEED)})`;
+  //   } else {
+  //     zoomElement.style.transform = `scale(${(zoom += ZOOM_SPEED)})`;
+  //   }
+  //   console.log("changed!");
+  // });
 
   let blocks = [
     { id: 1, name: "block1", content: "nothing", top: 50, left: 10 },
@@ -313,12 +335,17 @@
     </div>
     <div>
       {#each lines as line}
-      <!-- {#if LineCheck(line) === true} -->
-      
-      <Line id={line.childId} x1={line.x1} x2={line.x2} y1={line.y1} y2={line.y2}/>
-      <!-- {/if} -->
-     {/each}
+        <!-- {#if LineCheck(line) === true} -->
+
+        <Line id={line.childId} x1={line.x1} x2={line.x2} y1={line.y1} y2={line.y2} />
+        <!-- {/if} -->
+      {/each}
     </div>
+   
+  {/if}
+
+  {#if $filteredTree}
+  {RenderBlocks()}
   {/if}
 
   <!-- <div class="zoom">  
