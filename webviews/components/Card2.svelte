@@ -39,10 +39,10 @@ const _ = deepdash(lodash);
 // FlattenTree($filteredTree.children);
 
 </script>
-<div class="ds-selected" style="display:none" />
+<div class="ds-selected ds-hover" style="display:none" />
 
-<main>
-  <button style="top:{top}px; left:{left}px" class="card  {treeItem.type === 'directory' ? 'directory' : 'file'}" type="button"
+<main style="z-index:101" class="card  {treeItem.type === 'directory' ? 'directory' : 'file'}" >
+  <button type="button" class="inner-hide"
         id={treeItem.id} 
         data-fileType={treeItem.type} 
         data-x1={treeItem.x1}
@@ -52,6 +52,7 @@ const _ = deepdash(lodash);
 
         {treeItem.name}</button>
 </main>
+
 <!-- <button type="button" class="card one">1</button> -->
 
 
@@ -127,6 +128,10 @@ const _ = deepdash(lodash);
     border: 1px solid blue;
   }
 
+  .card:hover .inner-hide {
+    visibility: hidden;
+  }
+
   .directory {
     border: solid 3px #864fc5;
     background: #b26effcc;
@@ -136,6 +141,9 @@ const _ = deepdash(lodash);
     border: solid 3px #4e58bf;
     background: #6e88ffcc;
   }
+
+  .ds-hover{
+background:red;  }
  
 
 </style>

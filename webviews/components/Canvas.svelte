@@ -1,7 +1,7 @@
 <script lang="ts">
   import { filteredTree, flatTree, newRender } from "../store";
   import Card2 from "./Card2.svelte";
-  import { onMount, afterUpdate } from "svelte";
+  import { onMount, afterUpdate, beforeUpdate } from "svelte";
   import DragSelect from "dragselect";
   import lodash from "lodash";
   import deepdash from "deepdash";
@@ -32,6 +32,7 @@
     ds = new DragSelect({
       selectables: document.getElementsByClassName("card"),
       callback: (e) => console.log(e),
+      // area: document.getElementById('area'),
     });
 
     ds.subscribe("dragstart", (DragStartObject) => {
@@ -64,41 +65,68 @@
           }
         });
       }
+
+      //RenderLines(x, y, id);
+
     });
   });
 
-  function Drag() {
-    if (typeof $flatTree !== "undefined" && document.getElementsByClassName("card").length > 0) {
-      //console.log(foundItem);
-    }
+  // function Drag() {
+  //   if (typeof $flatTree !== "undefined" && document.getElementsByClassName("card").length > 0) {
+  //     //console.log(foundItem);
+  //   }
 
-    lines.forEach((line) => {
-      if (line.childId === id) {
-        line.x2 = x;
-        line.y2 = y;
-      }
-    });
+  //   lines.forEach((line) => {
+  //     if (line.childId === id) {
+  //       line.x2 = x;
+  //       line.y2 = y;
+  //     }
+  //   });
 
-    lines = lines;
+  //   lines = lines;
 
-    $flatTree.forEach((block) => {
-      if (block.id === id && block.type === "file") {
-        block.x1 = x;
-        block.y1 = y;
-      }
-    });
-  }
+  //   $flatTree.forEach((block) => {
+  //     if (block.id === id && block.type === "file") {
+  //       block.x1 = x;
+  //       block.y1 = y;
+  //     }
+  //   });
+  // }
+
+  beforeUpdate(() => {
+    
+  })
 
   afterUpdate(() => {
+    RenderBlocks();
+  });
+
+  function RenderBlocks(){
     if (!isMoving) {
       if ($filteredTree) {
         FlattenTree($filteredTree.children);
 
-        faketree.forEach((item) => {
+       
+        $flatTree = [...faketree];
+        let cards = document.getElementsByClassName("card");
+        ds.addSelectables(cards);
+
+        // if (typeof $flatTree !== "undefined" && document.getElementsByClassName("card").length > 0) {
+        //   Drag();
+        // }
+      }
+    }
+  }
+
+
+  function RenderLines(x, y, id){
+ faketree.forEach((item) => {
           if (item.type === "file") {
             faketree.forEach((parent) => {
               if (parent.type === "directory")
                 if (parent.id === item.parentId) {
+                  parent.x2 = x;
+                  parent.y2 = y;
                   let line = { childId: item.id, parentId: item.parentId, x1: item.x1, y1: item.y1, x2: parent.x2, y2: parent.y2 };
                   lines.push(line);
                   lines = lines;
@@ -107,16 +135,7 @@
           }
         });
 
-        $flatTree = [...faketree];
-        let cards = document.getElementsByClassName("card");
-        ds.addSelectables(cards);
-
-        if (typeof $flatTree !== "undefined" && document.getElementsByClassName("card").length > 0) {
-          Drag();
-        }
-      }
-    }
-  });
+  }
 
   // function DragCall(){
 
@@ -229,7 +248,7 @@
   }
 </script>
 
-<main style="width:100px; height:100px; position:fixed;">
+<main id="area" style="width:100%; height:100%; position:fixed;">
   <div class="ds-selected" style="display:none" />
 
   <!-- {#await filteredTree}
@@ -293,12 +312,12 @@
       {/each}
     </div>
     <div>
-      <!-- {#each lines as line}
-      {#if LineCheck(line) === true}
+      {#each lines as line}
+      <!-- {#if LineCheck(line) === true} -->
       
       <Line id={line.childId} x1={line.x1} x2={line.x2} y1={line.y1} y2={line.y2}/>
-      {/if}
-     {/each} -->
+      <!-- {/if} -->
+     {/each}
     </div>
   {/if}
 

@@ -12,9 +12,9 @@
 
       <!-- {#if y1 && x1 && x2 && y2} -->
 
-        <svg height="auto" width="auto" style="z-index:-99;">
+        <svg style="z-index:-99; width:auto; height:auto;">
       <!-- {@debug x1, y1, x2, y2} -->
-{console.log("NEW LINE")}
+{console.log("NEW LINE: " + x2)}
           <line id={fullId} x1={x1} y1={y1} x2={x2} y2={y2} style="stroke:rgb(255,0,0);stroke-width:2" />
           Sorry, your browser does not support inline SVG.
         </svg>
@@ -23,5 +23,6 @@
   </main>
   
   <style>
+
   </style>
   
