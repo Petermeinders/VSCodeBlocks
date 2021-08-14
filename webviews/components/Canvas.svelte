@@ -1,7 +1,7 @@
 <script lang="ts">
   import { filteredTree, flatTree, newRender } from "../store";
   import Card2 from "./Card2.svelte";
-  import { onMount, afterUpdate, beforeUpdate, tick  } from "svelte";
+  import { onMount, afterUpdate, beforeUpdate, tick } from "svelte";
   import DragSelect from "dragselect";
   import lodash, { set } from "lodash";
   import deepdash from "deepdash";
@@ -20,7 +20,7 @@
   let isMoving = false;
   let selectedBlocks;
 
-  $: selectedBlocks, RenderLines();
+  $: selectedBlocks, RenderLinesAfterMove();
 
   $: isMoving;
 
@@ -32,11 +32,7 @@
     $newRender;
   }
 
-  $: $filteredTree,  RenderBlocks();
-
-
-   
-  
+  $: $filteredTree, RenderBlocks();
 
   onMount(async () => {
     ds = new DragSelect({
@@ -61,23 +57,20 @@
     ds.subscribe("callback", (DragEndedObject) => {
       // let x = DragEndedObject.event.screenX;
       // let y = DragEndedObject.event.screenY;
-      if(typeof(DragEndedObject?.items[0]) !== 'undefined' && DragEndedObject.isDragging){
+      if (typeof DragEndedObject?.items[0] !== "undefined" && DragEndedObject.isDragging) {
         //let itemArray
         // DragEndedObject.items.forEach(item => {
 
         // })
-      // let x = DragEndedObject.event.layerX;
-      // let y = DragEndedObject.event.layerY;
-
+        // let x = DragEndedObject.event.layerX;
+        // let y = DragEndedObject.event.layerY;
 
         let childPos = DragEndedObject.items[0].getBoundingClientRect();
         let parentPos = DragEndedObject.items[0].parentElement.getBoundingClientRect();
         let x = childPos.x - parentPos.x;
         let y = childPos.y - parentPos.y;
 
-
-
-        console.log("x2:" + x + " y2:" + y)
+        console.log("x2:" + x + " y2:" + y);
         let id = DragEndedObject.event.target.id;
         isMoving = false;
         console.log("drag ended");
@@ -93,44 +86,19 @@
         //   // });
         // }
 
-       
-        selectedBlocks = DragEndedObject;
+        selectedBlocks = DragEndedObject.items;
         //RenderLines(DragEndedObject);
       }
-     
     });
   });
 
-  // function Drag() {
-  //   if (typeof $flatTree !== "undefined" && document.getElementsByClassName("card").length > 0) {
-  //     //console.log(foundItem);
-  //   }
-
-  //   lines.forEach((line) => {
-  //     if (line.childId === id) {
-  //       line.x2 = x;
-  //       line.y2 = y;
-  //     }
-  //   });
-
-  //   lines = lines;
-
-  //   $flatTree.forEach((block) => {
-  //     if (block.id === id && block.type === "file") {
-  //       block.x1 = x;
-  //       block.y1 = y;
-  //     }
-  //   });
-  // }
-
   beforeUpdate(() => {
     console.log("update lines!");
-   // RenderLines(selectedBlocks)
+    RenderLines();
+    // RenderLines(selectedBlocks)
   });
 
-  afterUpdate(() => {
-   
-  });
+  afterUpdate(() => {});
 
   function RenderBlocks() {
     if (!isMoving) {
@@ -139,7 +107,7 @@
         $flatTree = [...new Set(faketree)];
         let cardsCheck = document.getElementsByClassName("card");
 
-        if(cardsCheck.length > 0) {
+        if (cardsCheck.length > 0) {
           let cards = document.getElementsByClassName("card");
           let newCarsArray = [...new Set(cards)];
           ds.setSelectables(newCarsArray);
@@ -148,49 +116,83 @@
           //   Drag();
           // }
         }
-
-       
       }
     }
   }
 
   function RenderLines() {
-
-    if(!selectedBlocks)
+    if (!$flatTree) {
       return;
+    }
+
+    $flatTree.forEach((item1) => {
+      $flatTree.forEach((item2) => {
+        if (item1.parentId === item2.id) {
+          //lines.forEach((line) => {
+            let id1 = "line" + item1.id;
+            let id2 = "line" + item2.id;
+
+            let lineExists = lines.find((line) => line.childId.toString() === item1.id.toString() || line.childId.toString() === item2.id.toString());
+            let indexOfLine = lines.indexOf(lineExists);
+
+            if (lineExists && indexOfLine !== -1) {
+              lineExists.x1 = item1.x2;
+              lineExists.y1 = item1.y2;
+
+              lineExists.x2 = item2.x2;
+              lineExists.y2 = item2.y2;
+
+              //Splice?
+
+              lines.splice(indexOfLine, 1, lineExists);
+            } else {
+              let line = { childId: item2.id, x1: item1.x2, y1: item1.y2, x2: item2.x2, y2: item2.y2 };
+              lines.push(line);
+            }
+         // });
+        }
+      });
+    });
+
+    lines = lines;
+    console.log("Rendered lines global");
+  }
+
+  function RenderLinesAfterMove() {
+    if (!selectedBlocks || selectedBlocks?.length === 0) return;
 
     $flatTree.forEach((flatItem) => {
-      selectedBlocks.items.forEach(itemInHand => {
+      selectedBlocks.forEach((itemInHand) => {
         if (flatItem.id.toString() === itemInHand.id) {
-
           let childPos = itemInHand.getBoundingClientRect();
-        let parentPos = itemInHand.parentElement.getBoundingClientRect();
-        let x = childPos.x - parentPos.x;
-        let y = childPos.y - parentPos.y;
+          let parentPos = itemInHand.parentElement.getBoundingClientRect();
+          let x = childPos.x - parentPos.x;
+          let y = childPos.y - parentPos.y;
 
-        flatItem.x2 = x;
-        flatItem.y2 = y;
+          flatItem.x2 = x;
+          flatItem.y2 = y;
 
-        let lineExists = lines.find(line => line.childId.toString() === itemInHand.id)
-        let indexOfLine = lines.indexOf(lineExists);
+          let lineExists = lines.find((line) => line.childId.toString() === itemInHand.id);
+          let indexOfLine = lines.indexOf(lineExists);
 
-        if(lineExists && indexOfLine !== -1){
-          lineExists.x2 = flatItem.x2;
-          lineExists.y2 = flatItem.y2;
+          if (lineExists && indexOfLine !== -1) {
+            let zeroCheck = lineExists.x1 * lineExists.x2 * lineExists.y1 * lineExists.x2;
+            if (zeroCheck === 0) {
+              lines.splice(indexOfLine, 1);
+            } else {
+              lineExists.x2 = flatItem.x2;
+              lineExists.y2 = flatItem.y2;
 
-          lines.splice(indexOfLine,1,lineExists);
+              lines.splice(indexOfLine, 1, lineExists);
+            }
+          } else {
+            // let line = { childId: flatItem.id, x1: 0, y1: 0, x2: flatItem.x2, y2: flatItem.y2 };
+            // lines.push(line);
+          }
+
+          lines = lines;
         }
-        else{
-          let line = { childId: flatItem.id, x1: 0, y1: 0, x2: flatItem.x2, y2: flatItem.y2 };
-          lines.push(line);
-        }
-
-        lines = lines;
-
-      
-      }
-      })
-     
+      });
     });
   }
 
@@ -376,11 +378,10 @@
         <!-- {/if} -->
       {/each}
     </div>
-   
   {/if}
 
   {#if $filteredTree}
-  {RenderBlocks()}
+    {RenderBlocks()}
   {/if}
 
   <!-- <div class="zoom">  
