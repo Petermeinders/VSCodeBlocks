@@ -55,11 +55,22 @@
     ds.subscribe("callback", (DragEndedObject) => {
       // let x = DragEndedObject.event.screenX;
       // let y = DragEndedObject.event.screenY;
-      if(typeof(DragEndedObject?.items[0]) !== 'undefined'){
-      let x = DragEndedObject.event.layerX;
-      let y = DragEndedObject.event.layerY;
-        // let x = DragEndedObject.items[0].getBoundingClientRect().x
-        // let y = DragEndedObject.items[0].getBoundingClientRect().y
+      if(typeof(DragEndedObject?.items[0]) !== 'undefined' && DragEndedObject.isDragging){
+        //let itemArray
+        // DragEndedObject.items.forEach(item => {
+
+        // })
+      // let x = DragEndedObject.event.layerX;
+      // let y = DragEndedObject.event.layerY;
+
+
+        let childPos = DragEndedObject.items[0].getBoundingClientRect();
+        let parentPos = DragEndedObject.items[0].parentElement.getBoundingClientRect();
+        let x = childPos.x - parentPos.x;
+        let y = childPos.y - parentPos.y;
+
+        
+
         console.log("x2:" + x + " y2:" + y)
         let id = DragEndedObject.event.target.id;
         isMoving = false;
