@@ -69,7 +69,7 @@
         let x = childPos.x - parentPos.x;
         let y = childPos.y - parentPos.y;
 
-        
+
 
         console.log("x2:" + x + " y2:" + y)
         let id = DragEndedObject.event.target.id;
@@ -87,7 +87,7 @@
         //   // });
         // }
 
-        RenderLines(x, y, id);
+        RenderLines(DragEndedObject);
       }
      
     });
@@ -143,23 +143,30 @@
     }
   }
 
-  function RenderLines(x, y, id) {
-    $flatTree.forEach((item) => {
-      if (item.id.toString() === id) {
-        item.x2 = x;
-        item.y2 = y;
+  function RenderLines(DragEndedObject) {
+    $flatTree.forEach((flatItem) => {
+      DragEndedObject.items.forEach(itemInHand => {
+        if (flatItem.id.toString() === itemInHand.id) {
 
-        let lineExists = lines.find(line => line.childId.toString() === id)
+          let childPos = itemInHand.getBoundingClientRect();
+        let parentPos = itemInHand.parentElement.getBoundingClientRect();
+        let x = childPos.x - parentPos.x;
+        let y = childPos.y - parentPos.y;
+
+        flatItem.x2 = x;
+        flatItem.y2 = y;
+
+        let lineExists = lines.find(line => line.childId.toString() === itemInHand.id)
         let indexOfLine = lines.indexOf(lineExists);
 
         if(lineExists && indexOfLine !== -1){
-          lineExists.x2 = item.x2;
-          lineExists.y2 = item.y2;
+          lineExists.x2 = flatItem.x2;
+          lineExists.y2 = flatItem.y2;
 
           lines.splice(indexOfLine,1,lineExists);
         }
         else{
-          let line = { childId: item.id, x1: 0, y1: 0, x2: item.x2, y2: item.y2 };
+          let line = { childId: flatItem.id, x1: 0, y1: 0, x2: flatItem.x2, y2: flatItem.y2 };
           lines.push(line);
         }
 
@@ -167,6 +174,8 @@
 
       
       }
+      })
+     
     });
   }
 
