@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { debug, editItem, editMode } from "../store";
+  import { debug, editItem, editMode, items } from "../store";
   import Fa from "svelte-fa";
   import { faTint, faTag, faFont, faPlusCircle, faPencilAlt, faTimesCircle, faSearch } from "@fortawesome/free-solid-svg-icons";
   import Common from "./Common.svelte";
@@ -118,7 +118,7 @@
   <div>
     <button
       on:click={() => {
-        $editMode.state = "false";
+        $items.settings.currentPanel = "codeBlocks";
         $editItem = { ...$editItem, placeholders: [] };
         CloseEditWindow();
       }}>Cancel</button
@@ -126,7 +126,7 @@
     {#if $editMode.importType === "vsSnippet"}
       <button
         on:click={() => {
-          $editMode.state = "false";
+          $items.settings.currentPanel = "codeBlocks";
           ConvertSnippetToBlock();
           CloseEditWindow();
         }}>Convert Snippet To Block</button
@@ -134,7 +134,7 @@
     {:else}
       <button
         on:click={() => {
-          $editMode.state = "false";
+          $items.settings.currentPanel = "codeBlocks";
           GetCodeFromEditScreenAndSave();
           CloseEditWindow();
         }}>Save Code Block</button

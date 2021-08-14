@@ -30,9 +30,10 @@
   }
 
   function EditModeChange() {
-    if ($debug) console.log("mode was edited: " + $editMode.id + ", " + $editMode.state);
-    if ($editMode.state === "true") {
-      if (debug) console.log("edit mode activated!");
+    if ($debug) console.log("mode was edited: " + $editMode.id + ", " + $items.settings.currentPanel);
+    if ($items.settings.currentPanel === "editMode") {
+      if (debug) 
+        console.log("edit mode activated!");
     } else {
       //set element mode to false;
       console.log($items.customSnippets);

@@ -334,7 +334,7 @@ export class HellowWorldPanel {
           let rootFolder = vscode.workspace.workspaceFolders[0];
           let fileFolders = {folders:{}, files:[]};
 
-          const filteredTree = dirTree(rootFolder.uri.fsPath, { exclude: new RegExp(/node_modules/)});
+          const filteredTree = dirTree(rootFolder.uri.fsPath, { exclude: new RegExp(/node_modules|\.git/)});
 
           const _ = require('lodash');
           require('deepdash')(_);

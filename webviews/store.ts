@@ -28,6 +28,7 @@ export interface FilteredTree {
 }
 
 
+type currentPanel = "editMode" | "codeBlocks" | "codeMap" | "settings";
 
 let originNewRender = 0;
 
@@ -66,13 +67,13 @@ let originItems = {
    selectedTags: [],
    settings:{
       isFuzzy:false,
-      searchCode:false
+      searchCode:false,
+      currentPanel:"codeBlocks"
    }
 
 };
 
 let originEditMode = {
-      "state": "false",
       "id": "-1",
       "fileName":"",
       "importType":""

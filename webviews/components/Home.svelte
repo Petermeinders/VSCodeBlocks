@@ -5,17 +5,17 @@
   import { debug, editItem, editMode, items } from "../store";
   import { tags } from "../store";
   import { page } from "../store";
-  import {filteredTree} from "../store"
+  import { filteredTree } from "../store";
   import EditScreen from "./EditScreen.svelte";
   import levenshtein from "fast-levenshtein";
   import LinkedBlocks from "./LinkedBlocks.svelte";
-  import { faCog } from "@fortawesome/free-solid-svg-icons";
+  import { faCog, faProjectDiagram } from "@fortawesome/free-solid-svg-icons";
   import Fa from "svelte-fa";
-import Canvas from "./Canvas.svelte";
+  import Canvas from "./Canvas.svelte";
+  import type currentPanel from "./store.svelte";
 
   let SearchTerm: string = "";
   let FullCodeSearch: boolean = true;
-
 
   $: {
     if ($items !== null && $items.customSnippets[0] !== undefined) {
@@ -27,17 +27,15 @@ import Canvas from "./Canvas.svelte";
         item.linkedBlocks = item.linkedBlocks ?? [];
       });
 
-      if (
-        $items.vsSnippets === null ||
-        typeof $items.vsSnippets === "undefined"
-      ) {
+      if ($items.vsSnippets === null || typeof $items.vsSnippets === "undefined") {
         $items.vsSnippets = ["vsSnippets1", "vsSnippets2"];
       }
 
-      if ($items.settings === null || typeof $items.settings === "undefined") {
+      if ($items.settings === null || typeof($items.settings) === "undefined" || typeof($items.settings.currentPanel) === "undefined") {
         $items.settings = {
           isFuzzy: false,
           searchCode: false,
+          currentPanel: "codeBlocks",
         };
       }
 
@@ -64,9 +62,7 @@ import Canvas from "./Canvas.svelte";
         //   if(i.customSnippets.filter())
         // })
 
-        let findDuplicates = i.customSnippets.filter(
-          (item) => item.id === element.id
-        );
+        let findDuplicates = i.customSnippets.filter((item) => item.id === element.id);
 
         if (findDuplicates.length > 1) {
           if (debug) ErrorMessage("Duplicate codeblock found. Removing item.");
@@ -96,6 +92,7 @@ import Canvas from "./Canvas.svelte";
           if (message.value !== "") {
             let text = message.value.text;
             let filename = message.value.filename;
+            $items.settings.currentPanel = "editMode";
 
             $editItem = {
               id: lastId,
@@ -111,7 +108,6 @@ import Canvas from "./Canvas.svelte";
             };
             $editMode = {
               id: lastId,
-              state: "true",
               fileName: filename,
               importType: "addBlock",
             };
@@ -123,10 +119,10 @@ import Canvas from "./Canvas.svelte";
             let id = message.value.id;
             let filename = message.value.filename;
 
+            $items.settings.currentPanel = "editMode";
             $editItem = $items?.customSnippets?.find((x) => x?.id === id);
             $editMode = {
               id: id,
-              state: "true",
               fileName: filename,
               importType: "editBlock",
             };
@@ -155,6 +151,8 @@ import Canvas from "./Canvas.svelte";
         case "import-vscode-snip":
           let text = message.value.text;
           let filename = message.value.filename;
+          $items.settings.currentPanel = "editMode";
+
           $editItem = {
             id: lastId,
             tempId: "",
@@ -169,7 +167,6 @@ import Canvas from "./Canvas.svelte";
           };
           $editMode = {
             id: lastId,
-            state: "true",
             fileName: filename,
             importType: "vsSnippet",
           };
@@ -279,8 +276,7 @@ import Canvas from "./Canvas.svelte";
             if (bracket !== -1) {
               let closingBracket = findOpenParen(line, bracket);
 
-              if (line[closingBracket] !== "}")
-                closingBracket = --closingBracket;
+              if (line[closingBracket] !== "}") closingBracket = --closingBracket;
 
               let snipValue = line.substring(bracket, ++closingBracket);
 
@@ -343,11 +339,7 @@ import Canvas from "./Canvas.svelte";
   }
 
   function CheckExistingPlaceholders(item: item) {
-    if (
-      item.placeholders === null ||
-      typeof item.placeholders === "undefined" ||
-      item.placeholders.length === 0
-    ) {
+    if (item.placeholders === null || typeof item.placeholders === "undefined" || item.placeholders.length === 0) {
       if ($debug) console.log("no placeholders");
       return -1;
     } else {
@@ -383,10 +375,7 @@ import Canvas from "./Canvas.svelte";
       console.log(item.code);
     }
 
-    var newCode = item.code.replaceAll(
-      selectedString,
-      "${" + lastNumber + ":" + selectedString + "}"
-    );
+    var newCode = item.code.replaceAll(selectedString, "${" + lastNumber + ":" + selectedString + "}");
     // item.placeholders.push(selectedString);
 
     let newPlaceholder = $editItem.placeholders;
@@ -407,8 +396,7 @@ import Canvas from "./Canvas.svelte";
 
   function getNonce() {
     let text = "";
-    const possible =
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     for (let i = 0; i < 32; i++) {
       text += possible.charAt(Math.floor(Math.random() * possible.length));
     }
@@ -471,9 +459,7 @@ import Canvas from "./Canvas.svelte";
   }
 
   function SaveCodeFromEdit(latesCode: string) {
-    let existingBlock = $items?.customSnippets?.find(
-      (x) => x?.id === $editItem?.id
-    );
+    let existingBlock = $items?.customSnippets?.find((x) => x?.id === $editItem?.id);
     console.log(latesCode);
     if (existingBlock) {
       existingBlock.code = latesCode;
@@ -492,24 +478,25 @@ import Canvas from "./Canvas.svelte";
     console.log("not yet implemented");
   }
 
-  let clicked = 0;
+  function ShowCodeMap() {
+    $items.settings.currentPanel = "codeMap";
+  }
 
+  let clicked = 0;
 </script>
 
 <main>
-  {#if $editMode.state === "false"}
+  {console.log("CurrentPanel:" + $items.settings.currentPanel)}
+  {#if $items.settings.currentPanel === "codeBlocks"}
     <!-- PANEL -->
     <div style="display: flex, align-items: center">
-      <h1
-        style="display: flex, align-items: center, justify-content: space-between;"
-      >
+      <h1 style="display: flex, align-items: center, justify-content: space-between;">
         CodeBlocks
         <span style="cursor: pointer; " on:click={() => ShowSettings()}
-          ><Fa
-            size="1x"
-            icon={faCog}
-            style="color:#007acc; padding-right: 4px; float:right"
-          />
+          ><Fa size="1x" icon={faCog} style="color:#007acc; padding-right: 4px; float:right" />
+        </span>
+        <span style="cursor: pointer; " on:click={() => ShowCodeMap()}
+          ><Fa size="1x" icon={faProjectDiagram} style="color:#007acc; padding-right: 4px; float:right" />
         </span>
       </h1>
     </div>
@@ -520,19 +507,17 @@ import Canvas from "./Canvas.svelte";
         <Dnd {SearchTerm} {FullCodeSearch} />
       </div>
     </div>
-  {:else}
+  {:else if $items.settings.currentPanel === "Editmode"}
     <h1>EDIT MODE</h1>
     <EditScreen />
+  {:else if $items.settings.currentPanel === "codeMap"}
+    <Canvas />
   {/if}
 
-<!-- BUTTONS -->
-  {#if $editMode.state === "false"}
+  <!-- BUTTONS -->
+  {#if $items.settings.currentPanel === "codeBlocks"}
     <div>
-      <button class="tooltip" on:click={ExportCode}
-        >Export Code<span class="tooltiptext"
-          >Export JSON Code to chosen file.
-        </span>
-      </button>
+      <button class="tooltip" on:click={ExportCode}>Export Code<span class="tooltiptext">Export JSON Code to chosen file. </span> </button>
     </div>
     <div>
       <button on:click={ImportCode}>Import Code </button>
@@ -540,15 +525,10 @@ import Canvas from "./Canvas.svelte";
     <div>
       <button class="tooltip" on:click={ImportVSSnippet}
         >Import VS Snippet
-        <span class="tooltiptext"
-          >Import selected text in the VSCode snippet format. Make sure json
-          starts and ends with brackets.</span
-        >
+        <span class="tooltiptext">Import selected text in the VSCode snippet format. Make sure json starts and ends with brackets.</span>
       </button>
     </div>
   {/if}
-  <Canvas/>
-
 </main>
 
 <style>
