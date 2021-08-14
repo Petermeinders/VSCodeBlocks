@@ -1,7 +1,7 @@
 <script lang="ts">
   import { filteredTree, flatTree, newRender } from "../store";
   import Card2 from "./Card2.svelte";
-  import { onMount, afterUpdate, beforeUpdate } from "svelte";
+  import { onMount, afterUpdate, beforeUpdate, tick  } from "svelte";
   import DragSelect from "dragselect";
   import lodash, { set } from "lodash";
   import deepdash from "deepdash";
@@ -18,6 +18,10 @@
 
   let lines = [];
   let isMoving = false;
+  let selectedBlocks;
+
+  $: selectedBlocks, RenderLines();
+
   $: isMoving;
 
   $: {
@@ -29,6 +33,8 @@
   }
 
   $: $filteredTree,  RenderBlocks();
+
+
    
   
 
@@ -87,7 +93,9 @@
         //   // });
         // }
 
-        RenderLines(DragEndedObject);
+       
+        selectedBlocks = DragEndedObject;
+        //RenderLines(DragEndedObject);
       }
      
     });
@@ -115,7 +123,10 @@
   //   });
   // }
 
-  beforeUpdate(() => {});
+  beforeUpdate(() => {
+    console.log("update lines!");
+   // RenderLines(selectedBlocks)
+  });
 
   afterUpdate(() => {
    
@@ -143,9 +154,13 @@
     }
   }
 
-  function RenderLines(DragEndedObject) {
+  function RenderLines() {
+
+    if(!selectedBlocks)
+      return;
+
     $flatTree.forEach((flatItem) => {
-      DragEndedObject.items.forEach(itemInHand => {
+      selectedBlocks.items.forEach(itemInHand => {
         if (flatItem.id.toString() === itemInHand.id) {
 
           let childPos = itemInHand.getBoundingClientRect();

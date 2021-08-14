@@ -39,6 +39,7 @@
 <main
   id={treeItem.id}
   data-fileType={treeItem.type}
+  data-parentId={treeItem.parentId}
   data-x1={treeItem.x1}
   data-x2={treeItem.x2}
   data-y1={treeItem.y1}
