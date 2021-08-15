@@ -360,6 +360,12 @@ export class HellowWorldPanel {
                 })
               }
 
+              if(!value.locationX)
+              {
+                value.locationX = 0;
+                value.locationY = 0;
+              }
+
             
               }
 
@@ -414,39 +420,18 @@ export class HellowWorldPanel {
           if (!data.value) {
             return;
           }
-          // // vscode.window.showInformationMessage(data.value.customSnippets);
-          // const language = 'markdown';
-          // const content = JSON.stringify(data.value);
-
-          // let uri = vscode.Uri.file('%USERPROFILE%\.vscode\extensions');
-
-          // const options: vscode.OpenDialogOptions = {
-          //   canSelectMany: false,
-          //   defaultUri: uri,
-          //   openLabel: 'Select',
-          //   canSelectFolders: false,
-          //   canSelectFiles: true,
-
-          // };
-
-          // let fs = vscode.workspace.fs;
-          // vscode.window.showOpenDialog(options).then((fileUri) => {
-          //   let URI:vscode.Uri;
-          //   if(typeof(fileUri) !== 'undefined')
-          //   {
-          //     URI = fileUri[0];
-
-          //   let codeString = JSON.stringify(data.value);
-          //   let uint8array = new TextEncoder().encode(codeString);
-          //   fs.writeFile(URI, uint8array);
-
-          //   }
-          //   else{
-          //     console.log("Error");
-          //   }
-          // });
 
           vscode.commands.executeCommand("vsblocksnipets.SaveDataToFile", data.value);
+
+          break;
+        }
+
+        case "saveCodeMap": {
+          if (!data.value) {
+            return;
+          }
+
+          vscode.commands.executeCommand("vsblocksnipets.SaveCodeMapToFile", data.value);
 
           break;
         }

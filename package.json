@@ -36,6 +36,11 @@
 					"type": "string",
 					"default": "testvalue",
 					"description": "testdesc"
+				},
+				"vsblocksnipets.codeMapSaveLocation": {
+					"type": "string",
+					"default": "testvalue",
+					"description": "testdesc"
 				}
 			}
 		},
@@ -87,6 +92,11 @@
 				"command": "vsblocksnipets.SaveDataToFile",
 				"category": "VSBlockSnipets",
 				"title": "SaveDataToFile"
+			},
+			{
+				"command": "vsblocksnipets.SaveCodeMapToFile",
+				"category": "VSBlockSnipets",
+				"title": "SaveCodeMapToFile"
 			},
 			{
 				"command": "vsblocksnipets.addPlaceholder",

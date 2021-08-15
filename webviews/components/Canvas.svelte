@@ -34,6 +34,27 @@
 
   $: $filteredTree, RenderBlocks();
 
+
+
+
+
+  
+    function SaveCodeMapToFile() {
+      tsvscode.postMessage({
+      type: "saveCodeMap",
+      value: $filteredTree,
+    });
+  }
+
+
+
+
+
+
+
+
+
+
   onMount(async () => {
     ds = new DragSelect({
       selectables: document.getElementsByClassName("card"),
@@ -70,21 +91,37 @@
         let x = childPos.x - parentPos.x;
         let y = childPos.y - parentPos.y;
 
-        console.log("x2:" + x + " y2:" + y);
+        //console.log("x2:" + x + " y2:" + y);
         let id = DragEndedObject.event.target.id;
         isMoving = false;
         console.log("drag ended");
         // if (DragEndedObject.event.target.getAttribute("data-fileType") === "directory") {
         //   let id = DragEndedObject.event.target.id;
 
-        //   // let foundItem = _.findDeep($filteredTree, (value, key, parentValue, context) => {
-        //   //   if (parentValue?.id.toString() === id) {
-        //   //     console.log("Found IT!");
-        //   //     console.log(value);
-        //   //     return true;
-        //   //   }
-        //   // });
-        // }
+
+        let filtrate = _.eachDeep($filteredTree, (value, key, parentValue, context) => {
+          DragEndedObject.items.forEach((itemInHand) => {
+            if(key === "id")
+            {
+              if (value.toString() === itemInHand.id) {
+              console.log("update filtedTree");
+              console.log(parentValue);
+              console.log(context);
+              let childPos = itemInHand.getBoundingClientRect();
+              let parentPos = itemInHand.parentElement.getBoundingClientRect();
+              let x = childPos.x - parentPos.x;
+              let y = childPos.y - parentPos.y;
+
+              parentValue.locationX = x;
+              parentValue.locationY = y;
+
+            }
+            }
+          
+          });
+        });
+
+        SaveCodeMapToFile();
 
         selectedBlocks = DragEndedObject.items;
         //RenderLines(DragEndedObject);
@@ -103,8 +140,10 @@
   function RenderBlocks() {
     if (!isMoving) {
       if ($filteredTree) {
-        FlattenTree($filteredTree.children);
+        faketree = _.cloneDeep($filteredTree.children);  
+        FlattenTree(faketree);
         $flatTree = [...new Set(faketree)];
+        tick();
         let cardsCheck = document.getElementsByClassName("card");
 
         if (cardsCheck.length > 0) {
@@ -129,27 +168,27 @@
       $flatTree.forEach((item2) => {
         if (item1.parentId === item2.id) {
           //lines.forEach((line) => {
-            let id1 = "line" + item1.id;
-            let id2 = "line" + item2.id;
+          let id1 = "line" + item1.id;
+          let id2 = "line" + item2.id;
 
-            let lineExists = lines.find((line) => line.childId.toString() === item1.id.toString() || line.childId.toString() === item2.id.toString());
-            let indexOfLine = lines.indexOf(lineExists);
+          let lineExists = lines.find((line) => line.childId.toString() === item1.id.toString() || line.childId.toString() === item2.id.toString());
+          let indexOfLine = lines.indexOf(lineExists);
 
-            if (lineExists && indexOfLine !== -1) {
-              lineExists.x1 = item1.x2;
-              lineExists.y1 = item1.y2;
+          if (lineExists && indexOfLine !== -1) {
+            lineExists.x1 = item1.x2;
+            lineExists.y1 = item1.y2;
 
-              lineExists.x2 = item2.x2;
-              lineExists.y2 = item2.y2;
+            lineExists.x2 = item2.x2;
+            lineExists.y2 = item2.y2;
 
-              //Splice?
+            //Splice?
 
-              lines.splice(indexOfLine, 1, lineExists);
-            } else {
-              let line = { childId: item2.id, x1: item1.x2, y1: item1.y2, x2: item2.x2, y2: item2.y2 };
-              lines.push(line);
-            }
-         // });
+            lines.splice(indexOfLine, 1, lineExists);
+          } else {
+            let line = { childId: item2.id, x1: item1.x2, y1: item1.y2, x2: item2.x2, y2: item2.y2 };
+            lines.push(line);
+          }
+          // });
         }
       });
     });

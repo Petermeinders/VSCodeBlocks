@@ -79,22 +79,21 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(
 		vscode.commands.registerCommand('vsblocksnipets.SaveDataToFile', (data) => {
 			// vscode.window.showInformationMessage(data.value.customSnippets);
-			const language = 'markdown';
 
+			//TODO: Need this check anymore?
 			data.customSnippets.forEach((element) => {
 				if (element.id.includes("id:")) {
 					let index = data.customSnippets.indexOf(element);
+					throw TypeError("Guess this is still used....");
 					console.log(index);
 					data.customSnippets.splice(index, 1);
 				}
 			});
-			const content = JSON.stringify(data);
 
 			const config = vscode.workspace.getConfiguration('vsblocksnipets');
 			const saveLocation = config.get('codeBlockSaveLocation');
 
 			let fs = vscode.workspace.fs;
-			let fileString;
 
 			if (typeof (data) === 'undefined') {
 				console.log("data is null. can't save null data.");
@@ -143,6 +142,67 @@ export function activate(context: vscode.ExtensionContext) {
 				}
 			}
 		}));
+
+
+		context.subscriptions.push(
+			vscode.commands.registerCommand('vsblocksnipets.SaveCodeMapToFile', (data) => {
+				// vscode.window.showInformationMessage(data.value.customSnippets);
+	
+				const config = vscode.workspace.getConfiguration('vsblocksnipets');
+				const saveLocation = config.get('codeMapSaveLocation');
+	
+				let fs = vscode.workspace.fs;
+	
+				if (typeof (data) === 'undefined') {
+					console.log("data is null. can't save null data.");
+					return;
+				}
+	
+				if (saveLocation === 'testvalue') {
+					let uri = vscode.Uri.file('%USERPROFILE%\.vscode\extensions');
+	
+					const options: vscode.OpenDialogOptions = {
+						canSelectMany: false,
+						defaultUri: uri,
+						openLabel: 'Select',
+						canSelectFolders: false,
+						canSelectFiles: true,
+	
+					};
+	
+					vscode.window.showOpenDialog(options).then((fileUri) => {
+						let URI: vscode.Uri;
+						if (typeof (fileUri) !== 'undefined') {
+							URI = fileUri[0];
+	
+							let codeString = JSON.stringify(data);
+							let uint8array = new TextEncoder().encode(codeString);
+							fs.writeFile(URI, uint8array);
+
+							config.update("codeMapSaveLocation", fileUri[0].fsPath, vscode.ConfigurationTarget.Global)
+								//take action here
+							
+	
+						}
+						else {
+							console.log("Error");
+						}
+					});
+				}
+				else {
+					let URI = vscode.Uri.file(<string>saveLocation);
+					if (typeof (saveLocation) !== 'undefined') {
+	
+						let codeString = JSON.stringify(data);
+						let uint8array = new TextEncoder().encode(codeString);
+						fs.writeFile(URI, uint8array);
+	
+					}
+					else {
+						console.log("Error saving file");
+					}
+				}
+			}));
 
 
 
