@@ -18,7 +18,7 @@
   let isMoving = false;
   let selectedBlocks;
 
-  $: selectedBlocks, RenderLinesAfterMove();
+  //$: selectedBlocks, RenderLinesAfterMove();
 
   $: isMoving;
 
@@ -126,7 +126,6 @@
         //RenderLines(DragEndedObject);
 
         $flatTree = [];
-        lines = [];
 
         // if (!$flatTree)
         // {
@@ -201,6 +200,15 @@
           let lineExists = lines.find((line) => line.childId.toString() === item1.id.toString() || line.childId.toString() === item2.id.toString());
           let indexOfLine = lines.indexOf(lineExists);
 
+          if(item1.x2.toString() === "0")
+          {
+            item1.x2 = item1.locationX;
+            item1.y2 = item1.locationY;
+
+            item2.x2 = item2.locationX;
+            item2.y2 = item2.locationY;
+          }
+
           if (lineExists && indexOfLine !== -1) {
             lineExists.x1 = item1.x2;
             lineExists.y1 = item1.y2;
@@ -224,43 +232,43 @@
     console.log("Rendered lines global");
   }
 
-  function RenderLinesAfterMove() {
-    if (!selectedBlocks || selectedBlocks?.length === 0) return;
+  // function RenderLinesAfterMove() {
+  //   if (!selectedBlocks || selectedBlocks?.length === 0) return;
 
-    $flatTree.forEach((flatItem) => {
-      selectedBlocks.forEach((itemInHand) => {
-        if (flatItem.id.toString() === itemInHand.id) {
-          let childPos = itemInHand.getBoundingClientRect();
-          let parentPos = itemInHand.parentElement.getBoundingClientRect();
-          let x = childPos.x - parentPos.x;
-          let y = childPos.y - parentPos.y;
+  //   $flatTree.forEach((flatItem) => {
+  //     selectedBlocks.forEach((itemInHand) => {
+  //       if (flatItem.id.toString() === itemInHand.id) {
+  //         let childPos = itemInHand.getBoundingClientRect();
+  //         let parentPos = itemInHand.parentElement.getBoundingClientRect();
+  //         let x = childPos.x - parentPos.x;
+  //         let y = childPos.y - parentPos.y;
 
-          flatItem.x2 = x;
-          flatItem.y2 = y;
+  //         flatItem.x2 = x;
+  //         flatItem.y2 = y;
 
-          let lineExists = lines.find((line) => line.childId.toString() === itemInHand.id);
-          let indexOfLine = lines.indexOf(lineExists);
+  //         let lineExists = lines.find((line) => line.childId.toString() === itemInHand.id);
+  //         let indexOfLine = lines.indexOf(lineExists);
 
-          if (lineExists && indexOfLine !== -1) {
-            let zeroCheck = lineExists.x1 * lineExists.x2 * lineExists.y1 * lineExists.x2;
-            if (zeroCheck === 0) {
-              lines.splice(indexOfLine, 1);
-            } else {
-              lineExists.x2 = flatItem.x2;
-              lineExists.y2 = flatItem.y2;
+  //         if (lineExists && indexOfLine !== -1) {
+  //           let zeroCheck = lineExists.x1 * lineExists.x2 * lineExists.y1 * lineExists.x2;
+  //           if (zeroCheck === 0) {
+  //             lines.splice(indexOfLine, 1);
+  //           } else {
+  //             lineExists.x2 = flatItem.x2;
+  //             lineExists.y2 = flatItem.y2;
 
-              lines.splice(indexOfLine, 1, lineExists);
-            }
-          } else {
-            // let line = { childId: flatItem.id, x1: 0, y1: 0, x2: flatItem.x2, y2: flatItem.y2 };
-            // lines.push(line);
-          }
+  //             lines.splice(indexOfLine, 1, lineExists);
+  //           }
+  //         } else {
+  //           // let line = { childId: flatItem.id, x1: 0, y1: 0, x2: flatItem.x2, y2: flatItem.y2 };
+  //           // lines.push(line);
+  //         }
 
-          lines = lines;
-        }
-      });
-    });
-  }
+  //         lines = lines;
+  //       }
+  //     });
+  //   });
+  // }
 
   // function DragCall(){
 
