@@ -32,37 +32,23 @@
 
   $: $filteredTree, RenderBlocks();
 
-
-
-
-
-  
-    function SaveCodeMapToFile() {
-      tsvscode.postMessage({
+  function SaveCodeMapToFile() {
+    tsvscode.postMessage({
       type: "saveCodeMap",
       value: $filteredTree,
     });
   }
-
-
-
-
-
-
-
-
-
 
   onMount(async () => {
     ds = new DragSelect({
       selectables: document.getElementsByClassName("card"),
       callback: (e) => console.log(e),
       area: document.getElementById("area"),
+      zoom:1
     });
 
     ds.subscribe("dragstart", (DragStartObject) => {
-      if(DragStartObject.isDragging)
-          isMoving = true;
+      if (DragStartObject.isDragging) isMoving = true;
     });
 
     ds.subscribe("dragmove", (DragMovedObject) => {
@@ -97,31 +83,25 @@
         // if (DragEndedObject.event.target.getAttribute("data-fileType") === "directory") {
         //   let id = DragEndedObject.event.target.id;
 
-
         let filtrate = _.eachDeep($filteredTree, (value, key, parentValue, context) => {
           DragEndedObject.items.forEach((itemInHand) => {
-            if(key === "id")
-            {
+            if (key === "id") {
               if (value.toString() === itemInHand.id) {
-              console.log("update filtedTree");
-              console.log(parentValue);
-              console.log(context);
-              let childPos = itemInHand.getBoundingClientRect();
-              let parentPos = itemInHand.parentElement.getBoundingClientRect();
-              let x = childPos.x - parentPos.x;
-              let y = childPos.y - parentPos.y;
+                console.log("update filtedTree");
+                console.log(parentValue);
+                console.log(context);
+                let childPos = itemInHand.getBoundingClientRect();
+                let parentPos = itemInHand.parentElement.getBoundingClientRect();
+                let x = childPos.x - parentPos.x;
+                let y = childPos.y - parentPos.y;
 
-              parentValue.locationX = x;
-              parentValue.locationY = y;
-
+                parentValue.locationX = x;
+                parentValue.locationY = y;
+              }
             }
-            }
-          
           });
         });
 
-
-        
         selectedBlocks = DragEndedObject.items;
         //RenderLines(DragEndedObject);
 
@@ -135,53 +115,63 @@
     });
   });
 
-  async function resetLines(){
-    
-  }
+  async function resetLines() {}
 
   beforeUpdate(() => {
     console.log("update lines!");
     RenderBlocks();
     RenderLines();
-    // RenderLines(selectedBlocks)
   });
 
   afterUpdate(() => {
-
+    BlocksToTreeStyleLayout();
     AddCardsToDrag();
   });
 
- function RenderBlocks() {
+  function RenderBlocks() {
     if (!isMoving) {
       if ($filteredTree) {
-        faketree = _.cloneDeep($filteredTree.children);  
+        faketree = _.cloneDeep($filteredTree.children);
         FlattenTree(faketree);
-        
+
         $flatTree = [...new Set(faketree)];
       }
     }
   }
 
-
   function AddCardsToDrag() {
     let cardsCheck = document.getElementsByClassName("card");
-    
+
     if (cardsCheck.length > 0) {
-          let cards = document.getElementsByClassName("card");
-          let newCarsArray = [...new Set(cards)];
-          ds.setSelectables(newCarsArray);
+      let cards = document.getElementsByClassName("card");
+      let newCarsArray = [...new Set(cards)];
+      ds.setSelectables(newCarsArray);
+    }
+  }
 
-          // MoveBlocksToTheirLocations()
+  function BlocksToTreeStyleLayout() {
+    let cards = document.getElementsByClassName("card");
+    let fileY = 0;
+    let dirY = 0;
 
-          // if (typeof $flatTree !== "undefined" && document.getElementsByClassName("card").length > 0) {
-          //   Drag();
-          // }
+    for (var i = 0; i < cards.length; i++) {
+      if ((cards.item(i).style.transform === "")) {
+        if (cards.item(i)?.getAttribute("data-fileType") === "file") {
+          fileY += 50;
+          let trans =  "translate(200.32px,"+fileY+"px)"
+          cards.item(i).style.transform = trans;
+        } else {
+          dirY += 50;
+          let trans =  "translate(0px,"+dirY+"px)"
+          cards.item(i).style.transform =trans;
         }
+      }
+    }
   }
 
   // function MoveBlocksToTheirLocations(){
   //   $flatTree.forEach(block => {
-      
+
   //   })
   // }
 
@@ -200,8 +190,7 @@
           let lineExists = lines.find((line) => line.childId.toString() === item1.id.toString() || line.childId.toString() === item2.id.toString());
           let indexOfLine = lines.indexOf(lineExists);
 
-          if(item1.x2.toString() === "0")
-          {
+          if (item1.x2.toString() === "0") {
             item1.x2 = item1.locationX;
             item1.y2 = item1.locationY;
 
@@ -285,8 +274,11 @@
 
   //   if (e.deltaY > 0) {
   //     zoomElement.style.transform = `scale(${(zoom -= ZOOM_SPEED)})`;
+  //     ds.zoom = zoom;
   //   } else {
   //     zoomElement.style.transform = `scale(${(zoom += ZOOM_SPEED)})`;
+  //     ds.zoom = zoom ;
+
   //   }
   //   console.log("changed!");
   // });
@@ -380,13 +372,12 @@
     }
   }
 
-  function LoadCodeMap(){
+  function LoadCodeMap() {
     tsvscode.postMessage({
       type: "LoadCodeMapFromFile",
       value: true,
     });
   }
-
 </script>
 
 <main id="area" style="width:100%; height:100%; position:fixed;">

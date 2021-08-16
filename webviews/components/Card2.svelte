@@ -35,7 +35,7 @@
   console.log("rerender this item!")
 </script>
 
-<div class="ds-selected ds-hover" style="display:none" />
+<div class="ds-selected ds-hover absolute" style="display:none" />
 
 <main style="z-index:101; {treeItem.locationX !== 0 ? 'transform: translate3d('+treeItem.locationX+'px, '+treeItem.locationY+'px, 1px);' : ''}"
   id={treeItem.id}
@@ -45,7 +45,7 @@
   data-x2={treeItem.x2}
   data-y1={treeItem.y1}
   data-y2={treeItem.y2}
-  class="card  {treeItem.type === 'directory' ? 'directory' : 'file'}"
+  class="card absolute {treeItem.type === 'directory' ? 'directory' : 'file'}"
 >
   <button type="button" class="inner-hide"> {treeItem.name}</button>
 </main>
@@ -103,12 +103,16 @@
     user-select: none;
     /* width: 50px;
   height: 50px; */
-    position: absolute;
+   
     display: flex;
     justify-content: center;
     align-items: center;
     color: white;
     border: 0;
+  }
+
+  .absolute{
+ position: absolute;
   }
 
   .ds-selected {
