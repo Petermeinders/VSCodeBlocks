@@ -14,7 +14,31 @@
   let isMoving = false;
   let selectedBlocks;
 
+// Order:------------------
+// . OnMount()
+// . GetFiles() -> Panel -> Extension
+// . $FilteredTree is updated
+// . RenderBlocks()
+// . BeforeUpdate() -> RenderBlocks(), RenderLines()
+// . ?
+// . $FilteredTree is updated
+// . BeforeUpdate() -> RenderBlocks(), RenderLines()
+// . Afterupdate() -> BlocksToTreeStyleLayout(), AddCardsToDrag()
+// . $FilteredTree is updated
+// . RenderBlocks()
+// . BeforeUpdate() -> RenderBlocks(), RenderLines()
+
+
+
+
+
+
+
   //$: selectedBlocks, RenderLinesAfterMove();
+
+  let zoom = 1;
+  const ZOOM_SPEED = 0.1;
+  let faketree = [];
 
   $: isMoving;
 
@@ -27,7 +51,7 @@
     $newRender;
   }
 
-  $: $filteredTree, RenderBlocks();
+  // $: $filteredTree, RenderBlocks();
 
   function SaveCodeMapToFile() {
     tsvscode.postMessage({
@@ -235,10 +259,6 @@
 
   GetFiles();
 
-  let zoom = 1;
-  const ZOOM_SPEED = 0.1;
-
-  let faketree = [];
 
   function FlattenTree(newTree) {
     newTree.forEach((item) => {
@@ -306,10 +326,6 @@
   {#if $filteredTree}
     {RenderBlocks()}
   {/if}
-
-  <!-- <div class="zoom">  
-      <h1>Zoom meeeee</h1>
-  </div> -->
 </main>
 
 <style>

@@ -10,28 +10,12 @@
   export let top = 30;
   export let currentZoom = 1;
   export let card;
-
   export let treeItem;
 
   afterUpdate(() => {
     $newRender = $newRender++;
   });
 
-  // function FlattenTree(newTree){
-  //   newTree.forEach(item => {
-  //     let c = item.children;
-  //     item.children = null;
-  //     $flatTree.push(item)
-  //     if(Array.isArray(c))
-  //     {
-
-  //       FlattenTree(c)
-  //     }
-
-  //   })
-  // }
-
-  // FlattenTree($filteredTree.children);
   console.log("rerender this item!")
 </script>
 

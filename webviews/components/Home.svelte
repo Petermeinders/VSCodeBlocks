@@ -517,7 +517,7 @@
         <Dnd {SearchTerm} {FullCodeSearch} />
       </div>
     </div>
-  {:else if $items.settings.currentPanel === "Editmode"}
+  {:else if $items.settings.currentPanel === "editmode"}
     <h1>EDIT MODE</h1>
     <EditScreen />
   {:else if $items.settings.currentPanel === "codeMap"}
