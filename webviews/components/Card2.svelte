@@ -32,11 +32,12 @@
   // }
 
   // FlattenTree($filteredTree.children);
+  console.log("rerender this item!")
 </script>
 
 <div class="ds-selected ds-hover" style="display:none" />
 
-<main
+<main style="z-index:101; {treeItem.locationX !== 0 ? 'transform: translate3d('+treeItem.locationX+'px, '+treeItem.locationY+'px, 1px);' : ''}"
   id={treeItem.id}
   data-fileType={treeItem.type}
   data-parentId={treeItem.parentId}
@@ -44,7 +45,6 @@
   data-x2={treeItem.x2}
   data-y1={treeItem.y1}
   data-y2={treeItem.y2}
-  style="z-index:101; top:0px; left:0px;"
   class="card  {treeItem.type === 'directory' ? 'directory' : 'file'}"
 >
   <button type="button" class="inner-hide"> {treeItem.name}</button>

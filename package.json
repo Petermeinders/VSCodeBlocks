@@ -21,7 +21,8 @@
 		"onCommand:vsblocksnipets.importVSCodeSnippet",
 		"onCommand:vsblocksnipets.editCode",
 		"onCommand:vsblocksnipets.importCode",
-		"onCommand:vsblocksnipets.importCodeFromFile",
+		"onCommand:vsblocksnipets.loadCodeMapFromFile",
+		"onCommand:vsblocksnipets.importCodeMapFromFile",
 		"onCommand:vsblocksnipets.passBlocksToWindow",
 		"onCommand:vsblocksnipets.passBlocksToSidebar",
 		"onView:vsblocksnipets-sidebar"
@@ -87,6 +88,11 @@
 				"command": "vsblocksnipets.importCodeFromFile",
 				"category": "VSBlockSnipets",
 				"title": "Import code json file previously exported"
+			},
+			{
+				"command": "vsblocksnipets.loadCodeMapFromFile",
+				"category": "VSBlockSnipets",
+				"title": "Import code map json file previously saved"
 			},
 			{
 				"command": "vsblocksnipets.SaveDataToFile",

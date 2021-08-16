@@ -237,6 +237,15 @@
           }
           if ($debug) console.log($items);
           break;
+
+          case "import-code-map-from-file":
+          if (typeof message.value === "string") {
+            $filteredTree = JSON.parse(message.value);
+          } else {
+            $filteredTree = message.value;
+          }
+          if ($debug) console.log($filteredTree);
+          break;
       }
     });
   });
@@ -415,7 +424,7 @@
       console.log("Export Data Start!");
       console.log($items);
     }
-    
+
     tsvscode.postMessage({
       type: "saveData",
       value: $items,

@@ -124,6 +124,17 @@ export class HellowWorldPanel {
     }
   }
 
+  public static CodeMapToWindow(items: any) {
+    if (typeof HellowWorldPanel.currentPanel !== "undefined") {
+      HellowWorldPanel.currentPanel._panel.webview.postMessage({
+        type: "import-code-map-from-file",
+        value: items,
+      });
+    } else {
+      console.log("error");
+    }
+  }
+
   public static GetCodeFromEditScreen(value: string) {
     if (typeof HellowWorldPanel.currentPanel !== "undefined") {
       HellowWorldPanel.currentPanel._panel.webview.postMessage({
@@ -543,6 +554,19 @@ export class HellowWorldPanel {
           }
 
           vscode.commands.executeCommand("vsblocksnipets.importCodeFromFile", false);
+
+          // vscode.workspace.openTextDocument(uri).then((document) => {
+          //   let text = document.getText();
+          break;
+        }
+
+        
+        case "LoadCodeMapFromFile": {
+          if (!data.value) {
+            return;
+          }
+
+          vscode.commands.executeCommand("vsblocksnipets.loadCodeMapFromFile", false);
 
           // vscode.workspace.openTextDocument(uri).then((document) => {
           //   let text = document.getText();

@@ -7,8 +7,6 @@
   import deepdash from "deepdash";
   import Line from "./Line.svelte";
 
-  //export let filteredTree: FilteredTree;
-
   export let left = 30;
   export let top = 30;
   const _ = deepdash(lodash);
@@ -63,7 +61,8 @@
     });
 
     ds.subscribe("dragstart", (DragStartObject) => {
-      isMoving = true;
+      if(DragStartObject.isDragging)
+          isMoving = true;
     });
 
     ds.subscribe("dragmove", (DragMovedObject) => {
@@ -121,43 +120,71 @@
           });
         });
 
-        SaveCodeMapToFile();
 
+        
         selectedBlocks = DragEndedObject.items;
         //RenderLines(DragEndedObject);
+
+        $flatTree = [];
+        lines = [];
+
+        // if (!$flatTree)
+        // {
+        //   RenderBlocks();
+        // }
       }
     });
   });
 
+  async function resetLines(){
+    
+  }
+
   beforeUpdate(() => {
     console.log("update lines!");
+    RenderBlocks();
     RenderLines();
     // RenderLines(selectedBlocks)
   });
 
-  afterUpdate(() => {});
+  afterUpdate(() => {
 
-  function RenderBlocks() {
+    AddCardsToDrag();
+  });
+
+ function RenderBlocks() {
     if (!isMoving) {
       if ($filteredTree) {
         faketree = _.cloneDeep($filteredTree.children);  
         FlattenTree(faketree);
+        
         $flatTree = [...new Set(faketree)];
-        tick();
-        let cardsCheck = document.getElementsByClassName("card");
+      }
+    }
+  }
 
-        if (cardsCheck.length > 0) {
+
+  function AddCardsToDrag() {
+    let cardsCheck = document.getElementsByClassName("card");
+    
+    if (cardsCheck.length > 0) {
           let cards = document.getElementsByClassName("card");
           let newCarsArray = [...new Set(cards)];
           ds.setSelectables(newCarsArray);
+
+          // MoveBlocksToTheirLocations()
 
           // if (typeof $flatTree !== "undefined" && document.getElementsByClassName("card").length > 0) {
           //   Drag();
           // }
         }
-      }
-    }
   }
+
+  // function MoveBlocksToTheirLocations(){
+  //   $flatTree.forEach(block => {
+      
+  //   })
+  // }
 
   function RenderLines() {
     if (!$flatTree) {
@@ -344,64 +371,21 @@
       return false;
     }
   }
+
+  function LoadCodeMap(){
+    tsvscode.postMessage({
+      type: "LoadCodeMapFromFile",
+      value: true,
+    });
+  }
+
 </script>
 
 <main id="area" style="width:100%; height:100%; position:fixed;">
   <div class="ds-selected" style="display:none" />
+  <button type="button" on:click={SaveCodeMapToFile}>Save CodeMap</button>
 
-  <!-- {#await filteredTree}
-  <p>Loading...</p>
-  {:then dataValue}
-  {#each blocks as block}
-    <Card top={block.top} left={block.left}>
-    <h1>{block.name}</h1>
-    </Card>
-    {/each}
-    {/await} -->
-  <!-- 
-    {#await filteredTree}
-    <p>Loading...</p>
-    {:then dataValue}
-    <div class="zoom">
-      {#each filteredTree.children as child}
-        <Card card={child} currentZoom={zoom} top={50} left={50}>
-          <h1>{child.name}</h1>
-        </Card>
-      {/each}
-    </div>
-    {/await} -->
-
-  <!-- {#if $filteredTree}
-    <div class="zoom">
-      {#each $filteredTree.children as child, i}
-        <Card card={child} top={top + i*10} left={left + i*10}>
-          <h1 style="border: 1px solid black;">{child.name}</h1>
-        </Card>
-      {/each}
-    </div>
-  {/if} -->
-
-  <!-- {#if $filteredTree}
-    <div class="zoom">
-      <Card2 tree={$filteredTree.children} let:treeItem {top} {left} >
-        <button style="top:{top}px; left:{left}px" class="card  {treeItem.type === 'directory' ? 'directory' : 'file'}" type="button"
-          id={treeItem.id} 
-          data-fileType={treeItem.type} 
-          data-x1={treeItem.x1}
-          data-x2={treeItem.x2} 
-          data-y1={treeItem.y1} 
-          data-y2={treeItem.y2}>
-
-          {treeItem.name}</button
-        >
-      </Card2>
-    </div>
-    <div>
-      <Lines />
-    </div>
-
-    <div style="display:none;">{getparent()}</div>
-  {/if} -->
+  <button type="button" on:click={LoadCodeMap}>Load CodeMap</button>
 
   {#if $flatTree}
     <div class="zoom">

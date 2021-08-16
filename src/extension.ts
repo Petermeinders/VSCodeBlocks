@@ -583,6 +583,95 @@ export function activate(context: vscode.ExtensionContext) {
 
 		}));
 
+		context.subscriptions.push(
+			vscode.commands.registerCommand('vsblocksnipets.loadCodeMapFromFile', (fromSidebar) => {
+				console.log("Importing Code Map From File:");
+	
+				const config = vscode.workspace.getConfiguration('vsblocksnipets');
+				const saveLocation = config.get('codeMapSaveLocation');
+	
+				let fs = vscode.workspace.fs;
+				let fileString;
+	
+	
+				if (saveLocation === "testvalue") {
+					vscode.window.showInformationMessage(config.has('codeMapSaveLocation').toString());
+	
+					let uri = vscode.Uri.file('%USERPROFILE%\.vscode\extensions');
+	
+	
+					const options: vscode.OpenDialogOptions = {
+						canSelectMany: false,
+						defaultUri: uri,
+						openLabel: 'Select',
+						canSelectFolders: false,
+						canSelectFiles: true,
+	
+					};
+	
+	
+					vscode.window.showOpenDialog(options).then((fileUri) => {
+						if (typeof (fileUri) !== 'undefined') {
+							let URI: vscode.Uri;
+							URI = fileUri[0];
+							vscode.window.showInformationMessage(fileUri[0].fsPath);
+	
+							config.update("codeMapSaveLocation", fileUri[0].fsPath, vscode.ConfigurationTarget.Global).then(() => {
+								//take action here
+							});
+	
+	
+							fs.readFile(URI).then(data => {
+								fileString = new TextDecoder().decode(data, { stream: true });
+	
+	
+	
+								if (fromSidebar) {
+									sidebarProvider._view?.webview.postMessage({
+										type: 'import-code-map-from-file',
+										value: fileString,
+									});
+								}
+								else {
+									// const text = activeTextEditor.document.getText(activeTextEditor.selection);
+									// vscode.window.showInformationMessage(text);
+	
+									HellowWorldPanel.CodeMapToWindow(fileString);
+								}
+							});
+						}
+					});
+				}
+				else {
+					//vscode.window.showInformationMessage("Loading JSON:  " + saveLocation);
+					var save = <string>saveLocation;
+					let uri = vscode.Uri.file(save);
+	
+					fs.readFile(uri).then(data => {
+						fileString = new TextDecoder().decode(data, { stream: true });
+	
+	
+	
+						if (fromSidebar) {
+							// sidebarProvider._view?.webview.postMessage({
+							// 	type: 'import-code-from-file',
+							// 	value: fileString,
+							// });
+						}
+						else {
+							// const text = activeTextEditor.document.getText(activeTextEditor.selection);
+							// vscode.window.showInformationMessage(text);
+	
+							HellowWorldPanel.CodeMapToWindow(fileString);
+						}
+					});
+				}
+				//configuration.update("codeBlockSaveLocation", URI, vscode.ConfigurationTarget.Global).then(() => {
+				// take action here
+				//});
+	
+			}));
+
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand('vsblocksnipets.passBlocksToWindow', (items) => {
