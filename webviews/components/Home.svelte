@@ -11,7 +11,7 @@
   import LinkedBlocks from "./LinkedBlocks.svelte";
   import { faCog, faProjectDiagram } from "@fortawesome/free-solid-svg-icons";
   import Fa from "svelte-fa";
-  import Canvas from "./Canvas.svelte";
+  import Canvas from "./CodeMap/Canvas.svelte";
   import type currentPanel from "./store.svelte";
 
   let SearchTerm: string = "";

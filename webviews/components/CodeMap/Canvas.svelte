@@ -1,18 +1,14 @@
 <script lang="ts">
-  import { filteredTree, flatTree, newRender } from "../store";
-  import Card2 from "./Card2.svelte";
+  import { filteredTree, flatTree, newRender } from "../../store";
+  import Card from "./Card.svelte";
   import { onMount, afterUpdate, beforeUpdate, tick } from "svelte";
   import DragSelect from "dragselect";
   import lodash, { set } from "lodash";
   import deepdash from "deepdash";
   import Line from "./Line.svelte";
 
-  export let left = 30;
-  export let top = 30;
   const _ = deepdash(lodash);
   let ds;
-  // const _ = require('lodash');
-  //         require('deepdash')(_);
 
   let lines = [];
   let isMoving = false;
@@ -25,6 +21,7 @@
   $: {
     lines;
   }
+
   $: {
     $flatTree;
     $newRender;
@@ -115,8 +112,6 @@
     });
   });
 
-  async function resetLines() {}
-
   beforeUpdate(() => {
     console.log("update lines!");
     RenderBlocks();
@@ -169,12 +164,6 @@
     }
   }
 
-  // function MoveBlocksToTheirLocations(){
-  //   $flatTree.forEach(block => {
-
-  //   })
-  // }
-
   function RenderLines() {
     if (!$flatTree) {
       return;
@@ -221,53 +210,6 @@
     console.log("Rendered lines global");
   }
 
-  // function RenderLinesAfterMove() {
-  //   if (!selectedBlocks || selectedBlocks?.length === 0) return;
-
-  //   $flatTree.forEach((flatItem) => {
-  //     selectedBlocks.forEach((itemInHand) => {
-  //       if (flatItem.id.toString() === itemInHand.id) {
-  //         let childPos = itemInHand.getBoundingClientRect();
-  //         let parentPos = itemInHand.parentElement.getBoundingClientRect();
-  //         let x = childPos.x - parentPos.x;
-  //         let y = childPos.y - parentPos.y;
-
-  //         flatItem.x2 = x;
-  //         flatItem.y2 = y;
-
-  //         let lineExists = lines.find((line) => line.childId.toString() === itemInHand.id);
-  //         let indexOfLine = lines.indexOf(lineExists);
-
-  //         if (lineExists && indexOfLine !== -1) {
-  //           let zeroCheck = lineExists.x1 * lineExists.x2 * lineExists.y1 * lineExists.x2;
-  //           if (zeroCheck === 0) {
-  //             lines.splice(indexOfLine, 1);
-  //           } else {
-  //             lineExists.x2 = flatItem.x2;
-  //             lineExists.y2 = flatItem.y2;
-
-  //             lines.splice(indexOfLine, 1, lineExists);
-  //           }
-  //         } else {
-  //           // let line = { childId: flatItem.id, x1: 0, y1: 0, x2: flatItem.x2, y2: flatItem.y2 };
-  //           // lines.push(line);
-  //         }
-
-  //         lines = lines;
-  //       }
-  //     });
-  //   });
-  // }
-
-  // function DragCall(){
-
-  //   }
-
-  // $:{
-  //   filteredTree;
-  //   DragCall();
-
-  // }
 
   // document.addEventListener("wheel", function (e) {
   //   const zoomElement = document.querySelector(".zoom");
@@ -283,13 +225,6 @@
   //   console.log("changed!");
   // });
 
-  let blocks = [
-    { id: 1, name: "block1", content: "nothing", top: 50, left: 10 },
-    { id: 2, name: "block2", content: "nothing2", top: 10, left: 30 },
-    { id: 2, name: "block3", content: "nothing3", top: 90, left: 80 },
-  ];
-
-  let block = blocks[0];
 
   const GetFiles = () => {
     tsvscode.postMessage({
@@ -302,40 +237,6 @@
 
   let zoom = 1;
   const ZOOM_SPEED = 0.1;
-
-  let moving = false;
-
-  function start() {
-    moving = true;
-  }
-
-  function stop() {
-    moving = false;
-  }
-
-  function move(e) {
-    let zoomFactor = 1;
-
-    if (currentZoom > 1) zoomFactor = 1 - currentZoom;
-    if (currentZoom < 1) zoomFactor = 1 + currentZoom;
-
-    if (moving) {
-      left += e.movementX * zoomFactor;
-      top += e.movementY * zoomFactor;
-    }
-  }
-
-  $: console.log(moving);
-
-  function getparent() {
-    let filtrate = _.eachDeep(filteredTree, (value, key, parentValue, context) => {
-      if (value.type === "directory") {
-      }
-    });
-
-    console.log("filtrate2");
-    console.log(filtrate);
-  }
 
   let faketree = [];
 
@@ -389,7 +290,7 @@
   {#if $flatTree}
     <div class="zoom">
       {#each $flatTree as treeItem}
-        <Card2 {treeItem} />
+        <Card {treeItem} />
       {/each}
     </div>
     <div>

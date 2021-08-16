@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { filteredTree, flatTree, newRender } from "../store";
+  import { filteredTree, flatTree, newRender } from "../../store";
   import type { FilteredTree } from "../store";
   import lodash, { flatten } from "lodash";
   import deepdash from "deepdash";
