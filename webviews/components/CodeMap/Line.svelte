@@ -5,7 +5,8 @@
     export let y2: number;
     export let id: string;
     
-    let fullId = "line" + id;
+    export let sourceId
+    export let destId;
   </script>
   
   <main>
@@ -15,7 +16,7 @@
         <svg style="z-index:-99; width:100%; height:100%;     position: absolute;">
       <!-- {@debug x1, y1, x2, y2} -->
 {console.log("NEW LINE: x2:" + x2 + " y2:" + y2)}
-          <line id={fullId} x1={x1} y1={y1} x2={x2} y2={y2} style="stroke:rgb(255,0,0);stroke-width:2" />
+          <line data-sourceId={sourceId} data-destId={destId} x1={x1} y1={y1} x2={x2} y2={y2} style="stroke:rgb(255,0,0);stroke-width:2" />
           Sorry, your browser does not support inline SVG.
         </svg>
       <!-- {/if} -->

@@ -34,6 +34,8 @@ let originNewRender = 0;
 
 let originFilteredTree:FilteredTree;
 
+let originZoom = 1;
+
 let originFlatTree = [];
 
 let customSnippets:Item[] =
@@ -113,6 +115,13 @@ if (tsvscode.getState()?.p !== undefined) {
 //   tsvscode.setState(originTags);
 // }
 
+
+export const currentZoom = writable(originZoom, (set) => {
+   console.log("debug: " + originZoom);
+
+   //set([{id:0, name:""}]);
+   return () => { };
+});
 
 export const newRender = writable(originNewRender, (set) => {
    console.log("debug: " + originNewRender);

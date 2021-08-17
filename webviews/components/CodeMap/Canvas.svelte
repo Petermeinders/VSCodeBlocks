@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { filteredTree, flatTree, newRender } from "../../store";
+  import { filteredTree, flatTree, newRender, currentZoom } from "../../store";
   import Card from "./Card.svelte";
   import { onMount, afterUpdate, beforeUpdate, tick } from "svelte";
   import DragSelect from "dragselect";
@@ -17,14 +17,14 @@
 // Order:------------------
 // . OnMount()
 // . GetFiles() -> Panel -> Extension
-// . $FilteredTree is updated
+// ---removed . $FilteredTree is updated
 // . RenderBlocks()
 // . BeforeUpdate() -> RenderBlocks(), RenderLines()
 // . ?
-// . $FilteredTree is updated
+// ---removed . $FilteredTree is updated
 // . BeforeUpdate() -> RenderBlocks(), RenderLines()
 // . Afterupdate() -> BlocksToTreeStyleLayout(), AddCardsToDrag()
-// . $FilteredTree is updated
+// ---removed . $FilteredTree is updated
 // . RenderBlocks()
 // . BeforeUpdate() -> RenderBlocks(), RenderLines()
 
@@ -44,6 +44,7 @@
 
   $: {
     lines;
+    $currentZoom;
   }
 
   $: {
@@ -64,21 +65,44 @@
     ds = new DragSelect({
       selectables: document.getElementsByClassName("card"),
       callback: (e) => console.log(e),
-      area: document.getElementById("area"),
-      zoom:1
+      area: document.getElementById("area")
     });
 
     ds.subscribe("dragstart", (DragStartObject) => {
-      if (DragStartObject.isDragging) isMoving = true;
+      if (DragStartObject.isDragging) 
+      {
+      isMoving = true;
+
+      let childPos = DragStartObject.items[0].getBoundingClientRect();
+        let parentPos = DragStartObject.items[0].parentElement.getBoundingClientRect();
+        let x = childPos.x - parentPos.x;
+        let y = childPos.y - parentPos.y;
+
+        let translate = "translate3d("+x+"px, "+y+"px, 1px) scale("+$currentZoom+")";
+
+      DragStartObject.items[0].style.transform = translate;
+      }
     });
 
     ds.subscribe("dragmove", (DragMovedObject) => {
       //console.log("moving");
-      let x = DragMovedObject.event.offsetX;
-      let y = DragMovedObject.event.offsetY;
       let id = DragMovedObject.event.target.id;
 
       DragMovedObject.event.preventDefault();
+
+      if(DragMovedObject.isDragging)
+      {
+        let childPos = DragMovedObject.items[0].getBoundingClientRect();
+        let parentPos = DragMovedObject.items[0].parentElement.getBoundingClientRect();
+        let x = childPos.x - parentPos.x;
+        let y = childPos.y - parentPos.y;
+        // let translate = "translate3d("+x+"px, "+y+"px, 1px) scale(2)";
+        // DragMovedObject.items[0].style.transform = translate;
+
+      //let transform = DragMovedObject.items[0].style.transform
+      }
+    
+
     });
 
     ds.subscribe("callback", (DragEndedObject) => {
@@ -128,6 +152,13 @@
 
         $flatTree = [];
 
+        let childPos2 = DragEndedObject.items[0].getBoundingClientRect();
+        let parentPos2 = DragEndedObject.items[0].parentElement.getBoundingClientRect();
+        let x2 = childPos2.x - parentPos2.x;
+        let y2 = childPos2.y - parentPos2.y;
+        let translate = "translate3d("+x2+"px, "+y2+"px, 1px) scale("+$currentZoom+")";
+        DragEndedObject.items[0].style.transform = translate;
+
         // if (!$flatTree)
         // {
         //   RenderBlocks();
@@ -150,8 +181,11 @@
   function RenderBlocks() {
     if (!isMoving) {
       if ($filteredTree) {
-        faketree = _.cloneDeep($filteredTree.children);
+        //faketree = _.cloneDeep($filteredTree.children);
+        faketree = JSON.parse(JSON.stringify($filteredTree.children))
         FlattenTree(faketree);
+
+       // faketree = _.index(faketree)
 
         $flatTree = [...new Set(faketree)];
       }
@@ -173,19 +207,19 @@
     let fileY = 0;
     let dirY = 0;
 
-    for (var i = 0; i < cards.length; i++) {
-      if ((cards.item(i).style.transform === "")) {
-        if (cards.item(i)?.getAttribute("data-fileType") === "file") {
-          fileY += 50;
-          let trans =  "translate(200.32px,"+fileY+"px)"
-          cards.item(i).style.transform = trans;
-        } else {
-          dirY += 50;
-          let trans =  "translate(0px,"+dirY+"px)"
-          cards.item(i).style.transform =trans;
-        }
-      }
-    }
+    // for (var i = 0; i < cards.length; i++) {
+    //   if ((cards.item(i).style.transform === "")) {
+    //     if (cards.item(i)?.getAttribute("data-fileType") === "file") {
+    //       fileY += 50;
+    //       let trans =  "translate(200.32px,"+fileY+"px)"
+    //       cards.item(i).style.transform = trans;
+    //     } else {
+    //       dirY += 50;
+    //       let trans =  "translate(0px,"+dirY+"px)"
+    //       cards.item(i).style.transform =trans;
+    //     }
+    //   }
+    // }
   }
 
   function RenderLines() {
@@ -200,7 +234,7 @@
           let id1 = "line" + item1.id;
           let id2 = "line" + item2.id;
 
-          let lineExists = lines.find((line) => line.childId.toString() === item1.id.toString() || line.childId.toString() === item2.id.toString());
+          let lineExists = lines.find((line) => (line.sourceId.toString() === item1.id.toString() && line.destId.toString() === item2.id.toString()) || (line.sourceId.toString() === item2.id.toString() && line.destId.toString === item1.id.toString()));
           let indexOfLine = lines.indexOf(lineExists);
 
           if (item1.x2.toString() === "0") {
@@ -222,7 +256,7 @@
 
             lines.splice(indexOfLine, 1, lineExists);
           } else {
-            let line = { childId: item2.id, x1: item1.x2, y1: item1.y2, x2: item2.x2, y2: item2.y2 };
+            let line = { sourceId: item1.id, destId: item2.id, x1: item1.x2, y1: item1.y2, x2: item2.x2, y2: item2.y2 };
             lines.push(line);
           }
           // });
@@ -239,14 +273,16 @@
   //   const zoomElement = document.querySelector(".zoom");
 
   //   if (e.deltaY > 0) {
-  //     zoomElement.style.transform = `scale(${(zoom -= ZOOM_SPEED)})`;
-  //     ds.zoom = zoom;
+  //     $currentZoom = zoom -= ZOOM_SPEED;
+  //     //zoomElement.style.transform = `scale(${(zoom -= ZOOM_SPEED)})`;
+  //     //ds.zoom = zoom;
   //   } else {
-  //     zoomElement.style.transform = `scale(${(zoom += ZOOM_SPEED)})`;
-  //     ds.zoom = zoom ;
+  //     $currentZoom = zoom += ZOOM_SPEED;
+  //    // zoomElement.style.transform = `scale(${(zoom += ZOOM_SPEED)})`;
+  //    // ds.zoom = zoom ;
 
   //   }
-  //   console.log("changed!");
+  //   console.log($currentZoom);
   // });
 
 
@@ -271,27 +307,27 @@
     });
   }
 
-  function LineCheck(line) {
-    let lineid = "line" + line.childId;
-    let foundElement = document.getElementById(lineid);
-    let x1;
-    let x2;
-    let y1;
-    let y2;
-    if (foundElement) {
-      x1 = foundElement.getAttribute("x1");
-      x2 = foundElement.getAttribute("x2");
-      y1 = foundElement.getAttribute("y1");
-      y2 = foundElement.getAttribute("y2");
-    }
-    console.log(foundElement);
-    console.log(line);
-    if (line.x1.toString() !== x1 || line.x2.toString() !== x2 || line.y1.toString() !== y1 || line.y2.toString() !== y2) {
-      return true;
-    } else {
-      return false;
-    }
-  }
+  // function LineCheck(line) {
+  //   let lineid = "line" + line.childId;
+  //   let foundElement = document.getElementById(lineid);
+  //   let x1;
+  //   let x2;
+  //   let y1;
+  //   let y2;
+  //   if (foundElement) {
+  //     x1 = foundElement.getAttribute("x1");
+  //     x2 = foundElement.getAttribute("x2");
+  //     y1 = foundElement.getAttribute("y1");
+  //     y2 = foundElement.getAttribute("y2");
+  //   }
+  //   console.log(foundElement);
+  //   console.log(line);
+  //   if (line.x1.toString() !== x1 || line.x2.toString() !== x2 || line.y1.toString() !== y1 || line.y2.toString() !== y2) {
+  //     return true;
+  //   } else {
+  //     return false;
+  //   }
+  // }
 
   function LoadCodeMap() {
     tsvscode.postMessage({
@@ -317,7 +353,7 @@
       {#each lines as line}
         <!-- {#if LineCheck(line) === true} -->
 
-        <Line id={line.childId} x1={line.x1} x2={line.x2} y1={line.y1} y2={line.y2} />
+        <Line sourceId={line.sourceId} destId={line.destId} x1={line.x1} x2={line.x2} y1={line.y1} y2={line.y2} />
         <!-- {/if} -->
       {/each}
     </div>

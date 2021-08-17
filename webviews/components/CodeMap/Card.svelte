@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { filteredTree, flatTree, newRender } from "../../store";
+  import { filteredTree, flatTree, newRender, currentZoom } from "../../store";
   import type { FilteredTree } from "../store";
   import lodash, { flatten } from "lodash";
   import deepdash from "deepdash";
@@ -8,7 +8,6 @@
   const _ = deepdash(lodash);
   export let left = 30;
   export let top = 30;
-  export let currentZoom = 1;
   export let card;
   export let treeItem;
 
@@ -21,7 +20,7 @@
 
 <div class="ds-selected ds-hover absolute" style="display:none" />
 
-<main style="z-index:101; {treeItem.locationX !== 0 ? 'transform: translate3d('+treeItem.locationX+'px, '+treeItem.locationY+'px, 1px);' : ''}"
+<main style="z-index:101; {treeItem.locationX !== 0 ? 'transform: translate3d('+treeItem.locationX+'px, '+treeItem.locationY+'px, 1px) scale('+$currentZoom+');' : ''}"
   id={treeItem.id}
   data-fileType={treeItem.type}
   data-parentId={treeItem.parentId}
