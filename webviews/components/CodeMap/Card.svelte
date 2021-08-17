@@ -28,7 +28,7 @@
   data-x2={treeItem.x2}
   data-y1={treeItem.y1}
   data-y2={treeItem.y2}
-  class="card absolute {treeItem.type === 'directory' ? 'directory' : 'file'}"
+  class="card absolute highlight {treeItem.type === 'directory' ? 'directory' : 'file'}"
 >
   <button type="button" class="inner-hide"> {treeItem.name}</button>
 </main>
@@ -125,5 +125,10 @@
 
   .ds-hover {
     background: red;
+  }
+
+  .highlight{
+    border-color:white;
+    z-index: 102 !important;
   }
 </style>

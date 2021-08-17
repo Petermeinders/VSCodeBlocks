@@ -67,6 +67,31 @@
       callback: (e) => console.log(e),
       area: document.getElementById("area")
     });
+    
+    ds.subscribe("callback", (OnMhouseUpObject) => { 
+      if (OnMhouseUpObject.items.length > 0)
+      {
+        //DragStartObject.items[0]. 
+
+        let cards = document.querySelectorAll(".card");
+
+        cards.forEach(card => {
+          card.classList.remove("highlight");
+        })
+
+        OnMhouseUpObject.items[0].classList.add("highlight");
+
+        cards.forEach(card => {
+          if (card.getAttribute("data-parentId") === OnMhouseUpObject.items[0].id)
+          {
+            card.classList.add("highlight");
+          }
+        })
+
+
+        console.log("highlightme");
+      }
+    })
 
     ds.subscribe("dragstart", (DragStartObject) => {
       if (DragStartObject.isDragging) 
