@@ -1,3 +1,4 @@
+import { dbClickedItem } from './store';
 import { writable, derived } from "svelte/store";
 
 // export const items = writable([{id:0,name:""}]);
@@ -35,6 +36,10 @@ let originNewRender = 0;
 let originFilteredTree:FilteredTree;
 
 let originZoom = 1;
+
+let originDbClickedItem = {};
+
+let originCurrentlySelected = [];
 
 let originFlatTree = [];
 
@@ -115,6 +120,20 @@ if (tsvscode.getState()?.p !== undefined) {
 //   tsvscode.setState(originTags);
 // }
 
+
+export const currentlySelected = writable(originCurrentlySelected, (set) => {
+   console.log("debug: " + originCurrentlySelected);
+
+   //set([{id:0, name:""}]);
+   return () => { };
+});
+
+export const dbClickedItem = writable(originDbClickedItem, (set) => {
+   console.log("debug: " + originDbClickedItem);
+
+   //set([{id:0, name:""}]);
+   return () => { };
+});
 
 export const currentZoom = writable(originZoom, (set) => {
    console.log("debug: " + originZoom);

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { filteredTree, flatTree, newRender, currentZoom } from "../../store";
+  import { filteredTree, flatTree, newRender, currentZoom, dbClickedItem, currentlySelected } from "../../store";
   import Card from "./Card.svelte";
   import { onMount, afterUpdate, beforeUpdate, tick } from "svelte";
   import DragSelect from "dragselect";
@@ -50,7 +50,10 @@
   $: {
     $flatTree;
     $newRender;
+    
   }
+
+  $:$dbClickedItem, onDoubleClicked();
 
   // $: $filteredTree, RenderBlocks();
 
@@ -61,6 +64,33 @@
     });
   }
 
+  function onDoubleClicked(){
+    if (typeof($dbClickedItem.id) !== 'undefined')
+        {
+          console.log("DOUBLE CLICK YO");
+
+          let cards = document.querySelectorAll(".card");
+          let selectedList = [];
+
+          cards.forEach(card => {
+          if ((card.getAttribute("data-parentId").toString() === $dbClickedItem.id.toString()) ||
+          $dbClickedItem.parentId.toString()=== card.id.toString())
+          {
+            selectedList.push(card);
+            card.classList.add("highlight");
+          }
+        })
+
+        let id = $dbClickedItem.id;
+        let thisCard = document.getElementById(id);
+        selectedList.push(thisCard);
+        $currentlySelected = selectedList;
+
+          ds.setSelection(selectedList);
+          $dbClickedItem = {};
+        }
+  }
+
   onMount(async () => {
     ds = new DragSelect({
       selectables: document.getElementsByClassName("card"),
@@ -68,8 +98,8 @@
       area: document.getElementById("area")
     });
     
-    ds.subscribe("callback", (OnMhouseUpObject) => { 
-      if (OnMhouseUpObject.items.length > 0)
+    ds.subscribe("callback", (OnMouseUpObject) => { 
+      if (OnMouseUpObject.items.length === 1)
       {
         //DragStartObject.items[0]. 
 
@@ -79,17 +109,26 @@
           card.classList.remove("highlight");
         })
 
-        OnMhouseUpObject.items[0].classList.add("highlight");
+        OnMouseUpObject.items[0].classList.add("highlight");
 
         cards.forEach(card => {
-          if (card.getAttribute("data-parentId") === OnMhouseUpObject.items[0].id)
+          if ((card.getAttribute("data-parentId") === OnMouseUpObject.items[0].id) ||
+          OnMouseUpObject.items[0].getAttribute("data-parentId") === card.id)
           {
             card.classList.add("highlight");
+            $currentlySelected.push(card);
           }
         })
 
 
         console.log("highlightme");
+
+       
+      }
+
+      if (OnMouseUpObject.items.length === 0 && OnMouseUpObject.event.target.nodeName !== "BUTTON")
+      {
+        $currentlySelected = [];
       }
     })
 
@@ -360,6 +399,34 @@
       value: true,
     });
   }
+
+  function GroupSelection(){
+
+  }
+
+  function OrganizeSelected(){
+    //let selected = ds.getSelection();
+    console.log($currentlySelected);
+
+
+
+        let childPos = $currentlySelected[0].getBoundingClientRect();
+        let parentPos = $currentlySelected[0].parentElement.getBoundingClientRect();
+        let firstX = childPos.x - parentPos.x;
+        let firstY = childPos.y - parentPos.y;
+        
+    $currentlySelected.reverse();
+
+    $currentlySelected.forEach(item => 
+    {
+      item.getBoundingClientRect();
+      let translate = "translate3d("+firstX+"px, "+firstY+"px, 1px) scale("+$currentZoom+")";
+      
+      item.style.transform = translate;
+      firstY += 56;
+      ds.addSelection(item);
+    })
+  }
 </script>
 
 <main id="area" style="width:100%; height:100%; position:fixed;">
@@ -367,6 +434,7 @@
   <button type="button" on:click={SaveCodeMapToFile}>Save CodeMap</button>
 
   <button type="button" on:click={LoadCodeMap}>Load CodeMap</button>
+  <button type="button" on:click={OrganizeSelected}>Cleanup Selected</button>
 
   {#if $flatTree}
     <div class="zoom">

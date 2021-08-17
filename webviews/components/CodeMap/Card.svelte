@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { filteredTree, flatTree, newRender, currentZoom } from "../../store";
+  import { filteredTree, flatTree, newRender, currentZoom, dbClickedItem } from "../../store";
   import type { FilteredTree } from "../store";
   import lodash, { flatten } from "lodash";
   import deepdash from "deepdash";
@@ -16,11 +16,20 @@
   });
 
   console.log("rerender this item!")
+
+  function GroupClick()
+  {
+    console.log("groupclick");
+    $dbClickedItem = {
+      id: treeItem.id,
+      parentId: treeItem.parentId
+    }
+  }
 </script>
 
 <div class="ds-selected ds-hover absolute" style="display:none" />
 
-<main style="z-index:101; {treeItem.locationX !== 0 ? 'transform: translate3d('+treeItem.locationX+'px, '+treeItem.locationY+'px, 1px) scale('+$currentZoom+');' : ''}"
+<main  on:dblclick={GroupClick} style="z-index:101; {treeItem.locationX !== 0 ? 'transform: translate3d('+treeItem.locationX+'px, '+treeItem.locationY+'px, 1px) scale('+$currentZoom+');' : ''}"
   id={treeItem.id}
   data-fileType={treeItem.type}
   data-parentId={treeItem.parentId}
@@ -30,6 +39,7 @@
   data-y2={treeItem.y2}
   class="card absolute highlight {treeItem.type === 'directory' ? 'directory' : 'file'}"
 >
+<!-- <button type=Button on:dblclick={GroupClick}>O</button> -->
   <button type="button" class="inner-hide"> {treeItem.name}</button>
 </main>
 
@@ -99,7 +109,7 @@
   }
 
   .ds-selected {
-    outline: 3px solid black;
+    outline: 3px solid red;
     outline-offset: 3px;
     color: black;
     font-weight: bold;
