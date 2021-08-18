@@ -29,7 +29,7 @@
 
 <div class="ds-selected ds-hover absolute" style="display:none" />
 
-<main  on:dblclick={GroupClick} style="z-index:101; {treeItem.locationX !== 0 ? 'transform: translate3d('+treeItem.locationX+'px, '+treeItem.locationY+'px, 1px) scale('+$currentZoom+');' : ''}"
+<main  on:dblclick={GroupClick} style="z-index:101; {treeItem.locationX !== 0 && treeItem.locationY !== 0 ? 'transform: translate3d('+treeItem.locationX+'px, '+treeItem.locationY+'px, 1px) scale('+$currentZoom+');' : ''}"
   id={treeItem.id}
   data-fileType={treeItem.type}
   data-parentId={treeItem.parentId}

@@ -383,7 +383,11 @@ export class HellowWorldPanel {
 
             }
           );
-        
+
+          let TreeObj = {};
+          TreeObj.canvas = filtrate;
+          // TreeObj.sidebar = {};
+          // TreeObj.settings;
          console.log('Filtrate',filtrate);
 
           // console.log(filteredTree);
