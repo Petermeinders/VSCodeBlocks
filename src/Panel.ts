@@ -246,11 +246,11 @@ export class HellowWorldPanel {
     // );
   }
 
-  public ReturnFileTree(filteredTree: any) {
+  public ReturnFileTree(codeMap: any) {
     if (typeof HellowWorldPanel.currentPanel !== "undefined") {
       HellowWorldPanel.currentPanel._panel.webview.postMessage({
         type: "filtered-tree",
-        value: filteredTree,
+        value: codeMap,
       });
     } else {
       console.log("tree error");
@@ -384,17 +384,17 @@ export class HellowWorldPanel {
             }
           );
 
-          let TreeObj = {};
-          TreeObj.canvas = filtrate;
-          // TreeObj.sidebar = {};
+          let codeMap = {};
+          codeMap.canvas = filtrate;
+          codeMap.pocket = [];
           // TreeObj.settings;
-         console.log('Filtrate',filtrate);
+         console.log('Filtrate',codeMap);
 
           // console.log(filteredTree);
 
 
 
-          this.ReturnFileTree(filteredTree);
+          this.ReturnFileTree(codeMap);
 
           // let files = vscode.workspace.fs.readDirectory(rootFolder.uri).then((files) => {
           //   files.forEach((file) => {

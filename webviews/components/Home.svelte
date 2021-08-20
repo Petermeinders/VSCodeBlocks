@@ -5,7 +5,7 @@
   import { debug, editItem, editMode, items } from "../store";
   import { tags } from "../store";
   import { page } from "../store";
-  import { filteredTree } from "../store";
+  import { codeMap } from "../store";
   import EditScreen from "./EditScreen.svelte";
   import levenshtein from "fast-levenshtein";
   import LinkedBlocks from "./LinkedBlocks.svelte";
@@ -175,10 +175,9 @@
           break;
 
         case "filtered-tree":
-          $filteredTree = message.value;
+          $codeMap = message.value;
           console.log("FILTERED TREE RETURNSSS");
-          console.log($filteredTree);
-          //FilteredTreeExample(filteredTree);
+          console.log($codeMap);
           break;
 
         case "selection-to-search":
@@ -240,11 +239,11 @@
 
           case "import-code-map-from-file":
           if (typeof message.value === "string") {
-            $filteredTree = JSON.parse(message.value);
+            $codeMap = JSON.parse(message.value);
           } else {
-            $filteredTree = message.value;
+            $codeMap = message.value;
           }
-          if ($debug) console.log($filteredTree);
+          if ($debug) console.log($codeMap);
           break;
       }
     });

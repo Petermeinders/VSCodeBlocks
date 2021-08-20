@@ -1,6 +1,5 @@
 <script lang="ts">
-  import { filteredTree, flatTree, newRender, currentZoom, dbClickedItem } from "../../store";
-  import type { FilteredTree } from "../store";
+  import { flatTree, newRender, currentZoom, dbClickedItem } from "../../store";
   import lodash, { flatten } from "lodash";
   import deepdash from "deepdash";
   import { afterUpdate } from "svelte";

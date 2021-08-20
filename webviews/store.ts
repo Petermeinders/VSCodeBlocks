@@ -1,4 +1,4 @@
-import { dbClickedItem } from './store';
+import { dbClickedItem, FilteredTreeasCodeMap, filteredTree } from './store';
 import { writable, derived } from "svelte/store";
 
 // export const items = writable([{id:0,name:""}]);
@@ -16,16 +16,26 @@ export interface Item {
 }
 
 export interface FilteredTree {
+  id:string,
   path:string,
   name:string,
   size:number,
   type:string,
+  parentId:string,
   outputx:number,
   outputy:number,
   inputx:number,
   inputy:number,
   children:[],
-  extension:string
+  extension:string,
+  locationX:string,
+  locationY:string,
+}
+
+export interface CodeMap {
+   canvas: FilteredTree,
+   flatTree: [FilteredTree],
+   pocket: [FilteredTree]
 }
 
 
@@ -33,7 +43,7 @@ type currentPanel = "editMode" | "codeBlocks" | "codeMap" | "settings";
 
 let originNewRender = 0;
 
-let originFilteredTree:FilteredTree;
+let originCodeMap:CodeMap;
 
 let originZoom = 1;
 
@@ -156,8 +166,8 @@ export const flatTree = writable(originFlatTree, (set) => {
    return () => { };
 });
 
-export const filteredTree = writable(originFilteredTree, (set) => {
-   console.log("debug: " + originFilteredTree);
+export const codeMap = writable(originCodeMap, (set) => {
+   console.log("debug: " + originCodeMap);
 
    //set([{id:0, name:""}]);
    return () => { };

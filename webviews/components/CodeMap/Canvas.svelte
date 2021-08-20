@@ -1,11 +1,37 @@
 <script lang="ts">
-  import { filteredTree, flatTree, newRender, currentZoom, dbClickedItem, currentlySelected } from "../../store";
+  import { codeMap, newRender, currentZoom, dbClickedItem, currentlySelected } from "../../store";
   import Card from "./Card.svelte";
   import { onMount, afterUpdate, beforeUpdate, tick } from "svelte";
   import DragSelect from "dragselect";
   import lodash, { set } from "lodash";
   import deepdash from "deepdash";
   import Line from "./Line.svelte";
+  import type {FilteredTree} from "../../store.ts"
+
+  import { flip } from "svelte/animate";
+  import { dndzone } from "svelte-dnd-action";
+
+  function RenderPocket() {
+    if($codeMap)
+    {
+      $codeMap.pocket = [
+        { id: "1", name: "item1" },
+        { id: "2", name: "item2" },
+        { id: "3", name: "item3" },
+        { id: "4", name: "item4" },
+      ];
+    }
+     
+    }
+  
+
+  const flipDurationMs = 300;
+  function handleDndConsider(e) {
+    $codeMap.pocket = e.detail.items;
+  }
+  function handleDndFinalize(e) {
+    $codeMap.pocket = e.detail.items;
+  }
 
   const _ = deepdash(lodash);
   let ds;
@@ -14,25 +40,19 @@
   let isMoving = false;
   let selectedBlocks;
 
-// Order:------------------
-// . OnMount()
-// . GetFiles() -> Panel -> Extension
-// ---removed . $FilteredTree is updated
-// . RenderBlocks()
-// . BeforeUpdate() -> RenderBlocks(), RenderLines()
-// . ?
-// ---removed . $FilteredTree is updated
-// . BeforeUpdate() -> RenderBlocks(), RenderLines()
-// . Afterupdate() -> BlocksToTreeStyleLayout(), AddCardsToDrag()
-// ---removed . $FilteredTree is updated
-// . RenderBlocks()
-// . BeforeUpdate() -> RenderBlocks(), RenderLines()
-
-
-
-
-
-
+  // Order:------------------
+  // . OnMount()
+  // . GetFiles() -> Panel -> Extension
+  // ---removed . $FilteredTree is updated
+  // . RenderBlocks()
+  // . BeforeUpdate() -> RenderBlocks(), RenderLines()
+  // . ?
+  // ---removed . $FilteredTree is updated
+  // . BeforeUpdate() -> RenderBlocks(), RenderLines()
+  // . Afterupdate() -> BlocksToTreeStyleLayout(), AddCardsToDrag()
+  // ---removed . $FilteredTree is updated
+  // . RenderBlocks()
+  // . BeforeUpdate() -> RenderBlocks(), RenderLines()
 
   //$: selectedBlocks, RenderLinesAfterMove();
 
@@ -48,103 +68,98 @@
   }
 
   $: {
-    $flatTree;
     $newRender;
-    
+    $codeMap;
   }
 
-  $:$dbClickedItem, onDoubleClicked();
+  $: $dbClickedItem, onDoubleClicked();
 
-  // $: $filteredTree, RenderBlocks();
 
   function SaveCodeMapToFile() {
     tsvscode.postMessage({
       type: "saveCodeMap",
-      value: $filteredTree,
+      value: $codeMap,
     });
   }
 
-  function onDoubleClicked(){
-    if (typeof($dbClickedItem.id) !== 'undefined')
-        {
-          console.log("DOUBLE CLICK YO");
+  function onDoubleClicked() {
+    if (typeof $dbClickedItem.id !== "undefined") {
+      console.log("DOUBLE CLICK YO");
 
-          let cards = document.querySelectorAll(".card");
-          let selectedList = [];
+      let cards = document.querySelectorAll(".card");
+      let selectedList = [];
 
-          cards.forEach(card => {
-          if ((card.getAttribute("data-parentId").toString() === $dbClickedItem.id.toString()) ||
-          $dbClickedItem.parentId.toString()=== card.id.toString())
-          {
-            selectedList.push(card);
-            card.classList.add("highlight");
-          }
-        })
-
-        let id = $dbClickedItem.id;
-        let thisCard = document.getElementById(id);
-        selectedList.push(thisCard);
-        $currentlySelected = selectedList;
-
-          ds.setSelection(selectedList);
-          $dbClickedItem = {};
+      cards.forEach((card) => {
+        if (
+          card.getAttribute("data-parentId").toString() === $dbClickedItem.id.toString() ||
+          $dbClickedItem.parentId.toString() === card.id.toString()
+        ) {
+          selectedList.push(card);
+          card.classList.add("highlight");
         }
+      });
+
+      let id = $dbClickedItem.id;
+      let thisCard = document.getElementById(id);
+      selectedList.push(thisCard);
+      $currentlySelected = selectedList;
+
+      ds.setSelection(selectedList);
+      $dbClickedItem = {};
+    }
   }
 
   onMount(async () => {
+    RenderPocket();
+
     ds = new DragSelect({
       selectables: document.getElementsByClassName("card"),
       callback: (e) => console.log(e),
-      area: document.getElementById("area")
+      area: document.getElementById("area"),
     });
-    
-    ds.subscribe("callback", (OnMouseUpObject) => { 
-      if (OnMouseUpObject.items.length === 1)
-      {
-        //DragStartObject.items[0]. 
+
+    ds.subscribe("callback", (OnMouseUpObject) => {
+      if (OnMouseUpObject.items.length === 1) {
+        //DragStartObject.items[0].
 
         let cards = document.querySelectorAll(".card");
 
-        cards.forEach(card => {
+        cards.forEach((card) => {
           card.classList.remove("highlight");
-        })
+        });
 
         OnMouseUpObject.items[0].classList.add("highlight");
 
-        cards.forEach(card => {
-          if ((card.getAttribute("data-parentId") === OnMouseUpObject.items[0].id) ||
-          OnMouseUpObject.items[0].getAttribute("data-parentId") === card.id)
-          {
+        cards.forEach((card) => {
+          if (
+            card.getAttribute("data-parentId") === OnMouseUpObject.items[0].id ||
+            OnMouseUpObject.items[0].getAttribute("data-parentId") === card.id
+          ) {
             card.classList.add("highlight");
             $currentlySelected.push(card);
           }
-        })
-
+        });
 
         console.log("highlightme");
-
-       
       }
 
-      if (OnMouseUpObject.items.length === 0 && OnMouseUpObject.event.target.nodeName !== "BUTTON")
-      {
+      if (OnMouseUpObject.items.length === 0 && OnMouseUpObject.event.target.nodeName !== "BUTTON") {
         $currentlySelected = [];
       }
-    })
+    });
 
     ds.subscribe("dragstart", (DragStartObject) => {
-      if (DragStartObject.isDragging) 
-      {
-      isMoving = true;
+      if (DragStartObject.isDragging) {
+        isMoving = true;
 
-      let childPos = DragStartObject.items[0].getBoundingClientRect();
+        let childPos = DragStartObject.items[0].getBoundingClientRect();
         let parentPos = DragStartObject.items[0].parentElement.getBoundingClientRect();
         let x = childPos.x - parentPos.x;
         let y = childPos.y - parentPos.y;
 
-        let translate = "translate3d("+x+"px, "+y+"px, 1px) scale("+$currentZoom+")";
+        let translate = "translate3d(" + x + "px, " + y + "px, 1px) scale(" + $currentZoom + ")";
 
-      DragStartObject.items[0].style.transform = translate;
+        DragStartObject.items[0].style.transform = translate;
       }
     });
 
@@ -154,8 +169,7 @@
 
       DragMovedObject.event.preventDefault();
 
-      if(DragMovedObject.isDragging)
-      {
+      if (DragMovedObject.isDragging) {
         let childPos = DragMovedObject.items[0].getBoundingClientRect();
         let parentPos = DragMovedObject.items[0].parentElement.getBoundingClientRect();
         let x = childPos.x - parentPos.x;
@@ -163,10 +177,8 @@
         // let translate = "translate3d("+x+"px, "+y+"px, 1px) scale(2)";
         // DragMovedObject.items[0].style.transform = translate;
 
-      //let transform = DragMovedObject.items[0].style.transform
+        //let transform = DragMovedObject.items[0].style.transform
       }
-    
-
     });
 
     ds.subscribe("callback", (DragEndedObject) => {
@@ -192,41 +204,53 @@
         // if (DragEndedObject.event.target.getAttribute("data-fileType") === "directory") {
         //   let id = DragEndedObject.event.target.id;
 
-        let filtrate = _.eachDeep($filteredTree, (value, key, parentValue, context) => {
-          DragEndedObject.items.forEach((itemInHand) => {
-            if (key === "id") {
-              if (value.toString() === itemInHand.id) {
-                console.log("update filtedTree");
-                console.log(parentValue);
-                console.log(context);
-                let childPos = itemInHand.getBoundingClientRect();
-                let parentPos = itemInHand.parentElement.getBoundingClientRect();
-                let x = childPos.x - parentPos.x;
-                let y = childPos.y - parentPos.y;
+        // let filtrate = _.eachDeep($codeMap, (value, key, parentValue, context) => {
+        //   DragEndedObject.items.forEach((itemInHand) => {
+        //     if (key === "id") {
+        //       if (value.toString() === itemInHand.id) {
+        //         console.log("update filtedTree");
+        //         console.log(parentValue);
+        //         console.log(context);
+        //         let childPos = itemInHand.getBoundingClientRect();
+        //         let parentPos = itemInHand.parentElement.getBoundingClientRect();
+        //         let x = childPos.x - parentPos.x;
+        //         let y = childPos.y - parentPos.y;
 
-                parentValue.locationX = x;
-                parentValue.locationY = y;
-              }
-            }
-          });
-        });
+        //         parentValue.locationX = x;
+        //         parentValue.locationY = y;
+        //       }
+        //     }
+        //   });
+        // });
 
         selectedBlocks = DragEndedObject.items;
         //RenderLines(DragEndedObject);
 
-        $flatTree = [];
+        $codeMap.flatTree;
 
-        let childPos2 = DragEndedObject.items[0].getBoundingClientRect();
-        let parentPos2 = DragEndedObject.items[0].parentElement.getBoundingClientRect();
+        DragEndedObject.items.forEach(block => {
+        let childPos2 = block.getBoundingClientRect();
+        let parentPos2 = block.parentElement.getBoundingClientRect();
         let x2 = childPos2.x - parentPos2.x;
         let y2 = childPos2.y - parentPos2.y;
-        let translate = "translate3d("+x2+"px, "+y2+"px, 1px) scale("+$currentZoom+")";
-        DragEndedObject.items[0].style.transform = translate;
+        let translate = "translate3d(" + x2 + "px, " + y2 + "px, 1px) scale(" + $currentZoom + ")";
+        block.style.transform = translate;
 
-        // if (!$flatTree)
-        // {
-        //   RenderBlocks();
-        // }
+        let tempvalues;
+        let fakeMap = $codeMap.flatTree;
+
+        $codeMap.flatTree.forEach(flatBlock => {
+          if (flatBlock.id.toString() === block.id)
+          {
+            let indexOfFlatBlock = $codeMap.flatTree.indexOf(flatBlock);
+            tempvalues = flatBlock;
+            tempvalues.locationX = x2.toString();
+            tempvalues.locationY = y2.toString();
+            fakeMap.splice(indexOfFlatBlock, 1, tempvalues);
+          }
+        })
+        $codeMap.flatTree = [...new Set(fakeMap)];
+        })
       }
     });
   });
@@ -244,14 +268,19 @@
 
   function RenderBlocks() {
     if (!isMoving) {
-      if ($filteredTree) {
-        //faketree = _.cloneDeep($filteredTree.children);
-        faketree = JSON.parse(JSON.stringify($filteredTree.children))
+      if ($codeMap?.flatTree)
+      {
+        $codeMap.flatTree = [...new Set($codeMap.flatTree)];
+        return;
+      }
+      
+      if ($codeMap?.canvas) {
+        faketree = JSON.parse(JSON.stringify($codeMap.canvas.children));
         FlattenTree(faketree);
 
-       // faketree = _.index(faketree)
+        // faketree = _.index(faketree)
 
-        $flatTree = [...new Set(faketree)];
+        $codeMap.flatTree = [...new Set(faketree)];
       }
     }
   }
@@ -287,38 +316,57 @@
   }
 
   function RenderLines() {
-    if (!$flatTree) {
+    if (!$codeMap?.flatTree) {
       return;
     }
 
-    $flatTree.forEach((item1) => {
-      $flatTree.forEach((item2) => {
+    $codeMap.flatTree.forEach((item1) => {
+      $codeMap.flatTree.forEach((item2) => {
         if (item1.parentId === item2.id) {
           //lines.forEach((line) => {
           let id1 = "line" + item1.id;
           let id2 = "line" + item2.id;
 
-          let lineExists = lines.find((line) => (line.sourceId.toString() === item1.id.toString() && line.destId.toString() === item2.id.toString()) || (line.sourceId.toString() === item2.id.toString() && line.destId.toString === item1.id.toString()));
+          if (item1.name === "NestedStore.js")
+          console.log("testhere");
+
+          let lineExists = lines.find(
+            (line) =>
+              (line.sourceId.toString() === item1.id.toString() && line.destId.toString() === item2.id.toString()) ||
+              (line.sourceId.toString() === item2.id.toString() && line.destId.toString === item1.id.toString())
+          );
           let indexOfLine = lines.indexOf(lineExists);
 
-          if (item1.x2.toString() === "0") {
-            item1.x2 = item1.locationX;
-            item1.y2 = item1.locationY;
-
-            item2.x2 = item2.locationX;
-            item2.y2 = item2.locationY;
-          }
 
           if (lineExists && indexOfLine !== -1) {
-            lineExists.x1 = item1.x2;
-            lineExists.y1 = item1.y2;
+            lineExists.x1 =  item1.locationX;
+            lineExists.y1 =  item1.locationY;
 
-            lineExists.x2 = item2.x2;
-            lineExists.y2 = item2.y2;
-
-            //Splice?
+            lineExists.x2 = item2.locationX;
+             lineExists.y2 = item2.locationY;
 
             lines.splice(indexOfLine, 1, lineExists);
+
+          
+
+
+          // if (item1.x2.toString() === "0") {
+          //   item1.x2 = item1.locationX;
+          //   item1.y2 = item1.locationY;
+
+          //   item2.x2 = item2.locationX;
+          //   item2.y2 = item2.locationY;
+          // }
+          // else if (lineExists && indexOfLine !== -1) {
+          //   lineExists.x1 = item1.x2;
+          //   lineExists.y1 = item1.y2;
+
+          //   lineExists.x2 = item2.x2;
+          //   lineExists.y2 = item2.y2;
+
+          //   //Splice?
+
+          //   lines.splice(indexOfLine, 1, lineExists);
           } else {
             let line = { sourceId: item1.id, destId: item2.id, x1: item1.x2, y1: item1.y2, x2: item2.x2, y2: item2.y2 };
             lines.push(line);
@@ -331,7 +379,6 @@
     lines = lines;
     console.log("Rendered lines global");
   }
-
 
   // document.addEventListener("wheel", function (e) {
   //   const zoomElement = document.querySelector(".zoom");
@@ -349,7 +396,6 @@
   //   console.log($currentZoom);
   // });
 
-
   const GetFiles = () => {
     tsvscode.postMessage({
       type: "GetFiles",
@@ -358,7 +404,6 @@
   };
 
   GetFiles();
-
 
   function FlattenTree(newTree) {
     newTree.forEach((item) => {
@@ -400,61 +445,66 @@
     });
   }
 
-  function GroupSelection(){
+  function GroupSelection() {}
 
-  }
-
-  function OrganizeSelected(){
+  function OrganizeSelected() {
     //let selected = ds.getSelection();
     console.log($currentlySelected);
 
+    let childPos = $currentlySelected[0].getBoundingClientRect();
+    let parentPos = $currentlySelected[0].parentElement.getBoundingClientRect();
+    let firstX = childPos.x - parentPos.x;
+    let firstY = childPos.y - parentPos.y;
 
-
-        let childPos = $currentlySelected[0].getBoundingClientRect();
-        let parentPos = $currentlySelected[0].parentElement.getBoundingClientRect();
-        let firstX = childPos.x - parentPos.x;
-        let firstY = childPos.y - parentPos.y;
-        
     $currentlySelected.reverse();
 
-    $currentlySelected.forEach(item => 
-    {
+    $currentlySelected.forEach((item) => {
       item.getBoundingClientRect();
-      let translate = "translate3d("+firstX+"px, "+firstY+"px, 1px) scale("+$currentZoom+")";
-      
+      let translate = "translate3d(" + firstX + "px, " + firstY + "px, 1px) scale(" + $currentZoom + ")";
+
       item.style.transform = translate;
       firstY += 56;
       ds.addSelection(item);
-    })
+    });
   }
 </script>
 
-<main id="area" style="width:100%; height:100%; position:fixed;">
-  <div class="ds-selected" style="display:none" />
-  <button type="button" on:click={SaveCodeMapToFile}>Save CodeMap</button>
-
-  <button type="button" on:click={LoadCodeMap}>Load CodeMap</button>
-  <button type="button" on:click={OrganizeSelected}>Cleanup Selected</button>
-
-  {#if $flatTree}
-    <div class="zoom">
-      {#each $flatTree as treeItem}
-        <Card {treeItem} />
+<main>
+  <!-- {#if $codeMap?.pocket}
+    <section use:dndzone={{ items: $codeMap.pocket, flipDurationMs }} on:consider={handleDndConsider} on:finalize={handleDndFinalize}>
+      {#each $codeMap.pocket as item (item.id)}
+        <div id={item.id} animate:flip={{ duration: flipDurationMs }}>{item.name}</div>
       {/each}
-    </div>
-    <div>
-      {#each lines as line}
-        <!-- {#if LineCheck(line) === true} -->
+    </section>
+  {/if} -->
 
-        <Line sourceId={line.sourceId} destId={line.destId} x1={line.x1} x2={line.x2} y1={line.y1} y2={line.y2} />
-        <!-- {/if} -->
-      {/each}
-    </div>
-  {/if}
+  <div id="area" style="width:100%; height:100%; position:fixed;">
+    <div class="ds-selected" style="display:none" />
+    <button type="button" on:click={SaveCodeMapToFile}>Save CodeMap</button>
 
-  {#if $filteredTree}
-    {RenderBlocks()}
-  {/if}
+    <button type="button" on:click={LoadCodeMap}>Load CodeMap</button>
+    <button type="button" on:click={OrganizeSelected}>Cleanup Selected</button>
+
+    {#if $codeMap?.flatTree}
+      <div class="zoom">
+        {#each $codeMap.flatTree as treeItem}
+          <Card {treeItem} />
+        {/each}
+      </div>
+      <div>
+        {#each lines as line}
+          <!-- {#if LineCheck(line) === true} -->
+
+          <Line sourceId={line.sourceId} destId={line.destId} x1={line.x1} x2={line.x2} y1={line.y1} y2={line.y2} />
+          <!-- {/if} -->
+        {/each}
+      </div>
+    {/if}
+
+    {#if $codeMap}
+      {RenderBlocks()}
+    {/if}
+  </div>
 </main>
 
 <style>
@@ -499,5 +549,14 @@
   .file {
     border: solid 3px #4e58bf;
     background: #6e88ffcc;
+  }
+
+  section {
+    width: 50%;
+    padding: 0.3em;
+    border: 1px solid black;
+    /* this will allow the dragged element to scroll the list */
+    overflow: scroll;
+    height: 200px;
   }
 </style>
