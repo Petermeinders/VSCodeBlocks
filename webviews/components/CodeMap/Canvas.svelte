@@ -525,8 +525,15 @@
     });
   }
 
-  function MoveToCanvas(){
-
+  function MoveToCanvas(e){
+    $codeMap.pocket.forEach(block => {
+      if (block.id.toString() === e.target.id){
+        let index = $codeMap.pocket.indexOf(block);
+        $codeMap.pocket.splice(index,1);
+        $codeMap.flatTree.push(block);
+        $codeMap = $codeMap;
+      }
+    })
   }
 
   // const MoveToPocket = () => {
@@ -539,7 +546,7 @@
     <section use:dndzone={{ items: $codeMap.pocket, flipDurationMs }} on:consider={handleDndConsider} on:finalize={handleDndFinalize}>
       {#each $codeMap.pocket as item (item.id)}
         <div id={item.id} animate:flip={{ duration: flipDurationMs }}>{item.name} 
-          <button type="button" on:click={MoveToCanvas}>MoveMe</button>
+          <button id={item.id} type="button" on:click={(event) => MoveToCanvas(event)}>MoveMe</button>
 
         </div>
       {/each}
