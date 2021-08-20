@@ -552,8 +552,8 @@
   {#if $codeMap?.pocket}
     <section use:dndzone={{ items: $codeMap.pocket, flipDurationMs }} on:consider={handleDndConsider} on:finalize={handleDndFinalize}>
       {#each $codeMap.pocket as item (item.id)}
-        <div id={item.id} animate:flip={{ duration: flipDurationMs }}>{item.name} 
-          <button id={item.id} type="button" on:click={(event) => MoveToCanvas(event)}>MoveMe</button>
+        <div id={item.id} class="pocketblock" animate:flip={{ duration: flipDurationMs }}>{item.name} 
+          <button id={item.id} type="button" style="width:50px;" on:click={(event) => MoveToCanvas(event)}>Add</button>
 
         </div>
       {/each}
@@ -641,4 +641,17 @@
     overflow: scroll;
     height: 200px;
   }
+
+  .pocketblock {
+        height: 15%;
+        width: 100%;
+        margin: 0.4em 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #dddddd;
+        border: 1px solid white ;
+        color:black;
+        justify-content: space-between;
+    }
 </style>
