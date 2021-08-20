@@ -32,10 +32,16 @@ export interface FilteredTree {
   locationY:string,
 }
 
+export interface Group {
+   groupId:string,
+   blockIds:[string],
+}
+
 export interface CodeMap {
    canvas: FilteredTree,
    flatTree: [FilteredTree],
-   pocket: [FilteredTree]
+   pocket: [FilteredTree],
+   groups:[]
 }
 
 

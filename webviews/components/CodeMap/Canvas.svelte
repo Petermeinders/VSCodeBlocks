@@ -426,22 +426,29 @@
 
 
   function MoveToPocket(selectedBlocks, event){
+    let flatBlock = GetSelectedCodeBlocks(selectedBlocks);
+
+    flatBlock.forEach(flatBlock => {
+      let blockIndex = $codeMap.flatTree.indexOf(flatBlock);
+        $codeMap.pocket.push(flatBlock);
+        $codeMap.flatTree.splice(blockIndex, 1)
+        $codeMap.pocket = $codeMap.pocket;
+    })
+
+  }
+  
+
+  function GetSelectedCodeBlocks(selectedBlocks){
+    let blocksList = [];
     selectedBlocks.forEach(block => {
       $codeMap.flatTree.forEach(flatBlock => {
         if (flatBlock.id.toString() === block.id){
-          let blockIndex = $codeMap.flatTree.indexOf(flatBlock);
-          $codeMap.pocket.push(flatBlock);
-          $codeMap.flatTree.splice(blockIndex, 1)
-
-        $codeMap.pocket = $codeMap.pocket;
-
+          blocksList.push(flatBlock);
         }
       })
-
-      
-      
     })
 
+    return blocksList;
   }
 
   // document.addEventListener("wheel", function (e) {
@@ -548,6 +555,19 @@
   // const MoveToPocket = () => {
   //   console.log("get all the blocks!")
   // }
+
+  function GroupBlocks(){
+    // GetSelectedCodeBlocks();
+    // $currentlySelected.forEach((selectedItem) => {
+    //   $codeMap.flatTree.forEach(treeItem => {
+    //     if ()
+    //   let newGroup = {groupId:item.id}
+    //   $codeMap.groups.add({})
+    //   })
+    
+    // }
+
+  }
 </script>
 
 <main>
@@ -568,6 +588,8 @@
 
     <button type="button" on:click={LoadCodeMap}>Load CodeMap</button>
     <button type="button" on:click={OrganizeSelected}>Cleanup Selected</button>
+    <button type="button" on:click={GroupBlocks}>Group</button>
+
 
     {#if $codeMap?.flatTree}
       <div class="zoom">
