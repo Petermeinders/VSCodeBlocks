@@ -515,12 +515,14 @@
     //let selected = ds.getSelection();
     console.log($currentlySelected);
 
+// let clickedElement = $currentlySelected[0];
+
+    $currentlySelected.reverse();
+
     let childPos = $currentlySelected[0].getBoundingClientRect();
     let parentPos = $currentlySelected[0].parentElement.getBoundingClientRect();
     let firstX = childPos.x - parentPos.x;
     let firstY = childPos.y - parentPos.y;
-
-    $currentlySelected.reverse();
 
     $currentlySelected.forEach((item) => {
       item.getBoundingClientRect();
@@ -600,7 +602,7 @@
   }
 
   .card {
-    padding: 20px;
+    padding: 5px;
     user-select: none;
     /* width: 50px;
   height: 50px; */

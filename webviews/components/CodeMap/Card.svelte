@@ -98,7 +98,7 @@
     user-select: none;
   }
   .card {
-    padding: 20px;
+    padding: 5px;
     user-select: none;
     /* width: 50px;
   height: 50px; */
