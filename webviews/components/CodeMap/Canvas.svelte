@@ -17,10 +17,10 @@
       if ($codeMap.pocket.length < 5)
       {
         $codeMap.pocket = [
-        { id: "1", name: "item1" },
-        { id: "2", name: "item2" },
-        { id: "3", name: "item3" },
-        { id: "4", name: "item4" },
+        { id: "999", name: "item1" },
+        { id: "998", name: "item2" },
+        { id: "997", name: "item3" },
+        { id: "996", name: "item4" },
       ];
       }
      
@@ -122,7 +122,7 @@
 
     ds.subscribe("callback", (OnMouseUpObject) => {
       let buttonClick
-      
+
       if (OnMouseUpObject.event.target.nodeName === "BUTTON")
         buttonClick = true;
       else 
@@ -401,6 +401,17 @@
         }
       });
     });
+
+    lines.forEach(line => {
+    $codeMap.pocket.forEach(block => {
+        if (block.id.toString() === line.sourceId.toString() || block.id.toString() === line.destId.toString())
+        {
+          let lineIndex = lines.indexOf(line);
+          lines.splice(lineIndex, 1);
+          lines = lines;
+        }
+      })
+    })
 
     lines = lines;
     console.log("Rendered lines global");
