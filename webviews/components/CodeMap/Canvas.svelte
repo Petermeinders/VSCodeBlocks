@@ -147,12 +147,19 @@
             OnMouseUpObject.items[0].getAttribute("data-parentId") === card.id
           ) {
             card.classList.add("highlight");
-            $currentlySelected.push(card);
+            // $currentlySelected.push(card);
           }
         });
 
+        $currentlySelected.push(OnMouseUpObject.items[0]);
         console.log("highlightme");
       }
+
+      if (OnMouseUpObject.items.length === 1 && buttonClick && $currentlySelected.length === 1) {
+        $currentlySelected = [];
+        $currentlySelected.push(OnMouseUpObject.items[0]);
+      }
+
 
       if (OnMouseUpObject.items.length === 0 && OnMouseUpObject.event.target.nodeName !== "BUTTON") {
         $currentlySelected = [];
