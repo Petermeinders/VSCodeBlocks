@@ -10,6 +10,8 @@
   export let card;
   export let treeItem;
 
+  export let closeHandler = () => {};
+
   afterUpdate(() => {
     $newRender = $newRender++;
   });
@@ -23,6 +25,10 @@
       id: treeItem.id,
       parentId: treeItem.parentId
     }
+  }
+
+  function MoveToPocket(){
+    
   }
 </script>
 
@@ -38,7 +44,8 @@
   data-y2={treeItem.y2}
   class="card absolute highlight {treeItem.type === 'directory' ? 'directory' : 'file'}"
 >
-<!-- <button type=Button on:dblclick={GroupClick}>O</button> -->
+<button id="MoveToPocket" on:click={closeHandler}>O</button>
+
   <button type="button" class="inner-hide"> {treeItem.name}</button>
 </main>
 

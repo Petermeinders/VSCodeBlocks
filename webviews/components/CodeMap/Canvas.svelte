@@ -14,15 +14,18 @@
   function RenderPocket() {
     if($codeMap)
     {
-      $codeMap.pocket = [
+      if ($codeMap.pocket.length < 5)
+      {
+        $codeMap.pocket = [
         { id: "1", name: "item1" },
         { id: "2", name: "item2" },
         { id: "3", name: "item3" },
         { id: "4", name: "item4" },
       ];
-    }
+      }
      
     }
+  }
   
 
   const flipDurationMs = 300;
@@ -110,7 +113,6 @@
   }
 
   onMount(async () => {
-    RenderPocket();
 
     ds = new DragSelect({
       selectables: document.getElementsByClassName("card"),
@@ -119,7 +121,14 @@
     });
 
     ds.subscribe("callback", (OnMouseUpObject) => {
-      if (OnMouseUpObject.items.length === 1) {
+      let buttonClick
+      
+      if (OnMouseUpObject.event.target.nodeName === "BUTTON")
+        buttonClick = true;
+      else 
+        buttonClick = false;
+
+      if (OnMouseUpObject.items.length === 1 && !buttonClick) {
         //DragStartObject.items[0].
 
         let cards = document.querySelectorAll(".card");
@@ -129,6 +138,8 @@
         });
 
         OnMouseUpObject.items[0].classList.add("highlight");
+
+        $currentlySelected = [];
 
         cards.forEach((card) => {
           if (
@@ -146,6 +157,19 @@
       if (OnMouseUpObject.items.length === 0 && OnMouseUpObject.event.target.nodeName !== "BUTTON") {
         $currentlySelected = [];
       }
+
+      if (OnMouseUpObject.items.length > 1  && OnMouseUpObject.isDragging === false) {
+        $currentlySelected = [];
+        OnMouseUpObject.items.forEach(card => {
+          $currentlySelected.push(card);
+        })
+      }
+
+      if (OnMouseUpObject.event.target.nodeName === "BUTTON" && OnMouseUpObject.event.target.id === "MoveToPocket") {
+        MoveToPocket($currentlySelected, OnMouseUpObject.event)
+      }
+
+
     });
 
     ds.subscribe("dragstart", (DragStartObject) => {
@@ -252,6 +276,8 @@
         $codeMap.flatTree = [...new Set(fakeMap)];
         })
       }
+
+      RenderPocket();
     });
   });
 
@@ -380,6 +406,26 @@
     console.log("Rendered lines global");
   }
 
+
+  function MoveToPocket(selectedBlocks, event){
+    selectedBlocks.forEach(block => {
+      $codeMap.flatTree.forEach(flatBlock => {
+        if (flatBlock.id.toString() === block.id){
+          let blockIndex = $codeMap.flatTree.indexOf(flatBlock);
+          $codeMap.pocket.push(flatBlock);
+          $codeMap.flatTree.splice(blockIndex, 1)
+
+        $codeMap.pocket = $codeMap.pocket;
+
+        }
+      })
+
+      
+      
+    })
+
+  }
+
   // document.addEventListener("wheel", function (e) {
   //   const zoomElement = document.querySelector(".zoom");
 
@@ -467,16 +513,27 @@
       ds.addSelection(item);
     });
   }
+
+  function MoveToCanvas(){
+
+  }
+
+  // const MoveToPocket = () => {
+  //   console.log("get all the blocks!")
+  // }
 </script>
 
 <main>
-  <!-- {#if $codeMap?.pocket}
+  {#if $codeMap?.pocket}
     <section use:dndzone={{ items: $codeMap.pocket, flipDurationMs }} on:consider={handleDndConsider} on:finalize={handleDndFinalize}>
       {#each $codeMap.pocket as item (item.id)}
-        <div id={item.id} animate:flip={{ duration: flipDurationMs }}>{item.name}</div>
+        <div id={item.id} animate:flip={{ duration: flipDurationMs }}>{item.name} 
+          <button type="button" on:click={MoveToCanvas}>MoveMe</button>
+
+        </div>
       {/each}
     </section>
-  {/if} -->
+  {/if}
 
   <div id="area" style="width:100%; height:100%; position:fixed;">
     <div class="ds-selected" style="display:none" />
