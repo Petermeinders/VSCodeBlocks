@@ -1,31 +1,27 @@
 <script lang="ts">
-  import { codeMap, newRender, currentZoom, dbClickedItem, currentlySelected } from "../../store";
-  import type {Group} from "../../store"
+  import { codeMap, newRender, currentZoom, dbClickedItem, currentlySelected, flatTree } from "../../store";
+  import type { Group } from "../../store";
   import Card from "./Card.svelte";
   import { onMount, afterUpdate, beforeUpdate, tick } from "svelte";
   import DragSelect from "dragselect";
-  import lodash from "lodash";
+  import lodash, { flatMap } from "lodash";
   import deepdash from "deepdash";
   import Line from "./Line.svelte";
   import { flip } from "svelte/animate";
   import { dndzone } from "svelte-dnd-action";
 
   function RenderPocket() {
-    if($codeMap)
-    {
-      if ($codeMap.pocket.length < 5)
-      {
+    if ($codeMap) {
+      if ($codeMap.pocket.length < 5) {
         $codeMap.pocket = [
-        { id: "999", name: "item1" },
-        { id: "998", name: "item2" },
-        { id: "997", name: "item3" },
-        { id: "996", name: "item4" },
-      ];
+          { id: "999", name: "item1" },
+          { id: "998", name: "item2" },
+          { id: "997", name: "item3" },
+          { id: "996", name: "item4" },
+        ];
       }
-     
     }
   }
-  
 
   const flipDurationMs = 300;
   function handleDndConsider(e) {
@@ -76,7 +72,6 @@
 
   $: $dbClickedItem, onDoubleClicked();
 
-
   function SaveCodeMapToFile() {
     tsvscode.postMessage({
       type: "saveCodeMap",
@@ -112,7 +107,6 @@
   }
 
   onMount(async () => {
-
     ds = new DragSelect({
       selectables: document.getElementsByClassName("card"),
       callback: (e) => console.log(e),
@@ -120,12 +114,10 @@
     });
 
     ds.subscribe("callback", (OnMouseUpObject) => {
-      let buttonClick
+      let buttonClick;
 
-      if (OnMouseUpObject.event.target.nodeName === "BUTTON")
-        buttonClick = true;
-      else 
-        buttonClick = false;
+      if (OnMouseUpObject.event.target.nodeName === "BUTTON") buttonClick = true;
+      else buttonClick = false;
 
       if (OnMouseUpObject.items.length === 1 && !buttonClick) {
         //DragStartObject.items[0].
@@ -160,24 +152,20 @@
       }
 
       if (OnMouseUpObject.items.length === 0 && OnMouseUpObject.event.target.id === "GroupBlocks") {
-
-      }
-      else if (OnMouseUpObject.items.length === 0 && OnMouseUpObject.event.target.nodeName !== "BUTTON") {
+      } else if (OnMouseUpObject.items.length === 0 && OnMouseUpObject.event.target.nodeName !== "BUTTON") {
         $currentlySelected = [];
       }
 
-      if (OnMouseUpObject.items.length > 1  && OnMouseUpObject.isDragging === false) {
+      if (OnMouseUpObject.items.length > 1 && OnMouseUpObject.isDragging === false) {
         $currentlySelected = [];
-        OnMouseUpObject.items.forEach(card => {
+        OnMouseUpObject.items.forEach((card) => {
           $currentlySelected.push(card);
-        })
+        });
       }
 
       if (OnMouseUpObject.event.target.nodeName === "BUTTON" && OnMouseUpObject.event.target.id === "MoveToPocket") {
-        MoveToPocket($currentlySelected, OnMouseUpObject.event)
+        MoveToPocket($currentlySelected, OnMouseUpObject.event);
       }
-
-
     });
 
     ds.subscribe("dragstart", (DragStartObject) => {
@@ -260,29 +248,28 @@
 
         $codeMap.flatTree;
 
-        DragEndedObject.items.forEach(block => {
-        let childPos2 = block.getBoundingClientRect();
-        let parentPos2 = block.parentElement.getBoundingClientRect();
-        let x2 = childPos2.x - parentPos2.x;
-        let y2 = childPos2.y - parentPos2.y;
-        let translate = "translate3d(" + x2 + "px, " + y2 + "px, 1px) scale(" + $currentZoom + ")";
-        block.style.transform = translate;
+        DragEndedObject.items.forEach((block) => {
+          let childPos2 = block.getBoundingClientRect();
+          let parentPos2 = block.parentElement.getBoundingClientRect();
+          let x2 = childPos2.x - parentPos2.x;
+          let y2 = childPos2.y - parentPos2.y;
+          let translate = "translate3d(" + x2 + "px, " + y2 + "px, 1px) scale(" + $currentZoom + ")";
+          block.style.transform = translate;
 
-        let tempvalues;
-        let fakeMap = $codeMap.flatTree;
+          let tempvalues;
+          let fakeMap = $codeMap.flatTree;
 
-        $codeMap.flatTree.forEach(flatBlock => {
-          if (flatBlock.id.toString() === block.id)
-          {
-            let indexOfFlatBlock = $codeMap.flatTree.indexOf(flatBlock);
-            tempvalues = flatBlock;
-            tempvalues.locationX = x2.toString();
-            tempvalues.locationY = y2.toString();
-            fakeMap.splice(indexOfFlatBlock, 1, tempvalues);
-          }
-        })
-        $codeMap.flatTree = [...new Set(fakeMap)];
-        })
+          $codeMap.flatTree.forEach((flatBlock) => {
+            if (flatBlock.id.toString() === block.id) {
+              let indexOfFlatBlock = $codeMap.flatTree.indexOf(flatBlock);
+              tempvalues = flatBlock;
+              tempvalues.locationX = x2.toString();
+              tempvalues.locationY = y2.toString();
+              fakeMap.splice(indexOfFlatBlock, 1, tempvalues);
+            }
+          });
+          $codeMap.flatTree = [...new Set(fakeMap)];
+        });
       }
 
       RenderPocket();
@@ -302,12 +289,11 @@
 
   function RenderBlocks() {
     if (!isMoving) {
-      if ($codeMap?.flatTree)
-      {
+      if ($codeMap?.flatTree) {
         $codeMap.flatTree = [...new Set($codeMap.flatTree)];
         return;
       }
-      
+
       if ($codeMap?.canvas) {
         faketree = JSON.parse(JSON.stringify($codeMap.canvas.children));
         FlattenTree(faketree);
@@ -361,8 +347,7 @@
           let id1 = "line" + item1.id;
           let id2 = "line" + item2.id;
 
-          if (item1.name === "NestedStore.js")
-          console.log("testhere");
+          if (item1.name === "NestedStore.js") console.log("testhere");
 
           let lineExists = lines.find(
             (line) =>
@@ -371,36 +356,32 @@
           );
           let indexOfLine = lines.indexOf(lineExists);
 
-
           if (lineExists && indexOfLine !== -1) {
-            lineExists.x1 =  item1.locationX;
-            lineExists.y1 =  item1.locationY;
+            lineExists.x1 = item1.locationX;
+            lineExists.y1 = item1.locationY;
 
             lineExists.x2 = item2.locationX;
-             lineExists.y2 = item2.locationY;
+            lineExists.y2 = item2.locationY;
 
             lines.splice(indexOfLine, 1, lineExists);
 
-          
+            // if (item1.x2.toString() === "0") {
+            //   item1.x2 = item1.locationX;
+            //   item1.y2 = item1.locationY;
 
+            //   item2.x2 = item2.locationX;
+            //   item2.y2 = item2.locationY;
+            // }
+            // else if (lineExists && indexOfLine !== -1) {
+            //   lineExists.x1 = item1.x2;
+            //   lineExists.y1 = item1.y2;
 
-          // if (item1.x2.toString() === "0") {
-          //   item1.x2 = item1.locationX;
-          //   item1.y2 = item1.locationY;
+            //   lineExists.x2 = item2.x2;
+            //   lineExists.y2 = item2.y2;
 
-          //   item2.x2 = item2.locationX;
-          //   item2.y2 = item2.locationY;
-          // }
-          // else if (lineExists && indexOfLine !== -1) {
-          //   lineExists.x1 = item1.x2;
-          //   lineExists.y1 = item1.y2;
+            //   //Splice?
 
-          //   lineExists.x2 = item2.x2;
-          //   lineExists.y2 = item2.y2;
-
-          //   //Splice?
-
-          //   lines.splice(indexOfLine, 1, lineExists);
+            //   lines.splice(indexOfLine, 1, lineExists);
           } else {
             let line = { sourceId: item1.id, destId: item2.id, x1: item1.x2, y1: item1.y2, x2: item2.x2, y2: item2.y2 };
             lines.push(line);
@@ -410,44 +391,40 @@
       });
     });
 
-    lines.forEach(line => {
-    $codeMap.pocket.forEach(block => {
-        if (block.id.toString() === line.sourceId.toString() || block.id.toString() === line.destId.toString())
-        {
+    lines.forEach((line) => {
+      $codeMap.pocket.forEach((block) => {
+        if (block.id.toString() === line.sourceId.toString() || block.id.toString() === line.destId.toString()) {
           let lineIndex = lines.indexOf(line);
           lines.splice(lineIndex, 1);
           lines = lines;
         }
-      })
-    })
+      });
+    });
 
     lines = lines;
     console.log("Rendered lines global");
   }
 
-
-  function MoveToPocket(selectedBlocks, event){
+  function MoveToPocket(selectedBlocks, event) {
     let flatBlock = GetSelectedCodeBlocks(selectedBlocks);
 
-    flatBlock.forEach(flatBlock => {
+    flatBlock.forEach((flatBlock) => {
       let blockIndex = $codeMap.flatTree.indexOf(flatBlock);
-        $codeMap.pocket.push(flatBlock);
-        $codeMap.flatTree.splice(blockIndex, 1)
-        $codeMap.pocket = $codeMap.pocket;
-    })
-
+      $codeMap.pocket.push(flatBlock);
+      $codeMap.flatTree.splice(blockIndex, 1);
+      $codeMap.pocket = $codeMap.pocket;
+    });
   }
-  
 
-  function GetSelectedCodeBlocks(selectedBlocks){
+  function GetSelectedCodeBlocks(selectedBlocks) {
     let blocksList = [];
-    selectedBlocks.forEach(block => {
-      $codeMap.flatTree.forEach(flatBlock => {
-        if (flatBlock.id.toString() === block.id.toString()){
+    selectedBlocks.forEach((block) => {
+      $codeMap.flatTree.forEach((flatBlock) => {
+        if (flatBlock.id.toString() === block.id.toString()) {
           blocksList.push(flatBlock);
         }
-      })
-    })
+      });
+    });
 
     return blocksList;
   }
@@ -517,12 +494,11 @@
     });
   }
 
-
   function OrganizeSelected() {
     //let selected = ds.getSelection();
     console.log($currentlySelected);
 
-// let clickedElement = $currentlySelected[0];
+    // let clickedElement = $currentlySelected[0];
 
     $currentlySelected.reverse();
 
@@ -541,57 +517,82 @@
     });
   }
 
-  function MoveToCanvas(e){
-    $codeMap.pocket.forEach(block => {
-      if (block.id.toString() === e.target.id){
+  function MoveToCanvas(e) {
+    $codeMap.pocket.forEach((block) => {
+      if (block.id.toString() === e.target.id) {
         let index = $codeMap.pocket.indexOf(block);
-        $codeMap.pocket.splice(index,1);
+        $codeMap.pocket.splice(index, 1);
         $codeMap.flatTree.push(block);
         $codeMap = $codeMap;
       }
-    })
+    });
   }
 
   // const MoveToPocket = () => {
   //   console.log("get all the blocks!")
   // }
 
-  function GroupBlocks(){
-     let blocks = GetSelectedCodeBlocks($currentlySelected);
+  function GroupBlocks() {
+    let blocks = GetSelectedCodeBlocks($currentlySelected);
 
     let lastItem = $codeMap?.groups?.slice(-1)[0]; //Check if any groups exist
     let newGroup;
-    if(lastItem)  //if group exists, increment id
-      {
-        let id = parseInt(lastItem.groupId);
-        id = ++id
-        newGroup = {groupId:id, blockIds:[]}
-      }
-      else
-      {
-        $codeMap.groups = Array<Group>();
-        newGroup = {groupId:1, blockIds:[]}
-      }
+    if (lastItem) {
+      //if group exists, increment id
+      let id = parseInt(lastItem.groupId);
+      id = ++id;
+      newGroup = { groupId: id, blockIds: [] };
+    } else {
+      $codeMap.groups = Array<Group>();
+      newGroup = { groupId: 1, blockIds: [] };
+    }
 
-     blocks.forEach(block => {
+    blocks.forEach((block) => {
       newGroup.blockIds.push(block.id);
-     })
+    });
 
-     let newSet = [...new Set(newGroup.blockIds)];
-     newGroup.blockIds = newSet;
-     $codeMap.groups.push(newGroup);
+    let newSet = [...new Set(newGroup.blockIds)];
+    newGroup.blockIds = newSet;
+    newGroup = RenderGroupRectangle(newGroup);
+    $codeMap.groups.push(newGroup);
+    
   }
 
-  function ColorGroup(group){
-    group.blockIds.forEach(blockId => {
-      $codeMap.flatTree.forEach(flatBlock => {
-        if (flatBlock.id === blockId)
-        {
-          flatBlock.
+  function RenderGroupRectangle(group) {
+    let leastX = 0;
+    let leastY = 0;
+    let greatestX = 0;
+    let greatestY = 0;
+
+    group.blockIds.forEach((blockId) => {
+      $codeMap.flatTree.forEach((flatBlock) => {
+        if (flatBlock.id === blockId) {
+            let x = parseInt(flatBlock.locationX);
+            let y = parseInt(flatBlock.locationY);
+
+            if (x > greatestX)
+              greatestX = x;
+
+            if (x < leastX)
+              leastX = x;
+
+            if (y > greatestY)
+              greatestY = y;
+
+            if (y < leastY)
+              leastY = y;
         }
-      })
-    })
-  }
+      });
+    });
+    let width =  greatestX - leastX;
+    let height = greatestY - leastY;
+
+    group.width = width;
+    group.height = height;
+    group.startXY = 
+
+    return group;
+ }
 
 </script>
 
@@ -599,9 +600,9 @@
   {#if $codeMap?.pocket}
     <section use:dndzone={{ items: $codeMap.pocket, flipDurationMs }} on:consider={handleDndConsider} on:finalize={handleDndFinalize}>
       {#each $codeMap.pocket as item (item.id)}
-        <div id={item.id} class="pocketblock" animate:flip={{ duration: flipDurationMs }}>{item.name} 
+        <div id={item.id} class="pocketblock" animate:flip={{ duration: flipDurationMs }}>
+          {item.name}
           <button id={item.id} type="button" style="width:50px;" on:click={(event) => MoveToCanvas(event)}>Add</button>
-
         </div>
       {/each}
     </section>
@@ -615,21 +616,64 @@
     <button type="button" on:click={OrganizeSelected}>Cleanup Selected</button>
     <button id="GroupBlocks" type="button" on:click={GroupBlocks}>Group</button>
 
-
+    <!-- SINGLE CARD -->
     {#if $codeMap?.flatTree}
       <div class="zoom">
+        <!-- Card -->
         {#each $codeMap.flatTree as treeItem}
+          <!-- {#if $codeMap?.groups}
+            {#each $codeMap?.groups as group}
+              {#each group.blockIds as blockid}
+                {#if blockid.toString() !== treeItem.toString()}
+                  <Card {treeItem} />
+                {/if}
+              {/each}
+            {/each}
+          {:else}
+            
+          {/if} -->
           <Card {treeItem} />
         {/each}
       </div>
-      <div>
-        {#each lines as line}
-          <!-- {#if LineCheck(line) === true} -->
 
-          <Line sourceId={line.sourceId} destId={line.destId} x1={line.x1} x2={line.x2} y1={line.y1} y2={line.y2} />
-          <!-- {/if} -->
+      <!-- Line -->
+      {#if lines}
+        <div>
+          {#each lines as line}
+            <Line sourceId={line.sourceId} destId={line.destId} x1={line.x1} x2={line.x2} y1={line.y1} y2={line.y2} />
+          {/each}
+        </div>
+      {/if}
+
+      <!-- GROUP STUFF -->
+      {#if $codeMap?.groups}
+        <!-- Groups Exits -->
+        {#each $codeMap.groups as group}
+        {@debug group}
+          <div id="group{group.groupId}" style="background:red; position:absolute;">
+              <canvas width={group.width} height={group.height}></canvas>
+
+
+
+            <!-- New Group Div -->
+            {#each $codeMap.flatTree as treeItem}
+              {#each group.blockIds as blockid}
+              <!-- {@debug group, blockid, treeItem} -->
+                {#if blockid.toString() === treeItem.id.toString()}
+                 
+                    <!-- <Card {treeItem} /> New Card -->
+                  
+
+                 
+                {/if}
+              {/each}
+            {/each}
+
+
+
+          </div>
         {/each}
-      </div>
+      {/if}
     {/if}
 
     {#if $codeMap}
@@ -692,15 +736,15 @@
   }
 
   .pocketblock {
-        height: 15%;
-        width: 100%;
-        margin: 0.4em 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background-color: #dddddd;
-        border: 1px solid white ;
-        color:black;
-        justify-content: space-between;
-    }
+    height: 15%;
+    width: 100%;
+    margin: 0.4em 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #dddddd;
+    border: 1px solid white;
+    color: black;
+    justify-content: space-between;
+  }
 </style>
