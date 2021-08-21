@@ -589,7 +589,7 @@
 
     group.width = width;
     group.height = height;
-    group.startXY = 
+    group.startXY;
 
     return group;
  }
