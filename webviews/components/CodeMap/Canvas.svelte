@@ -1,13 +1,12 @@
 <script lang="ts">
   import { codeMap, newRender, currentZoom, dbClickedItem, currentlySelected } from "../../store";
+  import type {Group} from "../../store"
   import Card from "./Card.svelte";
   import { onMount, afterUpdate, beforeUpdate, tick } from "svelte";
   import DragSelect from "dragselect";
-  import lodash, { set } from "lodash";
+  import lodash from "lodash";
   import deepdash from "deepdash";
   import Line from "./Line.svelte";
-  import type {FilteredTree} from "../../store.ts"
-
   import { flip } from "svelte/animate";
   import { dndzone } from "svelte-dnd-action";
 
@@ -160,8 +159,10 @@
         $currentlySelected.push(OnMouseUpObject.items[0]);
       }
 
+      if (OnMouseUpObject.items.length === 0 && OnMouseUpObject.event.target.id === "GroupBlocks") {
 
-      if (OnMouseUpObject.items.length === 0 && OnMouseUpObject.event.target.nodeName !== "BUTTON") {
+      }
+      else if (OnMouseUpObject.items.length === 0 && OnMouseUpObject.event.target.nodeName !== "BUTTON") {
         $currentlySelected = [];
       }
 
@@ -442,7 +443,7 @@
     let blocksList = [];
     selectedBlocks.forEach(block => {
       $codeMap.flatTree.forEach(flatBlock => {
-        if (flatBlock.id.toString() === block.id){
+        if (flatBlock.id.toString() === block.id.toString()){
           blocksList.push(flatBlock);
         }
       })
@@ -516,7 +517,6 @@
     });
   }
 
-  function GroupSelection() {}
 
   function OrganizeSelected() {
     //let selected = ds.getSelection();
@@ -557,17 +557,42 @@
   // }
 
   function GroupBlocks(){
-    // GetSelectedCodeBlocks();
-    // $currentlySelected.forEach((selectedItem) => {
-    //   $codeMap.flatTree.forEach(treeItem => {
-    //     if ()
-    //   let newGroup = {groupId:item.id}
-    //   $codeMap.groups.add({})
-    //   })
-    
-    // }
+     let blocks = GetSelectedCodeBlocks($currentlySelected);
 
+    let lastItem = $codeMap?.groups?.slice(-1)[0]; //Check if any groups exist
+    let newGroup;
+    if(lastItem)  //if group exists, increment id
+      {
+        let id = parseInt(lastItem.groupId);
+        id = ++id
+        newGroup = {groupId:id, blockIds:[]}
+      }
+      else
+      {
+        $codeMap.groups = Array<Group>();
+        newGroup = {groupId:1, blockIds:[]}
+      }
+
+     blocks.forEach(block => {
+      newGroup.blockIds.push(block.id);
+     })
+
+     let newSet = [...new Set(newGroup.blockIds)];
+     newGroup.blockIds = newSet;
+     $codeMap.groups.push(newGroup);
   }
+
+  function ColorGroup(group){
+    group.blockIds.forEach(blockId => {
+      $codeMap.flatTree.forEach(flatBlock => {
+        if (flatBlock.id === blockId)
+        {
+          flatBlock.
+        }
+      })
+    })
+  }
+
 </script>
 
 <main>
@@ -588,7 +613,7 @@
 
     <button type="button" on:click={LoadCodeMap}>Load CodeMap</button>
     <button type="button" on:click={OrganizeSelected}>Cleanup Selected</button>
-    <button type="button" on:click={GroupBlocks}>Group</button>
+    <button id="GroupBlocks" type="button" on:click={GroupBlocks}>Group</button>
 
 
     {#if $codeMap?.flatTree}

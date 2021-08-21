@@ -41,7 +41,7 @@ export interface CodeMap {
    canvas: FilteredTree,
    flatTree: [FilteredTree],
    pocket: [FilteredTree],
-   groups:[]
+   groups:Array<Group>
 }
 
 
