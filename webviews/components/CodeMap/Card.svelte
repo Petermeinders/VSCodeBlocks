@@ -3,6 +3,8 @@
   import lodash, { flatten } from "lodash";
   import deepdash from "deepdash";
   import { afterUpdate } from "svelte";
+  import Fa from "svelte-fa";
+  import { faFile, faFolder, faTrashRestore } from "@fortawesome/free-solid-svg-icons";
 
   const _ = deepdash(lodash);
   export let left = 30;
@@ -16,25 +18,26 @@
     $newRender = $newRender++;
   });
 
-  console.log("rerender this item!")
+  console.log("rerender this item!");
 
-  function GroupClick()
-  {
+  function GroupClick() {
     console.log("groupclick");
     $dbClickedItem = {
       id: treeItem.id,
-      parentId: treeItem.parentId
-    }
+      parentId: treeItem.parentId,
+    };
   }
 
-  function MoveToPocket(){
-    
-  }
+  function MoveToPocket() {}
 </script>
 
 <div class="ds-selected ds-hover absolute" style="display:none" />
 
-<main  on:dblclick={GroupClick} style=" background:{treeItem.color} ;z-index:101; {treeItem.locationX !== 0 && treeItem.locationY !== 0 ? 'transform: translate3d('+treeItem.locationX+'px, '+treeItem.locationY+'px, 1px) scale('+$currentZoom+');' : ''}"
+<main
+  on:dblclick={GroupClick}
+  style=" background:{treeItem.color} ;z-index:101; {treeItem.locationX !== 0 && treeItem.locationY !== 0
+    ? 'transform: translate3d(' + treeItem.locationX + 'px, ' + treeItem.locationY + 'px, 1px) scale(' + $currentZoom + ');'
+    : ''}"
   id={treeItem.id}
   data-fileType={treeItem.type}
   data-parentId={treeItem.parentId}
@@ -44,8 +47,14 @@
   data-y2={treeItem.y2}
   class="card absolute highlight {treeItem.type === 'directory' ? 'directory' : 'file'}"
 >
-<button id="MoveToPocket" on:click={closeHandler}>O</button>
+  <button id="MoveToPocket" on:click={closeHandler}><Fa size="1x" icon={faTrashRestore} style="color:red; padding-right: 4px; float:right" /></button>
+  {#if treeItem.type === "directory"}
+    <Fa size="1x" icon={faFolder} style="color:yellow; padding-right: 4px; padding-left:4px; float:right" />
+  {/if}
 
+  {#if treeItem.type === "file"}
+  <Fa size="1x" icon={faFile} style="color:white; padding-right: 4px; padding-left:4px; float:right" />
+{/if}
   <button type="button" class="inner-hide"> {treeItem.name}</button>
 </main>
 
@@ -98,11 +107,11 @@
     user-select: none;
   }
   .card {
-    padding: 5px;
+    /* padding: 5px; */
     user-select: none;
     /* width: 50px;
   height: 50px; */
-   
+
     display: flex;
     justify-content: center;
     align-items: center;
@@ -110,8 +119,8 @@
     border: 0;
   }
 
-  .absolute{
- position: absolute;
+  .absolute {
+    position: absolute;
   }
 
   .ds-selected {
@@ -143,8 +152,8 @@
     background: red;
   }
 
-  .highlight{
-    border-color:white;
+  .highlight {
+    border-color: white;
     z-index: 102 !important;
   }
 </style>

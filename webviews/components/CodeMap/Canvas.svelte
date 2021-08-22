@@ -754,7 +754,7 @@
     
   {/if}
 
-  <div id="area" style="width:100%; height:100%; position:fixed; top:200px;">
+  <div id="area" style="width:100%; height:100%; position:fixed; top:229px;">
     <div class="ds-selected" style="display:none" />
     <button type="button" on:click={SaveCodeMapToFile}>Save CodeMap</button>
 

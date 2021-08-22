@@ -495,7 +495,6 @@
 </script>
 
 <main>
-  {console.log("CurrentPanel:" + $items.settings.currentPanel)}
   {#if $items.settings.currentPanel === "codeBlocks"}
     <!-- PANEL -->
     <div style="display: flex, align-items: center">
