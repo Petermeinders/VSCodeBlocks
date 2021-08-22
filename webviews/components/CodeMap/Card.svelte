@@ -4,7 +4,7 @@
   import deepdash from "deepdash";
   import { afterUpdate } from "svelte";
   import Fa from "svelte-fa";
-  import { faFile, faFolder, faTrashRestore } from "@fortawesome/free-solid-svg-icons";
+  import { faBullseye, faFile, faFolder, faTrashRestore } from "@fortawesome/free-solid-svg-icons";
 
   const _ = deepdash(lodash);
   export let left = 30;
@@ -13,6 +13,8 @@
   export let treeItem;
 
   export let closeHandler = () => {};
+
+  export let SelectPerimeter = () => {};
 
   afterUpdate(() => {
     $newRender = $newRender++;
@@ -34,7 +36,7 @@
 <div class="ds-selected ds-hover absolute" style="display:none" />
 
 <main
-  on:dblclick={GroupClick}
+  
   style=" background:{treeItem.color} ;z-index:101; {treeItem.locationX !== 0 && treeItem.locationY !== 0
     ? 'transform: translate3d(' + treeItem.locationX + 'px, ' + treeItem.locationY + 'px, 1px) scale(' + $currentZoom + ');'
     : ''}"
@@ -55,6 +57,8 @@
   {#if treeItem.type === "file"}
   <Fa size="1x" icon={faFile} style="color:white; padding-right: 4px; padding-left:4px; float:right" />
 {/if}
+<button id="SelectPerimeter" on:click={GroupClick}><Fa size="1x" icon={faBullseye} style="color:red; padding-right: 4px; float:right" /></button>
+
   <button type="button" class="inner-hide"> {treeItem.name}</button>
 </main>
 

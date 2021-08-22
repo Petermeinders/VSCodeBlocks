@@ -170,10 +170,18 @@
         });
       }
 
-      if (OnMouseUpObject.event.target.nodeName === "BUTTON" && OnMouseUpObject.event.target.id === "MoveToPocket") {
+      let buttonName = CheckForButton(OnMouseUpObject);
+
+      if (buttonName === "MoveToPocket") {
         MoveToPocket($currentlySelected, OnMouseUpObject.event);
       }
+
+      if (buttonName === "SelectPerimeter")
+      {
+
+      }
     });
+
 
     ds.subscribe("dragstart", (DragStartObject) => {
       if (DragStartObject.isDragging) {
@@ -272,6 +280,18 @@
     BlocksToTreeStyleLayout();
     AddCardsToDrag();
   });
+
+  
+  function CheckForButton(OnMouseUpObject){
+      if (OnMouseUpObject.event.target.parentElement.parentElement.parentElement.parentElement.nodeName === "BUTTON")
+      {
+        return OnMouseUpObject.event.target.parentElement.parentElement.parentElement.parentElement.id;
+      }
+      else if (OnMouseUpObject.event.target.parentElement.nodeName === "BUTTON") 
+      {
+        return OnMouseUpObject.event.target.parentElement.id;
+      }
+    }
 
   function RenderBlocks() {
     if (!isMoving) {
@@ -413,11 +433,15 @@
   function MoveToPocket(selectedBlocks, event) {
     let flatBlock = GetSelectedCodeBlocks(selectedBlocks);
 
-    flatBlock.forEach((flatBlock) => {
-      let blockIndex = $codeMap.flatTree.indexOf(flatBlock);
-      $codeMap.pocket.push(flatBlock);
+    flatBlock.forEach((block) => {
+      let blockIndex = $codeMap.flatTree.indexOf(block);
+      if (blockIndex !== -1)
+      {
+      $codeMap.pocket.push(block);
       $codeMap.flatTree.splice(blockIndex, 1);
       $codeMap.pocket = $codeMap.pocket;
+      }
+    
     });
   }
 
@@ -878,7 +902,7 @@
     border: 1px solid black;
     /* this will allow the dragged element to scroll the list */
     overflow: scroll;
-    height: 200px;
+    height: 150px;
   }
 
   .pocketblock {
@@ -895,7 +919,7 @@
   }
 
   .groupInput {
-    height: 15%;
+    height: 60%;
     margin: 0.2em 0;
     display: flex;
     justify-content: center;
@@ -908,7 +932,7 @@
 
   .groupList{
     display: flex;
-    max-height:200px;
+    height:174px;
     overflow: scroll;
     width:49%;
     flex-direction: column;
