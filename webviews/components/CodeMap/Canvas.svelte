@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { codeMap, newRender, currentZoom, dbClickedItem, currentlySelected, flatTree, derivedGroups } from "../../store";
+  import { codeMap, newRender, currentZoom, dbClickedItem, currentlySelected, flatTree, derivedGroups, items } from "../../store";
   import type { Group } from "../../store";
   import Card from "./Card.svelte";
   import { onMount, afterUpdate, beforeUpdate, tick } from "svelte";
@@ -11,7 +11,7 @@
   import { dndzone } from "svelte-dnd-action";
   import Common from ".././Common.svelte";
   import Fa from "svelte-fa";
-  import { faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+  import { faCog, faCubes, faEyeSlash, faProjectDiagram } from "@fortawesome/free-solid-svg-icons";
 
   let common: Common;
 
@@ -700,11 +700,31 @@
   }
 
  }
+
+
+ function ShowSettings() {
+    console.log("not yet implemented");
+  }
+
+  function ShowCodeBlocks() {
+    $items.settings.currentPanel = "codeBlocks";
+  }
 </script>
 
 <main id="Canvas">
   <Common bind:this={common} />
-<h1 style="text-align:center;">Code Map</h1>
+<!-- <h1 style="text-align:center;">Code Map</h1> -->
+<div style="display: flex, align-items: center">
+  <h1 style="display: flex, align-items: center, justify-content: space-between;">
+    CodeMap
+    <span style="cursor: pointer; " on:click={() => ShowSettings()}
+      ><Fa size="1x" icon={faCog} style="color:#007acc; padding-right: 4px; float:right" />
+    </span>
+    <span style="cursor: pointer; " on:click={() => ShowCodeBlocks()}
+      ><Fa size="1x" icon={faCubes} style="color:#007acc; padding-right: 4px; float:right" />
+    </span>
+  </h1>
+</div>
 <hr>
   {#if $codeMap?.pocket}
   <div style="float:left; width:50%">
