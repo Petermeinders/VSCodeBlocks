@@ -176,7 +176,7 @@
 
         case "filtered-tree":
           $codeMap = message.value;
-          console.log("FILTERED TREE RETURNSSS");
+        
           console.log($codeMap);
           break;
 

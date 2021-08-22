@@ -377,6 +377,11 @@ export class HellowWorldPanel {
                 value.locationY = 0;
               }
 
+              if (typeof(value.visible) === 'undefined')
+              {
+                value.visible = true;
+              }
+
             
               }
 
@@ -384,7 +389,8 @@ export class HellowWorldPanel {
             }
           );
 
-          let codeMap = {};
+          let codeMap = {canvas:{}, pocket:[]};
+
           codeMap.canvas = filtrate;
           codeMap.pocket = [];
           // TreeObj.settings;

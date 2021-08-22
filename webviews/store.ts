@@ -22,6 +22,7 @@ export interface FilteredTree {
   size:number,
   type:string,
   color:string,
+  visible:boolean,
   parentId:string,
   outputx:number,
   outputy:number,
@@ -38,6 +39,7 @@ export interface Group {
    blockIds:[string],
    color:string,
    name:string,
+   visible:boolean,
 }
 
 export interface CodeMap {
@@ -45,6 +47,14 @@ export interface CodeMap {
    flatTree: [FilteredTree],
    pocket: [FilteredTree | Group],
    groups:Array<Group>
+}
+
+export interface DerivedGroup {
+   groupId:string,
+   blocks:[FilteredTree],
+   color:string,
+   name:string,
+   visible:boolean,
 }
 
 
@@ -241,8 +251,35 @@ export const tags = derived(
          return setArray;
       }
    }
+);
 
+export const derivedGroups = derived(
+   codeMap,
+   $codeMap => {
+      if (typeof ($codeMap?.groups) !== 'undefined') {
+         let groupsList: DerivedGroup[] = [];
+         $codeMap.groups.forEach(group => {
 
+            let groupItem:DerivedGroup = {};
+            groupItem.groupId = group.groupId;
+            groupItem.name = group.name;
+            groupItem.color = group.color;
+            groupItem.blocks = [];
+            groupItem.visible = group.visible;
+
+            group.blockIds.forEach(groupId => {
+               $codeMap.flatTree.forEach(treeItem => {
+                  if (treeItem.id.toString() === groupId.toString())
+                  {
+                     groupItem.blocks.push(treeItem); 
+                  }
+               });
+            });
+            groupsList.push(groupItem);
+         });
+         return groupsList;
+      }
+   }
 );
 
 export interface item { id: string, name: string, code: string, color: string, placeholders: Array<string>, language: string, visible: string, tempId:string, linkedBlocks:[], tags: Array<string> };

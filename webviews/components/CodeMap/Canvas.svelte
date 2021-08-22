@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { codeMap, newRender, currentZoom, dbClickedItem, currentlySelected, flatTree } from "../../store";
+  import { codeMap, newRender, currentZoom, dbClickedItem, currentlySelected, flatTree, derivedGroups } from "../../store";
   import type { Group } from "../../store";
   import Card from "./Card.svelte";
   import { onMount, afterUpdate, beforeUpdate, tick } from "svelte";
@@ -9,6 +9,11 @@
   import Line from "./Line.svelte";
   import { flip } from "svelte/animate";
   import { dndzone } from "svelte-dnd-action";
+  import Common from ".././Common.svelte";
+  import Fa from "svelte-fa";
+  import { faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+
+  let common: Common;
 
   function RenderPocket() {
     if ($codeMap) {
@@ -22,7 +27,6 @@
       }
     }
   }
-
 
   const flipDurationMs = 300;
   function handleDndConsider(e) {
@@ -272,6 +276,9 @@
   function RenderBlocks() {
     if (!isMoving) {
       if ($codeMap?.flatTree) {
+
+          SetVisibility()
+        
         $codeMap.flatTree = [...new Set($codeMap.flatTree)];
         return;
       }
@@ -285,6 +292,13 @@
       //   $codeMap.flatTree = [...new Set(faketree)];
       // }
     }
+  }
+
+  function SetVisibility(){
+    $codeMap?.flatTree.forEach(treeItem => {
+      if (typeof(treeItem.visible) === 'undefined')
+      treeItem.visible = true;
+    })
   }
 
   function AddCardsToDrag() {
@@ -329,6 +343,8 @@
           let id1 = "line" + item1.id;
           let id2 = "line" + item2.id;
 
+         
+
           if (item1.name === "NestedStore.js") console.log("testhere");
 
           let lineExists = lines.find(
@@ -345,7 +361,14 @@
             lineExists.x2 = item2.locationX;
             lineExists.y2 = item2.locationY;
 
+            if (!item1.visible  || !item2.visible)
+          {
+            lines.splice(indexOfLine, 1);
+          }
+          else{
             lines.splice(indexOfLine, 1, lineExists);
+          }
+
 
             // if (item1.x2.toString() === "0") {
             //   item1.x2 = item1.locationX;
@@ -519,15 +542,13 @@
 
     let lastItem = $codeMap?.groups?.slice(-1)[0]; //Check if any groups exist
     let newGroup;
-    if (lastItem) {
-      //if group exists, increment id
-      let id = parseInt(lastItem.groupId);
-      id = ++id;
-      newGroup = { groupId: id, blockIds: [] };
+    if ($codeMap?.groups?.length > 0) {
     } else {
       $codeMap.groups = Array<Group>();
-      newGroup = { groupId: 1, blockIds: [] };
     }
+
+    newGroup = { groupId: common.getNonce(), blockIds: [], name: "New Group", visible: true };
+
     newGroup.color = "#" + Math.floor(Math.random() * 16777215).toString(16);
 
     blocks.forEach((block) => {
@@ -627,26 +648,63 @@
               let index = $codeMap.groups.indexOf(foundGroup);
               $codeMap.groups.splice(index, 1);
               RenderBlocks();
-              }
+            }
           });
         });
       });
     }
   }
 
-  function RemoveColor(group){
+  function RemoveColor(group) {
     $codeMap.flatTree.forEach((treeItem) => {
-        group.blockIds.forEach((blockId) => {
-          if (treeItem.id.toString() === blockId.toString())
-          {
-            treeItem.color = null;
-          }
-        })
-      })
+      group.blockIds.forEach((blockId) => {
+        if (treeItem.id.toString() === blockId.toString()) {
+          treeItem.color = null;
+        }
+      });
+    });
   }
+
+  function HideGroup(derivedGroup) {
+    let group = $codeMap.groups.find(group => group.groupId === derivedGroup.groupId);
+
+    if (group) {
+      if (typeof derivedGroup.visible === "undefined" || derivedGroup.visible === true) {
+        group.visible = false;
+      }
+      else{
+        group.visible = true;
+      }
+
+      derivedGroup.blocks.forEach((block) => {
+        $codeMap.flatTree.forEach((treeItem) => {
+          if (block.id.toString() === treeItem.id.toString()) {
+            treeItem.visible = group.visible;
+          }
+        });
+      });
+      RenderBlocks();
+      // let index = $codeMap.groups.indexOf(group);
+      // $codeMap.groups.splice(index, 1);
+    }
+  }
+
+ function onGroupNameChange(derivedGroup, e) {
+  let group = $codeMap.groups.find(group => group.groupId === derivedGroup.groupId);
+
+  if (group) {
+    group.name = e.target.value;
+    let index = $codeMap.groups.indexOf(group);
+    $codeMap.groups.splice(index, 1, group);
+              
+  }
+
+ }
 </script>
 
 <main>
+  <Common bind:this={common} />
+
   {#if $codeMap?.pocket}
     <section use:dndzone={{ items: $codeMap.pocket, flipDurationMs }} on:consider={handleDndConsider} on:finalize={handleDndFinalize}>
       {#each $codeMap.pocket as item (item.id)}
@@ -656,6 +714,15 @@
         </div>
       {/each}
     </section>
+  {/if}
+
+  {#if $derivedGroups}
+    {#each $derivedGroups as group (group.groupId)}
+      <div id={group.groupId} style="display:flex; align-items: center;">
+        <input type="text" value={group.name} class="groupList" on:change={(event) => onGroupNameChange(group, event)} />
+        <span style="cursor: pointer;" on:click={() => HideGroup(group)}><Fa icon={faEyeSlash} style="color:#007acc; padding-right: 4px;" /> </span>
+      </div>
+    {/each}
   {/if}
 
   <div id="area" style="width:100%; height:100%; position:fixed;">
@@ -683,7 +750,10 @@
           {:else}
             
           {/if} -->
-          <Card {treeItem} />
+
+          {#if typeof treeItem.visible === "undefined" || treeItem?.visible === true}
+            <Card {treeItem} />
+          {/if}
         {/each}
       </div>
 
@@ -785,6 +855,18 @@
   .pocketblock {
     height: 15%;
     width: 100%;
+    margin: 0.4em 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #dddddd;
+    border: 1px solid white;
+    color: black;
+    justify-content: space-between;
+  }
+
+  .groupList {
+    height: 15%;
     margin: 0.4em 0;
     display: flex;
     justify-content: center;
