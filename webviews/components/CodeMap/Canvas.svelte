@@ -4,7 +4,7 @@
   import Card from "./Card.svelte";
   import { onMount, afterUpdate, beforeUpdate, tick } from "svelte";
   import DragSelect from "dragselect";
-  import lodash, { flatMap } from "lodash";
+  import lodash, { cloneDeep, flatMap } from "lodash";
   import deepdash from "deepdash";
   import Line from "./Line.svelte";
   import { flip } from "svelte/animate";
@@ -144,6 +144,8 @@
 
         $currentlySelected.push(OnMouseUpObject.items[0]);
         console.log("highlightme");
+
+        SelectGroup(OnMouseUpObject.event.target.id);
       }
 
       if (OnMouseUpObject.items.length === 1 && buttonClick && $currentlySelected.length === 1) {
@@ -221,27 +223,6 @@
         let id = DragEndedObject.event.target.id;
         isMoving = false;
         console.log("drag ended");
-        // if (DragEndedObject.event.target.getAttribute("data-fileType") === "directory") {
-        //   let id = DragEndedObject.event.target.id;
-
-        // let filtrate = _.eachDeep($codeMap, (value, key, parentValue, context) => {
-        //   DragEndedObject.items.forEach((itemInHand) => {
-        //     if (key === "id") {
-        //       if (value.toString() === itemInHand.id) {
-        //         console.log("update filtedTree");
-        //         console.log(parentValue);
-        //         console.log(context);
-        //         let childPos = itemInHand.getBoundingClientRect();
-        //         let parentPos = itemInHand.parentElement.getBoundingClientRect();
-        //         let x = childPos.x - parentPos.x;
-        //         let y = childPos.y - parentPos.y;
-
-        //         parentValue.locationX = x;
-        //         parentValue.locationY = y;
-        //       }
-        //     }
-        //   });
-        // });
 
         selectedBlocks = DragEndedObject.items;
         //RenderLines(DragEndedObject);
@@ -546,14 +527,21 @@
       $codeMap.groups = Array<Group>();
       newGroup = { groupId: 1, blockIds: [] };
     }
+    newGroup.color = "#" + Math.floor(Math.random()*16777215).toString(16);
 
     blocks.forEach((block) => {
       newGroup.blockIds.push(block.id);
+      block.color = newGroup.color;
+      let blockIndex = $codeMap.flatTree.indexOf(block);
+      if (blockIndex !== -1)
+      {
+        $codeMap.flatTree.splice(blockIndex,1,block)
+      }
     });
 
     let newSet = [...new Set(newGroup.blockIds)];
     newGroup.blockIds = newSet;
-    newGroup = RenderGroupRectangle(newGroup);
+    // newGroup = RenderGroupRectangle(newGroup);
     $codeMap.groups.push(newGroup);
     
   }
@@ -594,6 +582,43 @@
     return group;
  }
 
+function SelectGroup(selectedId){
+
+  // _.findDeep($codeMap.groups, (value, key, parentValue, context) => 
+  //  {
+  //    if (key === "groupId")
+  //    {
+  //      if (value.toString() === selectedId.toString())
+  //      {
+  //        console.log("found it");
+  //      }
+  //    }
+  //  }
+  // )
+
+  let foundGroup;
+
+  $codeMap.groups.forEach(group => {
+    group.blockIds.forEach(blockId => {
+      if (blockId.toString() === selectedId.toString())
+      {
+        foundGroup = group;
+      }
+    })
+  })
+
+  if (foundGroup)
+  {
+    let selection = [];
+
+    foundGroup.blockIds.forEach(id => {
+      selection.push(document.getElementById(id));
+    })
+
+    ds.addSelection(selection);
+  }
+  
+}
 </script>
 
 <main>
@@ -646,8 +671,7 @@
       {/if}
 
       <!-- GROUP STUFF -->
-      {#if $codeMap?.groups}
-        <!-- Groups Exits -->
+      <!-- {#if $codeMap?.groups}
         {#each $codeMap.groups as group}
         {@debug group}
           <div id="group{group.groupId}" style="background:red; position:absolute;">
@@ -655,13 +679,10 @@
 
 
 
-            <!-- New Group Div -->
             {#each $codeMap.flatTree as treeItem}
               {#each group.blockIds as blockid}
-              <!-- {@debug group, blockid, treeItem} -->
                 {#if blockid.toString() === treeItem.id.toString()}
                  
-                    <!-- <Card {treeItem} /> New Card -->
                   
 
                  
@@ -673,7 +694,7 @@
 
           </div>
         {/each}
-      {/if}
+      {/if} -->
     {/if}
 
     {#if $codeMap}

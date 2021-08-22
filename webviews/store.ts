@@ -21,6 +21,7 @@ export interface FilteredTree {
   name:string,
   size:number,
   type:string,
+  color:string,
   parentId:string,
   outputx:number,
   outputy:number,
@@ -35,6 +36,7 @@ export interface FilteredTree {
 export interface Group {
    groupId:string,
    blockIds:[string],
+   color:string
 }
 
 export interface CodeMap {
