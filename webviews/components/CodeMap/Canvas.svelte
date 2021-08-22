@@ -23,6 +23,7 @@
     }
   }
 
+
   const flipDurationMs = 300;
   function handleDndConsider(e) {
     $codeMap.pocket = e.detail.items;
@@ -275,14 +276,14 @@
         return;
       }
 
-      if ($codeMap?.canvas) {
-        faketree = JSON.parse(JSON.stringify($codeMap.canvas.children));
-        FlattenTree(faketree);
+      // if ($codeMap?.canvas) {
+      //   faketree = JSON.parse(JSON.stringify($codeMap.canvas.children));
+      //   FlattenTree(faketree);
 
-        // faketree = _.index(faketree)
+      //   // faketree = _.index(faketree)
 
-        $codeMap.flatTree = [...new Set(faketree)];
-      }
+      //   $codeMap.flatTree = [...new Set(faketree)];
+      // }
     }
   }
 
@@ -527,15 +528,14 @@
       $codeMap.groups = Array<Group>();
       newGroup = { groupId: 1, blockIds: [] };
     }
-    newGroup.color = "#" + Math.floor(Math.random()*16777215).toString(16);
+    newGroup.color = "#" + Math.floor(Math.random() * 16777215).toString(16);
 
     blocks.forEach((block) => {
       newGroup.blockIds.push(block.id);
       block.color = newGroup.color;
       let blockIndex = $codeMap.flatTree.indexOf(block);
-      if (blockIndex !== -1)
-      {
-        $codeMap.flatTree.splice(blockIndex,1,block)
+      if (blockIndex !== -1) {
+        $codeMap.flatTree.splice(blockIndex, 1, block);
       }
     });
 
@@ -543,7 +543,6 @@
     newGroup.blockIds = newSet;
     // newGroup = RenderGroupRectangle(newGroup);
     $codeMap.groups.push(newGroup);
-    
   }
 
   function RenderGroupRectangle(group) {
@@ -555,24 +554,20 @@
     group.blockIds.forEach((blockId) => {
       $codeMap.flatTree.forEach((flatBlock) => {
         if (flatBlock.id === blockId) {
-            let x = parseInt(flatBlock.locationX);
-            let y = parseInt(flatBlock.locationY);
+          let x = parseInt(flatBlock.locationX);
+          let y = parseInt(flatBlock.locationY);
 
-            if (x > greatestX)
-              greatestX = x;
+          if (x > greatestX) greatestX = x;
 
-            if (x < leastX)
-              leastX = x;
+          if (x < leastX) leastX = x;
 
-            if (y > greatestY)
-              greatestY = y;
+          if (y > greatestY) greatestY = y;
 
-            if (y < leastY)
-              leastY = y;
+          if (y < leastY) leastY = y;
         }
       });
     });
-    let width =  greatestX - leastX;
+    let width = greatestX - leastX;
     let height = greatestY - leastY;
 
     group.width = width;
@@ -580,45 +575,75 @@
     group.startXY;
 
     return group;
- }
-
-function SelectGroup(selectedId){
-
-  // _.findDeep($codeMap.groups, (value, key, parentValue, context) => 
-  //  {
-  //    if (key === "groupId")
-  //    {
-  //      if (value.toString() === selectedId.toString())
-  //      {
-  //        console.log("found it");
-  //      }
-  //    }
-  //  }
-  // )
-
-  let foundGroup;
-
-  $codeMap.groups.forEach(group => {
-    group.blockIds.forEach(blockId => {
-      if (blockId.toString() === selectedId.toString())
-      {
-        foundGroup = group;
-      }
-    })
-  })
-
-  if (foundGroup)
-  {
-    let selection = [];
-
-    foundGroup.blockIds.forEach(id => {
-      selection.push(document.getElementById(id));
-    })
-
-    ds.addSelection(selection);
   }
-  
-}
+
+  function SelectGroup(selectedId) {
+    // _.findDeep($codeMap.groups, (value, key, parentValue, context) =>
+    //  {
+    //    if (key === "groupId")
+    //    {
+    //      if (value.toString() === selectedId.toString())
+    //      {
+    //        console.log("found it");
+    //      }
+    //    }
+    //  }
+    // )
+
+    let foundGroup;
+
+    $codeMap?.groups?.forEach((group) => {
+      group.blockIds.forEach((blockId) => {
+        if (blockId.toString() === selectedId.toString()) {
+          foundGroup = group;
+        }
+      });
+    });
+
+    if (foundGroup) {
+      let selection = [];
+
+      foundGroup.blockIds.forEach((id) => {
+        selection.push(document.getElementById(id));
+      });
+
+      ds.addSelection(selection);
+    }
+  }
+
+  function UngroupBlocks() {
+    let selectedBlocks = GetSelectedCodeBlocks($currentlySelected);
+    let lastItem = $codeMap?.groups?.slice(-1)[0]; //Check if any groups exist
+
+    let foundGroup;
+
+    if (lastItem) {
+      $codeMap.groups.forEach((group) => {
+        group.blockIds.forEach((blockId) => {
+          selectedBlocks.forEach((selectedBlock) => {
+            if (blockId.toString() === selectedBlock.id.toString()) {
+              foundGroup = group;
+              RemoveColor(group);
+              let index = $codeMap.groups.indexOf(foundGroup);
+              $codeMap.groups.splice(index, 1);
+              RenderBlocks();
+              }
+          });
+        });
+      });
+    }
+  }
+
+  function RemoveColor(group){
+    $codeMap.flatTree.forEach((treeItem) => {
+        group.blockIds.forEach((blockId) => {
+          if (treeItem.id.toString() === blockId.toString())
+          {
+            treeItem.color = null;
+          }
+        })
+      })
+  }
 </script>
 
 <main>
@@ -640,6 +665,7 @@ function SelectGroup(selectedId){
     <button type="button" on:click={LoadCodeMap}>Load CodeMap</button>
     <button type="button" on:click={OrganizeSelected}>Cleanup Selected</button>
     <button id="GroupBlocks" type="button" on:click={GroupBlocks}>Group</button>
+    <button id="UngroupBlocks" type="button" on:click={UngroupBlocks}>Ungroup</button>
 
     <!-- SINGLE CARD -->
     {#if $codeMap?.flatTree}

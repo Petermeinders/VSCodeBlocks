@@ -36,13 +36,14 @@ export interface FilteredTree {
 export interface Group {
    groupId:string,
    blockIds:[string],
-   color:string
+   color:string,
+   name:string,
 }
 
 export interface CodeMap {
    canvas: FilteredTree,
    flatTree: [FilteredTree],
-   pocket: [FilteredTree],
+   pocket: [FilteredTree | Group],
    groups:Array<Group>
 }
 
