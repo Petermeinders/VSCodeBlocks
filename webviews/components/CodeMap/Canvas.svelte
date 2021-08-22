@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { codeMap, newRender, currentZoom, dbClickedItem, currentlySelected, flatTree, derivedGroups, items } from "../../store";
+  import { codeMap, newRender, currentZoom, perimeterItem, currentlySelected, flatTree, derivedGroups, items } from "../../store";
   import type { Group } from "../../store";
   import Card from "./Card.svelte";
   import { onMount, afterUpdate, beforeUpdate, tick } from "svelte";
@@ -75,7 +75,7 @@
     $codeMap;
   }
 
-  $: $dbClickedItem, onDoubleClicked();
+  $: $perimeterItem, onDoubleClicked();
 
   function SaveCodeMapToFile() {
     tsvscode.postMessage({
@@ -85,7 +85,7 @@
   }
 
   function onDoubleClicked() {
-    if (typeof $dbClickedItem.id !== "undefined") {
+    if (typeof $perimeterItem.id !== "undefined") {
       console.log("DOUBLE CLICK YO");
 
       let cards = document.querySelectorAll(".card");
@@ -93,21 +93,21 @@
 
       cards.forEach((card) => {
         if (
-          card.getAttribute("data-parentId").toString() === $dbClickedItem.id.toString() ||
-          $dbClickedItem.parentId.toString() === card.id.toString()
+          card.getAttribute("data-parentId").toString() === $perimeterItem.id.toString() ||
+          $perimeterItem.parentId.toString() === card.id.toString()
         ) {
           selectedList.push(card);
           card.classList.add("highlight");
         }
       });
 
-      let id = $dbClickedItem.id;
+      let id = $perimeterItem.id;
       let thisCard = document.getElementById(id);
       selectedList.push(thisCard);
       $currentlySelected = selectedList;
 
       ds.setSelection(selectedList);
-      $dbClickedItem = {};
+      $perimeterItem = {};
     }
   }
 

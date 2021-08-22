@@ -1,4 +1,3 @@
-import { dbClickedItem, FilteredTreeasCodeMap, filteredTree } from './store';
 import { writable, derived } from "svelte/store";
 
 // export const items = writable([{id:0,name:""}]);
@@ -66,7 +65,7 @@ let originCodeMap:CodeMap;
 
 let originZoom = 1;
 
-let originDbClickedItem = {};
+let originperimeterItem = {};
 
 let originCurrentlySelected = [];
 
@@ -157,8 +156,8 @@ export const currentlySelected = writable(originCurrentlySelected, (set) => {
    return () => { };
 });
 
-export const dbClickedItem = writable(originDbClickedItem, (set) => {
-   console.log("debug: " + originDbClickedItem);
+export const perimeterItem = writable(originperimeterItem, (set) => {
+   console.log("debug: " + originperimeterItem);
 
    //set([{id:0, name:""}]);
    return () => { };

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { flatTree, newRender, currentZoom, dbClickedItem } from "../../store";
+  import { flatTree, newRender, currentZoom, perimeterItem } from "../../store";
   import lodash, { flatten } from "lodash";
   import deepdash from "deepdash";
   import { afterUpdate } from "svelte";
@@ -24,7 +24,7 @@
 
   function GroupClick() {
     console.log("groupclick");
-    $dbClickedItem = {
+    $perimeterItem = {
       id: treeItem.id,
       parentId: treeItem.parentId,
     };
