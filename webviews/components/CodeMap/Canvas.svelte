@@ -702,11 +702,11 @@
  }
 </script>
 
-<main>
+<main id="Canvas">
   <Common bind:this={common} />
 
   {#if $codeMap?.pocket}
-    <section use:dndzone={{ items: $codeMap.pocket, flipDurationMs }} on:consider={handleDndConsider} on:finalize={handleDndFinalize}>
+    <section style="float:left; margin:auto;" use:dndzone={{ items: $codeMap.pocket, flipDurationMs }} on:consider={handleDndConsider} on:finalize={handleDndFinalize}>
       {#each $codeMap.pocket as item (item.id)}
         <div id={item.id} class="pocketblock" animate:flip={{ duration: flipDurationMs }}>
           {item.name}
@@ -717,15 +717,19 @@
   {/if}
 
   {#if $derivedGroups}
+  <div style="" class="groupList">
     {#each $derivedGroups as group (group.groupId)}
-      <div id={group.groupId} style="display:flex; align-items: center;">
-        <input type="text" value={group.name} class="groupList" on:change={(event) => onGroupNameChange(group, event)} />
-        <span style="cursor: pointer;" on:click={() => HideGroup(group)}><Fa icon={faEyeSlash} style="color:#007acc; padding-right: 4px;" /> </span>
-      </div>
-    {/each}
+    <div id={group.groupId} style="display:flex; align-items: center;">
+      <input type="text" value={group.name} class="groupInput" on:change={(event) => onGroupNameChange(group, event)} />
+      <span style="cursor: pointer;" on:click={() => HideGroup(group)}><Fa icon={faEyeSlash} style="color:#007acc; padding-right: 4px;" /> </span>
+    </div>
+  {/each}
+  </div>
+
+    
   {/if}
 
-  <div id="area" style="width:100%; height:100%; position:fixed;">
+  <div id="area" style="width:100%; height:100%; position:fixed; top:200px;">
     <div class="ds-selected" style="display:none" />
     <button type="button" on:click={SaveCodeMapToFile}>Save CodeMap</button>
 
@@ -865,7 +869,7 @@
     justify-content: space-between;
   }
 
-  .groupList {
+  .groupInput {
     height: 15%;
     margin: 0.4em 0;
     display: flex;
@@ -875,5 +879,11 @@
     border: 1px solid white;
     color: black;
     justify-content: space-between;
+  }
+
+  .groupList{
+    max-height:200px;
+    overflow: scroll;
+    width:49%;
   }
 </style>
