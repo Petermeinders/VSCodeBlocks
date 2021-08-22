@@ -583,6 +583,25 @@ export class HellowWorldPanel {
           break;
         }
 
+        case "OpenFile": {
+          if (!data.value) {
+            return;
+          }
+
+          let viewColum = vscode?.window?.visibleTextEditors[0]?.viewColumn;
+
+
+          let fileURI = vscode.Uri.file(data.value);
+          vscode.workspace.openTextDocument(fileURI).then((document) => {
+            vscode.window.showTextDocument(document,viewColum);         
+          });
+
+
+
+          //   let text = document.getText();
+          break;
+        }
+
         case "editCode": {
           if (!data.value) {
             return;

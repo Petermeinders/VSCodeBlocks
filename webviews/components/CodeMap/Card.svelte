@@ -30,13 +30,19 @@
     };
   }
 
-  function MoveToPocket() {}
+
+  function dbClick(path:string) {
+    tsvscode.postMessage({
+      type: "OpenFile",
+      value: path,
+    });
+  }
 </script>
 
 <div class="ds-selected ds-hover absolute" style="display:none" />
 
 <main
-  
+  on:dblclick={dbClick(treeItem.path)}
   style=" background:{treeItem.color} ;z-index:101; {treeItem.locationX !== 0 && treeItem.locationY !== 0
     ? 'transform: translate3d(' + treeItem.locationX + 'px, ' + treeItem.locationY + 'px, 1px) scale(' + $currentZoom + ');'
     : ''}"
@@ -55,9 +61,9 @@
   {/if}
 
   {#if treeItem.type === "file"}
-  <Fa size="1x" icon={faFile} style="color:white; padding-right: 4px; padding-left:4px; float:right" />
-{/if}
-<button id="SelectPerimeter" on:click={GroupClick}><Fa size="1x" icon={faBullseye} style="color:red; padding-right: 4px; float:right" /></button>
+    <Fa size="1x" icon={faFile} style="color:white; padding-right: 4px; padding-left:4px; float:right" />
+  {/if}
+  <button id="SelectPerimeter" on:click={GroupClick}><Fa size="1x" icon={faBullseye} style="color:red; padding-right: 4px; float:right" /></button>
 
   <button type="button" class="inner-hide"> {treeItem.name}</button>
 </main>
