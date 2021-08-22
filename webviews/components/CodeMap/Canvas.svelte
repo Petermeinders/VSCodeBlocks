@@ -704,9 +704,12 @@
 
 <main id="Canvas">
   <Common bind:this={common} />
-
+<h1 style="text-align:center;">Code Map</h1>
+<hr>
   {#if $codeMap?.pocket}
-    <section style="float:left; margin:auto;" use:dndzone={{ items: $codeMap.pocket, flipDurationMs }} on:consider={handleDndConsider} on:finalize={handleDndFinalize}>
+  <div style="float:left; width:50%">
+  <h2>Pocket</h2>
+    <section style="float:left; margin:auto; width: 100%;" use:dndzone={{ items: $codeMap.pocket, flipDurationMs }} on:consider={handleDndConsider} on:finalize={handleDndFinalize}>
       {#each $codeMap.pocket as item (item.id)}
         <div id={item.id} class="pocketblock" animate:flip={{ duration: flipDurationMs }}>
           {item.name}
@@ -714,10 +717,12 @@
         </div>
       {/each}
     </section>
+  </div>
   {/if}
 
   {#if $derivedGroups}
   <div style="" class="groupList">
+    <h2>Groups</h2>
     {#each $derivedGroups as group (group.groupId)}
     <div id={group.groupId} style="display:flex; align-items: center;">
       <input type="text" value={group.name} class="groupInput" on:change={(event) => onGroupNameChange(group, event)} />
@@ -871,7 +876,7 @@
 
   .groupInput {
     height: 15%;
-    margin: 0.4em 0;
+    margin: 0.2em 0;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -882,8 +887,10 @@
   }
 
   .groupList{
+    display: flex;
     max-height:200px;
     overflow: scroll;
     width:49%;
+    flex-direction: column;
   }
 </style>
