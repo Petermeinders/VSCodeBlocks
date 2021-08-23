@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { codeMap, newRender, currentZoom, perimeterItem, currentlySelected, flatTree, derivedGroups, items } from "../../store";
+  import { codeMap, newRender, currentZoom, perimeterItem, currentlySelected, derivedGroups, items } from "../../store";
   import type { Group } from "../../store";
   import Card from "./Card.svelte";
   import { onMount, afterUpdate, beforeUpdate, tick } from "svelte";
@@ -11,7 +11,7 @@
   import { dndzone } from "svelte-dnd-action";
   import Common from ".././Common.svelte";
   import Fa from "svelte-fa";
-  import { faCog, faCubes, faEyeSlash, faProjectDiagram } from "@fortawesome/free-solid-svg-icons";
+  import { faCog, faCubes, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
   let common: Common;
 
@@ -715,6 +715,7 @@
 
  function onGroupNameChange(derivedGroup, e) {
   let group = $codeMap.groups.find(group => group.groupId === derivedGroup.groupId);
+ 
 
   if (group) {
     group.name = e.target.value;
@@ -722,17 +723,52 @@
     $codeMap.groups.splice(index, 1, group);
               
   }
+}
 
- }
 
-
- function ShowSettings() {
+ const ShowSettings = () =>{
     console.log("not yet implemented");
-  }
+}
 
-  function ShowCodeBlocks() {
+  const ShowCodeBlocks = () => {
     $items.settings.currentPanel = "codeBlocks";
   }
+
+  const Minimize = (e, treeItem) => {
+    console.log("MINIMIZE");
+    console.log(e);
+    console.log(treeItem);
+    let selection = [];
+
+    SelectRecursive(treeItem)
+
+    // $codeMap.flatTree.forEach(flatItem => {
+    //   if (flatItem.parentId === treeItem.id){
+    //     let thisCard = document.getElementById(flatItem.id);
+
+    //     if (thisCard)
+    //       selection.push(thisCard)
+    //   }
+    // })
+
+    ds.setSelection($currentlySelected);
+  }
+
+  function SelectRecursive(treeItem) {
+    $codeMap.flatTree.forEach((flatItem) => {
+      if (flatItem.parentId === treeItem.id){
+        let thisCard = document.getElementById(flatItem.id);
+
+        if (thisCard)
+        {
+          $currentlySelected.push(thisCard);
+          SelectRecursive(flatItem);
+        }
+
+      }
+    })
+  }
+
 </script>
 
 <main id="Canvas">
@@ -805,7 +841,7 @@
           {/if} -->
 
           {#if typeof treeItem.visible === "undefined" || treeItem?.visible === true}
-            <Card {treeItem} />
+            <Card {treeItem} Minimize={Minimize} />
           {/if}
         {/each}
       </div>

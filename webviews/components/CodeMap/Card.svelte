@@ -4,7 +4,7 @@
   import deepdash from "deepdash";
   import { afterUpdate } from "svelte";
   import Fa from "svelte-fa";
-  import { faBullseye, faFile, faFolder, faTrashRestore } from "@fortawesome/free-solid-svg-icons";
+  import { faBullseye, faCompressArrowsAlt, faFile, faFolder, faTrashRestore } from "@fortawesome/free-solid-svg-icons";
 
   const _ = deepdash(lodash);
   export let left = 30;
@@ -15,6 +15,9 @@
   export let closeHandler = () => {};
 
   export let SelectPerimeter = () => {};
+
+  export let Minimize = (event, treeItem) => {};
+
 
   afterUpdate(() => {
     $newRender = $newRender++;
@@ -29,6 +32,8 @@
       parentId: treeItem.parentId,
     };
   }
+
+
 
 
   function dbClick(path:string) {
@@ -64,6 +69,7 @@
     <Fa size="1x" icon={faFile} style="color:white; padding-right: 4px; padding-left:4px; float:right" />
   {/if}
   <button id="SelectPerimeter" on:click={GroupClick}><Fa size="1x" icon={faBullseye} style="color:red; padding-right: 4px; float:right" /></button>
+  <button id="Minimize" on:click={(event) => Minimize(event, treeItem)}><Fa size="1x" icon={faCompressArrowsAlt} style="color:red; padding-right: 4px; float:right" /></button>
 
   <button type="button" class="inner-hide"> {treeItem.name}</button>
 </main>
