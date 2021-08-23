@@ -22,6 +22,7 @@ export interface FilteredTree {
   type:string,
   color:string,
   visible:boolean,
+  open:boolean,
   parentId:string,
   outputx:number,
   outputy:number,

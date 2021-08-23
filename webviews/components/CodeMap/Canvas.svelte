@@ -176,12 +176,9 @@
         MoveToPocket($currentlySelected, OnMouseUpObject.event);
       }
 
-      if (buttonName === "SelectPerimeter")
-      {
-
+      if (buttonName === "SelectPerimeter") {
       }
     });
-
 
     ds.subscribe("dragstart", (DragStartObject) => {
       if (DragStartObject.isDragging) {
@@ -281,24 +278,19 @@
     AddCardsToDrag();
   });
 
-  
-  function CheckForButton(OnMouseUpObject){
-      if (OnMouseUpObject.event.target.parentElement.parentElement.parentElement.parentElement.nodeName === "BUTTON")
-      {
-        return OnMouseUpObject.event.target.parentElement.parentElement.parentElement.parentElement.id;
-      }
-      else if (OnMouseUpObject.event.target.parentElement.nodeName === "BUTTON") 
-      {
-        return OnMouseUpObject.event.target.parentElement.id;
-      }
+  function CheckForButton(OnMouseUpObject) {
+    if (OnMouseUpObject.event.target.parentElement.parentElement.parentElement.parentElement.nodeName === "BUTTON") {
+      return OnMouseUpObject.event.target.parentElement.parentElement.parentElement.parentElement.id;
+    } else if (OnMouseUpObject.event.target.parentElement.nodeName === "BUTTON") {
+      return OnMouseUpObject.event.target.parentElement.id;
     }
+  }
 
   function RenderBlocks() {
     if (!isMoving) {
       if ($codeMap?.flatTree) {
+        SetVisibility();
 
-          SetVisibility()
-        
         $codeMap.flatTree = [...new Set($codeMap.flatTree)];
         return;
       }
@@ -314,11 +306,10 @@
     }
   }
 
-  function SetVisibility(){
-    $codeMap?.flatTree.forEach(treeItem => {
-      if (typeof(treeItem.visible) === 'undefined')
-      treeItem.visible = true;
-    })
+  function SetVisibility() {
+    $codeMap?.flatTree.forEach((treeItem) => {
+      if (typeof treeItem.visible === "undefined") treeItem.visible = true;
+    });
   }
 
   function AddCardsToDrag() {
@@ -363,8 +354,6 @@
           let id1 = "line" + item1.id;
           let id2 = "line" + item2.id;
 
-         
-
           if (item1.name === "NestedStore.js") console.log("testhere");
 
           let lineExists = lines.find(
@@ -381,14 +370,11 @@
             lineExists.x2 = item2.locationX;
             lineExists.y2 = item2.locationY;
 
-            if (!item1.visible  || !item2.visible)
-          {
-            lines.splice(indexOfLine, 1);
-          }
-          else{
-            lines.splice(indexOfLine, 1, lineExists);
-          }
-
+            if (!item1.visible || !item2.visible) {
+              lines.splice(indexOfLine, 1);
+            } else {
+              lines.splice(indexOfLine, 1, lineExists);
+            }
 
             // if (item1.x2.toString() === "0") {
             //   item1.x2 = item1.locationX;
@@ -435,13 +421,11 @@
 
     flatBlock.forEach((block) => {
       let blockIndex = $codeMap.flatTree.indexOf(block);
-      if (blockIndex !== -1)
-      {
-      $codeMap.pocket.push(block);
-      $codeMap.flatTree.splice(blockIndex, 1);
-      $codeMap.pocket = $codeMap.pocket;
+      if (blockIndex !== -1) {
+        $codeMap.pocket.push(block);
+        $codeMap.flatTree.splice(blockIndex, 1);
+        $codeMap.pocket = $codeMap.pocket;
       }
-    
     });
   }
 
@@ -649,7 +633,8 @@
       let selection = [];
 
       foundGroup.blockIds.forEach((id) => {
-        selection.push(document.getElementById(id));
+        if (document.getElementById(id))
+          selection.push(document.getElementById(id));
       });
 
       ds.addSelection(selection);
@@ -690,13 +675,12 @@
   }
 
   function HideGroup(derivedGroup) {
-    let group = $codeMap.groups.find(group => group.groupId === derivedGroup.groupId);
+    let group = $codeMap.groups.find((group) => group.groupId === derivedGroup.groupId);
 
     if (group) {
       if (typeof derivedGroup.visible === "undefined" || derivedGroup.visible === true) {
         group.visible = false;
-      }
-      else{
+      } else {
         group.visible = true;
       }
 
@@ -713,26 +697,23 @@
     }
   }
 
- function onGroupNameChange(derivedGroup, e) {
-  let group = $codeMap.groups.find(group => group.groupId === derivedGroup.groupId);
- 
+  function onGroupNameChange(derivedGroup, e) {
+    let group = $codeMap.groups.find((group) => group.groupId === derivedGroup.groupId);
 
-  if (group) {
-    group.name = e.target.value;
-    let index = $codeMap.groups.indexOf(group);
-    $codeMap.groups.splice(index, 1, group);
-              
+    if (group) {
+      group.name = e.target.value;
+      let index = $codeMap.groups.indexOf(group);
+      $codeMap.groups.splice(index, 1, group);
+    }
   }
-}
 
-
- const ShowSettings = () =>{
+  const ShowSettings = () => {
     console.log("not yet implemented");
-}
+  };
 
   const ShowCodeBlocks = () => {
     $items.settings.currentPanel = "codeBlocks";
-  }
+  };
 
   const Minimize = (e, treeItem) => {
     console.log("MINIMIZE");
@@ -740,7 +721,13 @@
     console.log(treeItem);
     let selection = [];
 
-    SelectRecursive(treeItem)
+    if (typeof treeItem.open === "undefined" || treeItem.open === true) {
+      treeItem.open = false;
+      HideRecursively(treeItem);
+    } else {
+      treeItem.open = true;
+      ShowRecursively(treeItem);
+    }
 
     // $codeMap.flatTree.forEach(flatItem => {
     //   if (flatItem.parentId === treeItem.id){
@@ -752,66 +739,111 @@
     // })
 
     ds.setSelection($currentlySelected);
+  };
+
+  function HideRecursively(treeItem) {
+    $codeMap.flatTree.forEach((flatItem) => {
+      if (flatItem.parentId === treeItem.id) 
+      {
+        flatItem.visible = false;
+        HideRecursively(flatItem);
+
+        // if (thisCard)
+        // {
+        //   // $currentlySelected.push(thisCard);
+        // }
+      }
+    });
+
+    RenderBlocks();
   }
 
-  function SelectRecursive(treeItem) {
+  function ShowRecursively(treeItem) {
     $codeMap.flatTree.forEach((flatItem) => {
-      if (flatItem.parentId === treeItem.id){
-        let thisCard = document.getElementById(flatItem.id);
-
-        if (thisCard)
+      if (flatItem.parentId === treeItem.id) 
+      {
+        if (typeof treeItem.open === "undefined" || treeItem.open === true) 
         {
-          $currentlySelected.push(thisCard);
-          SelectRecursive(flatItem);
+          flatItem.visible = true;
+        } 
+        else 
+        {
+          flatItem.visible = false;
         }
 
+        ShowRecursively(flatItem);
+
+        // let thisCard = document.getElementById(flatItem.id);
+
+        // if (thisCard) {
+        //   // $currentlySelected.push(thisCard);
+        // }
       }
-    })
+    });
+
+    RenderBlocks();
   }
 
+  // function SelectRecursive(treeItem) {
+  //   $codeMap.flatTree.forEach((flatItem) => {
+  //     if (flatItem.parentId === treeItem.id){
+  //       let thisCard = document.getElementById(flatItem.id);
+
+  //       if (thisCard)
+  //       {
+  //         $currentlySelected.push(thisCard);
+  //         SelectRecursive(flatItem);
+  //       }
+
+  //     }
+  //   })
+  // }
 </script>
 
 <main id="Canvas">
   <Common bind:this={common} />
-<!-- <h1 style="text-align:center;">Code Map</h1> -->
-<div style="display: flex, align-items: center">
-  <h1 style="display: flex, align-items: center, justify-content: space-between;">
-    CodeMap
-    <span style="cursor: pointer; " on:click={() => ShowSettings()}
-      ><Fa size="1x" icon={faCog} style="color:#007acc; padding-right: 4px; float:right" />
-    </span>
-    <span style="cursor: pointer; " on:click={() => ShowCodeBlocks()}
-      ><Fa size="1x" icon={faCubes} style="color:#007acc; padding-right: 4px; float:right" />
-    </span>
-  </h1>
-</div>
-<hr>
-  {#if $codeMap?.pocket}
-  <div style="float:left; width:50%">
-  <h2>Pocket</h2>
-    <section style="float:left; margin:auto; width: 100%;" use:dndzone={{ items: $codeMap.pocket, flipDurationMs }} on:consider={handleDndConsider} on:finalize={handleDndFinalize}>
-      {#each $codeMap.pocket as item (item.id)}
-        <div id={item.id} class="pocketblock" animate:flip={{ duration: flipDurationMs }}>
-          {item.name}
-          <button id={item.id} type="button" style="width:50px;" on:click={(event) => MoveToCanvas(event)}>Add</button>
-        </div>
-      {/each}
-    </section>
+  <!-- <h1 style="text-align:center;">Code Map</h1> -->
+  <div style="display: flex, align-items: center">
+    <h1 style="display: flex, align-items: center, justify-content: space-between;">
+      CodeMap
+      <span style="cursor: pointer; " on:click={() => ShowSettings()}
+        ><Fa size="1x" icon={faCog} style="color:#007acc; padding-right: 4px; float:right" />
+      </span>
+      <span style="cursor: pointer; " on:click={() => ShowCodeBlocks()}
+        ><Fa size="1x" icon={faCubes} style="color:#007acc; padding-right: 4px; float:right" />
+      </span>
+    </h1>
   </div>
+  <hr />
+  {#if $codeMap?.pocket}
+    <div style="float:left; width:50%">
+      <h2>Pocket</h2>
+      <section
+        style="float:left; margin:auto; width: 100%;"
+        use:dndzone={{ items: $codeMap.pocket, flipDurationMs }}
+        on:consider={handleDndConsider}
+        on:finalize={handleDndFinalize}
+      >
+        {#each $codeMap.pocket as item (item.id)}
+          <div id={item.id} class="pocketblock" animate:flip={{ duration: flipDurationMs }}>
+            {item.name}
+            <button id={item.id} type="button" style="width:50px;" on:click={(event) => MoveToCanvas(event)}>Add</button>
+          </div>
+        {/each}
+      </section>
+    </div>
   {/if}
 
   {#if $derivedGroups}
-  <div style="" class="groupList">
-    <h2>Groups</h2>
-    {#each $derivedGroups as group (group.groupId)}
-    <div id={group.groupId} style="display:flex; align-items: center;">
-      <input type="text" value={group.name} class="groupInput" on:change={(event) => onGroupNameChange(group, event)} />
-      <span style="cursor: pointer;" on:click={() => HideGroup(group)}><Fa icon={faEyeSlash} style="color:#007acc; padding-right: 4px;" /> </span>
+    <div style="" class="groupList">
+      <h2>Groups</h2>
+      {#each $derivedGroups as group (group.groupId)}
+        <div id={group.groupId} style="display:flex; align-items: center;">
+          <input type="text" value={group.name} class="groupInput" on:change={(event) => onGroupNameChange(group, event)} />
+          <span style="cursor: pointer;" on:click={() => HideGroup(group)}><Fa icon={faEyeSlash} style="color:#007acc; padding-right: 4px;" /> </span>
+        </div>
+      {/each}
     </div>
-  {/each}
-  </div>
-
-    
   {/if}
 
   <div id="area" style="width:100%; height:100%; position:fixed; top:229px;">
@@ -839,9 +871,9 @@
           {:else}
             
           {/if} -->
-
+          <!-- && typeof(treeItem.open) === "undefined" || treeItem?.open === true -->
           {#if typeof treeItem.visible === "undefined" || treeItem?.visible === true}
-            <Card {treeItem} Minimize={Minimize} />
+            <Card {treeItem} {Minimize} />
           {/if}
         {/each}
       </div>
@@ -966,11 +998,11 @@
     justify-content: space-between;
   }
 
-  .groupList{
+  .groupList {
     display: flex;
-    height:174px;
+    height: 174px;
     overflow: scroll;
-    width:49%;
+    width: 49%;
     flex-direction: column;
   }
 </style>
