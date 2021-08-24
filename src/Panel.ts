@@ -1,3 +1,4 @@
+import { ActiveWindow } from './../webviews/store';
 import * as vscode from "vscode";
 import { getNonce } from "./getNonce";
 import * as fs from "fs";
@@ -118,6 +119,17 @@ export class HellowWorldPanel {
       HellowWorldPanel.currentPanel._panel.webview.postMessage({
         type: "import-code",
         value: items,
+      });
+    } else {
+      console.log("error");
+    }
+  }
+
+  public static PassActiveWindow(path) {
+    if (typeof HellowWorldPanel.currentPanel !== "undefined") {
+      HellowWorldPanel.currentPanel._panel.webview.postMessage({
+        type: "window-change",
+        value: path,
       });
     } else {
       console.log("error");
@@ -382,17 +394,37 @@ export class HellowWorldPanel {
                 value.visible = true;
               }
 
-            
+              // vscode.workspace.openTextDocument()
+              // vscode.workspace.
+// vscode.languages.registerReferenceProvider()
+// let fold = vscode.languages.registerFoldingRangeProvider();
+// vscode.FoldingRangeProvider.provideFoldingRanges()
+              // vscode.workspace.fs.readFile()
               }
 
 
             }
           );
 
-          let codeMap = {canvas:{}, pocket:[]};
+
+          
+				// let uri = vscode.workspace.textDocuments[0].uri;
+
+				// vscode.commands.executeCommand("vscode.executeDocumentSymbolProvider", uri).then(x => {
+				// 	console.log(x);
+				// 	let range = x[0].children[1].children[0].range;
+				// 	// vscode.workspace.openTextDocument(uri).then(y => {
+				// 	// 	y.getText(range);
+				// 	// })
+				// });
+
+
+
+          let codeMap = {canvas:{}, pocket:[], activeWindow:{}};
 
           codeMap.canvas = filtrate;
           codeMap.pocket = [];
+          codeMap.activeWindow = {};
           // TreeObj.settings;
          console.log('Filtrate',codeMap);
 
@@ -402,38 +434,6 @@ export class HellowWorldPanel {
 
           this.ReturnFileTree(codeMap);
 
-          // let files = vscode.workspace.fs.readDirectory(rootFolder.uri).then((files) => {
-          //   files.forEach((file) => {
-          //     let newstring = rootFolder.uri.fsPath+ "/" + file[0];
-          //     const uri:vscode.Uri = vscode.Uri.file(newstring);
-          //     vscode.workspace.workspaceFolders;
-          //     // const stats = vscode.workspace.fs.stat(uri).then(stat =>{
-          //     //     console.log(stat);
-          //     // });
-
-          //     if (file[1] === vscode.FileType.Directory) {
-          //       let newFolder = {name:"", val:uri, subFolder:{}};
-          //       newFolder.name = file[0];
-          //       newFolder.val = uri;
-          //       // newFolder.subFolder = 
-
-          //       fileFolders.folders[file[0]] = newFolder;
-          //       this.GetFilesInFolder(uri, fileFolders, newFolder.name);
-          //       //console.log(uri);
-          //       //console.log(vscode.workspace.workspaceFolders?.map(folder => folder.uri.path));
-          //       console.log(fileFolders);
-          //     }
-          //   });
-          // });
-
-          //   => {
-          //     files.forEach((file) => {
-          //         const uri = vscode.Uri.file(file);
-          //         console.log(uri);
-          //     });
-          // });
-
-          //console.log("getfiles");
           break;
         }
 

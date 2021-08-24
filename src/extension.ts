@@ -19,8 +19,37 @@ export function activate(context: vscode.ExtensionContext) {
 		)
 	);
 
+
+
+
+	// let sel:vscode.DocumentSelector = { scheme: 'file', language: 'typescript' };
+
+
+	// context.subscriptions.push(
+	// 	vscode.languages.registerFoldingRangeProvider(sel, {
+	// 		provideFoldingRanges(document, context, token) {
+	// 			//console.log('folding range invoked'); // comes here on every character edit
+	// 			let sectionStart = 0, FR = [], re = /^## /;  // regex to detect start of region
+	
+	// 			for (let i = 0; i < document.lineCount; i++) {
+	
+	// 				if (re.test(document.lineAt(i).text)) {
+	// 					if (sectionStart > 0) {
+	// 						FR.push(new vscode.FoldingRange(sectionStart, i - 1, vscode.FoldingRangeKind.Region));
+	// 					}
+	// 					sectionStart = i;
+	// 				}
+	// 			}
+	// 			if (sectionStart > 0) { FR.push(new vscode.FoldingRange(sectionStart, document.lineCount - 1, vscode.FoldingRangeKind.Region)); }
+	
+	// 			return FR;
+	// 		}
+	// 	})
+	// );
+
 	//Run extension on vscode start!
-	vscode.commands.executeCommand("vsblocksnipets.startPanelWithoutItems");
+	// vscode.commands.executeCommand("vsblocksnipets.startPanelWithoutItems");
+	// let success = vscode.commands.executeCommand('editor.fold');
 
 	const item2 = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
 	item2.text = "$(beaker) CodeBlocks";
@@ -34,6 +63,8 @@ export function activate(context: vscode.ExtensionContext) {
 	vscode.window.onDidChangeActiveTextEditor(event => {
 		if (event) {
 			console.log(event.document.isClosed);
+			let path = event.document.fileName;
+			HellowWorldPanel.PassActiveWindow(path);
 			//console.log(event.document.isUntitled);
 			// (async () => {
 			// 	console.log("TextEditor CHANGED!");
@@ -42,8 +73,33 @@ export function activate(context: vscode.ExtensionContext) {
 
 	});
 
+	// vscode.window.onDidChangeWindowState(event => {
+	// 	if (event) {
+	// 		console.log(event);
+	// 		//console.log(event.document.isUntitled);
+	// 		// (async () => {
+	// 		// 	console.log("TextEditor CHANGED!");
+	// 		// })();
+	// 	}
+
+	// });
+	
+	// vscode.FoldingRangeProvider.onDidChangeFoldingRanges(event => {
+	// 	if (event) {
+	// 		console.log(event.document.isClosed);
+	// 		//console.log(event.document.isUntitled);
+	// 		// (async () => {
+	// 		// 	console.log("TextEditor CHANGED!");
+	// 		// })();
+	// 	}
+
+	// });
+
+
 
 	vscode.window.onDidChangeTextEditorSelection((event: vscode.TextEditorSelectionChangeEvent) => {
+
+
 
 		//console.log(event.textEditor.selection);
 		(async () => {
@@ -234,6 +290,9 @@ export function activate(context: vscode.ExtensionContext) {
 			// Display a message box to the user
 			// vscode.window.showInformationMessage('Hello World!! from VSBlockSnipets!');
 			//vscode.window.showInputBox({value:"test"});
+
+
+		
 
 			HellowWorldPanel.createOrShow(context.extensionUri, "");
 			vscode.commands.executeCommand("vsblocksnipets.passBlocksToWindow", items);
@@ -592,8 +651,7 @@ export function activate(context: vscode.ExtensionContext) {
 	
 				let fs = vscode.workspace.fs;
 				let fileString;
-	
-	
+
 				if (saveLocation === "testvalue") {
 					vscode.window.showInformationMessage(config.has('codeMapSaveLocation').toString());
 	

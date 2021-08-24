@@ -245,6 +245,16 @@
           }
           if ($debug) console.log($codeMap);
           break;
+
+          case "window-change":
+            if (typeof message.value === "string") {
+              if (!$codeMap.activeWindow)
+              {
+                $codeMap.activeWindow = {path:""};
+              }
+                $codeMap.activeWindow.path = message.value;
+            }
+          break;
       }
     });
   });

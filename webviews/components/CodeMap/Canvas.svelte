@@ -42,6 +42,7 @@
   let lines = [];
   let isMoving = false;
   let selectedBlocks;
+  let changedFile;
 
   // Order:------------------
   // . OnMount()
@@ -74,6 +75,8 @@
     $newRender;
     $codeMap;
   }
+
+  $: $codeMap?.activeWindow?.path, onWindowChange();
 
   $: $perimeterItem, onDoubleClicked();
 
@@ -149,8 +152,7 @@
 
         $currentlySelected.push(OnMouseUpObject.items[0]);
         console.log("highlightme");
-
-        SelectGroup(OnMouseUpObject.event.target.id);
+        //SelectGroup(OnMouseUpObject.event.target.id);
       }
 
       if (OnMouseUpObject.items.length === 1 && buttonClick && $currentlySelected.length === 1) {
@@ -181,6 +183,11 @@
     });
 
     ds.subscribe("dragstart", (DragStartObject) => {
+      let buttonClick;
+
+      if (DragStartObject.event.target.nodeName === "BUTTON") buttonClick = true;
+      else buttonClick = false;
+
       if (DragStartObject.isDragging) {
         isMoving = true;
 
@@ -192,6 +199,10 @@
         let translate = "translate3d(" + x + "px, " + y + "px, 1px) scale(" + $currentZoom + ")";
 
         DragStartObject.items[0].style.transform = translate;
+      }
+      if (DragStartObject.items.length === 1 && !buttonClick) {
+        let groupItems = SelectGroup(DragStartObject.event.target.id);
+        DragStartObject.items.concat(groupItems);
       }
     });
 
@@ -295,14 +306,14 @@
         return;
       }
 
-      // if ($codeMap?.canvas) {
-      //   faketree = JSON.parse(JSON.stringify($codeMap.canvas.children));
-      //   FlattenTree(faketree);
+      if ($codeMap?.canvas) {
+        faketree = JSON.parse(JSON.stringify($codeMap.canvas.children));
+        FlattenTree(faketree);
 
-      //   // faketree = _.index(faketree)
+        // faketree = _.index(faketree)
 
-      //   $codeMap.flatTree = [...new Set(faketree)];
-      // }
+        $codeMap.flatTree = [...new Set(faketree)];
+      }
     }
   }
 
@@ -607,18 +618,6 @@
   }
 
   function SelectGroup(selectedId) {
-    // _.findDeep($codeMap.groups, (value, key, parentValue, context) =>
-    //  {
-    //    if (key === "groupId")
-    //    {
-    //      if (value.toString() === selectedId.toString())
-    //      {
-    //        console.log("found it");
-    //      }
-    //    }
-    //  }
-    // )
-
     let foundGroup;
 
     $codeMap?.groups?.forEach((group) => {
@@ -633,11 +632,11 @@
       let selection = [];
 
       foundGroup.blockIds.forEach((id) => {
-        if (document.getElementById(id))
-          selection.push(document.getElementById(id));
+        if (document.getElementById(id)) selection.push(document.getElementById(id));
       });
 
       ds.addSelection(selection);
+      return selection;
     }
   }
 
@@ -726,7 +725,7 @@
       HideRecursively(treeItem);
     } else {
       treeItem.open = true;
-      ShowRecursively(treeItem);
+      ShowRecursivelyFromParent(treeItem);
     }
 
     // $codeMap.flatTree.forEach(flatItem => {
@@ -743,35 +742,25 @@
 
   function HideRecursively(treeItem) {
     $codeMap.flatTree.forEach((flatItem) => {
-      if (flatItem.parentId === treeItem.id) 
-      {
+      if (flatItem.parentId === treeItem.id) {
         flatItem.visible = false;
         HideRecursively(flatItem);
-
-        // if (thisCard)
-        // {
-        //   // $currentlySelected.push(thisCard);
-        // }
       }
     });
 
     RenderBlocks();
   }
 
-  function ShowRecursively(treeItem) {
+  function ShowRecursivelyFromParent(treeItem) {
     $codeMap.flatTree.forEach((flatItem) => {
-      if (flatItem.parentId === treeItem.id) 
-      {
-        if (typeof treeItem.open === "undefined" || treeItem.open === true) 
-        {
+      if (flatItem.parentId === treeItem.id) {
+        if (typeof treeItem.open === "undefined" || treeItem.open === true) {
           flatItem.visible = true;
-        } 
-        else 
-        {
+        } else {
           flatItem.visible = false;
         }
 
-        ShowRecursively(flatItem);
+        ShowRecursivelyFromParent(flatItem);
 
         // let thisCard = document.getElementById(flatItem.id);
 
@@ -784,20 +773,38 @@
     RenderBlocks();
   }
 
-  // function SelectRecursive(treeItem) {
-  //   $codeMap.flatTree.forEach((flatItem) => {
-  //     if (flatItem.parentId === treeItem.id){
-  //       let thisCard = document.getElementById(flatItem.id);
+  function ShowRecursivelyFromFile(treeItem) {
+    $codeMap.flatTree.forEach((flatItem) => {
+      if (flatItem.id === treeItem.parentId) {
+        if (typeof treeItem.open === "undefined" || treeItem.open === true) {
+          flatItem.visible = true;
+        }
 
-  //       if (thisCard)
-  //       {
-  //         $currentlySelected.push(thisCard);
-  //         SelectRecursive(flatItem);
-  //       }
+        ShowRecursivelyFromFile(flatItem);
+      }
+    });
 
-  //     }
-  //   })
-  // }
+    RenderBlocks();
+  }
+
+  function onWindowChange() {
+    if ($codeMap?.flatTree) {
+
+      if (changedFile === $codeMap?.activeWindow?.path)
+      {
+        return; 
+      }
+      
+      changedFile = $codeMap?.activeWindow?.path;
+      $codeMap.flatTree.forEach((flatItem) => {
+        if (flatItem?.path === changedFile) {
+          console.log(flatItem.name);
+          flatItem.visible = true;
+          ShowRecursivelyFromFile(flatItem);
+        }
+      });
+    }
+  }
 </script>
 
 <main id="Canvas">

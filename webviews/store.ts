@@ -42,11 +42,16 @@ export interface Group {
    visible:boolean,
 }
 
+export interface ActiveWindow {
+   path:string,
+}
+
 export interface CodeMap {
    canvas: FilteredTree,
    flatTree: [FilteredTree],
    pocket: [FilteredTree | Group],
-   groups:Array<Group>
+   groups:Array<Group>,
+   activeWindow: ActiveWindow,
 }
 
 export interface DerivedGroup {
