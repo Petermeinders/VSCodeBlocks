@@ -64,11 +64,12 @@ export function activate(context: vscode.ExtensionContext) {
 		if (event) {
 			console.log(event.document.isClosed);
 			let path = event.document.fileName;
-			HellowWorldPanel.PassActiveWindow(path);
+			let outline = HellowWorldPanel.GetOutline(path);
 			//console.log(event.document.isUntitled);
 			// (async () => {
 			// 	console.log("TextEditor CHANGED!");
 			// })();
+			
 		}
 
 	});

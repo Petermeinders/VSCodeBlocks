@@ -247,13 +247,16 @@
           break;
 
           case "window-change":
-            if (typeof message.value === "string") {
+            
               if (!$codeMap.activeWindow)
               {
-                $codeMap.activeWindow = {path:""};
+                $codeMap.activeWindow = {path:"", outline:{}};
               }
-                $codeMap.activeWindow.path = message.value;
-            }
+               let outineObject = JSON.parse(message.value.outline);
+
+                $codeMap.activeWindow.path = message.value.path;
+                $codeMap.activeWindow.outline = outineObject;
+            
           break;
       }
     });

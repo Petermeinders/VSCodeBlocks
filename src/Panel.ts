@@ -1,19 +1,19 @@
-import { ActiveWindow } from './../webviews/store';
 import * as vscode from "vscode";
 import { getNonce } from "./getNonce";
 import * as fs from "fs";
 import { Console } from "console";
 import * as dirTree from "directory-tree";
 // import _ from 'lodash-es';
-import deepdash from 'deepdash';
-
-
+import deepdash from "deepdash";
+import _ = require("lodash");
+import * as util from "util";
+import { isArray } from "lodash";
 
 export class HellowWorldPanel {
   /**
    * Track the currently panel. Only allow a single panel to exist at a time.
    */
-  
+
   public static currentPanel: HellowWorldPanel | undefined;
 
   public static readonly viewType = "hello-world";
@@ -21,6 +21,7 @@ export class HellowWorldPanel {
   public readonly _panel: vscode.WebviewPanel;
   public readonly _extensionUri: vscode.Uri;
   public _disposables: vscode.Disposable[] = [];
+  public static testobj = { children: [], containerName: "", detail: "", kind: 0, name: "", location: {}, range: {} };
 
   public static createOrShow(extensionUri: vscode.Uri, message: string) {
     // const column = vscode.window.activeTextEditor
@@ -125,14 +126,78 @@ export class HellowWorldPanel {
     }
   }
 
-  public static PassActiveWindow(path) {
+  public static PassActiveWindow(path, outline) {
     if (typeof HellowWorldPanel.currentPanel !== "undefined") {
+      // let outlineString = JSON.stringify(newoutline);
+      // let finalOutlinnee = HellowWorldPanel.CloneOutline(outline);
+
+      const _ = require("lodash");
+      require("deepdash")(_);
+
+      let newList = _.pickDeep(outline, ["children", "name", "kind", "containerName", "location", "range", "uri", "path" ]);
+
+      _.eachDeep(newList, (value, key, parentValue, context) => {
+        if (typeof value === "object" && typeof(value.name) !== 'undefined') {
+          value.id = getNonce();
+        }
+      })
+ 
+      let newobj = _.cloneDeep(outline[0]);
+
+
+      newobj.toJSON = function () {};
+
+
+      // let newoutlinething = _.eachDeep(newobj, (value, key, parentValue, context) => {
+      //     if (parentValue.toJSON !== 'undefined')
+      //     {
+      //       parentValue.toJSON =  function () {
+      //            return { children:this.children, name: this.name, kind: this.kind, location: this.location, containerName: this.containerName };
+      //         };
+      //     }
+      // });
+
+
+      let newjson = JSON.stringify(newList);
+
+      //    let testobj = {};
+
+      // testobj.children = newChildren;
+      // testobj.containerName = outline.containerName;
+      // testobj.detail = outline.detail;
+      // testobj.kind = outline.kind;
+      // testobj.name = outline.name;
+      // testobj.location = outline.location;
+      // testobj.range = outline.range;
+
+     // let outlineString = JSON.stringify(newobj);
+
+      let activeWindow = { path: path, outline: newjson };
       HellowWorldPanel.currentPanel._panel.webview.postMessage({
         type: "window-change",
-        value: path,
+        value: activeWindow,
       });
     } else {
       console.log("error");
+    }
+  }
+
+  public static CloneOutline(newoutline) {
+    if (isArray(newoutline)) {
+      newoutline.forEach((child) => {
+        HellowWorldPanel.testobj.children = child.children;
+        HellowWorldPanel.testobj.containerName = child.containerName;
+        HellowWorldPanel.testobj.detail = child.detail;
+        HellowWorldPanel.testobj.kind = child.kind;
+        HellowWorldPanel.testobj.name = child.name;
+        HellowWorldPanel.testobj.location = child.location;
+        HellowWorldPanel.testobj.range = child.range;
+
+        if (child.children.length > 0) {
+          this.CloneOutline(HellowWorldPanel.testobj);
+        }
+      });
+    } else {
     }
   }
 
@@ -161,6 +226,22 @@ export class HellowWorldPanel {
       HellowWorldPanel.currentPanel._panel.webview.postMessage({
         type: "code-vssnippet-from-active-window",
         value: value,
+      });
+    }
+  }
+
+  public static GetOutline(path) {
+    if (typeof HellowWorldPanel.currentPanel !== "undefined") {
+      let uri = vscode.workspace.textDocuments[0].uri;
+
+      vscode.commands.executeCommand("vscode.executeDocumentSymbolProvider", uri).then((outline) => {
+        console.log(outline);
+        HellowWorldPanel.PassActiveWindow(path, outline);
+
+        // let range = outline[0].children[1].children[0].range;
+        // vscode.workspace.openTextDocument(uri).then(y => {
+        //  y.getText(range);
+        // })
       });
     }
   }
@@ -269,32 +350,28 @@ export class HellowWorldPanel {
     }
   }
 
-
   public GetFilesInFolder(uri: vscode.Uri, fileFolders, prevFolderName) {
-
     // const filteredTree = dirTree("/some/path", { extensions: /\.txt/ });
     // vscode.workspace.fs.readDirectory(uri).then((files) => {
     //   files.forEach((file) => {
     //     let newstring = uri.fsPath+ "/" + file[0];
-    //     if (file[1] === vscode.FileType.Directory) { 
+    //     if (file[1] === vscode.FileType.Directory) {
     //       //FOLDER
     //       //console.log("folder: " + file[0]);
     //       const newURI = vscode.Uri.file(newstring);
     //       let newFolder = {name:"", val:uri, subFolder:{}};
     //       newFolder.name = file[0];
     //       newFolder.val = uri;
-    //       // newFolder.subFolder = 
+    //       // newFolder.subFolder =
     //       fileFolders.folders[prevFolderName].subFolder[file[0]] = newFolder;
     //       this.GetFilesInFolder(newURI, fileFolders, file[0]);
     //     }
     //     else{
     //       //FILE
     //       //console.log("file: " + file[0]);
-
     //     }
     //   });
     // });
-    
   }
 
   public dispose() {
@@ -355,82 +432,69 @@ export class HellowWorldPanel {
         case "GetFiles": {
           //vscode.commands.executeCommand("vsblocksnipets.addPlaceholder");
           let rootFolder = vscode.workspace.workspaceFolders[0];
-          let fileFolders = {folders:{}, files:[]};
+          let fileFolders = { folders: {}, files: [] };
 
-          const filteredTree = dirTree(rootFolder.uri.fsPath, { exclude: new RegExp(/node_modules|\.git/)});
+          const filteredTree = dirTree(rootFolder.uri.fsPath, { exclude: new RegExp(/node_modules|\.git/) });
 
-          const _ = require('lodash');
-          require('deepdash')(_);
+          const _ = require("lodash");
+          require("deepdash")(_);
           let i = 0;
 
-          let filtrate = _.eachDeep(filteredTree, (value, key, parentValue, context, options={pathFormat:"array"}) => {
-            if(typeof(value) === "object" && !Array.isArray(value))
-            {
+          let filtrate = _.eachDeep(filteredTree, (value, key, parentValue, context, options = { pathFormat: "array" }) => {
+            if (typeof value === "object" && !Array.isArray(value)) {
               value.id = i;
               i = ++i;
 
-              if (!value.x1)
-              {
+              if (!value.x1) {
                 value.x1 = 0;
                 value.y1 = 0;
                 value.x2 = 0;
                 value.y2 = 0;
               }
 
-              if (value.children){
-                value.children.forEach(child => {
+              if (value.children) {
+                value.children.forEach((child) => {
                   child.parentId = value.id;
-                })
+                });
               }
 
-              if(!value.locationX)
-              {
+              if (!value.locationX) {
                 value.locationX = 0;
                 value.locationY = 0;
               }
 
-              if (typeof(value.visible) === 'undefined')
-              {
+              if (typeof value.visible === "undefined") {
                 value.visible = true;
               }
 
               // vscode.workspace.openTextDocument()
               // vscode.workspace.
-// vscode.languages.registerReferenceProvider()
-// let fold = vscode.languages.registerFoldingRangeProvider();
-// vscode.FoldingRangeProvider.provideFoldingRanges()
+              // vscode.languages.registerReferenceProvider()
+              // let fold = vscode.languages.registerFoldingRangeProvider();
+              // vscode.FoldingRangeProvider.provideFoldingRanges()
               // vscode.workspace.fs.readFile()
-              }
-
-
             }
-          );
+          });
 
+          // let uri = vscode.workspace.textDocuments[0].uri;
 
-          
-				// let uri = vscode.workspace.textDocuments[0].uri;
+          // vscode.commands.executeCommand("vscode.executeDocumentSymbolProvider", uri).then(x => {
+          // 	console.log(x);
+          // 	let range = x[0].children[1].children[0].range;
+          // 	// vscode.workspace.openTextDocument(uri).then(y => {
+          // 	// 	y.getText(range);
+          // 	// })
+          // });
 
-				// vscode.commands.executeCommand("vscode.executeDocumentSymbolProvider", uri).then(x => {
-				// 	console.log(x);
-				// 	let range = x[0].children[1].children[0].range;
-				// 	// vscode.workspace.openTextDocument(uri).then(y => {
-				// 	// 	y.getText(range);
-				// 	// })
-				// });
-
-
-
-          let codeMap = {canvas:{}, pocket:[], activeWindow:{}};
+          let codeMap = { canvas: {}, pocket: [], activeWindow: {} };
 
           codeMap.canvas = filtrate;
           codeMap.pocket = [];
           codeMap.activeWindow = {};
           // TreeObj.settings;
-         console.log('Filtrate',codeMap);
+          console.log("Filtrate", codeMap);
 
           // console.log(filteredTree);
-
-
 
           this.ReturnFileTree(codeMap);
 
@@ -570,7 +634,6 @@ export class HellowWorldPanel {
           break;
         }
 
-        
         case "LoadCodeMapFromFile": {
           if (!data.value) {
             return;
@@ -590,13 +653,10 @@ export class HellowWorldPanel {
 
           let viewColum = vscode?.window?.visibleTextEditors[0]?.viewColumn;
 
-
           let fileURI = vscode.Uri.file(data.value);
           vscode.workspace.openTextDocument(fileURI).then((document) => {
-            vscode.window.showTextDocument(document,viewColum);         
+            vscode.window.showTextDocument(document, viewColum);
           });
-
-
 
           //   let text = document.getText();
           break;

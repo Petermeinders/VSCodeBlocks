@@ -44,6 +44,16 @@ export interface Group {
 
 export interface ActiveWindow {
    path:string,
+   id:string,
+   block:FilteredTree,
+   outline: [{
+      children:[],
+      containerName:string,
+      detail: string,
+      kind: number,
+      location: {}, 
+      name: string,
+   }],
 }
 
 export interface CodeMap {
@@ -53,6 +63,8 @@ export interface CodeMap {
    groups:Array<Group>,
    activeWindow: ActiveWindow,
 }
+
+
 
 export interface DerivedGroup {
    groupId:string,

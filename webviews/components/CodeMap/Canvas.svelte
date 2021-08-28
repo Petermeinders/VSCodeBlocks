@@ -28,6 +28,35 @@
     }
   }
 
+  enum OutlineTypeEnum {
+    Array = 17,
+    Boolean = 16,
+    Class = 4,
+    Constant = 13,
+    Constructor = 8,
+    Enum = 9,
+    EnumMember = 21,
+    Event = 23,
+    Field = 7,
+    File = 0,
+    Function = 11,
+    Interface = 10,
+    Key = 19,
+    Method = 5,
+    Module = 1,
+    Namespace = 2,
+    Null = 20,
+    Number = 15,
+    Object = 18,
+    Operator = 24,
+    Package = 3,
+    Property = 6,
+    String = 14,
+    Struct = 22,
+    TypeParameter = 25,
+    Variable = 12,
+  }
+
   const flipDurationMs = 300;
   function handleDndConsider(e) {
     $codeMap.pocket = e.detail.items;
@@ -300,9 +329,12 @@
   function RenderBlocks() {
     if (!isMoving) {
       if ($codeMap?.flatTree) {
+        let OutlineArray = GetOutline();
+
         SetVisibility();
 
         $codeMap.flatTree = [...new Set($codeMap.flatTree)];
+
         return;
       }
 
@@ -315,6 +347,53 @@
         $codeMap.flatTree = [...new Set(faketree)];
       }
     }
+  }
+
+  function GetOutline() {
+    let OutlineArray = [];
+
+    if ($codeMap?.activeWindow?.outline) {
+      let outline = $codeMap.activeWindow.outline;
+      if (outline.length > 0) {
+        console.log("OUTLINE: ");
+        console.log(outline);
+        let currentParentBlock = $codeMap.activeWindow.block;
+
+        _.eachDeep(outline, (value, key, parentValue, context) => {
+          if (typeof value === "object" && typeof value.name !== "undefined") {
+            // console.log(`${key} : ${outline[key]}`);
+
+            let newTreeItem = {
+              id: value.id,
+              parentId: currentParentBlock.id,
+              path: value.location.path,
+              name: value.name,
+              size: 0,
+              type: "outline",
+              color: "",
+              visible: true,
+              open: null,
+              children: [],
+              extension: OutlineTypeEnum[value.kind],
+              locationX: currentParentBlock.locationX,
+              locationY: currentParentBlock.locationY,
+            };
+            let hit = 0;
+            $codeMap.flatTree.forEach((flatItem) => {
+              if (flatItem.id === newTreeItem.id || (flatItem.name === newTreeItem.name && flatItem.path === newTreeItem.path)) {
+                hit += 1;
+              }
+            });
+            if (hit === 0) {
+              console.log(newTreeItem);
+              $codeMap.flatTree.push(newTreeItem);
+            }
+          }
+        });
+        //$codeMap.flatTree = [...$codeMap.flatTree, ...OutlineArray];
+      }
+    }
+    return OutlineArray;
   }
 
   function SetVisibility() {
@@ -789,17 +868,17 @@
 
   function onWindowChange() {
     if ($codeMap?.flatTree) {
-
-      if (changedFile === $codeMap?.activeWindow?.path)
-      {
-        return; 
+      if (changedFile === $codeMap?.activeWindow?.path) {
+        return;
       }
-      
+
       changedFile = $codeMap?.activeWindow?.path;
       $codeMap.flatTree.forEach((flatItem) => {
         if (flatItem?.path === changedFile) {
           console.log(flatItem.name);
           flatItem.visible = true;
+          $codeMap.activeWindow.id = flatItem.id.toString();
+          $codeMap.activeWindow.block = flatItem;
           ShowRecursivelyFromFile(flatItem);
         }
       });
