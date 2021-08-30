@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { debug, editItem, editMode } from "../store";
+  import { debug, editItem, editMode, items } from "../store";
   import Fa from "svelte-fa";
   import { faTint, faTag, faFont, faPlusCircle, faPencilAlt, faTimesCircle, faSearch } from "@fortawesome/free-solid-svg-icons";
   import Common from "./Common.svelte";
@@ -77,14 +77,36 @@
       value: $editMode,
     });
   }
+
+  function SaveSettings() {
+    if ($debug) {
+      console.log("Export Data Start!");
+      console.log($items);
+    }
+
+    tsvscode.postMessage({
+      type: "saveData",
+      value: $items,
+    });
+  }
 </script>
 
 <main>
   <Common bind:this={common} />
   <div>
+    <div>
+      <h2>Outline Blocks Visibility</h2>
+      {#each $items.settings.visibleOutlineBlocks as {name, checked}}
+        <input type=checkbox  bind:checked={checked}/>  {name}
+      {/each}
+    </div>
+  </div>
+  <div>
+    <button class="tooltip" on:click={SaveSettings}>Save<span class="tooltiptext">Export JSON Code to chosen file. </span> </button>
+  </div>
+  <!-- <div>
     {#if common}
       <div style="display:flex" class="inputStyle colorInput ">
-        <!-- <Fa icon={faTint} style="color:yellow; padding-right: 4px;  " /> -->
         <input type="text" id={common.getNonce()} style="float:left;" value={$editItem.language} class="" placeholder="programming language" on:change={(event) => common.ChangeLanguage(event)} />
       </div>
 
@@ -113,7 +135,7 @@
         <input type="text" bind:value={placeholder} on:change={(event) => OnPlaceHolderChange(event, placeholder.toString())} />
       {/each}
     {/if}
-  </div>
+  </div> -->
 
   <div>
     <button

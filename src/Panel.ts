@@ -49,10 +49,19 @@ export class HellowWorldPanel {
     const panel = vscode.window.createWebviewPanel(HellowWorldPanel.viewType, "CodeBlocks", column || vscode.ViewColumn.One, {
       // Enable javascript in the webview
       enableScripts: true,
+      retainContextWhenHidden: true,
 
       // And restrict the webview to only loading content from our extension's `media` directory.
       localResourceRoots: [vscode.Uri.joinPath(extensionUri, "media"), vscode.Uri.joinPath(extensionUri, "out/compiled")],
     });
+
+    panel.onDidChangeViewState(
+      e => {
+        const panel = e.webviewPanel;
+        console.log(panel);
+      },
+      null,
+    );
 
     HellowWorldPanel.currentPanel = new HellowWorldPanel(panel, extensionUri);
     if (message !== "") {
@@ -127,7 +136,7 @@ export class HellowWorldPanel {
   }
 
   public static PassActiveWindow(path, outline) {
-    if (typeof HellowWorldPanel.currentPanel !== "undefined") {
+    if (typeof HellowWorldPanel.currentPanel !== "undefined" && typeof outline !== "undefined") {
       // let outlineString = JSON.stringify(newoutline);
       // let finalOutlinnee = HellowWorldPanel.CloneOutline(outline);
 
@@ -135,6 +144,7 @@ export class HellowWorldPanel {
       require("deepdash")(_);
 
       let newList = _.pickDeep(outline, ["children", "name", "kind", "containerName", "location", "range", "uri", "path" ]);
+
 
       _.eachDeep(newList, (value, key, parentValue, context) => {
         if (typeof value === "object" && typeof(value.name) !== 'undefined') {
@@ -178,7 +188,7 @@ export class HellowWorldPanel {
         value: activeWindow,
       });
     } else {
-      console.log("error");
+      console.log("error or empty window selected");
     }
   }
 

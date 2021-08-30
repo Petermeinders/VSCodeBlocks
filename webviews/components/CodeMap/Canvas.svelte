@@ -362,6 +362,10 @@
         _.eachDeep(outline, (value, key, parentValue, context) => {
           if (typeof value === "object" && typeof value.name !== "undefined") {
             // console.log(`${key} : ${outline[key]}`);
+            let vis = true;
+            if (value.kind !== 5) {
+              vis = false;
+            }
 
             let newTreeItem = {
               id: value.id,
@@ -371,7 +375,7 @@
               size: 0,
               type: "outline",
               color: "",
-              visible: true,
+              visible: vis,
               open: null,
               children: [],
               extension: OutlineTypeEnum[value.kind],
@@ -789,10 +793,6 @@
     console.log("not yet implemented");
   };
 
-  const ShowCodeBlocks = () => {
-    $items.settings.currentPanel = "codeBlocks";
-  };
-
   const Minimize = (e, treeItem) => {
     console.log("MINIMIZE");
     console.log(e);
@@ -833,10 +833,24 @@
   function ShowRecursivelyFromParent(treeItem) {
     $codeMap.flatTree.forEach((flatItem) => {
       if (flatItem.parentId === treeItem.id) {
-        if (typeof treeItem.open === "undefined" || treeItem.open === true) {
-          flatItem.visible = true;
+        if (flatItem.type === "outline") {
+          $items.settings.visibleOutlineBlocks.forEach((outlineVis) => {
+            if (outlineVis.name === flatItem.extension)
+            {
+              if ( outlineVis.checked) {
+                flatItem.visible = true;
+              }
+              else{
+                flatItem.visible = false;
+              }
+            }
+          });
         } else {
-          flatItem.visible = false;
+          if (typeof treeItem.open === "undefined" || treeItem.open === true) {
+            flatItem.visible = true;
+          } else {
+            flatItem.visible = false;
+          }
         }
 
         ShowRecursivelyFromParent(flatItem);
@@ -889,17 +903,7 @@
 <main id="Canvas">
   <Common bind:this={common} />
   <!-- <h1 style="text-align:center;">Code Map</h1> -->
-  <div style="display: flex, align-items: center">
-    <h1 style="display: flex, align-items: center, justify-content: space-between;">
-      CodeMap
-      <span style="cursor: pointer; " on:click={() => ShowSettings()}
-        ><Fa size="1x" icon={faCog} style="color:#007acc; padding-right: 4px; float:right" />
-      </span>
-      <span style="cursor: pointer; " on:click={() => ShowCodeBlocks()}
-        ><Fa size="1x" icon={faCubes} style="color:#007acc; padding-right: 4px; float:right" />
-      </span>
-    </h1>
-  </div>
+
   <hr />
   {#if $codeMap?.pocket}
     <div style="float:left; width:50%">

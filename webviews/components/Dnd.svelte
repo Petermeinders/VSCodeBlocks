@@ -471,6 +471,7 @@
       value: $editMode,
     });
   }
+  
   function getLinkedName(linkid: string) {
     let linkedItem = $items.customSnippets.find((item) => item.id === linkid);
     if (linkedItem) return linkedItem.name;

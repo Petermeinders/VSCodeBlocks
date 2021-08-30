@@ -121,7 +121,35 @@ let originItems = {
    settings:{
       isFuzzy:false,
       searchCode:false,
-      currentPanel:"codeBlocks"
+      currentPanel:"codeBlocks",
+      visibleOutlineBlocks: [
+         {name: "Array", checked: false},
+         {name: "Boolean", checked: false},
+         {name: "Class", checked: false},
+         {name: "Constant", checked: false},
+         {name: "Constructor", checked: false},
+         {name: "Enum", checked: false},
+         {name: "EnumMember", checked: false},
+         {name: "Event", checked: false},
+         {name: "Field", checked: false},
+         {name: "File", checked: false},
+         {name: "Function", checked: false},
+         {name: "Interface", checked: false},
+         {name: "Key", checked: false},
+         {name: "Method", checked: true},
+         {name: "Module", checked: false},
+         {name: "Namespace", checked: false},
+         {name: "Null", checked: false},
+         {name: "Number", checked: false},
+         {name: "Object", checked: false},
+         {name: "Operator", checked: false},
+         {name: "Package", checked: false},
+         {name: "Property", checked: false},
+         {name: "String", checked: false},
+         {name: "Struct", checked: false},
+         {name: "TypeParameter", checked: false},
+         {name: "Variable", checked: false}
+      ]
    }
 
 };

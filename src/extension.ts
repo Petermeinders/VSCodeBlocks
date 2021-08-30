@@ -5,6 +5,7 @@ import * as vscode from 'vscode';
 import { SidebarProvider } from './SidebarProvider';
 import { TextDecoder, TextEncoder } from 'util';
 import { stringify } from 'querystring';
+import { worker } from 'cluster';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -60,11 +61,50 @@ export function activate(context: vscode.ExtensionContext) {
 		return new Promise(resolve => setTimeout(resolve, ms));
 	}
 
+	vscode.workspace.onWillCreateFiles(event => {
+		if (event) {
+		
+			console.log(event);
+
+			
+		}
+
+	});
+
+	vscode.window.onDidChangeTextEditorViewColumn(event => {
+		if (event) {
+			console.log(event);
+
+			vscode.window.activeTextEditor.viewColumn;
+			
+			//console.log(event.document.isUntitled);
+			// (async () => {
+			// 	console.log("TextEditor CHANGED!");
+			// })();
+			
+		}
+
+	});
+ 
+	
+
+
 	vscode.window.onDidChangeActiveTextEditor(event => {
 		if (event) {
 			console.log(event.document.isClosed);
 			let path = event.document.fileName;
-			let outline = HellowWorldPanel.GetOutline(path);
+			// let outline = HellowWorldPanel.GetOutline(path);
+			//event.viewColumn = 1;
+
+			if (event.viewColumn === 2){
+
+				vscode.commands.executeCommand("workbench.action.revertAndCloseActiveEditor");
+				// await delay(600);
+				//  vscode.window.showTextDocument(event.document,1);
+
+			}
+			vscode.window.activeTextEditor.viewColumn;
+			
 			//console.log(event.document.isUntitled);
 			// (async () => {
 			// 	console.log("TextEditor CHANGED!");

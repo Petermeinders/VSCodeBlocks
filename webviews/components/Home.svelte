@@ -9,13 +9,16 @@
   import EditScreen from "./EditScreen.svelte";
   import levenshtein from "fast-levenshtein";
   import LinkedBlocks from "./LinkedBlocks.svelte";
-  import { faCog, faProjectDiagram } from "@fortawesome/free-solid-svg-icons";
+  import { faCog, faCubes, faProjectDiagram } from "@fortawesome/free-solid-svg-icons";
   import Fa from "svelte-fa";
   import Canvas from "./CodeMap/Canvas.svelte";
   import type currentPanel from "./store.svelte";
+import SettingsScreen from "./SettingsScreen.svelte";
 
   let SearchTerm: string = "";
   let FullCodeSearch: boolean = true;
+
+  // $: $items.settings.currentPanel;
 
   $: {
     if ($items !== null && $items.customSnippets[0] !== undefined) {
@@ -31,11 +34,39 @@
         $items.vsSnippets = ["vsSnippets1", "vsSnippets2"];
       }
 
-      if ($items.settings === null || typeof($items.settings) === "undefined" || typeof($items.settings.currentPanel) === "undefined") {
+      if ($items.settings === null || typeof($items.settings) === "undefined" || typeof($items.settings.currentPanel) === "undefined" || typeof($items.settings.visibleOutlineBlocks) === "undefined") {
         $items.settings = {
           isFuzzy: false,
           searchCode: false,
           currentPanel: "codeBlocks",
+          visibleOutlineBlocks: [
+         {name: "Array", checked: false},
+         {name: "Boolean", checked: false},
+         {name: "Class", checked: false},
+         {name: "Constant", checked: false},
+         {name: "Constructor", checked: false},
+         {name: "Enum", checked: false},
+         {name: "EnumMember", checked: false},
+         {name: "Event", checked: false},
+         {name: "Field", checked: false},
+         {name: "File", checked: false},
+         {name: "Function", checked: false},
+         {name: "Interface", checked: false},
+         {name: "Key", checked: false},
+         {name: "Method", checked: true},
+         {name: "Module", checked: false},
+         {name: "Namespace", checked: false},
+         {name: "Null", checked: false},
+         {name: "Number", checked: false},
+         {name: "Object", checked: false},
+         {name: "Operator", checked: false},
+         {name: "Package", checked: false},
+         {name: "Property", checked: false},
+         {name: "String", checked: false},
+         {name: "Struct", checked: false},
+         {name: "TypeParameter", checked: false},
+         {name: "Variable", checked: false}
+      ]
         };
       }
 
@@ -497,20 +528,55 @@
   }
 
   function ShowSettings() {
-    console.log("not yet implemented");
+    $items.settings.currentPanel = "settings" ;
   }
 
   function ShowCodeMap() {
     $items.settings.currentPanel = "codeMap";
   }
 
+  const ShowCodeBlocks = () => {
+    $items.settings.currentPanel = "codeBlocks";
+  };
+
   let clicked = 0;
 </script>
 
 <main>
-  {#if $items.settings.currentPanel === "codeBlocks"}
-    <!-- PANEL -->
+
+   
+  {#if $items.settings.currentPanel === "editmode"}
+    <h1>EDIT MODE</h1>
+    <EditScreen />
+  {:else if $items.settings.currentPanel === "codeMap"}
+  <div style="display: flex, align-items: center">
+    <h1 style="display: flex, align-items: center, justify-content: space-between;">
+      CodeMap
+      <span style="cursor: pointer; " on:click={() => ShowSettings()}
+        ><Fa size="1x" icon={faCog} style="color:#007acc; padding-right: 4px; float:right" />
+      </span>
+      <span style="cursor: pointer; " on:click={() => ShowCodeBlocks()}
+        ><Fa size="1x" icon={faCubes} style="color:#007acc; padding-right: 4px; float:right" />
+      </span>
+    </h1>
+  </div>
+    <Canvas />
+    {:else if $items.settings.currentPanel === "settings"}
     <div style="display: flex, align-items: center">
+      <h1 style="display: flex, align-items: center, justify-content: space-between;">
+        Settings
+        <span style="cursor: pointer; " on:click={() => ShowCodeBlocks()}
+          ><Fa size="1x" icon={faCubes} style="color:#007acc; padding-right: 4px; float:right" />
+        </span>
+        <span style="cursor: pointer; " on:click={() => ShowCodeMap()}
+          ><Fa size="1x" icon={faProjectDiagram} style="color:#007acc; padding-right: 4px; float:right" />
+        </span>
+      </h1>
+    </div>
+    <SettingsScreen />
+    {:else}
+     <!-- PANEL -->
+     <div style="display: flex, align-items: center">
       <h1 style="display: flex, align-items: center, justify-content: space-between;">
         CodeBlocks
         <span style="cursor: pointer; " on:click={() => ShowSettings()}
@@ -528,15 +594,9 @@
         <Dnd {SearchTerm} {FullCodeSearch} />
       </div>
     </div>
-  {:else if $items.settings.currentPanel === "editmode"}
-    <h1>EDIT MODE</h1>
-    <EditScreen />
-  {:else if $items.settings.currentPanel === "codeMap"}
-    <Canvas />
-  {/if}
 
+    
   <!-- BUTTONS -->
-  {#if $items.settings.currentPanel === "codeBlocks"}
     <div>
       <button class="tooltip" on:click={ExportCode}>Export Code<span class="tooltiptext">Export JSON Code to chosen file. </span> </button>
     </div>
@@ -550,6 +610,7 @@
       </button>
     </div>
   {/if}
+
 </main>
 
 <style>
