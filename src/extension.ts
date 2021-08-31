@@ -93,7 +93,7 @@ export function activate(context: vscode.ExtensionContext) {
 		if (event) {
 			console.log(event.document.isClosed);
 			let path = event.document.fileName;
-			// let outline = HellowWorldPanel.GetOutline(path);
+			 let outline = HellowWorldPanel.GetOutline(path);
 			//event.viewColumn = 1;
 
 			if (event.viewColumn === 2){
@@ -103,7 +103,6 @@ export function activate(context: vscode.ExtensionContext) {
 				//  vscode.window.showTextDocument(event.document,1);
 
 			}
-			vscode.window.activeTextEditor.viewColumn;
 			
 			//console.log(event.document.isUntitled);
 			// (async () => {

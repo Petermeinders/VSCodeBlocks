@@ -242,7 +242,7 @@ export class HellowWorldPanel {
 
   public static GetOutline(path) {
     if (typeof HellowWorldPanel.currentPanel !== "undefined") {
-      let uri = vscode.workspace.textDocuments[0].uri;
+      let uri = vscode.window.activeTextEditor.document.uri;
 
       vscode.commands.executeCommand("vscode.executeDocumentSymbolProvider", uri).then((outline) => {
         console.log(outline);
