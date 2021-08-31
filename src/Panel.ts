@@ -143,7 +143,7 @@ export class HellowWorldPanel {
       const _ = require("lodash");
       require("deepdash")(_);
 
-      let newList = _.pickDeep(outline, ["children", "name", "kind", "containerName", "location", "range", "uri", "path" ]);
+      let newList = _.pickDeep(outline, ["children", "name", "kind", "containerName", "location", "range", "uri", "path", "_start", "_end", "_character", "_line" ]);
 
 
       _.eachDeep(newList, (value, key, parentValue, context) => {
@@ -661,12 +661,25 @@ export class HellowWorldPanel {
             return;
           }
 
+
+
           let viewColum = vscode?.window?.visibleTextEditors[0]?.viewColumn;
 
-          let fileURI = vscode.Uri.file(data.value);
+          let fileURI = vscode.Uri.file(data.value.path);
           vscode.workspace.openTextDocument(fileURI).then((document) => {
-            vscode.window.showTextDocument(document, viewColum);
+            vscode.window.showTextDocument(document, viewColum).then(editor => {
+              
+            if (data.value.type === "outline")
+            {
+              let range = editor.document.lineAt(data.value.startLine).range;
+              editor.selection =  new vscode.Selection(range.start, range.end);
+              editor.revealRange(range);
+            }
+            });
+
           });
+
+         
 
           //   let text = document.getText();
           break;

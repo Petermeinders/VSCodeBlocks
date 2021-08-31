@@ -381,6 +381,11 @@
               extension: OutlineTypeEnum[value.kind],
               locationX: currentParentBlock.locationX,
               locationY: currentParentBlock.locationY,
+              _startLine: value.location.range._start._line,
+              _startCharacter: value.location.range._start._character,
+              _endLine: value.location.range._end._line,
+              _endCharacter: value.location.range._end._character,
+
             };
             let hit = 0;
             $codeMap.flatTree.forEach((flatItem) => {

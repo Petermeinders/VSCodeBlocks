@@ -1,10 +1,12 @@
 <script lang="ts">
-  import { flatTree, newRender, currentZoom, perimeterItem } from "../../store";
+  import { flatTree, newRender, currentZoom, perimeterItem, codeMap } from "../../store";
   import lodash, { flatten } from "lodash";
   import deepdash from "deepdash";
   import { afterUpdate } from "svelte";
   import Fa from "svelte-fa";
   import { faBullseye, faCode, faCompressArrowsAlt, faExpandAlt, faFile, faFolder, faTrashRestore } from "@fortawesome/free-solid-svg-icons";
+import { } from "os";
+import type { TreeItem } from "vscode";
 
   const _ = deepdash(lodash);
   export let left = 30;
@@ -32,10 +34,25 @@
     };
   }
 
-  function dbClick(path: string) {
+  function dbClick(item:TreeItem) {
+    let dbClickValues = {};
+    dbClickValues.path = item.path;
+    dbClickValues.type = item.type;
+    dbClickValues.startLine = item._startLine;
+
+    if (item.type === "outline")
+    {
+      $codeMap.flatTree.forEach(flatItem => {
+        if (flatItem.id === item.parentId)
+        {
+          dbClickValues.path = flatItem.path;
+        }
+      })
+    }
+
     tsvscode.postMessage({
       type: "OpenFile",
-      value: path,
+      value: dbClickValues,
     });
   }
 </script>
@@ -43,7 +60,7 @@
 <div class="ds-selected ds-hover absolute" style="display:none" />
 
 <main
-  on:dblclick={dbClick(treeItem.path)}
+  on:dblclick={dbClick(treeItem)}
   style=" background:{treeItem.color} ;z-index:101; {treeItem.locationX !== 0 && treeItem.locationY !== 0
     ? 'transform: translate3d(' + treeItem.locationX + 'px, ' + treeItem.locationY + 'px, 1px) scale(' + $currentZoom + ');'
     : ''}"

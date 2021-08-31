@@ -32,6 +32,10 @@ export interface FilteredTree {
   extension:string,
   locationX:string,
   locationY:string,
+  _startLine:string,
+  _startCharacter:string,
+  _endLine:string,
+  _endCharacter:string,
 }
 
 export interface Group {
