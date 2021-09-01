@@ -102,6 +102,10 @@
     </div>
   </div>
   <div>
+    <h2>Debug Enabled?</h2>
+    <input type=checkbox  bind:checked={$debug}/>  Debug
+  </div> 
+  <div>
     <button class="tooltip" on:click={SaveSettings}>Save<span class="tooltiptext">Export JSON Code to chosen file. </span> </button>
   </div>
   <!-- <div>

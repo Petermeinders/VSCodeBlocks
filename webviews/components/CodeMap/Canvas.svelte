@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { codeMap, newRender, currentZoom, perimeterItem, currentlySelected, derivedGroups, items } from "../../store";
+  import { codeMap, newRender, currentZoom, perimeterItem, currentlySelected, derivedGroups, items, debug } from "../../store";
   import type { Group } from "../../store";
   import Card from "./Card.svelte";
   import { onMount, afterUpdate, beforeUpdate, tick } from "svelte";
@@ -364,8 +364,10 @@
     if ($codeMap?.activeWindow?.outline) {
       let outline = $codeMap.activeWindow.outline;
       if (outline.length > 0) {
-        console.log("OUTLINE: ");
-        console.log(outline);
+        if ($debug) {
+          console.log("OUTLINE: ");
+          console.log(outline);
+        }
         let currentParentBlock = $codeMap.activeWindow.block;
 
         _.eachDeep(outline, (value, key, parentValue, context) => {
@@ -402,7 +404,10 @@
               }
             });
             if (hit === 0) {
-              console.log(newTreeItem);
+              if ($debug) {
+                console.log("New Outline item added:");
+                console.log(newTreeItem);
+              }
               $codeMap.flatTree.push(newTreeItem);
             }
           }
@@ -410,6 +415,7 @@
         //$codeMap.flatTree = [...$codeMap.flatTree, ...OutlineArray];
       }
     }
+
     return OutlineArray;
   }
 
@@ -818,6 +824,7 @@
     } else {
       treeItem.open = true;
       ShowRecursivelyFromParent(treeItem);
+      RenderBlocks();
     }
 
     // $codeMap.flatTree.forEach(flatItem => {
@@ -880,26 +887,32 @@
         // }
       }
     });
-
-    RenderBlocks();
   }
 
-  function ShowRecursivelyFromFile(treeItem) {
+  function ShowRecursivelyUPFromFile(treeItem) {
     $codeMap.flatTree.forEach((flatItem) => {
-      if (flatItem.parentId === treeItem.id) {
+      if (flatItem.id === treeItem.parentId) {
         //If not-outline, check if closed. If outline, check settings chechboxes.
-        if (
-          ((typeof treeItem.open === "undefined" || treeItem.open === true) && treeItem.type !== "outline") ||
-          (flatItem.type === "outline" && isOutlineItemVisible(flatItem.extension))
-        ) {
+        if (treeItem.type !== "outline" || (flatItem.type === "outline" && isOutlineItemVisible(flatItem.extension))) {
           flatItem.visible = true;
         }
 
-        ShowRecursivelyFromFile(flatItem);
+        ShowRecursivelyUPFromFile(flatItem);
       }
     });
+  }
 
-    RenderBlocks();
+  function ShowRecursivelyDOWNFromFile(treeItem) {
+    $codeMap.flatTree.forEach((flatItem) => {
+      if (flatItem.parentId === treeItem.id) {
+        //If not-outline, check if closed. If outline, check settings chechboxes.
+        if (flatItem.type !== "outline" || (flatItem.type === "outline" && isOutlineItemVisible(flatItem.extension))) {
+          flatItem.visible = true;
+        }
+
+        ShowRecursivelyUPFromFile(flatItem);
+      }
+    });
   }
 
   function isOutlineItemVisible(outlineItem) {
@@ -925,7 +938,20 @@
           flatItem.visible = true;
           $codeMap.activeWindow.id = flatItem.id.toString();
           $codeMap.activeWindow.block = flatItem;
-          ShowRecursivelyFromFile(flatItem);
+          ShowRecursivelyUPFromFile(flatItem);
+          ShowRecursivelyDOWNFromFile(flatItem);
+
+          RenderBlocks();
+
+          // if (treeItem.parentId === 0){
+          // $codeMap.flatTree.forEach((innerItem) => {
+          //   if (innerItem.parentId === $codeMap.activeWindow.id)
+          //   {
+          //     innerItem.visible = true;
+          //   }
+          // });
+
+          // }
         }
       });
     }

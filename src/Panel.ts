@@ -474,7 +474,7 @@ export class HellowWorldPanel {
               }
 
               if (typeof value.visible === "undefined") {
-                value.visible = true;
+                value.visible = false;
               }
 
               // vscode.workspace.openTextDocument()
