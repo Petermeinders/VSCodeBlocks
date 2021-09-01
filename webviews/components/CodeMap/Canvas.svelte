@@ -337,8 +337,12 @@
 
   function RenderBlocks() {
     if (!isMoving) {
+      if ($debug)
+      {
+        console.log("RenderBlocks");
+      }
+      
       if ($codeMap?.flatTree) {
-        let OutlineArray = GetOutline();
 
         SetVisibility();
 
@@ -929,6 +933,13 @@
       if (changedFile === $codeMap?.activeWindow?.path) {
         return;
       }
+
+      if (typeof $codeMap.activeWindow.block !== "undefined")
+      {
+        GetOutline();
+
+      }
+
 
       changedFile = $codeMap?.activeWindow?.path;
       HideOutline();
