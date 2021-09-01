@@ -2,7 +2,7 @@
   import Dnd from "./Dnd.svelte";
   import Tags from "./Tags.svelte";
   import { onMount } from "svelte";
-  import { debug, editItem, editMode, items } from "../store";
+  import { activelySelectedText, debug, editItem, editMode, items } from "../store";
   import { tags } from "../store";
   import { page } from "../store";
   import { codeMap } from "../store";
@@ -213,6 +213,10 @@ import SettingsScreen from "./SettingsScreen.svelte";
 
         case "selection-to-search":
           SearchTerm = message.value;
+          break;
+
+          case "selection-to-codeMap":
+          $activelySelectedText = message.value;
           break;
 
         case "code-from-active-window":

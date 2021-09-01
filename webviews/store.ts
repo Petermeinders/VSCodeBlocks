@@ -166,6 +166,7 @@ let originEditMode = {
 };
 
 let originDebug = false;
+let originActivelySelectedText = "";
 
 let originEditItem = {
    "id": "0", "tempId":"", "name": "test", "code":"if(${1:condition} ||${1:condition}){${2:expression}})", "linkedBlocks": [], "language":"java", "placeholders":["condition","expression"], "color":'white', "visible":"", "tags":["tag1","tag2"] 
@@ -255,6 +256,14 @@ export const debug = writable(originDebug, (set) => {
    //set([{id:0, name:""}]);
    return () => { };
 });
+
+export const activelySelectedText = writable(originActivelySelectedText, (set) => {
+   console.log("debug: " + originActivelySelectedText);
+
+   //set([{id:0, name:""}]);
+   return () => { };
+});
+
 
 export const editItem = writable(originEditItem, (set) => {
    console.log(originEditItem);

@@ -159,6 +159,7 @@ export function activate(context: vscode.ExtensionContext) {
 				//console.log('after delay: ' + text);
 
 				const wentToWindow = HellowWorldPanel.PassSearchStringToWindow(text);
+				HellowWorldPanel.PassSelectionToCodeMap(text);
 				if (!wentToWindow) {
 					sidebarProvider._view?.webview.postMessage({
 						type: 'selection-to-search',

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { codeMap, newRender, currentZoom, perimeterItem, currentlySelected, derivedGroups, items, debug } from "../../store";
+  import { codeMap, newRender, currentZoom, perimeterItem, currentlySelected, derivedGroups, items, debug, activelySelectedText } from "../../store";
   import type { Group } from "../../store";
   import Card from "./Card.svelte";
   import { onMount, afterUpdate, beforeUpdate, tick } from "svelte";
@@ -108,6 +108,8 @@
   $: $codeMap?.activeWindow?.path, onWindowChange();
 
   $: $perimeterItem, onDoubleClicked();
+
+  $: $activelySelectedText, SelectedTextChange();
 
   function SaveCodeMapToFile() {
     tsvscode.postMessage({
@@ -341,7 +343,7 @@
       {
         console.log("RenderBlocks");
       }
-      
+
       if ($codeMap?.flatTree) {
 
         SetVisibility();
@@ -362,7 +364,7 @@
     }
   }
 
-  function GetOutline() {
+  function GetOutline(currentParentBlock) {
     let OutlineArray = [];
 
     if ($codeMap?.activeWindow?.outline) {
@@ -372,25 +374,25 @@
           console.log("OUTLINE: ");
           console.log(outline);
         }
-        let currentParentBlock = $codeMap.activeWindow.block;
+        // let currentParentBlock = $codeMap.activeWindow.block;
 
         _.eachDeep(outline, (value, key, parentValue, context) => {
           if (typeof value === "object" && typeof value.name !== "undefined") {
             // console.log(`${key} : ${outline[key]}`);
-            let vis = true;
-            if (value.kind !== 5) {
-              vis = false;
-            }
+            let defaultVisibility = false;
+            // if (value.kind !== 5) {
+            //   vis = false;
+            // }
 
             let newTreeItem = {
               id: value.id,
               parentId: currentParentBlock.id,
-              path: value.location.path,
+              path: value.location.uri.path,
               name: value.name,
               size: 0,
               type: "outline",
               color: "",
-              visible: vis,
+              visible: defaultVisibility,
               open: null,
               children: [],
               extension: OutlineTypeEnum[value.kind],
@@ -403,7 +405,7 @@
             };
             let hit = 0;
             $codeMap.flatTree.forEach((flatItem) => {
-              if (flatItem.id === newTreeItem.id || (flatItem.name === newTreeItem.name && flatItem.path === newTreeItem.path)) {
+              if (flatItem.id === newTreeItem.id || ((typeof flatItem?.uri?.path !== "undefined") && flatItem.name === newTreeItem.name && flatItem.uri.path === newTreeItem.uri.path)) {
                 hit += 1;
               }
             });
@@ -893,15 +895,15 @@
     });
   }
 
-  function ShowRecursivelyUPFromFile(treeItem) {
+  function ShowRecursivelyUPFromFile(treeItem, outlineVisible) {
     $codeMap.flatTree.forEach((flatItem) => {
       if (flatItem.id === treeItem.parentId) {
         //If not-outline, check if closed. If outline, check settings chechboxes.
-        if (treeItem.type !== "outline" || (flatItem.type === "outline" && isOutlineItemVisible(flatItem.extension))) {
+        if (treeItem.type !== "outline" || (flatItem.type === "outline" && outlineVisible === true && isOutlineItemVisible(flatItem.extension))) {
           flatItem.visible = true;
         }
 
-        ShowRecursivelyUPFromFile(flatItem);
+        ShowRecursivelyUPFromFile(flatItem, outlineVisible);
       }
     });
   }
@@ -934,23 +936,28 @@
         return;
       }
 
-      if (typeof $codeMap.activeWindow.block !== "undefined")
-      {
-        GetOutline();
+      HideOutline();
 
-      }
+      // $codeMap.activeWindow.outline[0].location.uri.path
+
+      // if (typeof $codeMap.activeWindow.block !== "undefined")
+      // {
+      //   GetOutline();
+
+      // }
 
 
       changedFile = $codeMap?.activeWindow?.path;
-      HideOutline();
+      
       $codeMap.flatTree.forEach((flatItem) => {
         if (flatItem?.path === changedFile) {
           console.log(flatItem.name);
           flatItem.visible = true;
           $codeMap.activeWindow.id = flatItem.id.toString();
           $codeMap.activeWindow.block = flatItem;
-          ShowRecursivelyUPFromFile(flatItem);
-          ShowRecursivelyDOWNFromFile(flatItem);
+          GetOutline($codeMap.activeWindow.block);
+          ShowRecursivelyUPFromFile(flatItem, false);
+          //ShowRecursivelyDOWNFromFile(flatItem);
 
           RenderBlocks();
 
@@ -975,6 +982,28 @@
       }
     });
   }
+
+  function SelectedTextChange(){
+    ShowActivelySelectedOutline();
+  }
+
+  function ShowActivelySelectedOutline(){
+    if ($codeMap?.flatTree)
+    {
+      $codeMap.flatTree.forEach(treeItem => {
+      if (treeItem.type === "outline")
+      {
+        if (treeItem.name === $activelySelectedText)
+        {
+          HideOutline();
+          treeItem.visible = true;
+        }
+      }
+    })
+    }
+   
+  }
+
 </script>
 
 <main id="Canvas">

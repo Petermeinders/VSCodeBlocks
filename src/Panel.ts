@@ -289,6 +289,16 @@ export class HellowWorldPanel {
     }
   }
 
+  public static PassSelectionToCodeMap(searchString: string) {
+    if (typeof HellowWorldPanel.currentPanel !== "undefined") {
+      HellowWorldPanel.currentPanel._panel.webview.postMessage({
+        type: "selection-to-codeMap",
+        value: searchString,
+      });
+      return true;
+    }
+  }
+
   public static GetActiveEditor(hasText: any) {
     let editor = vscode.window.activeTextEditor;
     let viewColum = vscode?.window?.visibleTextEditors[0]?.viewColumn;
