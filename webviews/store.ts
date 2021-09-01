@@ -36,6 +36,7 @@ export interface FilteredTree {
   _startCharacter:string,
   _endLine:string,
   _endCharacter:string,
+  starred:boolean,
 }
 
 export interface Group {
@@ -62,7 +63,7 @@ export interface ActiveWindow {
 
 export interface CodeMap {
    canvas: FilteredTree,
-   flatTree: [FilteredTree],
+   flatTree: FilteredTree[],
    pocket: [FilteredTree | Group],
    groups:Array<Group>,
    activeWindow: ActiveWindow,

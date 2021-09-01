@@ -156,6 +156,12 @@
       if (OnMouseUpObject.event.target.nodeName === "BUTTON") buttonClick = true;
       else buttonClick = false;
 
+      // if (buttonClick)
+      // {
+      //   ds.addSelection($currentlySelected);
+      // }
+
+
       if (OnMouseUpObject.items.length === 1 && !buttonClick) {
         //DragStartObject.items[0].
 
@@ -189,12 +195,13 @@
         $currentlySelected.push(OnMouseUpObject.items[0]);
       }
 
-      if (OnMouseUpObject.items.length === 0 && OnMouseUpObject.event.target.id === "GroupBlocks") {
+      if (OnMouseUpObject.items.length === 0 && (OnMouseUpObject.event.target.id === "GroupBlocks" || OnMouseUpObject.event.target.id === "UngroupBlocks")) {
       } else if (OnMouseUpObject.items.length === 0 && OnMouseUpObject.event.target.nodeName !== "BUTTON") {
         $currentlySelected = [];
       }
 
-      if (OnMouseUpObject.items.length > 1 && OnMouseUpObject.isDragging === false) {
+      // if (OnMouseUpObject.items.length > 1 && OnMouseUpObject.isDragging === false) {
+      if (OnMouseUpObject.items.length > 1) {
         $currentlySelected = [];
         OnMouseUpObject.items.forEach((card) => {
           $currentlySelected.push(card);
@@ -256,6 +263,8 @@
     ds.subscribe("callback", (DragEndedObject) => {
       // let x = DragEndedObject.event.screenX;
       // let y = DragEndedObject.event.screenY;
+
+
       if (typeof DragEndedObject?.items[0] !== "undefined" && DragEndedObject.isDragging) {
         //let itemArray
         // DragEndedObject.items.forEach(item => {
@@ -274,7 +283,7 @@
         isMoving = false;
         console.log("drag ended");
 
-        selectedBlocks = DragEndedObject.items;
+       
         //RenderLines(DragEndedObject);
 
         $codeMap.flatTree;
@@ -827,7 +836,12 @@
   function HideRecursively(treeItem) {
     $codeMap.flatTree.forEach((flatItem) => {
       if (flatItem.parentId === treeItem.id) {
-        flatItem.visible = false;
+
+        if (!flatItem.starred)
+        {
+          flatItem.visible = false;
+        }
+        
         HideRecursively(flatItem);
       }
     });
@@ -838,7 +852,7 @@
   function ShowRecursivelyFromParent(treeItem) {
     $codeMap.flatTree.forEach((flatItem) => {
       if (flatItem.parentId === treeItem.id) {
-        if (flatItem.type === "outline") {
+        if (flatItem.type === "outline" &&(typeof treeItem.open === "undefined" || treeItem.open === true)) {
           $items.settings.visibleOutlineBlocks.forEach((outlineVis) => {
             if (outlineVis.name === flatItem.extension)
             {
@@ -846,7 +860,10 @@
                 flatItem.visible = true;
               }
               else{
+                if (!flatItem.starred)
+        {
                 flatItem.visible = false;
+        }
               }
             }
           });
@@ -854,7 +871,10 @@
           if (typeof treeItem.open === "undefined" || treeItem.open === true) {
             flatItem.visible = true;
           } else {
+            if (!flatItem.starred)
+        {
             flatItem.visible = false;
+        }
           }
         }
 

@@ -159,6 +159,7 @@
 		"webpack-cli": "^4.7.0"
 	},
 	"dependencies": {
+		"@fortawesome/free-regular-svg-icons": "^5.15.4",
 		"@fortawesome/free-solid-svg-icons": "^5.15.3",
 		"@types/dragselect": "^1.13.1",
 		"@types/fast-levenshtein": "0.0.2",
