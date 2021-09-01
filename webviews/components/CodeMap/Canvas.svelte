@@ -161,7 +161,6 @@
       //   ds.addSelection($currentlySelected);
       // }
 
-
       if (OnMouseUpObject.items.length === 1 && !buttonClick) {
         //DragStartObject.items[0].
 
@@ -195,7 +194,10 @@
         $currentlySelected.push(OnMouseUpObject.items[0]);
       }
 
-      if (OnMouseUpObject.items.length === 0 && (OnMouseUpObject.event.target.id === "GroupBlocks" || OnMouseUpObject.event.target.id === "UngroupBlocks")) {
+      if (
+        OnMouseUpObject.items.length === 0 &&
+        (OnMouseUpObject.event.target.id === "GroupBlocks" || OnMouseUpObject.event.target.id === "UngroupBlocks")
+      ) {
       } else if (OnMouseUpObject.items.length === 0 && OnMouseUpObject.event.target.nodeName !== "BUTTON") {
         $currentlySelected = [];
       }
@@ -264,7 +266,6 @@
       // let x = DragEndedObject.event.screenX;
       // let y = DragEndedObject.event.screenY;
 
-
       if (typeof DragEndedObject?.items[0] !== "undefined" && DragEndedObject.isDragging) {
         //let itemArray
         // DragEndedObject.items.forEach(item => {
@@ -283,7 +284,6 @@
         isMoving = false;
         console.log("drag ended");
 
-       
         //RenderLines(DragEndedObject);
 
         $codeMap.flatTree;
@@ -394,7 +394,6 @@
               _startCharacter: value.location.range._start._character,
               _endLine: value.location.range._end._line,
               _endCharacter: value.location.range._end._character,
-
             };
             let hit = 0;
             $codeMap.flatTree.forEach((flatItem) => {
@@ -836,12 +835,10 @@
   function HideRecursively(treeItem) {
     $codeMap.flatTree.forEach((flatItem) => {
       if (flatItem.parentId === treeItem.id) {
-
-        if (!flatItem.starred)
-        {
+        if (!flatItem.starred) {
           flatItem.visible = false;
         }
-        
+
         HideRecursively(flatItem);
       }
     });
@@ -852,18 +849,15 @@
   function ShowRecursivelyFromParent(treeItem) {
     $codeMap.flatTree.forEach((flatItem) => {
       if (flatItem.parentId === treeItem.id) {
-        if (flatItem.type === "outline" &&(typeof treeItem.open === "undefined" || treeItem.open === true)) {
+        if (flatItem.type === "outline" && (typeof treeItem.open === "undefined" || treeItem.open === true)) {
           $items.settings.visibleOutlineBlocks.forEach((outlineVis) => {
-            if (outlineVis.name === flatItem.extension)
-            {
-              if ( outlineVis.checked) {
+            if (outlineVis.name === flatItem.extension) {
+              if (outlineVis.checked) {
                 flatItem.visible = true;
-              }
-              else{
-                if (!flatItem.starred)
-        {
-                flatItem.visible = false;
-        }
+              } else {
+                if (!flatItem.starred) {
+                  flatItem.visible = false;
+                }
               }
             }
           });
@@ -871,10 +865,9 @@
           if (typeof treeItem.open === "undefined" || treeItem.open === true) {
             flatItem.visible = true;
           } else {
-            if (!flatItem.starred)
-        {
-            flatItem.visible = false;
-        }
+            if (!flatItem.starred) {
+              flatItem.visible = false;
+            }
           }
         }
 
@@ -893,8 +886,12 @@
 
   function ShowRecursivelyFromFile(treeItem) {
     $codeMap.flatTree.forEach((flatItem) => {
-      if (flatItem.id === treeItem.parentId) {
-        if (typeof treeItem.open === "undefined" || treeItem.open === true) {
+      if (flatItem.parentId === treeItem.id) {
+        //If not-outline, check if closed. If outline, check settings chechboxes.
+        if (
+          ((typeof treeItem.open === "undefined" || treeItem.open === true) && treeItem.type !== "outline") ||
+          (flatItem.type === "outline" && isOutlineItemVisible(flatItem.extension))
+        ) {
           flatItem.visible = true;
         }
 
@@ -905,6 +902,15 @@
     RenderBlocks();
   }
 
+  function isOutlineItemVisible(outlineItem) {
+    let foundOutlineItem = $items.settings.visibleOutlineBlocks.find((x) => x.name === outlineItem);
+    if (foundOutlineItem.checked) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   function onWindowChange() {
     if ($codeMap?.flatTree) {
       if (changedFile === $codeMap?.activeWindow?.path) {
@@ -912,6 +918,7 @@
       }
 
       changedFile = $codeMap?.activeWindow?.path;
+      HideOutline();
       $codeMap.flatTree.forEach((flatItem) => {
         if (flatItem?.path === changedFile) {
           console.log(flatItem.name);
@@ -922,6 +929,14 @@
         }
       });
     }
+  }
+
+  function HideOutline() {
+    $codeMap.flatTree.forEach((flatItem) => {
+      if (flatItem.type === "outline" && flatItem.starred !== true) {
+        flatItem.visible = false;
+      }
+    });
   }
 </script>
 
