@@ -1,4 +1,7 @@
 <script lang="ts">
+import { codeMap } from "../../store";
+
+
     export let x1: number;
     export let x2: number;
     export let y1: number;
@@ -9,6 +12,15 @@
     export let destId;
     export let color = "#ff0000";
 
+    
+  function DeleteLine(sourceId, destId){
+    console.log("DELETED!");
+    let sourceBlock = $codeMap.flatTree.find(x => x.id === sourceId)
+    let destBlock = $codeMap.flatTree.find(x => x.id === destId)
+
+    if (sour)
+    sourceBlock?.linkedTargetBlocks.splice()
+  }
   </script>
   
   <main>
@@ -30,7 +42,7 @@
           orient="auto">
       <path d="M 0 0 L 10 5 L 0 10 z" fill="blue"/>
     </marker>          
-    <line data-sourceId={sourceId} data-destId={destId} x1={x1} y1={y1} x2={x2} y2={y2} marker-start="url(#triangleStart)" marker-end="url(#triangle)" style="stroke:{color};stroke-width:2" />
+    <line on:click={() => DeleteLine(sourceId, destId)} data-sourceId={sourceId} data-destId={destId} x1={x1} y1={y1} x2={x2} y2={y2} marker-start="url(#triangleStart)" marker-end="url(#triangle)" style="stroke:{color};stroke-width:3" />
           Sorry, your browser does not support inline SVG.
         </svg>
       <!-- {/if} -->

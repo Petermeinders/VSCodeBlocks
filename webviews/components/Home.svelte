@@ -2,7 +2,7 @@
   import Dnd from "./Dnd.svelte";
   import Tags from "./Tags.svelte";
   import { onMount } from "svelte";
-  import { activelySelectedText, debug, editItem, editMode, items } from "../store";
+  import { activelySelectedText, activePath, debug, editItem, editMode, items } from "../store";
   import { tags } from "../store";
   import { page } from "../store";
   import { codeMap } from "../store";
@@ -14,6 +14,7 @@
   import Canvas from "./CodeMap/Canvas.svelte";
   import type currentPanel from "./store.svelte";
 import SettingsScreen from "./SettingsScreen.svelte";
+import { values } from "lodash";
 
   let SearchTerm: string = "";
   let FullCodeSearch: boolean = true;
@@ -216,7 +217,8 @@ import SettingsScreen from "./SettingsScreen.svelte";
           break;
 
           case "selection-to-codeMap":
-          $activelySelectedText = message.value;
+          $activelySelectedText = message.value.searchString;
+          $activePath = message.value.path;
           break;
 
         case "code-from-active-window":

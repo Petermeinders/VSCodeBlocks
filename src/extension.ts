@@ -89,7 +89,7 @@ export function activate(context: vscode.ExtensionContext) {
 	
 
 
-	vscode.window.onDidChangeActiveTextEditor(event => {
+	vscode.window.onDidChangeActiveTextEditor(async (event) => {
 		if (event) {
 			console.log(event.document.isClosed);
 			let path = event.document.fileName;
@@ -99,8 +99,8 @@ export function activate(context: vscode.ExtensionContext) {
 			if (event.viewColumn === 2){
 
 				vscode.commands.executeCommand("workbench.action.revertAndCloseActiveEditor");
-				// await delay(600);
-				//  vscode.window.showTextDocument(event.document,1);
+				await delay(100);
+				await vscode.window.showTextDocument(event.document,1);
 
 			}
 			
@@ -154,12 +154,13 @@ export function activate(context: vscode.ExtensionContext) {
 			await delay(300);
 
 			let text = event.textEditor.document.getText(event.textEditor.selection);
+			let path = event.textEditor.document.uri.path;
 
 			if (text !== null && text !== 'undefined' && text1 === text) {
 				//console.log('after delay: ' + text);
 
 				const wentToWindow = HellowWorldPanel.PassSearchStringToWindow(text);
-				HellowWorldPanel.PassSelectionToCodeMap(text);
+				HellowWorldPanel.PassSelectionToCodeMap(text, path);
 				if (!wentToWindow) {
 					sidebarProvider._view?.webview.postMessage({
 						type: 'selection-to-search',

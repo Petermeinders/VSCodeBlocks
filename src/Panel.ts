@@ -289,11 +289,12 @@ export class HellowWorldPanel {
     }
   }
 
-  public static PassSelectionToCodeMap(searchString: string) {
+  public static PassSelectionToCodeMap(searchString: string, path:string) {
     if (typeof HellowWorldPanel.currentPanel !== "undefined") {
+      let SearchStringPath = {searchString:searchString, path:path}
       HellowWorldPanel.currentPanel._panel.webview.postMessage({
         type: "selection-to-codeMap",
-        value: searchString,
+        value: SearchStringPath,
       });
       return true;
     }

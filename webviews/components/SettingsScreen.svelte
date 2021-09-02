@@ -105,6 +105,10 @@
     <h2>Debug Enabled?</h2>
     <input type=checkbox  bind:checked={$debug}/>  Debug
   </div> 
+  <div>
+    <h2>CodeMap</h2>
+    <input type=checkbox bind:checked={$items.settings.strictCodeMapOutlineWordMatch}/>  Strict CodeMap Outline Word Match?
+  </div> 
   <!-- <div>
     <h2>Animations?</h2>
     <input type=checkbox bind:checked={$debug}/>  Animate

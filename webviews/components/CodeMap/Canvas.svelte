@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { codeMap, newRender, currentZoom, perimeterItem, currentlySelected, derivedGroups, items, debug, activelySelectedText } from "../../store";
+  import { codeMap, newRender, currentZoom, perimeterItem, currentlySelected, derivedGroups, items, debug, activelySelectedText, activePath } from "../../store";
   import type { Group } from "../../store";
   import Card from "./Card.svelte";
   import { onMount, afterUpdate, beforeUpdate, tick } from "svelte";
@@ -406,7 +406,7 @@
               _startCharacter: value.location.range._start._character,
               _endLine: value.location.range._end._line,
               _endCharacter: value.location.range._end._character,
-              linkedTargetBlocks:[],
+              linkedTargetBlocks: [],
             };
             let hit = 0;
             $codeMap.flatTree.forEach((flatItem) => {
@@ -478,95 +478,87 @@
       $codeMap.flatTree.forEach((item2) => {
         if (item1.parentId === item2.id) {
           if (item1.visible && item2.visible) {
-          //lines.forEach((line) => {
-          let id1 = "line" + item1.id;
-          let id2 = "line" + item2.id;
+            //lines.forEach((line) => {
+            let id1 = "line" + item1.id;
+            let id2 = "line" + item2.id;
 
-          if (item1.name === "NestedStore.js") console.log("testhere");
+            if (item1.name === "NestedStore.js") console.log("testhere");
 
-          let lineExists = lines.find(
-            (line) =>
-              (line.sourceId.toString() === item1.id.toString() && line.destId.toString() === item2.id.toString()) ||
-              (line.sourceId.toString() === item2.id.toString() && line.destId.toString === item1.id.toString())
-          );
-          let indexOfLine = lines.indexOf(lineExists);
+            let lineExists = lines.find(
+              (line) =>
+                (line.sourceId.toString() === item1.id.toString() && line.destId.toString() === item2.id.toString()) ||
+                (line.sourceId.toString() === item2.id.toString() && line.destId.toString === item1.id.toString())
+            );
+            let indexOfLine = lines.indexOf(lineExists);
 
-          if (lineExists && indexOfLine !== -1) {
-            lineExists.x1 = item1.locationX;
-            lineExists.y1 = item1.locationY;
+            if (lineExists && indexOfLine !== -1) {
+              lineExists.x1 = item1.locationX;
+              lineExists.y1 = item1.locationY;
 
-            lineExists.x2 = item2.locationX;
-            lineExists.y2 = item2.locationY;
+              lineExists.x2 = item2.locationX;
+              lineExists.y2 = item2.locationY;
 
-            if (!item1.visible || !item2.visible) {
-              lines.splice(indexOfLine, 1);
+              if (!item1.visible || !item2.visible) {
+                lines.splice(indexOfLine, 1);
+              } else {
+                lines.splice(indexOfLine, 1, lineExists);
+              }
             } else {
-              lines.splice(indexOfLine, 1, lineExists);
+              let line = { color: "#ff0000", sourceId: item1.id, destId: item2.id, x1: item1.x2, y1: item1.y2, x2: item2.x2, y2: item2.y2 };
+              lines.push(line);
             }
-
-
           } else {
-            let line = { color:"#ff0000", sourceId: item1.id, destId: item2.id, x1: item1.x2, y1: item1.y2, x2: item2.x2, y2: item2.y2 };
-            lines.push(line);
+            //One or both blocks are invisible
+            let lineExists = lines.find(
+              (line) =>
+                (line.sourceId.toString() === item1.id.toString() && line.destId.toString() === item2.id.toString()) ||
+                (line.sourceId.toString() === item2.id.toString() && line.destId.toString === item1.id.toString())
+            );
+            let indexOfLine = lines.indexOf(lineExists);
+            if (indexOfLine !== -1) {
+              lines.splice(indexOfLine, 1);
+            }
           }
-        }
-        else { //One or both blocks are invisible
-          let lineExists = lines.find(
-            (line) =>
-              (line.sourceId.toString() === item1.id.toString() && line.destId.toString() === item2.id.toString()) ||
-              (line.sourceId.toString() === item2.id.toString() && line.destId.toString === item1.id.toString())
-          );
-          let indexOfLine = lines.indexOf(lineExists);
-          if (indexOfLine !== -1)
-          {
-            lines.splice(indexOfLine, 1);
-          }
-        }
-
         }
       });
 
       if (item1?.linkedTargetBlocks?.length > 0) {
-        item1?.linkedTargetBlocks.forEach(item1TargetBlock => {
-          let customTarget = $codeMap.flatTree.find(x => x.id === item1TargetBlock);
-          if (customTarget)
-          {
-          let lineExists = lines.find(
-            (line) =>
-              (line.sourceId.toString() === customTarget.id.toString() && line.destId.toString() === item1.id.toString()) ||
-              (line.sourceId.toString() === item1.id.toString() && line.destId.toString === customTarget.id.toString())
-          );
-          let indexOfLine = lines.indexOf(lineExists);
+        item1?.linkedTargetBlocks.forEach((item1TargetBlock) => {
+          let customTarget = $codeMap.flatTree.find((x) => x.id === item1TargetBlock);
+          if (customTarget) {
+            let lineExists = lines.find(
+              (line) =>
+                (line.sourceId.toString() === customTarget.id.toString() && line.destId.toString() === item1.id.toString()) ||
+                (line.sourceId.toString() === item1.id.toString() && line.destId.toString === customTarget.id.toString())
+            );
+            let indexOfLine = lines.indexOf(lineExists);
 
-          if (lineExists && indexOfLine !== -1) {
-            lineExists.x1 = item1.locationX;
-            lineExists.y1 = item1.locationY;
+            if (lineExists && indexOfLine !== -1) {
+              lineExists.x1 = item1.locationX;
+              lineExists.y1 = item1.locationY;
 
-            lineExists.x2 = customTarget.locationX;
-            lineExists.y2 = customTarget.locationY;
+              lineExists.x2 = customTarget.locationX;
+              lineExists.y2 = customTarget.locationY;
 
-            if (!customTarget.visible || !item1.visible) {
-              lines.splice(indexOfLine, 1);
+              if (!customTarget.visible || !item1.visible) {
+                lines.splice(indexOfLine, 1);
+              } else {
+                lines.splice(indexOfLine, 1, lineExists);
+              }
             } else {
-              lines.splice(indexOfLine, 1, lineExists);
+              let line = {
+                color: "green",
+                sourceId: customTarget.id,
+                destId: item1.id,
+                x1: item1.x2,
+                y1: item1.y2,
+                x2: customTarget.x2,
+                y2: customTarget.y2,
+              };
+              lines.push(line);
             }
-          } else {
-            let line = {
-              color: "green",
-              sourceId: customTarget.id,
-              destId: item1.id,
-              x1: item1.x2,
-              y1: item1.y2,
-              x2: customTarget.x2,
-              y2: customTarget.y2,
-            };
-            lines.push(line);
           }
-  
-          }
-         
-        })
-      
+        });
       }
     });
 
@@ -1041,9 +1033,16 @@
     if ($codeMap?.flatTree) {
       $codeMap.flatTree.forEach((treeItem) => {
         if (treeItem.type === "outline") {
-          if (treeItem.name === $activelySelectedText) {
-            HideOutline();
-            treeItem.visible = true;
+          if ($items.settings.strictCodeMapOutlineWordMatch) {
+            if (treeItem.name === $activelySelectedText && treeItem.path === $activePath) {
+              HideOutline();
+              treeItem.visible = true;
+            }
+          } else {
+            if (treeItem.name.includes($activelySelectedText)  && treeItem.path === $activePath) {
+              HideOutline();
+              treeItem.visible = true;
+            }
           }
         }
       });

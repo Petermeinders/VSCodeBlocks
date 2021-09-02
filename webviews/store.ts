@@ -128,6 +128,7 @@ let originItems = {
       isFuzzy:false,
       searchCode:false,
       currentPanel:"",
+      strictCodeMapOutlineWordMatch:false,
       visibleOutlineBlocks: [
          {name: "Array", checked: false},
          {name: "Boolean", checked: false},
@@ -168,6 +169,7 @@ let originEditMode = {
 
 let originDebug = false;
 let originActivelySelectedText = "";
+let originActivePath = "";
 
 let originEditItem = {
    "id": "0", "tempId":"", "name": "test", "code":"if(${1:condition} ||${1:condition}){${2:expression}})", "linkedBlocks": [], "language":"java", "placeholders":["condition","expression"], "color":'white', "visible":"", "tags":["tag1","tag2"] 
@@ -260,6 +262,13 @@ export const debug = writable(originDebug, (set) => {
 
 export const activelySelectedText = writable(originActivelySelectedText, (set) => {
    console.log("debug: " + originActivelySelectedText);
+
+   //set([{id:0, name:""}]);
+   return () => { };
+});
+
+export const activePath = writable(originActivePath, (set) => {
+   console.log("debug: " + originActivePath);
 
    //set([{id:0, name:""}]);
    return () => { };
