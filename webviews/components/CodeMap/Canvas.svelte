@@ -477,6 +477,7 @@
     $codeMap.flatTree.forEach((item1) => {
       $codeMap.flatTree.forEach((item2) => {
         if (item1.parentId === item2.id) {
+          if (item1.visible && item2.visible) {
           //lines.forEach((line) => {
           let id1 = "line" + item1.id;
           let id2 = "line" + item2.id;
@@ -503,28 +504,25 @@
               lines.splice(indexOfLine, 1, lineExists);
             }
 
-            // if (item1.x2.toString() === "0") {
-            //   item1.x2 = item1.locationX;
-            //   item1.y2 = item1.locationY;
 
-            //   item2.x2 = item2.locationX;
-            //   item2.y2 = item2.locationY;
-            // }
-            // else if (lineExists && indexOfLine !== -1) {
-            //   lineExists.x1 = item1.x2;
-            //   lineExists.y1 = item1.y2;
-
-            //   lineExists.x2 = item2.x2;
-            //   lineExists.y2 = item2.y2;
-
-            //   //Splice?
-
-            //   lines.splice(indexOfLine, 1, lineExists);
           } else {
             let line = { color:"#ff0000", sourceId: item1.id, destId: item2.id, x1: item1.x2, y1: item1.y2, x2: item2.x2, y2: item2.y2 };
             lines.push(line);
           }
-          // });
+        }
+        else { //One or both blocks are invisible
+          let lineExists = lines.find(
+            (line) =>
+              (line.sourceId.toString() === item1.id.toString() && line.destId.toString() === item2.id.toString()) ||
+              (line.sourceId.toString() === item2.id.toString() && line.destId.toString === item1.id.toString())
+          );
+          let indexOfLine = lines.indexOf(lineExists);
+          if (indexOfLine !== -1)
+          {
+            lines.splice(indexOfLine, 1);
+          }
+        }
+
         }
       });
 

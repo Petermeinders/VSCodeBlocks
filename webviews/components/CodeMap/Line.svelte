@@ -8,6 +8,7 @@
     export let sourceId
     export let destId;
     export let color = "#ff0000";
+
   </script>
   
   <main>

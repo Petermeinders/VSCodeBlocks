@@ -127,7 +127,7 @@ let originItems = {
    settings:{
       isFuzzy:false,
       searchCode:false,
-      currentPanel:"codeBlocks",
+      currentPanel:"",
       visibleOutlineBlocks: [
          {name: "Array", checked: false},
          {name: "Boolean", checked: false},

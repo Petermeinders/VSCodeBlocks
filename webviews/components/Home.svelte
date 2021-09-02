@@ -549,10 +549,11 @@ import SettingsScreen from "./SettingsScreen.svelte";
 <main>
 
    
-  {#if $items.settings.currentPanel === "editmode"}
+  <div hidden={$items.settings.currentPanel === "editMode" ? false : true}>
     <h1>EDIT MODE</h1>
     <EditScreen />
-  {:else if $items.settings.currentPanel === "codeMap"}
+  </div>
+  <div hidden={$items.settings.currentPanel === "codeMap" ? false : true}>
   <div style="display: flex, align-items: center">
     <h1 style="display: flex, align-items: center, justify-content: space-between;">
       CodeMap
@@ -565,7 +566,8 @@ import SettingsScreen from "./SettingsScreen.svelte";
     </h1>
   </div>
     <Canvas />
-    {:else if $items.settings.currentPanel === "settings"}
+</div>
+<div hidden={$items.settings.currentPanel === "settings" ? false : true}>
     <div style="display: flex, align-items: center">
       <h1 style="display: flex, align-items: center, justify-content: space-between;">
         Settings
@@ -578,7 +580,8 @@ import SettingsScreen from "./SettingsScreen.svelte";
       </h1>
     </div>
     <SettingsScreen />
-    {:else}
+  </div>
+  <div hidden={$items.settings.currentPanel === "codeBlocks" ? false : true}>
      <!-- PANEL -->
      <div style="display: flex, align-items: center">
       <h1 style="display: flex, align-items: center, justify-content: space-between;">
@@ -613,7 +616,7 @@ import SettingsScreen from "./SettingsScreen.svelte";
         <span class="tooltiptext">Import selected text in the VSCode snippet format. Make sure json starts and ends with brackets.</span>
       </button>
     </div>
-  {/if}
+  </div>
 
 </main>
 
