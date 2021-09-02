@@ -541,11 +541,11 @@
           let indexOfLine = lines.indexOf(lineExists);
 
           if (lineExists && indexOfLine !== -1) {
-            lineExists.x1 = customTarget.locationX;
-            lineExists.y1 = customTarget.locationY;
+            lineExists.x1 = item1.locationX;
+            lineExists.y1 = item1.locationY;
 
-            lineExists.x2 = item1.locationX;
-            lineExists.y2 = item1.locationY;
+            lineExists.x2 = customTarget.locationX;
+            lineExists.y2 = customTarget.locationY;
 
             if (!customTarget.visible || !item1.visible) {
               lines.splice(indexOfLine, 1);
@@ -557,10 +557,10 @@
               color: "green",
               sourceId: customTarget.id,
               destId: item1.id,
-              x1: customTarget.x2,
-              y1: customTarget.y2,
-              x2: item1.x2,
-              y2: item1.y2,
+              x1: item1.x2,
+              y1: item1.y2,
+              x2: customTarget.x2,
+              y2: customTarget.y2,
             };
             lines.push(line);
           }
