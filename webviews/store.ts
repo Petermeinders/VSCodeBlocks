@@ -37,6 +37,7 @@ export interface FilteredTree {
   _endLine:string,
   _endCharacter:string,
   starred:boolean,
+  linkedTargetBlocks:[]
 }
 
 export interface Group {

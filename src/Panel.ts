@@ -487,6 +487,8 @@ export class HellowWorldPanel {
                 value.visible = false;
               }
 
+              value.linkedTargetBlocks = [];
+
               // vscode.workspace.openTextDocument()
               // vscode.workspace.
               // vscode.languages.registerReferenceProvider()

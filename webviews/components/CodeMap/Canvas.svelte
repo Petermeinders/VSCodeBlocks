@@ -69,9 +69,11 @@
   let ds;
 
   let lines = [];
+  let newLink = {};
   let isMoving = false;
   let selectedBlocks;
   let changedFile;
+  let linkLineDragging = false;
 
   // Order:------------------
   // . OnMount()
@@ -319,14 +321,18 @@
   });
 
   beforeUpdate(() => {
-    console.log("update lines!");
-    RenderBlocks();
-    RenderLines();
+    if (!linkLineDragging) {
+      console.log("update lines!");
+      RenderBlocks();
+      RenderLines();
+    }
   });
 
   afterUpdate(() => {
-    BlocksToTreeStyleLayout();
-    AddCardsToDrag();
+    if (!linkLineDragging) {
+      BlocksToTreeStyleLayout();
+      AddCardsToDrag();
+    }
   });
 
   function CheckForButton(OnMouseUpObject) {
@@ -339,13 +345,11 @@
 
   function RenderBlocks() {
     if (!isMoving) {
-      if ($debug)
-      {
+      if ($debug) {
         console.log("RenderBlocks");
       }
 
       if ($codeMap?.flatTree) {
-
         SetVisibility();
 
         $codeMap.flatTree = [...new Set($codeMap.flatTree)];
@@ -402,10 +406,14 @@
               _startCharacter: value.location.range._start._character,
               _endLine: value.location.range._end._line,
               _endCharacter: value.location.range._end._character,
+              linkedTargetBlocks:[],
             };
             let hit = 0;
             $codeMap.flatTree.forEach((flatItem) => {
-              if (flatItem.id === newTreeItem.id || ((typeof flatItem?.uri?.path !== "undefined") && flatItem.name === newTreeItem.name && flatItem.uri.path === newTreeItem.uri.path)) {
+              if (
+                flatItem.id === newTreeItem.id ||
+                (typeof flatItem?.uri?.path !== "undefined" && flatItem.name === newTreeItem.name && flatItem.uri.path === newTreeItem.uri.path)
+              ) {
                 hit += 1;
               }
             });
@@ -513,12 +521,55 @@
 
             //   lines.splice(indexOfLine, 1, lineExists);
           } else {
-            let line = { sourceId: item1.id, destId: item2.id, x1: item1.x2, y1: item1.y2, x2: item2.x2, y2: item2.y2 };
+            let line = { color:"#ff0000", sourceId: item1.id, destId: item2.id, x1: item1.x2, y1: item1.y2, x2: item2.x2, y2: item2.y2 };
             lines.push(line);
           }
           // });
         }
       });
+
+      if (item1?.linkedTargetBlocks?.length > 0) {
+        item1?.linkedTargetBlocks.forEach(item1TargetBlock => {
+          let customTarget = $codeMap.flatTree.find(x => x.id === item1TargetBlock);
+          if (customTarget)
+          {
+          let lineExists = lines.find(
+            (line) =>
+              (line.sourceId.toString() === customTarget.id.toString() && line.destId.toString() === item1.id.toString()) ||
+              (line.sourceId.toString() === item1.id.toString() && line.destId.toString === customTarget.id.toString())
+          );
+          let indexOfLine = lines.indexOf(lineExists);
+
+          if (lineExists && indexOfLine !== -1) {
+            lineExists.x1 = customTarget.locationX;
+            lineExists.y1 = customTarget.locationY;
+
+            lineExists.x2 = item1.locationX;
+            lineExists.y2 = item1.locationY;
+
+            if (!customTarget.visible || !item1.visible) {
+              lines.splice(indexOfLine, 1);
+            } else {
+              lines.splice(indexOfLine, 1, lineExists);
+            }
+          } else {
+            let line = {
+              color: "green",
+              sourceId: customTarget.id,
+              destId: item1.id,
+              x1: customTarget.x2,
+              y1: customTarget.y2,
+              x2: item1.x2,
+              y2: item1.y2,
+            };
+            lines.push(line);
+          }
+  
+          }
+         
+        })
+      
+      }
     });
 
     lines.forEach((line) => {
@@ -534,6 +585,8 @@
     lines = lines;
     console.log("Rendered lines global");
   }
+
+  function LineCheck() {}
 
   function MoveToPocket(selectedBlocks, event) {
     let flatBlock = GetSelectedCodeBlocks(selectedBlocks);
@@ -946,9 +999,8 @@
 
       // }
 
-
       changedFile = $codeMap?.activeWindow?.path;
-      
+
       $codeMap.flatTree.forEach((flatItem) => {
         if (flatItem?.path === changedFile) {
           console.log(flatItem.name);
@@ -983,31 +1035,70 @@
     });
   }
 
-  function SelectedTextChange(){
+  function SelectedTextChange() {
     ShowActivelySelectedOutline();
   }
 
-  function ShowActivelySelectedOutline(){
-    if ($codeMap?.flatTree)
-    {
-      $codeMap.flatTree.forEach(treeItem => {
-      if (treeItem.type === "outline")
-      {
-        if (treeItem.name === $activelySelectedText)
-        {
-          HideOutline();
-          treeItem.visible = true;
+  function ShowActivelySelectedOutline() {
+    if ($codeMap?.flatTree) {
+      $codeMap.flatTree.forEach((treeItem) => {
+        if (treeItem.type === "outline") {
+          if (treeItem.name === $activelySelectedText) {
+            HideOutline();
+            treeItem.visible = true;
+          }
         }
-      }
-    })
+      });
     }
-   
   }
 
+  let m = { x: 0, y: 0 };
+  let start = { x: 0, y: 0 };
+
+  function StartLink(event, treeItem) {
+    ds.break();
+    console.log("startlink");
+    start.x = treeItem.locationX;
+    start.y = treeItem.locationY;
+    newLink.sourceId = treeItem.id;
+
+    linkLineDragging = true;
+
+    document.addEventListener("mousemove", handleMousemove);
+    document.addEventListener("mouseup", handleMouseup);
+  }
+
+  function handleMousemove(event) {
+    // console.log("linking");
+    // console.log(event);
+    m.x = event.layerX;
+    m.y = event.layerY;
+  }
+
+  function handleMouseup(event) {
+    console.log("endlink");
+
+    let sourceBlock = $codeMap.flatTree.find((x) => x.id === newLink.sourceId);
+
+    $codeMap.flatTree.forEach((flatItem) => {
+      if (flatItem.id.toString() === event.target.getAttribute("id")) {
+        sourceBlock?.linkedTargetBlocks.push(flatItem.id);
+        sourceBlock.linkedTargetBlocks = [...new Set(sourceBlock?.linkedTargetBlocks)];
+      }
+    });
+
+    console.log(event);
+
+    //treeItem.linkedTargetBlocks.add()
+    linkLineDragging = false;
+    document.removeEventListener("mousemove", handleMousemove);
+    document.removeEventListener("mouseup", handleMouseup);
+  }
 </script>
 
 <main id="Canvas">
   <Common bind:this={common} />
+  <!-- The mouse position is {m.x} x {m.y} -->
   <!-- <h1 style="text-align:center;">Code Map</h1> -->
 
   <hr />
@@ -1069,7 +1160,7 @@
           {/if} -->
           <!-- && typeof(treeItem.open) === "undefined" || treeItem?.open === true -->
           {#if typeof treeItem.visible === "undefined" || treeItem?.visible === true}
-            <Card {treeItem} {Minimize} />
+            <Card {treeItem} {Minimize} {StartLink} />
           {/if}
         {/each}
       </div>
@@ -1078,9 +1169,14 @@
       {#if lines}
         <div>
           {#each lines as line}
-            <Line sourceId={line.sourceId} destId={line.destId} x1={line.x1} x2={line.x2} y1={line.y1} y2={line.y2} />
+            <Line color={line.color} sourceId={line.sourceId} destId={line.destId} x1={line.x1} x2={line.x2} y1={line.y1} y2={line.y2} />
           {/each}
         </div>
+        {#if linkLineDragging}
+          <div>
+            <Line color="green" x1={start.x} x2={m.x} y1={start.y} y2={m.y} />
+          </div>
+        {/if}
       {/if}
 
       <!-- GROUP STUFF -->

@@ -11,6 +11,7 @@
     faExpandAlt,
     faFile,
     faFolder,
+    faLink,
     faStar as solidStar,
     faStarHalf,
     faTrashRestore,
@@ -31,6 +32,9 @@
   export let SelectPerimeter = () => {};
 
   export let Minimize = (event, treeItem) => {};
+
+  export let StartLink = (event, treeItem) => {};
+
 
   afterUpdate(() => {
     $newRender = $newRender++;
@@ -82,6 +86,7 @@
     $codeMap.flatTree = $codeMap.flatTree;
 
   }
+
 </script>
 
 <div class="ds-selected ds-hover absolute" style="display:none" />
@@ -131,6 +136,10 @@
       <Fa size="1x" icon={faExpandAlt} style="color:yellow; padding-right: 4px; float:right" />
     </button>
   {/if}
+
+  <button id="StartLink" on:mousedown={(event) => StartLink(event, treeItem)}>
+    <Fa size="1x" icon={faLink} style="color:blue; padding-right: 4px; float:right" />
+  </button>
 </div>
 
 <button type="button" class="inner-hide"> {treeItem.name}</button>
