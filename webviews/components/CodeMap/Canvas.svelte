@@ -566,7 +566,7 @@
         if (block.id.toString() === line.sourceId.toString() || block.id.toString() === line.destId.toString()) {
           let lineIndex = $lines.indexOf(line);
           $lines.splice(lineIndex, 1);
-          $lines = $lines;
+          // $lines = $lines;
         }
       });
     });
