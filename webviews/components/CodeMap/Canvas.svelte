@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { codeMap, newRender, currentZoom, perimeterItem, currentlySelected, derivedGroups, items, debug, activelySelectedText, activePath } from "../../store";
+  import { codeMap, newRender, currentZoom, perimeterItem, currentlySelected, derivedGroups, items, debug, activelySelectedText, activePath, lines } from "../../store";
   import type { Group } from "../../store";
   import Card from "./Card.svelte";
   import { onMount, afterUpdate, beforeUpdate, tick } from "svelte";
@@ -68,7 +68,6 @@
   const _ = deepdash(lodash);
   let ds;
 
-  let lines = [];
   let newLink = {};
   let isMoving = false;
   let selectedBlocks;
@@ -98,7 +97,7 @@
   $: isMoving;
 
   $: {
-    lines;
+    $lines;
     $currentZoom;
   }
 
@@ -484,12 +483,12 @@
 
             if (item1.name === "NestedStore.js") console.log("testhere");
 
-            let lineExists = lines.find(
+            let lineExists = $lines.find(
               (line) =>
                 (line.sourceId.toString() === item1.id.toString() && line.destId.toString() === item2.id.toString()) ||
                 (line.sourceId.toString() === item2.id.toString() && line.destId.toString === item1.id.toString())
             );
-            let indexOfLine = lines.indexOf(lineExists);
+            let indexOfLine = $lines.indexOf(lineExists);
 
             if (lineExists && indexOfLine !== -1) {
               lineExists.x1 = item1.locationX;
@@ -499,24 +498,24 @@
               lineExists.y2 = item2.locationY;
 
               if (!item1.visible || !item2.visible) {
-                lines.splice(indexOfLine, 1);
+                $lines.splice(indexOfLine, 1);
               } else {
-                lines.splice(indexOfLine, 1, lineExists);
+                $lines.splice(indexOfLine, 1, lineExists);
               }
             } else {
               let line = { color: "#ff0000", sourceId: item1.id, destId: item2.id, x1: item1.x2, y1: item1.y2, x2: item2.x2, y2: item2.y2 };
-              lines.push(line);
+              $lines.push(line);
             }
           } else {
             //One or both blocks are invisible
-            let lineExists = lines.find(
+            let lineExists = $lines.find(
               (line) =>
                 (line.sourceId.toString() === item1.id.toString() && line.destId.toString() === item2.id.toString()) ||
                 (line.sourceId.toString() === item2.id.toString() && line.destId.toString === item1.id.toString())
             );
-            let indexOfLine = lines.indexOf(lineExists);
+            let indexOfLine = $lines.indexOf(lineExists);
             if (indexOfLine !== -1) {
-              lines.splice(indexOfLine, 1);
+              $lines.splice(indexOfLine, 1);
             }
           }
         }
@@ -526,12 +525,12 @@
         item1?.linkedTargetBlocks.forEach((item1TargetBlock) => {
           let customTarget = $codeMap.flatTree.find((x) => x.id === item1TargetBlock);
           if (customTarget) {
-            let lineExists = lines.find(
+            let lineExists = $lines.find(
               (line) =>
                 (line.sourceId.toString() === customTarget.id.toString() && line.destId.toString() === item1.id.toString()) ||
                 (line.sourceId.toString() === item1.id.toString() && line.destId.toString === customTarget.id.toString())
             );
-            let indexOfLine = lines.indexOf(lineExists);
+            let indexOfLine = $lines.indexOf(lineExists);
 
             if (lineExists && indexOfLine !== -1) {
               lineExists.x1 = item1.locationX;
@@ -541,9 +540,9 @@
               lineExists.y2 = customTarget.locationY;
 
               if (!customTarget.visible || !item1.visible) {
-                lines.splice(indexOfLine, 1);
+                $lines.splice(indexOfLine, 1);
               } else {
-                lines.splice(indexOfLine, 1, lineExists);
+                $lines.splice(indexOfLine, 1, lineExists);
               }
             } else {
               let line = {
@@ -555,24 +554,24 @@
                 x2: customTarget.x2,
                 y2: customTarget.y2,
               };
-              lines.push(line);
+              $lines.push(line);
             }
           }
         });
       }
     });
 
-    lines.forEach((line) => {
+    $lines.forEach((line) => {
       $codeMap.pocket.forEach((block) => {
         if (block.id.toString() === line.sourceId.toString() || block.id.toString() === line.destId.toString()) {
-          let lineIndex = lines.indexOf(line);
-          lines.splice(lineIndex, 1);
-          lines = lines;
+          let lineIndex = $lines.indexOf(line);
+          $lines.splice(lineIndex, 1);
+          $lines = $lines;
         }
       });
     });
 
-    lines = lines;
+    $lines = $lines;
     console.log("Rendered lines global");
   }
 
@@ -1163,11 +1162,12 @@
       </div>
 
       <!-- Line -->
-      {#if lines}
+      {#if $lines}
         <div>
-          {#each lines as line}
-            <Line color={line.color} sourceId={line.sourceId} destId={line.destId} x1={line.x1} x2={line.x2} y1={line.y1} y2={line.y2} />
-          {/each}
+          {#each $lines as line, i}
+            <Line lineIndex={i} color={line.color} sourceId={line.sourceId} destId={line.destId} x1={line.x1} x2={line.x2} y1={line.y1} y2={line.y2} />
+          <div style="display:none;">{i + 1}</div>
+            {/each}
         </div>
         {#if linkLineDragging}
           <div>

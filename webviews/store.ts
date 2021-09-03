@@ -170,6 +170,7 @@ let originEditMode = {
 let originDebug = false;
 let originActivelySelectedText = "";
 let originActivePath = "";
+let originLines = [];
 
 let originEditItem = {
    "id": "0", "tempId":"", "name": "test", "code":"if(${1:condition} ||${1:condition}){${2:expression}})", "linkedBlocks": [], "language":"java", "placeholders":["condition","expression"], "color":'white', "visible":"", "tags":["tag1","tag2"] 
@@ -269,6 +270,13 @@ export const activelySelectedText = writable(originActivelySelectedText, (set) =
 
 export const activePath = writable(originActivePath, (set) => {
    console.log("debug: " + originActivePath);
+
+   //set([{id:0, name:""}]);
+   return () => { };
+});
+
+export const lines = writable(originLines, (set) => {
+   console.log("debug: " + originLines);
 
    //set([{id:0, name:""}]);
    return () => { };
