@@ -454,8 +454,9 @@ export class HellowWorldPanel {
           //vscode.commands.executeCommand("vsblocksnipets.addPlaceholder");
           let rootFolder = vscode.workspace.workspaceFolders[0];
           let fileFolders = { folders: {}, files: [] };
+          let exclusions = new RegExp(data.value, "g");
 
-          const filteredTree = dirTree(rootFolder.uri.fsPath, { exclude: new RegExp(/node_modules|\.git/) });
+          const filteredTree = dirTree(rootFolder.uri.fsPath, { exclude: exclusions });
 
           const _ = require("lodash");
           require("deepdash")(_);

@@ -15,6 +15,11 @@
   import type currentPanel from "./store.svelte";
 import SettingsScreen from "./SettingsScreen.svelte";
 import { values } from "lodash";
+import Common from "./Common.svelte";
+
+
+let common: Common;
+
 
   let SearchTerm: string = "";
   let FullCodeSearch: boolean = true;
@@ -247,6 +252,10 @@ import { values } from "lodash";
                   $items.customSnippets.splice(index, 1);
                 }
               });
+              tsvscode.postMessage({
+      type: "GetFiles",
+      value: $items.settings.codeMapFolderExclusion,
+    });
             } catch {
               ErrorMessage("JSON Import Error");
             }
@@ -480,13 +489,7 @@ import { values } from "lodash";
     });
   }
 
-  function ImportCode() {
-    if ($debug) console.log("Import Data Start!");
-    tsvscode.postMessage({
-      type: "ImportDataFromFile",
-      value: true,
-    });
-  }
+
 
   function FullScreen() {
     if ($debug) console.log("Full Screen Mode!");
@@ -549,6 +552,7 @@ import { values } from "lodash";
 </script>
 
 <main>
+  <Common bind:this={common} />
 
    
   <div hidden={$items.settings.currentPanel === "editMode" ? false : true}>
@@ -610,7 +614,7 @@ import { values } from "lodash";
       <button class="tooltip" on:click={ExportCode}>Export Code<span class="tooltiptext">Export JSON Code to chosen file. </span> </button>
     </div>
     <div>
-      <button on:click={ImportCode}>Import Code </button>
+      <button on:click={common.ImportCode}>Import Code </button>
     </div>
     <div>
       <button class="tooltip" on:click={ImportVSSnippet}

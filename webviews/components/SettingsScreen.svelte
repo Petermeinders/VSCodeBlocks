@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { debug, editItem, editMode, items } from "../store";
+  import { codeMap, debug, editItem, editMode, items } from "../store";
   import Fa from "svelte-fa";
   import { faTint, faTag, faFont, faPlusCircle, faPencilAlt, faTimesCircle, faSearch } from "@fortawesome/free-solid-svg-icons";
   import Common from "./Common.svelte";
@@ -108,6 +108,10 @@
   <div>
     <h2>CodeMap</h2>
     <input type=checkbox bind:checked={$items.settings.strictCodeMapOutlineWordMatch}/>  Strict CodeMap Outline Word Match?
+    <div>
+      Pipe deliminaed folder exclusion (recursive) (regex escape characters)
+      <textarea bind:value={$items.settings.codeMapFolderExclusion}></textarea>
+    </div>
   </div> 
   <!-- <div>
     <h2>Animations?</h2>

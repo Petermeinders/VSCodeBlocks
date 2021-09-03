@@ -147,11 +147,15 @@
   }
 
   onMount(async () => {
+    // GetFiles();
+
+
     ds = new DragSelect({
       selectables: document.getElementsByClassName("card"),
       callback: (e) => console.log(e),
       area: document.getElementById("area"),
     });
+
 
     ds.subscribe("callback", (OnMouseUpObject) => {
       let buttonClick;
@@ -661,14 +665,15 @@
   //   console.log($currentZoom);
   // });
 
-  const GetFiles = () => {
-    tsvscode.postMessage({
-      type: "GetFiles",
-      value: "",
-    });
-  };
+  // const GetFiles = () => {
+  //   common.ImportCode();
+  //   tsvscode.postMessage({
+  //     type: "GetFiles",
+  //     value: $items.settings.codeMapFolderExclusion,
+  //   });
+  // };
 
-  GetFiles();
+ 
 
   function FlattenTree(newTree) {
     newTree.forEach((item) => {

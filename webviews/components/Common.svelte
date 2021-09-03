@@ -2,6 +2,14 @@
   import { debug, editItem, editMode, items } from "../store";
   import type { Item } from "../store";
 
+  export const ImportCode = () => {
+    if ($debug) console.log("Import Data Start!");
+    tsvscode.postMessage({
+      type: "ImportDataFromFile",
+      value: true,
+    });
+  }
+
   export const getNonce = () => {
     let text = "";
     const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";

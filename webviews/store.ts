@@ -129,6 +129,7 @@ let originItems = {
       searchCode:false,
       currentPanel:"",
       strictCodeMapOutlineWordMatch:false,
+      codeMapFolderExclusion:"node_modules|packages",
       visibleOutlineBlocks: [
          {name: "Array", checked: false},
          {name: "Boolean", checked: false},
