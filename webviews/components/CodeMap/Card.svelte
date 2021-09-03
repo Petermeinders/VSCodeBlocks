@@ -9,6 +9,7 @@
     faCode,
     faCompressArrowsAlt,
     faExpandAlt,
+    faEyeSlash,
     faFile,
     faFolder,
     faLink,
@@ -87,6 +88,10 @@
 
   }
 
+  function HideBlock(e, treeItem){
+    treeItem.visible = false;
+  }
+
 </script>
 
 <div class="ds-selected ds-hover absolute" style="display:none" />
@@ -139,6 +144,9 @@
 
   <button id="StartLink" on:mousedown={(event) => StartLink(event, treeItem)}>
     <Fa size="1x" icon={faLink} style="color:blue; padding-right: 4px; float:right" />
+  </button>
+  <button id="HideBlock" on:mousedown={(event) => HideBlock(event, treeItem)}>
+    <Fa size="1x" icon={faEyeSlash} style="color:black; padding-right: 4px; float:right" />
   </button>
 </div>
 
