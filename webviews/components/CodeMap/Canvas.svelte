@@ -473,8 +473,16 @@
       return;
     }
 
-    $codeMap.flatTree.forEach((item1) => {
-      $codeMap.flatTree.forEach((item2) => {
+    let visibleBlocks = $codeMap.flatTree.filter(x => x.visible);
+
+    LineCheck();
+
+    visibleBlocks.forEach((item1) => {
+      visibleBlocks.forEach((item2) => {
+      //   if (!item2.visible || !item1.visible){
+      //   return;
+      // }
+
         if (item1.parentId === item2.id) {
           if (item1.visible && item2.visible) {
             //lines.forEach((line) => {
@@ -575,7 +583,41 @@
     console.log("Rendered lines global");
   }
 
-  function LineCheck() {}
+  // function LineCheck(item1, item2) {
+  //   $lines.forEach(line => {
+  //     let sourceBlock = item1;
+  //     let destBlock = item2;
+
+  //     if (sourceBlock && destBlock)
+  //     {
+  //       if (!sourceBlock.visible || !destBlock.visible)
+  //       {
+  //         let index = $lines.indexOf(line);
+  //         $lines.splice(index,1);
+  //       }
+  //     }
+
+  //   })
+  // }
+
+
+  function LineCheck() {
+    $lines.forEach(line => {
+      let sourceBlock = $codeMap.flatTree.find(x => x.id === line.sourceId);
+      let destBlock = $codeMap.flatTree.find(x => x.id === line.sourceId)
+
+      if (sourceBlock && destBlock)
+      {
+        if (!sourceBlock.visible || !destBlock.visible)
+        {
+          let index = $lines.indexOf(line);
+        $lines.splice(index,1);
+        }
+
+      }
+
+    })
+  }
 
   function MoveToPocket(selectedBlocks, event) {
     let flatBlock = GetSelectedCodeBlocks(selectedBlocks);
@@ -871,7 +913,8 @@
       HideRecursively(treeItem);
     } else {
       treeItem.open = true;
-      ShowRecursivelyFromParent(treeItem);
+      let fileClicked = treeItem.type === "file" ? true : false;
+      ShowRecursivelyFromParent(treeItem, fileClicked);
       RenderBlocks();
     }
 
@@ -901,13 +944,13 @@
     RenderBlocks();
   }
 
-  function ShowRecursivelyFromParent(treeItem) {
+  function ShowRecursivelyFromParent(treeItem, fileClicked) {
     $codeMap.flatTree.forEach((flatItem) => {
       if (flatItem.parentId === treeItem.id) {
         if (flatItem.type === "outline" && (typeof treeItem.open === "undefined" || treeItem.open === true)) {
           $items.settings.visibleOutlineBlocks.forEach((outlineVis) => {
             if (outlineVis.name === flatItem.extension) {
-              if (outlineVis.checked) {
+              if (outlineVis.checked && fileClicked) {
                 flatItem.visible = true;
               } else {
                 if (!flatItem.starred) {
@@ -926,7 +969,7 @@
           }
         }
 
-        ShowRecursivelyFromParent(flatItem);
+        ShowRecursivelyFromParent(flatItem, fileClicked);
 
         // let thisCard = document.getElementById(flatItem.id);
 
