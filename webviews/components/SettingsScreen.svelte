@@ -94,22 +94,24 @@
 <main>
   <Common bind:this={common} />
   <div>
-    <div>
+    <div class="settingsContainer">
       <h2>Outline Blocks Visibility</h2>
       {#each $items.settings.visibleOutlineBlocks as {name, checked}}
         <input type=checkbox  bind:checked={checked}/>  {name}
       {/each}
     </div>
   </div>
-  <div>
+  <div class="settingsContainer">
     <h2>Debug Enabled?</h2>
     <input type=checkbox  bind:checked={$debug}/>  Debug
   </div> 
-  <div>
+  <div class="settingsContainer">
     <h2>CodeMap</h2>
-    <input type=checkbox bind:checked={$items.settings.strictCodeMapOutlineWordMatch}/>  Strict CodeMap Outline Word Match?
-    <div>
-      Pipe deliminaed folder exclusion (recursive) (regex escape characters)
+    <div class="subContainer">
+      <input type=checkbox bind:checked={$items.settings.strictCodeMapOutlineWordMatch}/>  Strict CodeMap Outline Word Match?
+    </div>
+    <div class="subContainer">
+      <b>Pipe deliminaed folder exclusion (recursive) (regex escape characters)</b>
       <textarea bind:value={$items.settings.codeMapFolderExclusion}></textarea>
     </div>
   </div> 
@@ -153,32 +155,6 @@
     {/if}
   </div> -->
 
-  <div>
-    <button
-      on:click={() => {
-        $editMode.state = "false";
-        $editItem = { ...$editItem, placeholders: [] };
-        CloseEditWindow();
-      }}>Cancel</button
-    >
-    {#if $editMode.importType === "vsSnippet"}
-      <button
-        on:click={() => {
-          $editMode.state = "false";
-          ConvertSnippetToBlock();
-          CloseEditWindow();
-        }}>Convert Snippet To Block</button
-      >
-    {:else}
-      <button
-        on:click={() => {
-          $editMode.state = "false";
-          GetCodeFromEditScreenAndSave();
-          CloseEditWindow();
-        }}>Save Code Block</button
-      >
-    {/if}
-  </div>
 
   <!-- <div>
     <button
@@ -190,5 +166,11 @@
 </main>
 
 <style>
+.settingsContainer {
+margin-bottom:20px;
+}
 
+.subContainer {
+margin-bottom:10px;
+}
 </style>

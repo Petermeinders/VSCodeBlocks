@@ -1086,7 +1086,7 @@
               treeItem.visible = true;
             }
           } else {
-            if (treeItem.name.includes($activelySelectedText)  && treeItem.path === $activePath) {
+            if (treeItem.name.startsWith($activelySelectedText)  && treeItem.path === $activePath) {
               HideOutline();
               treeItem.visible = true;
             }
