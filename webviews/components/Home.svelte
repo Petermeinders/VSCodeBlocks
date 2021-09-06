@@ -678,4 +678,9 @@ let common: Common;
     margin-top: 3px;
     align-items: center;
   }
+
+  :global(button) {
+    width:auto;
+  }
+
 </style>
