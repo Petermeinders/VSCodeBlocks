@@ -128,6 +128,10 @@ let originItems = {
       isFuzzy:false,
       searchCode:false,
       currentPanel:"",
+      showFolders:false,
+      showFiles:true,
+      showDefaultRelationship:true,
+      showCustomRelationship:true,
       strictCodeMapOutlineWordMatch:false,
       codeMapFolderExclusion:"node_modules|packages",
       visibleOutlineBlocks: [

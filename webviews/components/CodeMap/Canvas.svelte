@@ -1,5 +1,17 @@
 <script lang="ts">
-  import { codeMap, newRender, currentZoom, perimeterItem, currentlySelected, derivedGroups, items, debug, activelySelectedText, activePath, lines } from "../../store";
+  import {
+    codeMap,
+    newRender,
+    currentZoom,
+    perimeterItem,
+    currentlySelected,
+    derivedGroups,
+    items,
+    debug,
+    activelySelectedText,
+    activePath,
+    lines,
+  } from "../../store";
   import type { Group } from "../../store";
   import Card from "./Card.svelte";
   import { onMount, afterUpdate, beforeUpdate, tick } from "svelte";
@@ -149,13 +161,11 @@
   onMount(async () => {
     // GetFiles();
 
-
     ds = new DragSelect({
       selectables: document.getElementsByClassName("card"),
       callback: (e) => console.log(e),
       area: document.getElementById("area"),
     });
-
 
     ds.subscribe("callback", (OnMouseUpObject) => {
       let buttonClick;
@@ -477,15 +487,15 @@
       return;
     }
 
-    let visibleBlocks = $codeMap.flatTree.filter(x => x.visible);
+    let visibleBlocks = $codeMap.flatTree.filter((x) => x.visible);
 
     LineCheck();
 
     visibleBlocks.forEach((item1) => {
       visibleBlocks.forEach((item2) => {
-      //   if (!item2.visible || !item1.visible){
-      //   return;
-      // }
+        //   if (!item2.visible || !item1.visible){
+        //   return;
+        // }
 
         if (item1.parentId === item2.id) {
           if (item1.visible && item2.visible) {
@@ -515,7 +525,7 @@
                 $lines.splice(indexOfLine, 1, lineExists);
               }
             } else {
-              let line = { color: "#ff0000", sourceId: item1.id, destId: item2.id, x1: item1.x2, y1: item1.y2, x2: item2.x2, y2: item2.y2 };
+              let line = { color: "#ff0000", customLine:false, sourceId: item1.id, destId: item2.id, x1: item1.x2, y1: item1.y2, x2: item2.x2, y2: item2.y2 };
               $lines.push(line);
             }
           } else {
@@ -539,8 +549,10 @@
           if (customTarget) {
             let lineExists = $lines.find(
               (line) =>
+              (line.customLine) && (
                 (line.sourceId.toString() === customTarget.id.toString() && line.destId.toString() === item1.id.toString()) ||
                 (line.sourceId.toString() === item1.id.toString() && line.destId.toString === customTarget.id.toString())
+              )
             );
             let indexOfLine = $lines.indexOf(lineExists);
 
@@ -559,6 +571,7 @@
             } else {
               let line = {
                 color: "green",
+                customLine: true,
                 sourceId: customTarget.id,
                 destId: item1.id,
                 x1: item1.x2,
@@ -604,23 +617,18 @@
   //   })
   // }
 
-
   function LineCheck() {
-    $lines.forEach(line => {
-      let sourceBlock = $codeMap.flatTree.find(x => x.id === line.sourceId);
-      let destBlock = $codeMap.flatTree.find(x => x.id === line.sourceId)
+    $lines.forEach((line) => {
+      let sourceBlock = $codeMap.flatTree.find((x) => x.id === line.sourceId);
+      let destBlock = $codeMap.flatTree.find((x) => x.id === line.sourceId);
 
-      if (sourceBlock && destBlock)
-      {
-        if (!sourceBlock.visible || !destBlock.visible)
-        {
+      if (sourceBlock && destBlock) {
+        if (!sourceBlock.visible || !destBlock.visible) {
           let index = $lines.indexOf(line);
-        $lines.splice(index,1);
+          $lines.splice(index, 1);
         }
-
       }
-
-    })
+    });
   }
 
   function MoveToPocket(selectedBlocks, event) {
@@ -672,8 +680,6 @@
   //     value: $items.settings.codeMapFolderExclusion,
   //   });
   // };
-
- 
 
   function FlattenTree(newTree) {
     newTree.forEach((item) => {
@@ -1086,7 +1092,7 @@
               treeItem.visible = true;
             }
           } else {
-            if (treeItem.name.startsWith($activelySelectedText)  && treeItem.path === $activePath) {
+            if (treeItem.name.startsWith($activelySelectedText) && treeItem.path === $activePath) {
               HideOutline();
               treeItem.visible = true;
             }
@@ -1125,8 +1131,11 @@
     let sourceBlock = $codeMap.flatTree.find((x) => x.id === newLink.sourceId);
 
     $codeMap.flatTree.forEach((flatItem) => {
-      if (flatItem.id.toString() === event.target.getAttribute("id")) {
+      let targetId = event.target.getAttribute("id")
+      if (flatItem.id.toString() === targetId) {
         sourceBlock?.linkedTargetBlocks.push(flatItem.id);
+        sourceBlock?.starred = true;
+        flatItem.starred = true;
         sourceBlock.linkedTargetBlocks = [...new Set(sourceBlock?.linkedTargetBlocks)];
       }
     });
@@ -1203,8 +1212,14 @@
             
           {/if} -->
           <!-- && typeof(treeItem.open) === "undefined" || treeItem?.open === true -->
+
+          <!-- //Not file or directory? //Directory and showFolders === true?   //file and showfiles === true? -->
           {#if typeof treeItem.visible === "undefined" || treeItem?.visible === true}
-            <Card {treeItem} {Minimize} {StartLink} />
+            {#if (treeItem.type !== "directory" && treeItem.type !== "file") 
+            || (treeItem.type === "directory" && $items.settings.showFolders === true) 
+            || (treeItem.type === "file" && $items.settings.showFiles === true)}
+              <Card {treeItem} {Minimize} {StartLink} />
+            {/if}
           {/if}
         {/each}
       </div>
@@ -1213,9 +1228,22 @@
       {#if $lines}
         <div>
           {#each $lines as line, i}
-            <Line lineIndex={i} color={line.color} sourceId={line.sourceId} destId={line.destId} x1={line.x1} x2={line.x2} y1={line.y1} y2={line.y2} />
-          <div style="display:none;">{i + 1}</div>
-            {/each}
+          {#if line.customLine || 
+          ($items.settings.showDefaultRelationship === true && line.customLine === false)}
+          <Line
+          lineIndex={i}
+          color={line.color}
+          sourceId={line.sourceId}
+          destId={line.destId}
+          x1={line.x1}
+          x2={line.x2}
+          y1={line.y1}
+          y2={line.y2}
+        />
+        <div style="display:none;">{i + 1}</div>
+          {/if}
+           
+          {/each}
         </div>
         {#if linkLineDragging}
           <div>
