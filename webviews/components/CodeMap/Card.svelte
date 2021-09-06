@@ -150,7 +150,7 @@
   </button>
 </div>
 
-<button type="button" class="inner-hide"> {treeItem.name}</button>
+<button type="button" class="inner-hide"> {treeItem.type === "outline" ? treeItem.name.substring(0, 25): treeItem.name}</button>
 
 </main>
 
