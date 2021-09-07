@@ -24,6 +24,8 @@
   import Common from ".././Common.svelte";
   import Fa from "svelte-fa";
   import { faCog, faCubes, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+  import Pocket from "./Pocket.svelte";
+  import CodeMapGroups from "./CodeMapGroups.svelte";
 
   let common: Common;
 
@@ -69,13 +71,7 @@
     Variable = 12,
   }
 
-  const flipDurationMs = 300;
-  function handleDndConsider(e) {
-    $codeMap.pocket = e.detail.items;
-  }
-  function handleDndFinalize(e) {
-    $codeMap.pocket = e.detail.items;
-  }
+
 
   const _ = deepdash(lodash);
   let ds;
@@ -356,7 +352,7 @@
     }
   }
 
-  function RenderBlocks() {
+  const RenderBlocks = () => {
     if (!isMoving) {
       if ($debug) {
         console.log("RenderBlocks");
@@ -744,16 +740,7 @@
     });
   }
 
-  function MoveToCanvas(e) {
-    $codeMap.pocket.forEach((block) => {
-      if (block.id.toString() === e.target.id) {
-        let index = $codeMap.pocket.indexOf(block);
-        $codeMap.pocket.splice(index, 1);
-        $codeMap.flatTree.push(block);
-        $codeMap = $codeMap;
-      }
-    });
-  }
+ 
 
   // const MoveToPocket = () => {
   //   console.log("get all the blocks!")
@@ -876,38 +863,9 @@
     });
   }
 
-  function HideGroup(derivedGroup) {
-    let group = $codeMap.groups.find((group) => group.groupId === derivedGroup.groupId);
+ 
 
-    if (group) {
-      if (typeof derivedGroup.visible === "undefined" || derivedGroup.visible === true) {
-        group.visible = false;
-      } else {
-        group.visible = true;
-      }
 
-      derivedGroup.blocks.forEach((block) => {
-        $codeMap.flatTree.forEach((treeItem) => {
-          if (block.id.toString() === treeItem.id.toString()) {
-            treeItem.visible = group.visible;
-          }
-        });
-      });
-      RenderBlocks();
-      // let index = $codeMap.groups.indexOf(group);
-      // $codeMap.groups.splice(index, 1);
-    }
-  }
-
-  function onGroupNameChange(derivedGroup, e) {
-    let group = $codeMap.groups.find((group) => group.groupId === derivedGroup.groupId);
-
-    if (group) {
-      group.name = e.target.value;
-      let index = $codeMap.groups.indexOf(group);
-      $codeMap.groups.splice(index, 1, group);
-    }
-  }
 
   const ShowSettings = () => {
     console.log("not yet implemented");
@@ -1155,38 +1113,9 @@
   <!-- <h1 style="text-align:center;">Code Map</h1> -->
 
   <hr />
-  {#if $codeMap?.pocket}
-    <div style="float:left; width:50%">
-      <h2>Pocket</h2>
-      <section
-        style="float:left; margin:auto; width: 100%;"
-        use:dndzone={{ items: $codeMap.pocket, flipDurationMs }}
-        on:consider={handleDndConsider}
-        on:finalize={handleDndFinalize}
-      >
-        {#each $codeMap.pocket as item (item.id)}
-          <div id={item.id} class="pocketblock" animate:flip={{ duration: flipDurationMs }}>
-            {item.name}
-            <button id={item.id} type="button" style="width:50px;" on:click={(event) => MoveToCanvas(event)}>Add</button>
-          </div>
-        {/each}
-      </section>
-    </div>
-  {/if}
 
-  {#if $derivedGroups}
-    <div style="" class="groupList">
-      <h2>Groups</h2>
-      {#each $derivedGroups as group (group.groupId)}
-        <div id={group.groupId} style="display:flex; align-items: center;">
-          <input type="text" value={group.name} class="groupInput" on:change={(event) => onGroupNameChange(group, event)} />
-          <span style="cursor: pointer;" on:click={() => HideGroup(group)}><Fa icon={faEyeSlash} style="color:#007acc; padding-right: 4px;" /> </span>
-        </div>
-      {/each}
-    </div>
-  {/if}
 
-  <div id="area" style="width:100%; height:100%; position:fixed; top:229px;">
+  <div id="area" style="width:100%; height:100%; position:fixed;">
     <div class="ds-selected" style="display:none" />
     <button type="button" on:click={SaveCodeMapToFile}>Save CodeMap</button>
 

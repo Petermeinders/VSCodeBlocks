@@ -13,13 +13,13 @@
   import Fa from "svelte-fa";
   import Canvas from "./CodeMap/Canvas.svelte";
   import type currentPanel from "./store.svelte";
-import SettingsScreen from "./SettingsScreen.svelte";
-import { values } from "lodash";
-import Common from "./Common.svelte";
+  import SettingsScreen from "./SettingsScreen.svelte";
+  import { values } from "lodash";
+  import Common from "./Common.svelte";
+  import Pocket from "./CodeMap/Pocket.svelte";
+  import CodeMapGroups from "./CodeMap/CodeMapGroups.svelte";
 
-
-let common: Common;
-
+  let common: Common;
 
   let SearchTerm: string = "";
   let FullCodeSearch: boolean = true;
@@ -40,39 +40,44 @@ let common: Common;
         $items.vsSnippets = ["vsSnippets1", "vsSnippets2"];
       }
 
-      if ($items.settings === null || typeof($items.settings) === "undefined" || typeof($items.settings.currentPanel) === "undefined" || typeof($items.settings.visibleOutlineBlocks) === "undefined") {
+      if (
+        $items.settings === null ||
+        typeof $items.settings === "undefined" ||
+        typeof $items.settings.currentPanel === "undefined" ||
+        typeof $items.settings.visibleOutlineBlocks === "undefined"
+      ) {
         $items.settings = {
           isFuzzy: false,
           searchCode: false,
           currentPanel: "codeBlocks",
           visibleOutlineBlocks: [
-         {name: "Array", checked: false},
-         {name: "Boolean", checked: false},
-         {name: "Class", checked: false},
-         {name: "Constant", checked: false},
-         {name: "Constructor", checked: false},
-         {name: "Enum", checked: false},
-         {name: "EnumMember", checked: false},
-         {name: "Event", checked: false},
-         {name: "Field", checked: false},
-         {name: "File", checked: false},
-         {name: "Function", checked: false},
-         {name: "Interface", checked: false},
-         {name: "Key", checked: false},
-         {name: "Method", checked: true},
-         {name: "Module", checked: false},
-         {name: "Namespace", checked: false},
-         {name: "Null", checked: false},
-         {name: "Number", checked: false},
-         {name: "Object", checked: false},
-         {name: "Operator", checked: false},
-         {name: "Package", checked: false},
-         {name: "Property", checked: false},
-         {name: "String", checked: false},
-         {name: "Struct", checked: false},
-         {name: "TypeParameter", checked: false},
-         {name: "Variable", checked: false}
-      ]
+            { name: "Array", checked: false },
+            { name: "Boolean", checked: false },
+            { name: "Class", checked: false },
+            { name: "Constant", checked: false },
+            { name: "Constructor", checked: false },
+            { name: "Enum", checked: false },
+            { name: "EnumMember", checked: false },
+            { name: "Event", checked: false },
+            { name: "Field", checked: false },
+            { name: "File", checked: false },
+            { name: "Function", checked: false },
+            { name: "Interface", checked: false },
+            { name: "Key", checked: false },
+            { name: "Method", checked: true },
+            { name: "Module", checked: false },
+            { name: "Namespace", checked: false },
+            { name: "Null", checked: false },
+            { name: "Number", checked: false },
+            { name: "Object", checked: false },
+            { name: "Operator", checked: false },
+            { name: "Package", checked: false },
+            { name: "Property", checked: false },
+            { name: "String", checked: false },
+            { name: "Struct", checked: false },
+            { name: "TypeParameter", checked: false },
+            { name: "Variable", checked: false },
+          ],
         };
       }
 
@@ -213,7 +218,7 @@ let common: Common;
 
         case "filtered-tree":
           $codeMap = message.value;
-        
+
           console.log($codeMap);
           break;
 
@@ -221,7 +226,7 @@ let common: Common;
           SearchTerm = message.value;
           break;
 
-          case "selection-to-codeMap":
+        case "selection-to-codeMap":
           $activelySelectedText = message.value.searchString;
           $activePath = message.value.path;
           break;
@@ -253,9 +258,9 @@ let common: Common;
                 }
               });
               tsvscode.postMessage({
-      type: "GetFiles",
-      value: $items.settings.codeMapFolderExclusion,
-    });
+                type: "GetFiles",
+                value: $items.settings.codeMapFolderExclusion,
+              });
             } catch {
               ErrorMessage("JSON Import Error");
             }
@@ -283,7 +288,7 @@ let common: Common;
           if ($debug) console.log($items);
           break;
 
-          case "import-code-map-from-file":
+        case "import-code-map-from-file":
           if (typeof message.value === "string") {
             $codeMap = JSON.parse(message.value);
           } else {
@@ -292,17 +297,15 @@ let common: Common;
           if ($debug) console.log($codeMap);
           break;
 
-          case "window-change":
-            
-              if (!$codeMap.activeWindow)
-              {
-                $codeMap.activeWindow = {path:"", outline:{}};
-              }
-               let outineObject = JSON.parse(message.value.outline);
+        case "window-change":
+          if (!$codeMap.activeWindow) {
+            $codeMap.activeWindow = { path: "", outline: {} };
+          }
+          let outineObject = JSON.parse(message.value.outline);
 
-                $codeMap.activeWindow.path = message.value.path;
-                $codeMap.activeWindow.outline = outineObject;
-            
+          $codeMap.activeWindow.path = message.value.path;
+          $codeMap.activeWindow.outline = outineObject;
+
           break;
       }
     });
@@ -489,8 +492,6 @@ let common: Common;
     });
   }
 
-
-
   function FullScreen() {
     if ($debug) console.log("Full Screen Mode!");
     tsvscode.postMessage({
@@ -537,7 +538,7 @@ let common: Common;
   }
 
   function ShowSettings() {
-    $items.settings.currentPanel = "settings" ;
+    $items.settings.currentPanel = "settings";
   }
 
   function ShowCodeMap() {
@@ -554,29 +555,18 @@ let common: Common;
 <main>
   <Common bind:this={common} />
 
-   
   <div hidden={$items.settings.currentPanel === "editMode" ? false : true}>
     <h1>EDIT MODE</h1>
     <EditScreen />
   </div>
-  <div hidden={$items.settings.currentPanel === "codeMap" ? false : true}>
-  <div style="display: flex, align-items: center">
-    <h1 style="display: flex, align-items: center, justify-content: space-between;">
-      CodeMap
-      <span style="cursor: pointer; " on:click={() => ShowSettings()}
-        ><Fa size="1x" icon={faCog} style="color:#007acc; padding-right: 4px; float:right" />
-      </span>
-      <span style="cursor: pointer; " on:click={() => ShowCodeBlocks()}
-        ><Fa size="1x" icon={faCubes} style="color:#007acc; padding-right: 4px; float:right" />
-      </span>
-    </h1>
-  </div>
-    <Canvas />
-</div>
-<div hidden={$items.settings.currentPanel === "settings" ? false : true}>
+  
+  <div hidden={$items.settings.currentPanel !== "editMode" ? false : true}>
     <div style="display: flex, align-items: center">
       <h1 style="display: flex, align-items: center, justify-content: space-between;">
-        Settings
+        CodeBlocks
+        <span style="cursor: pointer; " on:click={() => ShowSettings()}
+          ><Fa size="1x" icon={faCog} style="color:#007acc; padding-right: 4px; float:right" />
+        </span>
         <span style="cursor: pointer; " on:click={() => ShowCodeBlocks()}
           ><Fa size="1x" icon={faCubes} style="color:#007acc; padding-right: 4px; float:right" />
         </span>
@@ -585,48 +575,82 @@ let common: Common;
         </span>
       </h1>
     </div>
+  </div>
+
+  <div class={$items.settings.currentPanel === "codeBlocks" ? "containerHeader": ""} hidden={$items.settings.currentPanel === "codeBlocks" ? false : true}>
+    <div class="codeBlocksAndMapContainer">
+      <div class="codeBlocksContainer">
+        <!-- PANEL -->
+        <div class="container">
+          <div class="code-container">
+            <Tags />
+            <LinkedBlocks />
+            <Dnd {SearchTerm} {FullCodeSearch} />
+
+          </div>
+        </div>
+        <div class="codeBlocksButtons">
+          <!-- BUTTONS -->
+          <div>
+            <button class="tooltip" on:click={ExportCode}>Export Code<span class="tooltiptext">Export JSON Code to chosen file. </span> </button>
+          </div>
+          <div>
+            <button on:click={common.ImportCode}>Import Code </button>
+          </div>
+          <div>
+            <button class="tooltip" on:click={ImportVSSnippet}
+              >Import VS Snippet
+              <span class="tooltiptext">Import selected text in the VSCode snippet format. Make sure json starts and ends with brackets.</span>
+            </button>
+          </div>
+        </div>
+        <div class="pocketAndMapGroups">
+          <Pocket/>
+          <CodeMapGroups/>
+        </div>
+
+      </div>
+      <Canvas />
+    </div>
+  </div>
+  <div hidden={$items.settings.currentPanel === "settings" ? false : true}>
+
     <SettingsScreen />
   </div>
-  <div hidden={$items.settings.currentPanel === "codeBlocks" ? false : true}>
-     <!-- PANEL -->
-     <div style="display: flex, align-items: center">
-      <h1 style="display: flex, align-items: center, justify-content: space-between;">
-        CodeBlocks
-        <span style="cursor: pointer; " on:click={() => ShowSettings()}
-          ><Fa size="1x" icon={faCog} style="color:#007acc; padding-right: 4px; float:right" />
-        </span>
-        <span style="cursor: pointer; " on:click={() => ShowCodeMap()}
-          ><Fa size="1x" icon={faProjectDiagram} style="color:#007acc; padding-right: 4px; float:right" />
-        </span>
-      </h1>
-    </div>
-    <div class="container">
-      <div class="code-container">
-        <Tags />
-        <LinkedBlocks />
-        <Dnd {SearchTerm} {FullCodeSearch} />
-      </div>
-    </div>
 
-    
-  <!-- BUTTONS -->
-    <div>
-      <button class="tooltip" on:click={ExportCode}>Export Code<span class="tooltiptext">Export JSON Code to chosen file. </span> </button>
-    </div>
-    <div>
-      <button on:click={common.ImportCode}>Import Code </button>
-    </div>
-    <div>
-      <button class="tooltip" on:click={ImportVSSnippet}
-        >Import VS Snippet
-        <span class="tooltiptext">Import selected text in the VSCode snippet format. Make sure json starts and ends with brackets.</span>
-      </button>
-    </div>
-  </div>
-
+ 
 </main>
 
 <style>
+
+  .pocketAndMapGroups{
+    display: flex;
+    flex-direction: column;
+  }
+
+  .codeBlocksAndMapContainer {
+    display: flex;
+    flex-direction: row;
+  }
+
+  .codeBlocksButtons{
+    display: flex;
+    flex-direction: row;
+  }
+
+  .codeBlocksContainer {
+    width: 250px;
+  }
+  .codeBlocksContainer {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .containerHeader {
+    display: flex;
+    flex-direction: column;
+  }
+
   :global(.container) {
     display: flex; /* or inline-flex */
   }
@@ -680,7 +704,6 @@ let common: Common;
   }
 
   :global(button) {
-    width:auto;
+    width: auto;
   }
-
 </style>

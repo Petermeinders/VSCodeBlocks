@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { debug, editItem, editMode, items } from "../store";
+  import { codeMap, debug, editItem, editMode, items } from "../store";
   import type { Item } from "../store";
+
 
   export const ImportCode = () => {
     if ($debug) console.log("Import Data Start!");
@@ -126,6 +127,73 @@
 
       $items.customSnippets = [...i];
   }
+
+  export const onGroupNameChange = (derivedGroup, e) => {
+    let group = $codeMap.groups.find((group) => group.groupId === derivedGroup.groupId);
+
+    if (group) {
+      group.name = e.target.value;
+      let index = $codeMap.groups.indexOf(group);
+      $codeMap.groups.splice(index, 1, group);
+    }
+  }
+
+  export const HideGroup = (derivedGroup) => {
+    let group = $codeMap.groups.find((group) => group.groupId === derivedGroup.groupId);
+
+    if (group) {
+      if (typeof derivedGroup.visible === "undefined" || derivedGroup.visible === true) {
+        group.visible = false;
+      } else {
+        group.visible = true;
+      }
+
+      derivedGroup.blocks.forEach((block) => {
+        $codeMap.flatTree.forEach((treeItem) => {
+          if (block.id.toString() === treeItem.id.toString()) {
+            treeItem.visible = group.visible;
+          }
+        });
+      });
+      ReRenderBlocks();
+      // let index = $codeMap.groups.indexOf(group);
+      // $codeMap.groups.splice(index, 1);
+    }
+  }
+
+  export const MoveToCanvas = (e) => {
+    $codeMap.pocket.forEach((block) => {
+      if (block.id.toString() === e.target.id) {
+        let index = $codeMap.pocket.indexOf(block);
+        $codeMap.pocket.splice(index, 1);
+        $codeMap.flatTree.push(block);
+        $codeMap = $codeMap;
+      }
+    });
+  }
+
+  const ReRenderBlocks = () => {
+
+      if ($debug) {
+        console.log("RenderBlocks");
+      }
+
+      if ($codeMap?.flatTree) {
+        SetVisibility();
+
+        $codeMap.flatTree = [...new Set($codeMap.flatTree)];
+
+        return;
+      }
+    }
+
+
+    function SetVisibility() {
+    $codeMap?.flatTree.forEach((treeItem) => {
+      if (typeof treeItem.visible === "undefined") treeItem.visible = true;
+    });
+  }
+  
 </script>
 
 <main>
