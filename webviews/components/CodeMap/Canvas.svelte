@@ -1112,7 +1112,6 @@
   <!-- The mouse position is {m.x} x {m.y} -->
   <!-- <h1 style="text-align:center;">Code Map</h1> -->
 
-  <hr />
 
 
   <div id="area" style="width:100%; height:100%; position:fixed;">
@@ -1129,17 +1128,7 @@
       <div class="zoom">
         <!-- Card -->
         {#each $codeMap.flatTree as treeItem}
-          <!-- {#if $codeMap?.groups}
-            {#each $codeMap?.groups as group}
-              {#each group.blockIds as blockid}
-                {#if blockid.toString() !== treeItem.toString()}
-                  <Card {treeItem} />
-                {/if}
-              {/each}
-            {/each}
-          {:else}
-            
-          {/if} -->
+
           <!-- && typeof(treeItem.open) === "undefined" || treeItem?.open === true -->
 
           <!-- //Not file or directory? //Directory and showFolders === true?   //file and showfiles === true? -->
@@ -1180,36 +1169,10 @@
           </div>
         {/if}
       {/if}
-
-      <!-- GROUP STUFF -->
-      <!-- {#if $codeMap?.groups}
-        {#each $codeMap.groups as group}
-        {@debug group}
-          <div id="group{group.groupId}" style="background:red; position:absolute;">
-              <canvas width={group.width} height={group.height}></canvas>
-
-
-
-            {#each $codeMap.flatTree as treeItem}
-              {#each group.blockIds as blockid}
-                {#if blockid.toString() === treeItem.id.toString()}
-                 
-                  
-
-                 
-                {/if}
-              {/each}
-            {/each}
-
-
-
-          </div>
-        {/each}
-      {/if} -->
     {/if}
 
     {#if $codeMap}
-      {RenderBlocks()}
+    <div style="display:none;">{RenderBlocks()}</div>
     {/if}
   </div>
 </main>

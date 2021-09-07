@@ -102,11 +102,22 @@
     </div>
   </div>
   <div class="settingsContainer">
+    <h2>CodeBlocks Settings</h2>
+    Save location
+    <input type=textbox  bind:value={$items.settings.codeBlocksSaveLocation}/>  
+    Save backup location
+    <input type=textbox  bind:value={$items.settings.codeBlocksSaveLocationBackup}/>  
+  </div> 
+  <div class="settingsContainer">
     <h2>Debug Enabled?</h2>
     <input type=checkbox  bind:checked={$debug}/>  Debug
   </div> 
   <div class="settingsContainer">
     <h2>CodeMap</h2>
+    <div class="subContainer">
+      Save project location
+      <input type=textbox  bind:value={$items.settings.codeMapSaveLocationRelative}/>  
+    </div>
     <div class="subContainer">
       <input type=checkbox bind:checked={$items.settings.strictCodeMapOutlineWordMatch}/>  Strict CodeMap Outline Word Match?
     </div>

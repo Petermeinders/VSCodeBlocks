@@ -570,9 +570,9 @@
         <span style="cursor: pointer; " on:click={() => ShowCodeBlocks()}
           ><Fa size="1x" icon={faCubes} style="color:#007acc; padding-right: 4px; float:right" />
         </span>
-        <span style="cursor: pointer; " on:click={() => ShowCodeMap()}
+        <!-- <span style="cursor: pointer; " on:click={() => ShowCodeMap()}
           ><Fa size="1x" icon={faProjectDiagram} style="color:#007acc; padding-right: 4px; float:right" />
-        </span>
+        </span> -->
       </h1>
     </div>
   </div>
@@ -639,7 +639,7 @@
   }
 
   .codeBlocksContainer {
-    width: 250px;
+    width: 200px;
   }
   .codeBlocksContainer {
     display: flex;
@@ -650,6 +650,7 @@
     display: flex;
     flex-direction: column;
   }
+
 
   :global(.container) {
     display: flex; /* or inline-flex */
@@ -705,5 +706,10 @@
 
   :global(button) {
     width: auto;
+    font-size: 12px;
+  }
+
+  :global(input) {
+    font-size: 12px;
   }
 </style>

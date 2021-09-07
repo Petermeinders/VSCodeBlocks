@@ -126,6 +126,9 @@ let originItems = {
    selectedTags: [],
    settings:{
       isFuzzy:false,
+      codeBlocksSaveLocation:"", 
+      codeBlocksSaveLocationBackup:"", 
+      codeMapSaveLocationRelative:"", 
       searchCode:false,
       currentPanel:"",
       showFolders:false,
