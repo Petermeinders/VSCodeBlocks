@@ -84,9 +84,10 @@
 
     selectedBlock.style.display = "none";
     let bottomElement = document.elementFromPoint(pointerX, pointerY);
+    let isOverCanvas = common.ParentHasId(bottomElement, "area") 
     console.log(bottomElement);
 
-    if (bottomElement.id === "area") {
+    if (isOverCanvas) {
       let newFlatItem = {};
       newFlatItem.code = draggingItem.code;
       newFlatItem.color = draggingItem.color;
