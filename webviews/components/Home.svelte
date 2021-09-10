@@ -2,7 +2,7 @@
   import Dnd from "./Dnd.svelte";
   import Tags from "./Tags.svelte";
   import { onMount } from "svelte";
-  import { activelySelectedText, activePath, debug, editItem, editMode, items } from "../store";
+  import { activelySelectedText, activePath, activeSelectionMeta, debug, editItem, editMode, items } from "../store";
   import { tags } from "../store";
   import { page } from "../store";
   import { codeMap } from "../store";
@@ -227,6 +227,7 @@
           break;
 
         case "selection-to-codeMap":
+          $activeSelectionMeta.startLine = message.value.startLine;
           $activelySelectedText = message.value.searchString;
           $activePath = message.value.path;
           break;

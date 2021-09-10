@@ -289,9 +289,9 @@ export class HellowWorldPanel {
     }
   }
 
-  public static PassSelectionToCodeMap(searchString: string, path:string) {
+  public static PassSelectionToCodeMap(searchString: string, path:string, startLine:string) {
     if (typeof HellowWorldPanel.currentPanel !== "undefined") {
-      let SearchStringPath = {searchString:searchString, path:path}
+      let SearchStringPath = {searchString:searchString, path:path, startLine:startLine};
       HellowWorldPanel.currentPanel._panel.webview.postMessage({
         type: "selection-to-codeMap",
         value: SearchStringPath,

@@ -155,12 +155,13 @@ export function activate(context: vscode.ExtensionContext) {
 
 			let text = event.textEditor.document.getText(event.textEditor.selection);
 			let path = event.textEditor.document.uri.path;
+			let startLine = event.textEditor.selection.start.line;
 
 			if (text !== null && text !== 'undefined' && text1 === text) {
 				//console.log('after delay: ' + text);
 
 				const wentToWindow = HellowWorldPanel.PassSearchStringToWindow(text);
-				HellowWorldPanel.PassSelectionToCodeMap(text, path);
+				HellowWorldPanel.PassSelectionToCodeMap(text, path, startLine.toString());
 				if (!wentToWindow) {
 					sidebarProvider._view?.webview.postMessage({
 						type: 'selection-to-search',

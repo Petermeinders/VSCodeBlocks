@@ -177,6 +177,9 @@ let originEditMode = {
 
 let originDebug = false;
 let originActivelySelectedText = "";
+let originactiveSelectionMeta = {
+   startLine: "",
+};
 let originActivePath = "";
 let originLines = [];
 
@@ -271,6 +274,13 @@ export const debug = writable(originDebug, (set) => {
 
 export const activelySelectedText = writable(originActivelySelectedText, (set) => {
    console.log("debug: " + originActivelySelectedText);
+
+   //set([{id:0, name:""}]);
+   return () => { };
+});
+
+export const activeSelectionMeta = writable(originactiveSelectionMeta, (set) => {
+   console.log("debug: " + originactiveSelectionMeta);
 
    //set([{id:0, name:""}]);
    return () => { };

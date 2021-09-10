@@ -11,6 +11,7 @@
     activelySelectedText,
     activePath,
     lines,
+activeSelectionMeta,
   } from "../../store";
   import type { Group } from "../../store";
   import Card from "./Card.svelte";
@@ -1134,6 +1135,8 @@
 
   function SelectedTextChange() {
     ShowActivelySelectedOutline();
+    GenerateCodeBlockFromSelectedText();
+
   }
 
   function ShowActivelySelectedOutline() {
@@ -1153,6 +1156,88 @@
           }
         }
       });
+    }
+  }
+
+  function GenerateCodeBlockFromSelectedText(){
+    if ($codeMap?.flatTree) {
+      let ExistingGenerated = $codeMap?.flatTree.find(x => x.id === "generated")
+
+      if (ExistingGenerated)
+      {
+        let index = $codeMap?.flatTree.indexOf(ExistingGenerated)
+        let generatedBlock = {};
+
+        generatedBlock.id = "generated";
+        generatedBlock.name = $activelySelectedText.substring(0,25);
+        generatedBlock.path = undefined;
+        generatedBlock.code = $activelySelectedText;
+        generatedBlock.language = undefined;
+        generatedBlock.placeholders = [];
+        generatedBlock.color = "white";
+        generatedBlock.visible = true;
+        generatedBlock.linkedBlocks = [];
+        generatedBlock.tags = ["custom"];
+
+        generatedBlock.size = undefined;
+        generatedBlock.type = "custom";
+        generatedBlock.open = true;
+        generatedBlock.parentId = undefined;
+        generatedBlock.outputx = undefined;
+        generatedBlock.outputy = undefined;
+        generatedBlock.inputx = undefined;
+        generatedBlock.inputy = undefined;
+        generatedBlock.children = undefined;
+        generatedBlock.extension = "custom"
+        generatedBlock.locationX = 0;
+        generatedBlock.locationY = 0;
+        generatedBlock._startLine = $activeSelectionMeta;
+        generatedBlock._startCharacter = undefined;
+        generatedBlock._endLine = undefined;
+        generatedBlock._endCharacter = undefined;
+        generatedBlock.starred = true;
+        generatedBlock.linkedTargetBlocks = undefined;
+
+        $codeMap.flatTree.splice(index,1, generatedBlock);
+
+      }
+      else
+      {
+        let generatedBlock = {};
+
+        generatedBlock.id = "generated";
+        generatedBlock.name = $activelySelectedText.substring(0,25);
+        generatedBlock.path = undefined;
+        generatedBlock.code = $activelySelectedText;
+        generatedBlock.language = undefined;
+        generatedBlock.placeholders = [];
+        generatedBlock.color = "white";
+        generatedBlock.visible = true;
+        generatedBlock.linkedBlocks = [];
+        generatedBlock.tags = ["custom"];
+
+        generatedBlock.size = undefined;
+        generatedBlock.type = "custom";
+        generatedBlock.open = true;
+        generatedBlock.parentId = undefined;
+        generatedBlock.outputx = undefined;
+        generatedBlock.outputy = undefined;
+        generatedBlock.inputx = undefined;
+        generatedBlock.inputy = undefined;
+        generatedBlock.children = undefined;
+        generatedBlock.extension = "custom"
+        generatedBlock.locationX = 0;
+        generatedBlock.locationY = 0;
+        generatedBlock._startLine = $activeSelectionMeta;
+        generatedBlock._startCharacter = undefined;
+        generatedBlock._endLine = undefined;
+        generatedBlock._endCharacter = undefined;
+        generatedBlock.starred = true;
+        generatedBlock.linkedTargetBlocks = undefined;
+
+        $codeMap.flatTree.push(generatedBlock);
+
+      }
     }
   }
 
