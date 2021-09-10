@@ -31,12 +31,9 @@
 
   function RenderPocket() {
     if ($codeMap) {
-      if ($codeMap.pocket.length < 5) {
+      if ($codeMap.pocket.length < 0) {
         $codeMap.pocket = [
-          { id: "999", name: "item1" },
-          { id: "998", name: "item2" },
-          { id: "997", name: "item3" },
-          { id: "996", name: "item4" },
+
         ];
       }
     }
@@ -70,8 +67,6 @@
     TypeParameter = 25,
     Variable = 12,
   }
-
-
 
   const _ = deepdash(lodash);
   let ds;
@@ -160,7 +155,7 @@
     ds = new DragSelect({
       selectables: document.getElementsByClassName("card"),
       callback: (e) => console.log(e),
-      area: document.getElementById("area"),
+      // area: document.getElementById("area"),
     });
 
     ds.subscribe("callback", (OnMouseUpObject) => {
@@ -231,6 +226,37 @@
 
       if (buttonName === "SelectPerimeter") {
       }
+
+      let pointerX = OnMouseUpObject.event.clientX ?? 0;
+      let pointerY = OnMouseUpObject.event.clientY ?? 0;
+
+      OnMouseUpObject.event.srcElement.style.display = "none";
+      let bottomElement = document.elementFromPoint(pointerX, pointerY);
+      console.log(bottomElement);
+
+      if (bottomElement  && (OnMouseUpObject?.event?.target?.nodeName !== "BUTTON" || OnMouseUpObject?.event?.srcElement?.nodeName !== "BUTTON"))
+      {
+        let isPocketHovered = common.ParentHasId(bottomElement, "pocketAndMapGroups");
+        if (isPocketHovered)
+        {
+          let pocketAndGroup = document.getElementById("pocketAndMapGroups");
+          if ($debug) console.log("Moving to pocket");
+          MoveToPocket($currentlySelected, OnMouseUpObject.event);
+        }
+
+        if (!isPocketHovered)
+        {
+          let isCodeBlockHovered = common.ParentHasId(bottomElement, "code-container");
+          if (isCodeBlockHovered)
+          {
+            if ($debug) console.log("Moving to Blocks");
+            MoveToCodeBlocks($currentlySelected, OnMouseUpObject.event);
+          }
+        }
+
+      }
+
+      OnMouseUpObject.event.srcElement.style.display = "block";
     });
 
     ds.subscribe("dragstart", (DragStartObject) => {
@@ -344,10 +370,12 @@
     }
   });
 
+
+
   function CheckForButton(OnMouseUpObject) {
-    if (OnMouseUpObject.event.target.parentElement.parentElement.parentElement.parentElement.nodeName === "BUTTON") {
+    if (OnMouseUpObject?.event?.target?.parentElement?.parentElement?.parentElement?.parentElement?.nodeName === "BUTTON") {
       return OnMouseUpObject.event.target.parentElement.parentElement.parentElement.parentElement.id;
-    } else if (OnMouseUpObject.event.target.parentElement.nodeName === "BUTTON") {
+    } else if (OnMouseUpObject?.event?.target?.parentElement?.nodeName === "BUTTON") {
       return OnMouseUpObject.event.target.parentElement.id;
     }
   }
@@ -375,7 +403,7 @@
         $codeMap.flatTree = [...new Set(faketree)];
       }
     }
-  }
+  };
 
   function GetOutline(currentParentBlock) {
     let OutlineArray = [];
@@ -521,7 +549,16 @@
                 $lines.splice(indexOfLine, 1, lineExists);
               }
             } else {
-              let line = { color: "#ff0000", customLine:false, sourceId: item1.id, destId: item2.id, x1: item1.x2, y1: item1.y2, x2: item2.x2, y2: item2.y2 };
+              let line = {
+                color: "#ff0000",
+                customLine: false,
+                sourceId: item1.id,
+                destId: item2.id,
+                x1: item1.x2,
+                y1: item1.y2,
+                x2: item2.x2,
+                y2: item2.y2,
+              };
               $lines.push(line);
             }
           } else {
@@ -545,10 +582,9 @@
           if (customTarget) {
             let lineExists = $lines.find(
               (line) =>
-              (line.customLine) && (
-                (line.sourceId.toString() === customTarget.id.toString() && line.destId.toString() === item1.id.toString()) ||
-                (line.sourceId.toString() === item1.id.toString() && line.destId.toString === customTarget.id.toString())
-              )
+                line.customLine &&
+                ((line.sourceId.toString() === customTarget.id.toString() && line.destId.toString() === item1.id.toString()) ||
+                  (line.sourceId.toString() === item1.id.toString() && line.destId.toString === customTarget.id.toString()))
             );
             let indexOfLine = $lines.indexOf(lineExists);
 
@@ -632,10 +668,76 @@
 
     flatBlock.forEach((block) => {
       let blockIndex = $codeMap.flatTree.indexOf(block);
-      if (blockIndex !== -1) {
+      let alreadyExits = $codeMap.pocket.find(x => x.id === block.id)
+      if (blockIndex !== -1 && typeof alreadyExits === "undefined") {
         $codeMap.pocket.push(block);
         $codeMap.flatTree.splice(blockIndex, 1);
         $codeMap.pocket = $codeMap.pocket;
+      }
+    });
+  }
+
+  function MoveToCodeBlocks(selectedBlocks, event){
+    let flatBlock = GetSelectedCodeBlocks(selectedBlocks);
+
+    flatBlock.forEach((block) => {
+      let blockIndex = $codeMap.flatTree.indexOf(block);
+      let newBlock = {};
+      if (blockIndex !== -1) {
+
+        newBlock.id = block.id;
+        newBlock.name = block.name;
+        newBlock.path = block.path;
+        newBlock.code = "";
+        newBlock.language = null;
+        newBlock.placeholders = [];
+        newBlock.color = "white";
+        newBlock.visible = true;
+        newBlock.linkedBlocks = [];
+        newBlock.tags = ["custom"];
+
+        newBlock.size = block.size;
+        newBlock.type = block.type;
+        newBlock.open = block.open;
+        newBlock.parentId = block.parentId;
+        newBlock.outputx = block.outputx;
+        newBlock.outputy = block.outputy;
+        newBlock.inputx = block.inputx;
+        newBlock.inputy = block.inputy;
+        newBlock.children = block.children ;
+        newBlock.extension = block.extension;
+        newBlock.locationX = block.locationX;
+        newBlock.locationY = block.locationY;
+        newBlock._startLine = block._startLine;
+        newBlock._startCharacter = block._startCharacter;
+        newBlock._endLine = block._endLine;
+        newBlock._endCharacter = block._endCharacter;
+        newBlock.starred = block.starred;
+        newBlock.linkedTargetBlocks = block.linkedTargetBlocks;
+        //id: "0",
+      //tempId:"",
+      //name: "test",
+      //code: "if(${1:condition} ||${1:condition}){${2:expression}})",
+      //language: "typescript",
+      // placeholders: [
+      //    "condition",
+      //    "expression"
+      // ],
+      // color: "white",
+      // visible: "",
+      // linkedBlocks: [],
+      // tags: [
+      //    "tag1",
+      //    "tag2"
+      // ]
+
+
+        $items.customSnippets.push(newBlock)
+        // $codeMap.pocket.push(block);
+        //$codeMap.flatTree.splice(blockIndex, 1);
+        $items.customSnippets = $items.customSnippets;
+        console.log($codeMap.flatTree.find(b => b.id === block.id ));
+        block.visible = false;
       }
     });
   }
@@ -739,8 +841,6 @@
       ds.addSelection(item);
     });
   }
-
- 
 
   // const MoveToPocket = () => {
   //   console.log("get all the blocks!")
@@ -862,10 +962,6 @@
       });
     });
   }
-
- 
-
-
 
   const ShowSettings = () => {
     console.log("not yet implemented");
@@ -1089,7 +1185,7 @@
     let sourceBlock = $codeMap.flatTree.find((x) => x.id === newLink.sourceId);
 
     $codeMap.flatTree.forEach((flatItem) => {
-      let targetId = event.target.getAttribute("id")
+      let targetId = event.target.getAttribute("id");
       if (flatItem.id.toString() === targetId) {
         sourceBlock?.linkedTargetBlocks.push(flatItem.id);
         sourceBlock?.starred = true;
@@ -1112,8 +1208,6 @@
   <!-- The mouse position is {m.x} x {m.y} -->
   <!-- <h1 style="text-align:center;">Code Map</h1> -->
 
-
-
   <div id="area" style="width:100%; height:100%; position:fixed;">
     <div class="ds-selected" style="display:none" />
     <button type="button" on:click={SaveCodeMapToFile}>Save CodeMap</button>
@@ -1128,14 +1222,11 @@
       <div class="zoom">
         <!-- Card -->
         {#each $codeMap.flatTree as treeItem}
-
           <!-- && typeof(treeItem.open) === "undefined" || treeItem?.open === true -->
 
           <!-- //Not file or directory? //Directory and showFolders === true?   //file and showfiles === true? -->
           {#if typeof treeItem.visible === "undefined" || treeItem?.visible === true}
-            {#if (treeItem.type !== "directory" && treeItem.type !== "file") 
-            || (treeItem.type === "directory" && $items.settings.showFolders === true) 
-            || (treeItem.type === "file" && $items.settings.showFiles === true)}
+            {#if (treeItem.type !== "directory" && treeItem.type !== "file") || (treeItem.type === "directory" && $items.settings.showFolders === true) || (treeItem.type === "file" && $items.settings.showFiles === true)}
               <Card {treeItem} {Minimize} {StartLink} />
             {/if}
           {/if}
@@ -1146,21 +1237,19 @@
       {#if $lines}
         <div>
           {#each $lines as line, i}
-          {#if line.customLine || 
-          ($items.settings.showDefaultRelationship === true && line.customLine === false)}
-          <Line
-          lineIndex={i}
-          color={line.color}
-          sourceId={line.sourceId}
-          destId={line.destId}
-          x1={line.x1}
-          x2={line.x2}
-          y1={line.y1}
-          y2={line.y2}
-        />
-        <div style="display:none;">{i + 1}</div>
-          {/if}
-           
+            {#if line.customLine || ($items.settings.showDefaultRelationship === true && line.customLine === false)}
+              <Line
+                lineIndex={i}
+                color={line.color}
+                sourceId={line.sourceId}
+                destId={line.destId}
+                x1={line.x1}
+                x2={line.x2}
+                y1={line.y1}
+                y2={line.y2}
+              />
+              <div style="display:none;">{i + 1}</div>
+            {/if}
           {/each}
         </div>
         {#if linkLineDragging}
@@ -1172,7 +1261,7 @@
     {/if}
 
     {#if $codeMap}
-    <div style="display:none;">{RenderBlocks()}</div>
+      <div style="display:none;">{RenderBlocks()}</div>
     {/if}
   </div>
 </main>

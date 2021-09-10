@@ -180,7 +180,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 			//TODO: Need this check anymore?
 			data.customSnippets.forEach((element) => {
-				if (element.id.includes("id:")) {
+				if (element.id.toString().includes("id:")) {
 					let index = data.customSnippets.indexOf(element);
 					throw TypeError("Guess this is still used....");
 					console.log(index);

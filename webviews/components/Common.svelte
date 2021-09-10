@@ -161,13 +161,35 @@
     }
   }
 
+  export const ParentHasClass = (element: HTMLElement, classname: string): boolean | null => {
+    if (element.classList.contains(classname) === true) return true;
+    return element.parentNode && ParentHasClass(<HTMLElement>element.parentNode, classname);
+  };
+
+  export const ParentHasId = (element: HTMLElement, id: string): boolean | null => {
+    if (element?.id?.indexOf(id) >= 0) return true;
+    return element.parentNode && ParentHasId(<HTMLElement>element.parentNode, id);
+  };
+
   export const MoveToCanvas = (e) => {
     $codeMap.pocket.forEach((block) => {
       if (block.id.toString() === e.target.id) {
-        let index = $codeMap.pocket.indexOf(block);
-        $codeMap.pocket.splice(index, 1);
-        $codeMap.flatTree.push(block);
-        $codeMap = $codeMap;
+        if (typeof $codeMap.flatTree.find(b => b.id === block.id) === "undefined")
+        {
+          let index = $codeMap.pocket.indexOf(block);
+          $codeMap.pocket.splice(index, 1);
+          block.visible = true;
+          $codeMap.flatTree.push(block);
+          $codeMap = $codeMap;
+        }
+        else
+        {
+         let existingBlock = $codeMap.flatTree.find(b => b.id === block.id);
+         let index = $codeMap.pocket.indexOf(block);
+         $codeMap.pocket.splice(index, 1);
+         existingBlock.visible = true;
+         $codeMap.pocket = $codeMap.pocket;
+        }
       }
     });
   }

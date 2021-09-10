@@ -95,7 +95,7 @@
       t = $tags;
 
       i.customSnippets.forEach((element) => {
-        if (element.id.includes("id:")) {
+        if (element.id.toString().includes("id:")) {
           let index = i.customSnippets.indexOf(element);
           console.log(index);
           i.customSnippets.splice(index, 1);
@@ -251,7 +251,7 @@
               $items = JSON.parse(message.value);
 
               $items.customSnippets.forEach((element) => {
-                if (element.id.includes("id:")) {
+                if (element.id.toString().includes("id:")) {
                   let index = $items.customSnippets.indexOf(element);
                   console.log(index);
                   $items.customSnippets.splice(index, 1);
@@ -261,12 +261,13 @@
                 type: "GetFiles",
                 value: $items.settings.codeMapFolderExclusion,
               });
-            } catch {
+            } catch(exception) {
               ErrorMessage("JSON Import Error");
+              console.log(exception);
             }
           } else {
             $items.customSnippets.forEach((element) => {
-              if (element.id.includes("id:")) {
+              if (element.id.toString().includes("id:")) {
                 let index = $items.customSnippets.indexOf(element);
                 console.log(index);
                 $items.customSnippets.splice(index, 1);
@@ -582,7 +583,7 @@
       <div class="codeBlocksContainer">
         <!-- PANEL -->
         <div class="container">
-          <div class="code-container">
+          <div id="code-container" class="code-container">
             <Tags />
             <LinkedBlocks />
             <Dnd {SearchTerm} {FullCodeSearch} />
@@ -604,7 +605,7 @@
             </button>
           </div>
         </div>
-        <div class="pocketAndMapGroups">
+        <div id="pocketAndMapGroups" class="pocketAndMapGroups">
           <Pocket/>
           <CodeMapGroups/>
         </div>
@@ -626,6 +627,10 @@
   .pocketAndMapGroups{
     display: flex;
     flex-direction: column;
+    border: black;
+    border-width: 1px;
+    border-style: solid;
+    min-height: 100px;
   }
 
   .codeBlocksAndMapContainer {

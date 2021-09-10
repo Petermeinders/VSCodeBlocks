@@ -2,7 +2,7 @@
   import { flip } from "svelte/animate";
   import { dndzone, SHADOW_ITEM_MARKER_PROPERTY_NAME, TRIGGERS } from "svelte-dnd-action";
   import { afterUpdate, beforeUpdate, onMount } from "svelte";
-  import { debug, editMode, items } from "../store";
+  import { codeMap, debug, editMode, items } from "../store";
   // import type { item } from "../store";
   import Common from "./Common.svelte";
   import Fa from "svelte-fa";
@@ -17,6 +17,7 @@
   let common: Common;
   let shouldIgnoreDndEvents = false;
   const flipDurationMs = 300;
+  let draggingItem = {};
 
   $: {
     SearchTerm;
@@ -32,8 +33,7 @@
   function EditModeChange() {
     if ($debug) console.log("mode was edited: " + $editMode.id + ", " + $items.settings.currentPanel);
     if ($items.settings.currentPanel === "editMode") {
-      if (debug) 
-        console.log("edit mode activated!");
+      if (debug) console.log("edit mode activated!");
     } else {
       //set element mode to false;
       console.log($items.customSnippets);
@@ -52,6 +52,9 @@
     const { trigger, id } = e.detail.info;
     if (trigger === TRIGGERS.DRAG_STARTED) {
       // console.warn(`copying ${id}`);
+      draggingItem = e.detail.items.find((x) => x.id.toString().includes("dnd-shadow"));
+      draggingItem.tempId = e.detail.info.id;
+      document.addEventListener("mouseup", codeBlocksMouseUp);
       const idx = $items.customSnippets.findIndex((item) => item.id === id);
       const newId = `${id}_copy_${Math.round(Math.random() * 100000)}`;
       // the line below was added in order to be compatible with version svelte-dnd-action 0.7.4 and above
@@ -68,6 +71,61 @@
     } else {
       $items.customSnippets = [...$items.customSnippets];
     }
+  }
+
+  function codeBlocksMouseUp(event) {
+    console.log("enddrag");
+    console.log(draggingItem);
+
+    let pointerX = event.clientX ?? 0;
+    let pointerY = event.clientY ?? 0;
+    
+    let selectedBlock = document.getElementById("dnd-action-dragged-el");
+
+    selectedBlock.style.display = "none";
+    let bottomElement = document.elementFromPoint(pointerX, pointerY);
+    console.log(bottomElement);
+
+    if (bottomElement.id === "area") {
+      let newFlatItem = {};
+      newFlatItem.code = draggingItem.code;
+      newFlatItem.color = draggingItem.color;
+      newFlatItem.language = draggingItem.language;
+      newFlatItem.linkedBlocks = draggingItem.linkedBlocks;
+      newFlatItem.name = draggingItem.name;
+      newFlatItem.placeholders = draggingItem.placeholders;
+      newFlatItem.tags = draggingItem.tags;
+      newFlatItem.tempId = draggingItem.tempId;
+      newFlatItem.visible = true;
+
+      newFlatItem.id = draggingItem.tempId;
+      newFlatItem.parentId = "undefined";
+      newFlatItem.path = "undefined";
+      newFlatItem.type = "custom";
+      newFlatItem.color = draggingItem.color;
+      newFlatItem.open = false;
+      newFlatItem.children = [];
+      newFlatItem.extension = "custom";
+      newFlatItem.locationX = 0;
+      newFlatItem.locationY = 0;
+      newFlatItem._startLine = "undefined";
+      newFlatItem._startCharacter = "undefined";
+      newFlatItem._endLine = "undefined";
+      newFlatItem._endCharacter = "undefined";
+      newFlatItem.linkedTargetBlocks = draggingItem.linkedBlocks;
+
+      if (typeof $codeMap.flatTree.find((x) => x.id === newFlatItem.id) === "undefined") {
+        $codeMap.flatTree.push(newFlatItem);
+      }
+      else{
+        let existingItem = $codeMap.flatTree.find((x) => x.id === newFlatItem.id);
+        existingItem.visible = true;
+      }
+
+      event.srcElement.parentElement.style.display = "block";
+    }
+
+    document.removeEventListener("mouseup", codeBlocksMouseUp);
   }
 
   function handleDndFinalize(e: any) {
@@ -153,7 +211,7 @@
         foundArray = $items.customSnippets.filter(
           (item) =>
             item.name.toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 ||
-            item.id.toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 ||
+            item.id.toString().toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 ||
             item?.tags?.findIndex((x) => x?.toLowerCase()?.trim() === searchString?.toLowerCase()?.trim()) !== -1 ||
             FuzzyCheck(item, searchString)
         );
@@ -165,7 +223,7 @@
       foundArray = $items.customSnippets.filter(
         (item) =>
           item.name.toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 ||
-          item.id.toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 ||
+          item.id.toString().toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 ||
           item?.tags?.findIndex((x) => x?.toLowerCase()?.trim() === searchString?.toLowerCase()?.trim()) !== -1
       );
     }
@@ -471,7 +529,7 @@
       value: $editMode,
     });
   }
-  
+
   function getLinkedName(linkid: string) {
     let linkedItem = $items.customSnippets.find((item) => item.id === linkid);
     if (linkedItem) return linkedItem.name;
@@ -517,7 +575,7 @@
         <div>
           <Common bind:this={common} />
 
-          {#if typeof common !== "undefined"}
+          {#if common !== null && typeof common !== "undefined"}
             <span style="display:none;">{common.updateTagView()}</span>
           {/if}
 

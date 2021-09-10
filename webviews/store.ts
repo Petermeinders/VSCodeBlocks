@@ -329,6 +329,13 @@ export const tags = derived(
       if (typeof ($items) !== 'undefined') {
          let s = new Set($items.customSnippets.map(item => item.tags).flat());
          let newSet = Array.from(s);
+         newSet.forEach(item => {
+            if (typeof item === "undefined")
+            {
+              let index = newSet.indexOf(item);
+              newSet.splice(index, 1);
+            }
+         })
          newSet = newSet.map(x => { return x.toUpperCase().trim();});
          newSet = newSet.sort((a, b) => a.localeCompare(b));
          let setArray = Array.from(new Set(newSet));

@@ -59,7 +59,8 @@
       }
 
       //Gets list of active tags and updates blocks.
-      common.updateTagView();
+      if (typeof common !== 'undefined')
+        common.updateTagView();
 
       // $items.customSnippets.forEach((item) => {
       //   if (item.visible !== "None") console.log(item);

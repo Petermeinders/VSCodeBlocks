@@ -49,8 +49,8 @@
       >
         {#each $codeMap.pocket as item (item.id)}
           <div id={item.id} class="pocketblock" animate:flip={{ duration: flipDurationMs }}>
-            {item.name}
             <button id={item.id} type="button" style="width:50px;" on:click={(event) => common.MoveToCanvas(event)}>Add</button>
+            {item.name.substring(0, 20)}
           </div>
         {/each}
       </section>
@@ -62,5 +62,6 @@
 .pocket{
     max-height: 150px;
     overflow: scroll;
+    min-height:100px;
 }
 </style>
