@@ -170,6 +170,14 @@ activeSelectionMeta,
       //   ds.addSelection($currentlySelected);
       // }
 
+      if (OnMouseUpObject?.items[0]?.id === "generated")
+      {
+        let selected = $codeMap.flatTree.find(x => x.id === "generated")
+        
+        if (selected)
+          selected.id = common.getNonce();
+      }
+
       if (OnMouseUpObject.items.length === 1 && !buttonClick) {
         //DragStartObject.items[0].
 

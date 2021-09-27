@@ -110,45 +110,52 @@
   data-y2={treeItem.y2}
   class="card absolute highlight {treeItem.type === 'directory' ? 'directory' : 'file'}"
 >
-<div class="cardButtons">
-  <button id="MoveToPocket" on:click={closeHandler}><Fa size="1x" icon={faTrashRestore} style="color:red; padding-right: 4px; float:right" /></button>
-  {#if treeItem.type === "directory"}
-    <Fa size="1x" icon={faFolder} style="color:yellow; padding-right: 4px; padding-left:4px; float:right" />
-  {/if}
 
-  {#if treeItem.type === "file"}
-    <Fa size="1x" icon={faFile} style="color:white; padding-right: 4px; padding-left:4px; float:right" />
-  {/if}
+{#if treeItem.id !== "generated"}
+  <div class="cardButtons">
+    <button disabled="true" id="MoveToPocket" on:click={closeHandler}><Fa size="1x" icon={faTrashRestore} style="color:red; padding-right: 4px; float:right" /></button>
+    {#if treeItem.type === "directory"}
+      <Fa size="1x" icon={faFolder} style="color:yellow; padding-right: 4px; padding-left:4px; float:right" />
+    {/if}
 
-  {#if treeItem.type === "outline"}
-    <Fa size="1x" icon={faCode} style="color:white; padding-right: 4px; padding-left:4px; float:right" />
-  {/if}
+    {#if treeItem.type === "file"}
+      <Fa size="1x" icon={faFile} style="color:white; padding-right: 4px; padding-left:4px; float:right" />
+    {/if}
 
-  {#if typeof treeItem.starred === "undefined" || treeItem.starred === false}
-    <button id="Star" on:click={() => StarClicked(treeItem)}><Fa size="1x" icon={faStar} style="color:yellow; padding-right: 4px; float:right" /></button>
-  {:else}
-    <button id="Star" on:click={() => StarClicked(treeItem)}><Fa size="1x" icon={solidStar} style="color:yellow; padding-right: 4px; float:right" /></button>
-  {/if}
+    {#if treeItem.type === "outline"}
+      <Fa size="1x" icon={faCode} style="color:white; padding-right: 4px; padding-left:4px; float:right" />
+    {/if}
 
-  <button id="SelectPerimeter" on:click={GroupClick}><Fa size="1x" icon={faBullseye} style="color:red; padding-right: 4px; float:right" /></button>
+    {#if typeof treeItem.starred === "undefined" || treeItem.starred === false}
+      <button id="Star" on:click={() => StarClicked(treeItem)}><Fa size="1x" icon={faStar} style="color:yellow; padding-right: 4px; float:right" /></button>
+    {:else}
+      <button id="Star" on:click={() => StarClicked(treeItem)}><Fa size="1x" icon={solidStar} style="color:yellow; padding-right: 4px; float:right" /></button>
+    {/if}
 
-  {#if typeof treeItem.open === "undefined" || treeItem.open === true}
-    <button id="Minimize" on:click={(event) => Minimize(event, treeItem)}>
-      <Fa size="1x" icon={faCompressArrowsAlt} style="color:yellow; padding-right: 4px; float:right" />
+    <button id="SelectPerimeter" on:click={GroupClick}><Fa size="1x" icon={faBullseye} style="color:red; padding-right: 4px; float:right" /></button>
+
+    {#if typeof treeItem.open === "undefined" || treeItem.open === true}
+      <button id="Minimize" on:click={(event) => Minimize(event, treeItem)}>
+        <Fa size="1x" icon={faCompressArrowsAlt} style="color:yellow; padding-right: 4px; float:right" />
+      </button>
+    {:else}
+      <button id="Minimize" on:click={(event) => Minimize(event, treeItem)}>
+        <Fa size="1x" icon={faExpandAlt} style="color:yellow; padding-right: 4px; float:right" />
+      </button>
+    {/if}
+
+    <button id="StartLink" on:mousedown={(event) => StartLink(event, treeItem)}>
+      <Fa size="1x" icon={faLink} style="color:blue; padding-right: 4px; float:right" />
     </button>
-  {:else}
-    <button id="Minimize" on:click={(event) => Minimize(event, treeItem)}>
-      <Fa size="1x" icon={faExpandAlt} style="color:yellow; padding-right: 4px; float:right" />
+    <button id="HideBlock" on:mousedown={(event) => HideBlock(event, treeItem)}>
+      <Fa size="1x" icon={faEyeSlash} style="color:black; padding-right: 4px; float:right" />
     </button>
-  {/if}
-
-  <button id="StartLink" on:mousedown={(event) => StartLink(event, treeItem)}>
-    <Fa size="1x" icon={faLink} style="color:blue; padding-right: 4px; float:right" />
-  </button>
-  <button id="HideBlock" on:mousedown={(event) => HideBlock(event, treeItem)}>
-    <Fa size="1x" icon={faEyeSlash} style="color:black; padding-right: 4px; float:right" />
-  </button>
-</div>
+  </div>
+{:else}
+  <div class="generatedHeader">
+    <h2 style="color:blue">Generated</h2>
+  </div>
+{/if}
 
 <button type="button" class="inner-hide"> {treeItem.type === "outline" ? treeItem.name.substring(0, 25): treeItem.name}</button>
 
@@ -218,7 +225,7 @@
 
   .cardButtons {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
   }
 
@@ -249,6 +256,13 @@
   .file {
     border: solid 3px #4e58bf;
     background: #6e88ffcc;
+  }
+
+  .generatedHeader{
+    align-content: center;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .ds-hover {
