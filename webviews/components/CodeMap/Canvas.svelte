@@ -155,7 +155,7 @@ activeSelectionMeta,
 
     ds = new DragSelect({
       selectables: document.getElementsByClassName("card"),
-      callback: (e) => console.log(e),
+      callback: (e) => (e),
       // area: document.getElementById("area"),
     });
 
@@ -173,7 +173,7 @@ activeSelectionMeta,
       if (OnMouseUpObject?.items[0]?.id === "generated")
       {
         let selected = $codeMap.flatTree.find(x => x.id === "generated")
-        
+
         if (selected)
           selected.id = common.getNonce();
       }
@@ -241,7 +241,9 @@ activeSelectionMeta,
 
       OnMouseUpObject.event.srcElement.style.display = "none";
       let bottomElement = document.elementFromPoint(pointerX, pointerY);
-      console.log(bottomElement);
+      
+      if ($debug)
+        console.log(bottomElement);
 
       if (bottomElement  && (OnMouseUpObject?.event?.target?.nodeName !== "BUTTON" || OnMouseUpObject?.event?.srcElement?.nodeName !== "BUTTON"))
       {
@@ -366,7 +368,8 @@ activeSelectionMeta,
 
   beforeUpdate(() => {
     if (!linkLineDragging) {
-      console.log("update lines!");
+      if ($debug)
+        console.log("update lines!");
       RenderBlocks();
       RenderLines();
     }
@@ -638,7 +641,8 @@ activeSelectionMeta,
     });
 
     $lines = $lines;
-    console.log("Rendered lines global");
+    if ($debug)
+      console.log("Rendered lines global");
   }
 
   // function LineCheck(item1, item2) {
