@@ -11,7 +11,7 @@
     activelySelectedText,
     activePath,
     lines,
-activeSelectionMeta,
+    activeSelectionMeta,
   } from "../../store";
   import type { Group } from "../../store";
   import Card from "./Card.svelte";
@@ -33,9 +33,7 @@ activeSelectionMeta,
   function RenderPocket() {
     if ($codeMap) {
       if ($codeMap.pocket.length < 0) {
-        $codeMap.pocket = [
-
-        ];
+        $codeMap.pocket = [];
       }
     }
   }
@@ -71,6 +69,8 @@ activeSelectionMeta,
 
   const _ = deepdash(lodash);
   let ds;
+
+
 
   let newLink = {};
   let isMoving = false;
@@ -153,9 +153,11 @@ activeSelectionMeta,
   onMount(async () => {
     // GetFiles();
 
+   
+
     ds = new DragSelect({
       selectables: document.getElementsByClassName("card"),
-      callback: (e) => (e),
+      callback: (e) => e,
       // area: document.getElementById("area"),
     });
 
@@ -170,12 +172,10 @@ activeSelectionMeta,
       //   ds.addSelection($currentlySelected);
       // }
 
-      if (OnMouseUpObject?.items[0]?.id === "generated")
-      {
-        let selected = $codeMap.flatTree.find(x => x.id === "generated")
+      if (OnMouseUpObject?.items[0]?.id === "generated") {
+        let selected = $codeMap.flatTree.find((x) => x.id === "generated");
 
-        if (selected)
-          selected.id = common.getNonce();
+        if (selected) selected.id = common.getNonce();
       }
 
       if (OnMouseUpObject.items.length === 1 && !buttonClick) {
@@ -241,30 +241,24 @@ activeSelectionMeta,
 
       OnMouseUpObject.event.srcElement.style.display = "none";
       let bottomElement = document.elementFromPoint(pointerX, pointerY);
-      
-      if ($debug)
-        console.log(bottomElement);
 
-      if (bottomElement  && (OnMouseUpObject?.event?.target?.nodeName !== "BUTTON" || OnMouseUpObject?.event?.srcElement?.nodeName !== "BUTTON"))
-      {
+      if ($debug) console.log(bottomElement);
+
+      if (bottomElement && (OnMouseUpObject?.event?.target?.nodeName !== "BUTTON" || OnMouseUpObject?.event?.srcElement?.nodeName !== "BUTTON")) {
         let isPocketHovered = common.ParentHasId(bottomElement, "pocketAndMapGroups");
-        if (isPocketHovered)
-        {
+        if (isPocketHovered) {
           let pocketAndGroup = document.getElementById("pocketAndMapGroups");
           if ($debug) console.log("Moving to pocket");
           MoveToPocket($currentlySelected, OnMouseUpObject.event);
         }
 
-        if (!isPocketHovered)
-        {
+        if (!isPocketHovered) {
           let isCodeBlockHovered = common.ParentHasId(bottomElement, "code-container");
-          if (isCodeBlockHovered)
-          {
+          if (isCodeBlockHovered) {
             if ($debug) console.log("Moving to Blocks");
             MoveToCodeBlocks($currentlySelected, OnMouseUpObject.event);
           }
         }
-
       }
 
       OnMouseUpObject.event.srcElement.style.display = "block";
@@ -368,8 +362,7 @@ activeSelectionMeta,
 
   beforeUpdate(() => {
     if (!linkLineDragging) {
-      if ($debug)
-        console.log("update lines!");
+      if ($debug) console.log("update lines!");
       RenderBlocks();
       RenderLines();
     }
@@ -381,8 +374,6 @@ activeSelectionMeta,
       AddCardsToDrag();
     }
   });
-
-
 
   function CheckForButton(OnMouseUpObject) {
     if (OnMouseUpObject?.event?.target?.parentElement?.parentElement?.parentElement?.parentElement?.nodeName === "BUTTON") {
@@ -641,8 +632,7 @@ activeSelectionMeta,
     });
 
     $lines = $lines;
-    if ($debug)
-      console.log("Rendered lines global");
+    if ($debug) console.log("Rendered lines global");
   }
 
   // function LineCheck(item1, item2) {
@@ -681,7 +671,7 @@ activeSelectionMeta,
 
     flatBlock.forEach((block) => {
       let blockIndex = $codeMap.flatTree.indexOf(block);
-      let alreadyExits = $codeMap.pocket.find(x => x.id === block.id)
+      let alreadyExits = $codeMap.pocket.find((x) => x.id === block.id);
       if (blockIndex !== -1 && typeof alreadyExits === "undefined") {
         $codeMap.pocket.push(block);
         $codeMap.flatTree.splice(blockIndex, 1);
@@ -690,14 +680,13 @@ activeSelectionMeta,
     });
   }
 
-  function MoveToCodeBlocks(selectedBlocks, event){
+  function MoveToCodeBlocks(selectedBlocks, event) {
     let flatBlock = GetSelectedCodeBlocks(selectedBlocks);
 
     flatBlock.forEach((block) => {
       let blockIndex = $codeMap.flatTree.indexOf(block);
       let newBlock = {};
       if (blockIndex !== -1) {
-
         newBlock.id = block.id;
         newBlock.name = block.name;
         newBlock.path = block.path;
@@ -717,7 +706,7 @@ activeSelectionMeta,
         newBlock.outputy = block.outputy;
         newBlock.inputx = block.inputx;
         newBlock.inputy = block.inputy;
-        newBlock.children = block.children ;
+        newBlock.children = block.children;
         newBlock.extension = block.extension;
         newBlock.locationX = block.locationX;
         newBlock.locationY = block.locationY;
@@ -728,28 +717,27 @@ activeSelectionMeta,
         newBlock.starred = block.starred;
         newBlock.linkedTargetBlocks = block.linkedTargetBlocks;
         //id: "0",
-      //tempId:"",
-      //name: "test",
-      //code: "if(${1:condition} ||${1:condition}){${2:expression}})",
-      //language: "typescript",
-      // placeholders: [
-      //    "condition",
-      //    "expression"
-      // ],
-      // color: "white",
-      // visible: "",
-      // linkedBlocks: [],
-      // tags: [
-      //    "tag1",
-      //    "tag2"
-      // ]
+        //tempId:"",
+        //name: "test",
+        //code: "if(${1:condition} ||${1:condition}){${2:expression}})",
+        //language: "typescript",
+        // placeholders: [
+        //    "condition",
+        //    "expression"
+        // ],
+        // color: "white",
+        // visible: "",
+        // linkedBlocks: [],
+        // tags: [
+        //    "tag1",
+        //    "tag2"
+        // ]
 
-
-        $items.customSnippets.push(newBlock)
+        $items.customSnippets.push(newBlock);
         // $codeMap.pocket.push(block);
         //$codeMap.flatTree.splice(blockIndex, 1);
         $items.customSnippets = $items.customSnippets;
-        console.log($codeMap.flatTree.find(b => b.id === block.id ));
+        console.log($codeMap.flatTree.find((b) => b.id === block.id));
         block.visible = false;
       }
     });
@@ -1148,7 +1136,6 @@ activeSelectionMeta,
   function SelectedTextChange() {
     ShowActivelySelectedOutline();
     GenerateCodeBlockFromSelectedText();
-
   }
 
   function ShowActivelySelectedOutline() {
@@ -1171,17 +1158,19 @@ activeSelectionMeta,
     }
   }
 
-  function GenerateCodeBlockFromSelectedText(){
-    if ($codeMap?.flatTree) {
-      let ExistingGenerated = $codeMap?.flatTree.find(x => x.id === "generated")
 
-      if (ExistingGenerated)
-      {
-        let index = $codeMap?.flatTree.indexOf(ExistingGenerated)
+
+
+  function GenerateCodeBlockFromSelectedText() {
+    if ($codeMap?.flatTree) {
+      let ExistingGenerated = $codeMap?.flatTree.find((x) => x.id === "generated");
+
+      if (ExistingGenerated) {
+        let index = $codeMap?.flatTree.indexOf(ExistingGenerated);
         let generatedBlock = {};
 
         generatedBlock.id = "generated";
-        generatedBlock.name = $activelySelectedText.substring(0,25);
+        generatedBlock.name = $activelySelectedText.substring(0, 25);
         generatedBlock.path = undefined;
         generatedBlock.code = $activelySelectedText;
         generatedBlock.language = undefined;
@@ -1200,7 +1189,7 @@ activeSelectionMeta,
         generatedBlock.inputx = undefined;
         generatedBlock.inputy = undefined;
         generatedBlock.children = undefined;
-        generatedBlock.extension = "custom"
+        generatedBlock.extension = "custom";
         generatedBlock.locationX = 0;
         generatedBlock.locationY = 0;
         generatedBlock._startLine = $activeSelectionMeta;
@@ -1210,15 +1199,12 @@ activeSelectionMeta,
         generatedBlock.starred = true;
         generatedBlock.linkedTargetBlocks = undefined;
 
-        $codeMap.flatTree.splice(index,1, generatedBlock);
-
-      }
-      else
-      {
+        $codeMap.flatTree.splice(index, 1, generatedBlock);
+      } else {
         let generatedBlock = {};
 
         generatedBlock.id = "generated";
-        generatedBlock.name = $activelySelectedText.substring(0,25);
+        generatedBlock.name = $activelySelectedText.substring(0, 25);
         generatedBlock.path = undefined;
         generatedBlock.code = $activelySelectedText;
         generatedBlock.language = undefined;
@@ -1237,7 +1223,7 @@ activeSelectionMeta,
         generatedBlock.inputx = undefined;
         generatedBlock.inputy = undefined;
         generatedBlock.children = undefined;
-        generatedBlock.extension = "custom"
+        generatedBlock.extension = "custom";
         generatedBlock.locationX = 0;
         generatedBlock.locationY = 0;
         generatedBlock._startLine = $activeSelectionMeta;
@@ -1248,13 +1234,13 @@ activeSelectionMeta,
         generatedBlock.linkedTargetBlocks = undefined;
 
         $codeMap.flatTree.push(generatedBlock);
-
       }
     }
   }
 
   let m = { x: 0, y: 0 };
   let start = { x: 0, y: 0 };
+
 
   function StartLink(event, treeItem) {
     ds.break();
@@ -1305,7 +1291,7 @@ activeSelectionMeta,
   <!-- The mouse position is {m.x} x {m.y} -->
   <!-- <h1 style="text-align:center;">Code Map</h1> -->
 
-  <div id="area" style="width:100%; height:100%; position:fixed;">
+  <div  id="area" style="width:100%; height:100%; position:fixed;">
     <div class="ds-selected" style="display:none" />
     <button type="button" on:click={SaveCodeMapToFile}>Save CodeMap</button>
 

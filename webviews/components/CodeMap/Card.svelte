@@ -2,7 +2,7 @@
   import { flatTree, newRender, currentZoom, perimeterItem, codeMap } from "../../store";
   import lodash, { flatten } from "lodash";
   import deepdash from "deepdash";
-  import { afterUpdate } from "svelte";
+  import { afterUpdate, onMount } from "svelte";
   import Fa from "svelte-fa";
   import {
     faBullseye,
@@ -36,6 +36,7 @@
 
   export let StartLink = (event, treeItem) => {};
 
+  let menu;
 
   afterUpdate(() => {
     $newRender = $newRender++;
@@ -50,6 +51,18 @@
       parentId: treeItem.parentId,
     };
   }
+
+  onMount(async () => {
+
+  })
+
+
+  document.body.addEventListener('contextmenu', e => {
+  e.preventDefault(); // cancel the built-in context menu
+  console.log("ITWORKED2!");
+  // let event = e;
+  // expand(event);
+});
 
   function dbClick(item: TreeItem) {
     let dbClickValues = {};
@@ -92,12 +105,38 @@
     treeItem.visible = false;
   }
 
+  function expand(e) {
+    console.log(e);
+    let menu;
+
+    if (e.target.classList.contains("menu"))
+      menu = e.target;
+    if (e.target.querySelector(".menu"))
+      menu = e.target.querySelector(".menu");
+
+    if (menu !== null)
+    {
+
+      if (menu.classList.contains("opened")) 
+      {
+        menu.style.transform = "scale(0)";
+        menu.classList.remove("opened");  
+      } 
+      else 
+      {
+        menu.style.transform = "scale(3)";
+        menu.classList.add("opened");     
+      }
+    }
+   
+  }
+
 </script>
 
 <div class="ds-selected ds-hover absolute" style="display:none" />
 
 <main
-  on:dblclick={dbClick(treeItem)}
+  on:dblclick={dbClick(treeItem)} on:contextmenu={(event) => expand(event)}
   style=" background:{treeItem.color} ;z-index:101; {treeItem.locationX !== 0 && treeItem.locationY !== 0
     ? 'transform: translate3d(' + treeItem.locationX + 'px, ' + treeItem.locationY + 'px, 1px) scale(' + $currentZoom + ');'
     : ''}"
@@ -111,9 +150,30 @@
   class="card absolute highlight {treeItem.type === 'directory' ? 'directory' : 'file'}"
 >
 
+<div class="menu" id="menu">
+  <a href="#">
+    <Fa size="1x" icon={faTrashRestore} style="color:red;" />
+  </a>
+  <a href="#">
+    <Fa size="1x" icon={faTrashRestore} style="color:red;" />
+  </a>
+  <a href="#">
+    <Fa size="1x" icon={faTrashRestore} style="color:red;" />
+  </a>
+  <a href="#">
+    <Fa size="1x" icon={faTrashRestore} style="color:red;" />
+  </a>
+  <a href="#">
+    <i class="fa fa-camera" />
+  </a>
+  <a href="#">
+    <i class="fa fa-bell" />
+  </a>
+</div>
+
 {#if treeItem.id !== "generated"}
   <div class="cardButtons">
-    <button disabled="true" id="MoveToPocket" on:click={closeHandler}><Fa size="1x" icon={faTrashRestore} style="color:red; padding-right: 4px; float:right" /></button>
+    <button disabled="true" id="MoveToPocket"  on:click={closeHandler}><Fa size="1x" icon={faTrashRestore} style="color:red; padding-right: 4px; float:right" /></button>
     {#if treeItem.type === "directory"}
       <Fa size="1x" icon={faFolder} style="color:yellow; padding-right: 4px; padding-left:4px; float:right" />
     {/if}
@@ -272,5 +332,107 @@
   .highlight {
     border-color: white;
     z-index: 102 !important;
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  body {
+    background-color: #eedddd;
+    padding: 0px;
+    margin: 0px;
+    overflow: hidden;
+  }
+
+  .toggle {
+    background-color: #c87f8a;
+    text-align: center;
+    height: 100px;
+    width: 100px;
+    border-radius: 50%;
+    position: absolute;
+    margin: auto;
+    top: 0px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+  }
+
+  .fa-plus {
+    font-size: 60px;
+    color: white;
+    display: block;
+    margin-top: 20px;
+    transition: 0.7s;
+  }
+
+  .menu {
+    background-color: white;
+    height: 100px;
+    width: 100px;
+    transform: scale(0);
+    border-radius: 50%;
+    border-style: double;
+    border-color: #c87f8a;
+    position: absolute;
+    margin: auto;
+    top: 0px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    z-index: -1;
+    transition: 0.1s;
+  }
+
+  a {
+    display: inline-block;
+    position: absolute;
+    font-size: 15px;
+    color: #bbbbbb;
+  }
+
+  a:nth-child(1) {
+    top: 6px;
+    left: 45px;
+  }
+
+  a:nth-child(2) {
+    top: 24px;
+    left: 77px;
+  }
+
+  a:nth-child(3) {
+    top: 58px;
+    left: 76px;
+  }
+
+  a:nth-child(4) {
+    top: 78px;
+    left: 42px;
+  }
+
+  a:nth-child(5) {
+    top: 58px;
+    left: 10px;
+  }
+
+  a:nth-child(6) {
+    top: 23px;
+    left: 12px;
+  }
+
+  a:hover {
+    color: #c87f8a;
   }
 </style>
