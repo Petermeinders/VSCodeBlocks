@@ -152,7 +152,7 @@
 
 <div class="menu" id="menu">
   <a href="#">
-    <Fa size="1x" icon={faTrashRestore} style="color:red;" />
+    <Fa id="MoveToPocketMenu" on:click={closeHandler} size="1x" icon={faTrashRestore} style="color:red;" />
   </a>
   <a href="#">
     <Fa size="1x" icon={faTrashRestore} style="color:red;" />
@@ -173,7 +173,7 @@
 
 {#if treeItem.id !== "generated"}
   <div class="cardButtons">
-    <button disabled="true" id="MoveToPocket"  on:click={closeHandler}><Fa size="1x" icon={faTrashRestore} style="color:red; padding-right: 4px; float:right" /></button>
+    <button id="MoveToPocket"  on:click={closeHandler}><Fa size="1x" icon={faTrashRestore} style="color:red; padding-right: 4px; float:right" /></button>
     {#if treeItem.type === "directory"}
       <Fa size="1x" icon={faFolder} style="color:yellow; padding-right: 4px; padding-left:4px; float:right" />
     {/if}

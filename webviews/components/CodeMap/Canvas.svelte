@@ -219,7 +219,6 @@
         $currentlySelected = [];
       }
 
-      // if (OnMouseUpObject.items.length > 1 && OnMouseUpObject.isDragging === false) {
       if (OnMouseUpObject.items.length > 1) {
         $currentlySelected = [];
         OnMouseUpObject.items.forEach((card) => {
@@ -227,7 +226,18 @@
         });
       }
 
+      //Check if it's a button
       let buttonName = CheckForButton(OnMouseUpObject);
+
+      //Check if it's a radial item
+      let radialItemId = CheckforRadialItemClick(OnMouseUpObject)
+      
+      
+
+      if (radialItemId === "MoveToPocketMenu")
+      {
+        MoveToPocket($currentlySelected, OnMouseUpObject.event);
+      }
 
       if (buttonName === "MoveToPocket") {
         MoveToPocket($currentlySelected, OnMouseUpObject.event);
@@ -374,6 +384,22 @@
       AddCardsToDrag();
     }
   });
+
+  function CheckforRadialItemClick(OnMouseUpObject){
+    let radialItemId;
+    if (OnMouseUpObject?.event?.target?.nodeName === "path")
+      {
+        radialItemId = OnMouseUpObject.event.target.parentElement.parentElement.parentElement.id;
+        $currentlySelected.push(OnMouseUpObject.event.target.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement);
+        return radialItemId;
+      }
+      if (OnMouseUpObject?.event?.target?.nodeName === "svg")
+      {
+        radialItemId = OnMouseUpObject.event.target.id;
+        $currentlySelected.push(OnMouseUpObject.event.target.parentElement.parentElement.parentElement);
+        return radialItemId;
+      }
+  }
 
   function CheckForButton(OnMouseUpObject) {
     if (OnMouseUpObject?.event?.target?.parentElement?.parentElement?.parentElement?.parentElement?.nodeName === "BUTTON") {
