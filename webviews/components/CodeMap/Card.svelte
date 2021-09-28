@@ -152,16 +152,25 @@
 
 <div class="menu" id="menu">
   <a href="#">
+    {#if typeof treeItem.starred === "undefined" || treeItem.starred === false}
+      <Fa id="Star" on:click={() => StarClicked(treeItem)} size="1x" icon={faStar} style="color:yellow;" />
+    {:else}
+      <Fa id="Star" on:click={() => StarClicked(treeItem)} size="1x" icon={solidStar} style="color:yellow;" />
+    {/if}
+  </a>
+  <a href="#" class="tooltip">
     <Fa id="MoveToPocketMenu" on:click={closeHandler} size="1x" icon={faTrashRestore} style="color:red;" />
+    <span class="tooltiptext">Text</span>
   </a>
   <a href="#">
-    <Fa size="1x" icon={faTrashRestore} style="color:red;" />
+    <Fa id="SelectPerimeter" on:click={GroupClick} size="1x" icon={faBullseye} style="color:red;" />
   </a>
   <a href="#">
-    <Fa size="1x" icon={faTrashRestore} style="color:red;" />
-  </a>
-  <a href="#">
-    <Fa size="1x" icon={faTrashRestore} style="color:red;" />
+    {#if typeof treeItem.open === "undefined" || treeItem.open === true}
+      <Fa id="Minimize" on:click={(event) => Minimize(event, treeItem)} size="1x" icon={faCompressArrowsAlt} style="color:yellow;" />
+  {:else}
+      <Fa id="Minimize" on:click={(event) => Minimize(event, treeItem)} size="1x" icon={faExpandAlt} style="color:yellow;" />
+  {/if}
   </a>
   <a href="#">
     <i class="fa fa-camera" />
@@ -173,7 +182,7 @@
 
 {#if treeItem.id !== "generated"}
   <div class="cardButtons">
-    <button id="MoveToPocket"  on:click={closeHandler}><Fa size="1x" icon={faTrashRestore} style="color:red; padding-right: 4px; float:right" /></button>
+    <!-- <button id="MoveToPocket"  on:click={closeHandler}><Fa size="1x" icon={faTrashRestore} style="color:red; padding-right: 4px; float:right" /></button> -->
     {#if treeItem.type === "directory"}
       <Fa size="1x" icon={faFolder} style="color:yellow; padding-right: 4px; padding-left:4px; float:right" />
     {/if}
@@ -192,7 +201,7 @@
       <button id="Star" on:click={() => StarClicked(treeItem)}><Fa size="1x" icon={solidStar} style="color:yellow; padding-right: 4px; float:right" /></button>
     {/if}
 
-    <button id="SelectPerimeter" on:click={GroupClick}><Fa size="1x" icon={faBullseye} style="color:red; padding-right: 4px; float:right" /></button>
+    <!-- <button id="SelectPerimeter" on:click={GroupClick}><Fa size="1x" icon={faBullseye} style="color:red; padding-right: 4px; float:right" /></button> -->
 
     {#if typeof treeItem.open === "undefined" || treeItem.open === true}
       <button id="Minimize" on:click={(event) => Minimize(event, treeItem)}>
@@ -272,6 +281,7 @@
   .card {
     /* padding: 5px; */
     user-select: none;
+    cursor: grab;
     /* width: 50px;
   height: 50px; */
 
@@ -334,7 +344,20 @@
     z-index: 102 !important;
   }
 
-
+  .tooltip .tooltiptext {
+    visibility: hidden;
+    width: 20px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+    position: absolute;
+    top: -25px;
+    font-size: .4rem;
+    /* left: -5px; */
+    z-index: 1;
+}
 
 
 
@@ -378,13 +401,13 @@
   }
 
   .menu {
-    background-color: white;
+    background-color: #3794ff00;
     height: 100px;
     width: 100px;
     transform: scale(0);
     border-radius: 50%;
     border-style: double;
-    border-color: #c87f8a;
+    border-color: #3794ff;
     position: absolute;
     margin: auto;
     top: 0px;
@@ -403,23 +426,23 @@
   }
 
   a:nth-child(1) {
-    top: 6px;
-    left: 45px;
+    top: 0px;
+    left: 38px;
   }
 
   a:nth-child(2) {
-    top: 24px;
-    left: 77px;
+    top: 14px;
+    left: 68px;
   }
 
   a:nth-child(3) {
-    top: 58px;
-    left: 76px;
+    top: 54px;
+    left: 72px;
   }
 
   a:nth-child(4) {
-    top: 78px;
-    left: 42px;
+    top: 72px;
+    left: 41px;
   }
 
   a:nth-child(5) {

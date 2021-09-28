@@ -227,6 +227,7 @@
           break;
 
         case "selection-to-codeMap":
+          $activeSelectionMeta.path = message.value.path;
           $activeSelectionMeta.startLine = message.value.startLine;
           $activelySelectedText = message.value.searchString;
           $activePath = message.value.path;

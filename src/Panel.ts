@@ -683,9 +683,10 @@ export class HellowWorldPanel {
           vscode.workspace.openTextDocument(fileURI).then((document) => {
             vscode.window.showTextDocument(document, viewColum).then(editor => {
               
-            if (data.value.type === "outline")
+            if (data.value.type === "outline" || data.value.type === "custom")
             {
-              let range = editor.document.lineAt(data.value.startLine).range;
+              let getNumber = Number(data.value.startLine);
+              let range = editor.document.lineAt(getNumber).range;
               editor.selection =  new vscode.Selection(range.start, range.end);
               editor.revealRange(range);
             }

@@ -179,6 +179,7 @@ let originDebug = false;
 let originActivelySelectedText = "";
 let originactiveSelectionMeta = {
    startLine: "",
+   path:"",
 };
 let originActivePath = "";
 let originLines = [];

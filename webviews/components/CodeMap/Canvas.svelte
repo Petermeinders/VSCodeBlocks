@@ -175,7 +175,11 @@
       if (OnMouseUpObject?.items[0]?.id === "generated") {
         let selected = $codeMap.flatTree.find((x) => x.id === "generated");
 
-        if (selected) selected.id = common.getNonce();
+        if (selected) 
+        {
+          selected.id = common.getNonce();
+          OnMouseUpObject.items[0].id = selected.id;
+        }
       }
 
       if (OnMouseUpObject.items.length === 1 && !buttonClick) {
@@ -233,11 +237,22 @@
       let radialItemId = CheckforRadialItemClick(OnMouseUpObject)
       
       
-
+      //RADIAL CLICK ITEMS------------------------
       if (radialItemId === "MoveToPocketMenu")
       {
         MoveToPocket($currentlySelected, OnMouseUpObject.event);
       }
+
+      if (radialItemId === "Star")
+      {
+        StarClicked($currentlySelected)
+      }
+
+      if (radialItemId === "SelectPerimeter")
+      {
+        GroupClick($currentlySelected)
+      }
+      //----------------------------------------------
 
       if (buttonName === "MoveToPocket") {
         MoveToPocket($currentlySelected, OnMouseUpObject.event);
@@ -433,6 +448,39 @@
       }
     }
   };
+
+  function StarClicked(currentlySelected) 
+  {
+    let flatBlock = GetSelectedCodeBlocks(currentlySelected);
+
+    flatBlock.forEach((block) => {
+    if (block.starred)
+    {
+      block.starred = false;  
+    }
+    else
+    {
+      block.starred = true;
+    }
+    
+    let index = $codeMap.flatTree.indexOf(block);
+    $codeMap.flatTree.splice(index,1,block);
+    $codeMap.flatTree = $codeMap.flatTree;
+
+  });
+
+  }
+
+  function GroupClick(currentlySelected) {
+    let flatBlock = GetSelectedCodeBlocks(currentlySelected);
+    
+    let first = flatBlock[0];
+    console.log("groupclick");
+    $perimeterItem = {
+      id: first.id,
+      parentId: first.parentId,
+    };
+  }
 
   function GetOutline(currentParentBlock) {
     let OutlineArray = [];
@@ -1160,7 +1208,7 @@
   }
 
   function SelectedTextChange() {
-    ShowActivelySelectedOutline();
+   // let existingOutline = ShowActivelySelectedOutline();
     GenerateCodeBlockFromSelectedText();
   }
 
@@ -1172,11 +1220,13 @@
             if (treeItem.name === $activelySelectedText && treeItem.path === $activePath) {
               HideOutline();
               treeItem.visible = true;
+              return treeItem.id;
             }
           } else {
             if (treeItem.name.startsWith($activelySelectedText) && treeItem.path === $activePath) {
               HideOutline();
               treeItem.visible = true;
+              return treeItem.id;
             }
           }
         }
@@ -1188,7 +1238,9 @@
 
 
   function GenerateCodeBlockFromSelectedText() {
-    if ($codeMap?.flatTree) {
+
+
+      if ($codeMap?.flatTree) {
       let ExistingGenerated = $codeMap?.flatTree.find((x) => x.id === "generated");
 
       if (ExistingGenerated) {
@@ -1197,7 +1249,7 @@
 
         generatedBlock.id = "generated";
         generatedBlock.name = $activelySelectedText.substring(0, 25);
-        generatedBlock.path = undefined;
+        generatedBlock.path = $activeSelectionMeta.path.toString();
         generatedBlock.code = $activelySelectedText;
         generatedBlock.language = undefined;
         generatedBlock.placeholders = [];
@@ -1218,7 +1270,7 @@
         generatedBlock.extension = "custom";
         generatedBlock.locationX = 0;
         generatedBlock.locationY = 0;
-        generatedBlock._startLine = $activeSelectionMeta;
+        generatedBlock._startLine = $activeSelectionMeta.startLine.toString();
         generatedBlock._startCharacter = undefined;
         generatedBlock._endLine = undefined;
         generatedBlock._endCharacter = undefined;
@@ -1231,7 +1283,7 @@
 
         generatedBlock.id = "generated";
         generatedBlock.name = $activelySelectedText.substring(0, 25);
-        generatedBlock.path = undefined;
+        generatedBlock.path = $activeSelectionMeta.path;
         generatedBlock.code = $activelySelectedText;
         generatedBlock.language = undefined;
         generatedBlock.placeholders = [];
@@ -1252,7 +1304,7 @@
         generatedBlock.extension = "custom";
         generatedBlock.locationX = 0;
         generatedBlock.locationY = 0;
-        generatedBlock._startLine = $activeSelectionMeta;
+        generatedBlock._startLine = $activeSelectionMeta.startLine.toString();
         generatedBlock._startCharacter = undefined;
         generatedBlock._endLine = undefined;
         generatedBlock._endCharacter = undefined;
@@ -1262,6 +1314,8 @@
         $codeMap.flatTree.push(generatedBlock);
       }
     }
+    
+   
   }
 
   let m = { x: 0, y: 0 };
