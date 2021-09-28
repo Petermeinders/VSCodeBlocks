@@ -1275,7 +1275,7 @@
         generatedBlock._endLine = undefined;
         generatedBlock._endCharacter = undefined;
         generatedBlock.starred = true;
-        generatedBlock.linkedTargetBlocks = undefined;
+        generatedBlock.linkedTargetBlocks = [];
 
         $codeMap.flatTree.splice(index, 1, generatedBlock);
       } else {
@@ -1309,7 +1309,7 @@
         generatedBlock._endLine = undefined;
         generatedBlock._endCharacter = undefined;
         generatedBlock.starred = true;
-        generatedBlock.linkedTargetBlocks = undefined;
+        generatedBlock.linkedTargetBlocks = [];
 
         $codeMap.flatTree.push(generatedBlock);
       }
