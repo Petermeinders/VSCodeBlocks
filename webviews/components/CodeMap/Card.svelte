@@ -12,6 +12,7 @@
     faEyeSlash,
     faFile,
     faFolder,
+    faFont,
     faLink,
     faStar as solidStar,
     faStarHalf,
@@ -37,6 +38,10 @@
   export let StartLink = (event, treeItem) => {};
 
   let menu;
+
+  function NameChangeMenu(e, treeItem) {
+
+  }
 
   afterUpdate(() => {
     $newRender = $newRender++;
@@ -116,7 +121,6 @@
 
     if (menu !== null)
     {
-
       if (menu.classList.contains("opened")) 
       {
         menu.style.transform = "scale(0)";
@@ -128,7 +132,6 @@
         menu.classList.add("opened");     
       }
     }
-   
   }
 
 </script>
@@ -173,7 +176,7 @@
   {/if}
   </a>
   <a href="#">
-    <i class="fa fa-camera" />
+    <Fa id="NameChangeMenu" on:click={(event) => NameChangeMenu(event, treeItem)} size="1x" icon={faFont} style="color:yellow;" />
   </a>
   <a href="#">
     <i class="fa fa-bell" />
@@ -370,13 +373,13 @@
 
 
 
-
+/* 
   body {
     background-color: #eedddd;
     padding: 0px;
     margin: 0px;
     overflow: hidden;
-  }
+  } */
 
   .toggle {
     background-color: #c87f8a;

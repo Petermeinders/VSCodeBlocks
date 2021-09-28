@@ -70,8 +70,6 @@
   const _ = deepdash(lodash);
   let ds;
 
-
-
   let newLink = {};
   let isMoving = false;
   let selectedBlocks;
@@ -153,8 +151,6 @@
   onMount(async () => {
     // GetFiles();
 
-   
-
     ds = new DragSelect({
       selectables: document.getElementsByClassName("card"),
       callback: (e) => e,
@@ -175,8 +171,7 @@
       if (OnMouseUpObject?.items[0]?.id === "generated") {
         let selected = $codeMap.flatTree.find((x) => x.id === "generated");
 
-        if (selected) 
-        {
+        if (selected) {
           selected.id = common.getNonce();
           OnMouseUpObject.items[0].id = selected.id;
         }
@@ -234,23 +229,23 @@
       let buttonName = CheckForButton(OnMouseUpObject);
 
       //Check if it's a radial item
-      let radialItemId = CheckforRadialItemClick(OnMouseUpObject)
-      
-      
+      let radialItemId = CheckforRadialItemClick(OnMouseUpObject);
+
       //RADIAL CLICK ITEMS------------------------
-      if (radialItemId === "MoveToPocketMenu")
-      {
+      if (radialItemId === "MoveToPocketMenu") {
         MoveToPocket($currentlySelected, OnMouseUpObject.event);
       }
 
-      if (radialItemId === "Star")
-      {
-        StarClicked($currentlySelected)
+      if (radialItemId === "Star") {
+        StarClicked($currentlySelected);
       }
 
-      if (radialItemId === "SelectPerimeter")
-      {
-        GroupClick($currentlySelected)
+      if (radialItemId === "SelectPerimeter") {
+        GroupClick($currentlySelected);
+      }
+
+      if (radialItemId === "NameChangeMenu") {
+        NameChangeMenu(OnMouseUpObject.event, $currentlySelected);
       }
       //----------------------------------------------
 
@@ -287,6 +282,7 @@
       }
 
       OnMouseUpObject.event.srcElement.style.display = "block";
+      CloseAllRadials();
     });
 
     ds.subscribe("dragstart", (DragStartObject) => {
@@ -400,20 +396,18 @@
     }
   });
 
-  function CheckforRadialItemClick(OnMouseUpObject){
+  function CheckforRadialItemClick(OnMouseUpObject) {
     let radialItemId;
-    if (OnMouseUpObject?.event?.target?.nodeName === "path")
-      {
-        radialItemId = OnMouseUpObject.event.target.parentElement.parentElement.parentElement.id;
-        $currentlySelected.push(OnMouseUpObject.event.target.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement);
-        return radialItemId;
-      }
-      if (OnMouseUpObject?.event?.target?.nodeName === "svg")
-      {
-        radialItemId = OnMouseUpObject.event.target.id;
-        $currentlySelected.push(OnMouseUpObject.event.target.parentElement.parentElement.parentElement);
-        return radialItemId;
-      }
+    if (OnMouseUpObject?.event?.target?.nodeName === "path") {
+      radialItemId = OnMouseUpObject.event.target.parentElement.parentElement.parentElement.id;
+      $currentlySelected.push(OnMouseUpObject.event.target.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement);
+      return radialItemId;
+    }
+    if (OnMouseUpObject?.event?.target?.nodeName === "svg") {
+      radialItemId = OnMouseUpObject.event.target.id;
+      $currentlySelected.push(OnMouseUpObject.event.target.parentElement.parentElement.parentElement);
+      return radialItemId;
+    }
   }
 
   function CheckForButton(OnMouseUpObject) {
@@ -449,37 +443,57 @@
     }
   };
 
-  function StarClicked(currentlySelected) 
-  {
+  function StarClicked(currentlySelected) {
     let flatBlock = GetSelectedCodeBlocks(currentlySelected);
 
     flatBlock.forEach((block) => {
-    if (block.starred)
-    {
-      block.starred = false;  
-    }
-    else
-    {
-      block.starred = true;
-    }
-    
-    let index = $codeMap.flatTree.indexOf(block);
-    $codeMap.flatTree.splice(index,1,block);
-    $codeMap.flatTree = $codeMap.flatTree;
+      if (block.starred) {
+        block.starred = false;
+      } else {
+        block.starred = true;
+      }
 
-  });
-
+      let index = $codeMap.flatTree.indexOf(block);
+      $codeMap.flatTree.splice(index, 1, block);
+      $codeMap.flatTree = $codeMap.flatTree;
+    });
   }
 
   function GroupClick(currentlySelected) {
     let flatBlock = GetSelectedCodeBlocks(currentlySelected);
-    
+
     let first = flatBlock[0];
     console.log("groupclick");
     $perimeterItem = {
       id: first.id,
       parentId: first.parentId,
     };
+  }
+
+  function NameChangeMenu(e, selectedElement) {
+    let flatBlock = GetSelectedCodeBlocks(selectedElement);
+    let firstBlockInstance = flatBlock[0];
+
+    // firstBlockInstance.code;
+    // firstBlockInstance.name;
+    // firstBlockInstance.id;
+  }
+
+  function CloseAllRadials() {
+    let menu;
+
+    let allMenus = document.querySelectorAll("#menu.opened")
+
+    // if (e.target.classList.contains("menu")) menu = e.target;
+    // if (e.target.querySelector(".menu")) menu = e.target.querySelector(".menu");
+
+    if (allMenus.length > 0) {
+      allMenus.forEach(menu => {
+        menu.style.transform = "scale(0)";
+      menu.classList.remove("opened");
+      })
+
+    }
   }
 
   function GetOutline(currentParentBlock) {
@@ -1208,7 +1222,7 @@
   }
 
   function SelectedTextChange() {
-   // let existingOutline = ShowActivelySelectedOutline();
+    // let existingOutline = ShowActivelySelectedOutline();
     GenerateCodeBlockFromSelectedText();
   }
 
@@ -1234,13 +1248,8 @@
     }
   }
 
-
-
-
   function GenerateCodeBlockFromSelectedText() {
-
-
-      if ($codeMap?.flatTree) {
+    if ($codeMap?.flatTree) {
       let ExistingGenerated = $codeMap?.flatTree.find((x) => x.id === "generated");
 
       if (ExistingGenerated) {
@@ -1314,13 +1323,10 @@
         $codeMap.flatTree.push(generatedBlock);
       }
     }
-    
-   
   }
 
   let m = { x: 0, y: 0 };
   let start = { x: 0, y: 0 };
-
 
   function StartLink(event, treeItem) {
     ds.break();
@@ -1371,7 +1377,7 @@
   <!-- The mouse position is {m.x} x {m.y} -->
   <!-- <h1 style="text-align:center;">Code Map</h1> -->
 
-  <div  id="area" style="width:100%; height:100%; position:fixed;">
+  <div id="area" style="width:100%; height:100%; position:fixed;">
     <div class="ds-selected" style="display:none" />
     <button type="button" on:click={SaveCodeMapToFile}>Save CodeMap</button>
 
