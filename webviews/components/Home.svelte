@@ -162,7 +162,11 @@
             let filename = message.value.filename;
 
             $items.settings.currentPanel = "editMode";
-            $editItem = $items?.customSnippets?.find((x) => x?.id === id);
+            let editItemFound = $items?.customSnippets?.find((x) => x?.id === id);
+            
+            if (editItemFound)
+              $editItem = editItemFound;
+
             $editMode = {
               id: id,
               fileName: filename,
@@ -175,6 +179,22 @@
         case "update-lang":
           if (message.value !== "") {
             let langId = message.value;
+
+            // if (typeof $editItem === "undefined")
+            // {
+            //   $editItem = {
+            //   id: lastId,
+            //   tempId: "",
+            //   code: message.value,
+            //   language: "",
+            //   linkedBlocks: [],
+            //   name: "New Name",
+            //   placeholders: [],
+            //   visible: "true",
+            //   color: "white",
+            //   tags: [""],
+            // };
+            // }
             $editItem.language = langId;
           }
           break;
@@ -298,6 +318,15 @@
             $codeMap = message.value;
           }
           if ($debug) console.log($codeMap);
+          break;
+
+          case "changeNameMenu":
+            let block = $codeMap.flatTree.find( block => block.id === message.value.blockId);
+
+            if (block)
+            {
+              block.name = message.value.newName;
+            }
           break;
 
         case "window-change":
@@ -526,8 +555,25 @@
 
   function SaveCodeFromEdit(latesCode: string) {
     let existingBlock = $items?.customSnippets?.find((x) => x?.id === $editItem?.id);
+    let existingCodeMapBlock = $codeMap.flatTree?.find((x) => x?.id === $editItem?.id);
+
     console.log(latesCode);
-    if (existingBlock) {
+
+    if (existingCodeMapBlock)
+    {
+      existingCodeMapBlock.code = latesCode;
+      existingCodeMapBlock.name = $editItem.name;
+      existingCodeMapBlock.language = $editItem.language;
+      existingCodeMapBlock.color = $editItem.color;
+      existingCodeMapBlock.tags = $editItem.tags;
+      existingCodeMapBlock.placeholders = $editItem.placeholders;
+
+      const index = $codeMap?.flatTree?.indexOf(existingCodeMapBlock);
+      $codeMap.flatTree.splice(index, 1, existingCodeMapBlock);
+      // $codeMap.flatTree = [$editItem, ...$codeMap.flatTree];
+      InfoMessage("Saved codemap changes to: " + existingCodeMapBlock.name);
+    }
+    else if (existingBlock) {
       existingBlock.code = latesCode;
       const index = $items?.customSnippets.indexOf(existingBlock);
       $items.customSnippets.splice(index, 1);

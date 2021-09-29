@@ -524,7 +524,7 @@ export function activate(context: vscode.ExtensionContext) {
 					(async () => {
 						await delay(300);
 
-						if (language === "") {
+						if (language === "" || typeof language === "undefined") {
 							//call to check for language on edit item
 
 

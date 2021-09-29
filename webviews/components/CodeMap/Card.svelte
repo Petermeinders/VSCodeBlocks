@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { flatTree, newRender, currentZoom, perimeterItem, codeMap } from "../../store";
+  import { flatTree, newRender, currentZoom, perimeterItem, codeMap, editItem } from "../../store";
+  import type {FilteredTree} from  "../../store";
   import lodash, { flatten } from "lodash";
   import deepdash from "deepdash";
   import { afterUpdate, onMount } from "svelte";
@@ -14,6 +15,7 @@
     faFolder,
     faFont,
     faLink,
+    faPencilAlt,
     faStar as solidStar,
     faStarHalf,
     faTrashRestore,
@@ -134,6 +136,29 @@
     }
   }
 
+
+  function EditCodeBlock(event, treeItem: FilteredTree){
+    console.log("EDIT TEST FROM MENU");
+
+    $editItem = {
+              id: treeItem.id,
+              tempId: "",
+              code: treeItem.code ?? "",
+              language: treeItem.language ?? "",
+              linkedBlocks: [],
+              name: treeItem.name ?? "New Name",
+              placeholders: treeItem.placeholders ?? [],
+              tags: treeItem.tags ?? [],
+              visible: "true",
+              color: treeItem.color ?? "white",
+            };
+
+    tsvscode.postMessage({
+      type: "editCode",
+      value: treeItem,
+    });
+  }
+
 </script>
 
 <div class="ds-selected ds-hover absolute" style="display:none" />
@@ -179,9 +204,13 @@
     <Fa id="NameChangeMenu" on:click={(event) => NameChangeMenu(event, treeItem)} size="1x" icon={faFont} style="color:yellow;" />
   </a>
   <a href="#">
-    <i class="fa fa-bell" />
+    <!-- <Fa id="EditBlockMenu" on:click={(event) => EditBlockMenu(event, treeItem)} size="1x" icon={faPencilAlt} style="color:yellow;" /> -->
+      <span style=" cursor: pointer;" on:click={(event) => EditCodeBlock(event, treeItem)}
+        ><Fa icon={faPencilAlt} style="color:orange;" />
+      </span>
   </a>
 </div>
+
 
 {#if treeItem.id !== "generated"}
   <div class="cardButtons">
@@ -225,7 +254,7 @@
   </div>
 {:else}
   <div class="generatedHeader">
-    <h2 style="color:blue">Generated</h2>
+    <h2 style="color:blue">Grab to generate</h2>
   </div>
 {/if}
 
@@ -454,8 +483,8 @@
   }
 
   a:nth-child(6) {
-    top: 23px;
-    left: 12px;
+    top: 19px;
+    left: 7px;
   }
 
   a:hover {

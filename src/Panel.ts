@@ -423,6 +423,22 @@ export class HellowWorldPanel {
           break;
         }
 
+        case "changeNameMenu": {
+          if (!data.value) {
+            return;
+          }
+          vscode.window.showInputBox().then(input => {
+            console.log(input);
+            let changedNameMenuObj = {newName:input, blockId:data.value };
+            HellowWorldPanel.currentPanel._panel.webview.postMessage({
+              type: "changeNameMenu",
+              value: changedNameMenuObj,
+            });
+
+          });
+          break;
+        }
+
         case "insertSnippet": {
           if (!data.value) {
             return;

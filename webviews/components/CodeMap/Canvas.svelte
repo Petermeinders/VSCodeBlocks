@@ -474,6 +474,12 @@
     let flatBlock = GetSelectedCodeBlocks(selectedElement);
     let firstBlockInstance = flatBlock[0];
 
+    tsvscode.postMessage({
+      type: "changeNameMenu",
+      value: firstBlockInstance.id,
+    });
+
+
     // firstBlockInstance.code;
     // firstBlockInstance.name;
     // firstBlockInstance.id;
