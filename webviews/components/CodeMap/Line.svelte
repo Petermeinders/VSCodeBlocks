@@ -7,12 +7,12 @@
   export let y2: number;
   export let id: string;
 
-  export let sourceId;
-  export let destId;
+  export let sourceId: string;
+  export let destId: string;
   export let color = "#ff0000";
   export let lineIndex = -1;
 
-  function DeleteLine(sourceId, destId) {
+  function DeleteLine(sourceId:string, destId:string) {
     let sourceBlock = $codeMap.flatTree.find((x) => x.id === sourceId);
     let destBlock = $codeMap.flatTree.find((x) => x.id === destId);
 
@@ -40,7 +40,6 @@
 </script>
 
 <main>
-  <!-- {#if y1 && x1 && x2 && y2} -->
 
   <svg style="z-index:-99; width:100%; height:100%;     position: absolute;">
     <marker id="triangle" viewBox="0 0 10 10" refX="1" refY="5" markerUnits="strokeWidth" markerWidth="10" markerHeight="10" orient="auto">
@@ -63,7 +62,6 @@
     />
     Sorry, your browser does not support inline SVG.
   </svg>
-  <!-- {/if} -->
 </main>
 
 <style>

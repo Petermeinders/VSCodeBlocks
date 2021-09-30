@@ -3,7 +3,7 @@
     "include": ["./**/*", ],
     "exclude": ["../node_modules/*"],
     "compilerOptions": {
-      "strict": false,
+      "strict": true,
       "esModuleInterop": true, 
       "types": ["node", "svelte", "ts"],
       "lib": [

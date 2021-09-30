@@ -1,6 +1,6 @@
 <script lang="ts">
   import { flatTree, currentZoom, perimeterItem, codeMap, editItem } from "../../store";
-  import type { FilteredTree } from "../../store";
+  import type { FilteredTree } from '../../../src/Models';
   import lodash, { flatten } from "lodash";
   import deepdash from "deepdash";
   import { afterUpdate, onMount } from "svelte";
