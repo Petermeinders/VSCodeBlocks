@@ -37,9 +37,9 @@
   console.log("Tags:");
   console.log($tags);
 
-  function filterBlocksByTag(e, tag: string) {
+  function filterBlocksByTag(e:any, tag: string) {
     tag = tag.toUpperCase();
-    let selectedTags = $items.selectedTags ?? [];
+    let selectedTags:string[] = $items.selectedTags ?? [];
 
     if (tag !== "NONE") {
       if (selectedTags.indexOf(tag) === -1) {
@@ -86,7 +86,7 @@
 
   let borderStyle: "solid" | "none" = "none";
 
-  const updateActiveTagsCSS = (tag) => {
+  const updateActiveTagsCSS = (tag:string) => {
     $items.selectedTags.forEach((selectedTag) => {
       if (tag === selectedTag) {
         return "true";

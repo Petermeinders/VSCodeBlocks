@@ -95,7 +95,7 @@ export interface FilteredTree {
  
  export interface DerivedGroup {
     groupId:string,
-    blocks:[FilteredTree],
+    blocks:FilteredTree[],
     color:string,
     name:string,
     visible:boolean,

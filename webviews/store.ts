@@ -1,6 +1,7 @@
-import type { CodeMap, FilteredTree, Item } from './../src/Models';
-import { writable, derived } from "svelte/store";
+// @ts-nocheck
 
+import type { CodeMap, FilteredTree, Item, DerivedGroup } from './../src/Models';
+import { writable, derived } from "svelte/store";
 type currentPanel = "editMode" | "codeBlocks" | "codeMap" | "settings";
 
 let originCodeMap:CodeMap;
@@ -41,7 +42,7 @@ let originItems = {
       "vsSnippets1",
       "vsSnippets2"
    ],
-   selectedTags: [],
+   selectedTags: [""],
    settings:{
       isFuzzy:false,
       codeBlocksSaveLocation:"", 
@@ -185,7 +186,13 @@ export const derivedGroups = derived(
          let groupsList: DerivedGroup[] = [];
          $codeMap.groups.forEach(group => {
 
-            let groupItem:DerivedGroup = {};
+            let groupItem:DerivedGroup = {
+               groupId: '',
+               blocks: [],
+               color: '',
+               name: '',
+               visible: false
+            };
             groupItem.groupId = group.groupId;
             groupItem.name = group.name;
             groupItem.color = group.color;

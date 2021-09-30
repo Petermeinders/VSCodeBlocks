@@ -4,7 +4,6 @@
     currentZoom,
     perimeterItem,
     currentlySelected,
-    derivedGroups,
     items,
     debug,
     activelySelectedText,
@@ -12,20 +11,14 @@
     lines,
     activeSelectionMeta,
   } from "../../store";
-  import type { Group } from "../../store";
+  import type { Group } from '../../../src/Models';
   import Card from "./Card.svelte";
   import { onMount, afterUpdate, beforeUpdate, tick } from "svelte";
   import DragSelect from "dragselect";
-  import lodash, { cloneDeep, flatMap } from "lodash";
+  import lodash from "lodash";
   import deepdash from "deepdash";
   import Line from "./Line.svelte";
-  import { flip } from "svelte/animate";
-  import { dndzone } from "svelte-dnd-action";
   import Common from ".././Common.svelte";
-  import Fa from "svelte-fa";
-  import { faCog, faCubes, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
-  import Pocket from "./Pocket.svelte";
-  import CodeMapGroups from "./CodeMapGroups.svelte";
 
   let common: Common;
 

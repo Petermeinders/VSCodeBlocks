@@ -1,7 +1,6 @@
 <script lang="ts">
   import { codeMap, debug, editItem, editMode, items } from "../store";
-  import type { Item } from "../store";
-
+  import type { DerivedGroup, Group, Item } from '../../src/Models';
 
   export const ImportCode = () => {
     if ($debug) console.log("Import Data Start!");
@@ -41,7 +40,7 @@
     }
   };
 
-  export const ChangeLanguage = (e) => {
+  export const ChangeLanguage = (e:any) => {
     $editItem.language = e.target.value;
   }
 
@@ -128,7 +127,7 @@
       $items.customSnippets = [...i];
   }
 
-  export const onGroupNameChange = (derivedGroup, e) => {
+  export const onGroupNameChange = (derivedGroup, e:any) => {
     let group = $codeMap.groups.find((group) => group.groupId === derivedGroup.groupId);
 
     if (group) {
@@ -138,8 +137,8 @@
     }
   }
 
-  export const HideGroup = (derivedGroup) => {
-    let group = $codeMap.groups.find((group) => group.groupId === derivedGroup.groupId);
+  export const HideGroup = (derivedGroup:DerivedGroup) => {
+    let group:any = $codeMap.groups.find((group) => group.groupId === derivedGroup.groupId);
 
     if (group) {
       if (typeof derivedGroup.visible === "undefined" || derivedGroup.visible === true) {
@@ -171,7 +170,7 @@
     return element.parentNode && ParentHasId(<HTMLElement>element.parentNode, id);
   };
 
-  export const MoveToCanvas = (e) => {
+  export const MoveToCanvas = (e:any) => {
     $codeMap.pocket.forEach((block) => {
       if (block.id.toString() === e.target.id) {
         if (typeof $codeMap.flatTree.find(b => b.id === block.id) === "undefined")

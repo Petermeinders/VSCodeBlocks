@@ -7,14 +7,11 @@
   import { page } from "../store";
   import { codeMap } from "../store";
   import EditScreen from "./EditScreen.svelte";
-  import levenshtein from "fast-levenshtein";
   import LinkedBlocks from "./LinkedBlocks.svelte";
   import { faCog, faCubes, faProjectDiagram } from "@fortawesome/free-solid-svg-icons";
   import Fa from "svelte-fa";
   import Canvas from "./CodeMap/Canvas.svelte";
-  import type currentPanel from "./store.svelte";
   import SettingsScreen from "./SettingsScreen.svelte";
-  import { values } from "lodash";
   import Common from "./Common.svelte";
   import Pocket from "./CodeMap/Pocket.svelte";
   import CodeMapGroups from "./CodeMap/CodeMapGroups.svelte";

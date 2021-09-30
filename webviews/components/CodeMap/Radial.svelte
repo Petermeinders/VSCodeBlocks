@@ -1,4 +1,5 @@
 <script lang="ts">
+  // @ts-nocheck
   var i = 0;
   function expand() {
     if (i == 0) {

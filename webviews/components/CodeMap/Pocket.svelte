@@ -1,35 +1,17 @@
 <script lang="ts">
-  import {
-    codeMap,
-    currentZoom,
-    perimeterItem,
-    currentlySelected,
-    derivedGroups,
-    items,
-    debug,
-    activelySelectedText,
-    activePath,
-    lines,
-  } from "../../store";
-  import Card from "./Card.svelte";
-  import { onMount, afterUpdate, beforeUpdate, tick } from "svelte";
-  import DragSelect from "dragselect";
-  import lodash, { cloneDeep, flatMap } from "lodash";
-  import deepdash from "deepdash";
-  import Line from "./Line.svelte";
+  // @ts-nocheck
+  import {codeMap} from "../../store";
   import { flip } from "svelte/animate";
   import { dndzone } from "svelte-dnd-action";
   import Common from ".././Common.svelte";
-  import Fa from "svelte-fa";
-  import { faCog, faCubes, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
   let common: Common;
 
   const flipDurationMs = 300;
-  function handleDndConsider(e) {
+  function handleDndConsider(e:any) {
     $codeMap.pocket = e.detail.items;
   }
-  function handleDndFinalize(e) {
+  function handleDndFinalize(e:any) {
     $codeMap.pocket = e.detail.items;
   }
 
