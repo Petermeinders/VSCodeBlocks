@@ -692,7 +692,6 @@ export class HellowWorldPanel {
           }
 
 
-
           let viewColum = vscode?.window?.visibleTextEditors[0]?.viewColumn;
 
           let fileURI = vscode.Uri.file(data.value.path);

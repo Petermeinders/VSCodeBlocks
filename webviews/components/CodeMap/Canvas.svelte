@@ -1,7 +1,6 @@
 <script lang="ts">
   import {
     codeMap,
-    newRender,
     currentZoom,
     perimeterItem,
     currentlySelected,
@@ -104,7 +103,6 @@
   }
 
   $: {
-    $newRender;
     $codeMap;
   }
 
@@ -536,7 +534,7 @@
               extension: OutlineTypeEnum[value.kind],
               locationX: currentParentBlock.locationX,
               locationY: currentParentBlock.locationY,
-              _startLine: value.location.range._start._line,
+              startLine: value.location.range._start._line,
               _startCharacter: value.location.range._start._character,
               _endLine: value.location.range._end._line,
               _endCharacter: value.location.range._end._character,
@@ -804,7 +802,7 @@
         newBlock.extension = block.extension;
         newBlock.locationX = block.locationX;
         newBlock.locationY = block.locationY;
-        newBlock._startLine = block._startLine;
+        newBlock.startLine = block.startLine;
         newBlock._startCharacter = block._startCharacter;
         newBlock._endLine = block._endLine;
         newBlock._endCharacter = block._endCharacter;
@@ -1285,7 +1283,7 @@
         generatedBlock.extension = "custom";
         generatedBlock.locationX = 0;
         generatedBlock.locationY = 0;
-        generatedBlock._startLine = $activeSelectionMeta.startLine.toString();
+        generatedBlock.startLine = $activeSelectionMeta.startLine.toString();
         generatedBlock._startCharacter = undefined;
         generatedBlock._endLine = undefined;
         generatedBlock._endCharacter = undefined;
@@ -1319,7 +1317,7 @@
         generatedBlock.extension = "custom";
         generatedBlock.locationX = 0;
         generatedBlock.locationY = 0;
-        generatedBlock._startLine = $activeSelectionMeta.startLine.toString();
+        generatedBlock.startLine = $activeSelectionMeta.startLine.toString();
         generatedBlock._startCharacter = undefined;
         generatedBlock._endLine = undefined;
         generatedBlock._endCharacter = undefined;

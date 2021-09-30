@@ -14,7 +14,7 @@
 </script>
 
 <main>
-  <div class="toggle" id="toggle" on:click={expand()}>
+  <div class="toggle" id="toggle" on:click={() => expand()}>
     <i class="fa fa-plus" id="plus" />
   </div>
   <div class="menu" id="menu">

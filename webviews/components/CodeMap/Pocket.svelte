@@ -1,7 +1,6 @@
 <script lang="ts">
   import {
     codeMap,
-    newRender,
     currentZoom,
     perimeterItem,
     currentlySelected,

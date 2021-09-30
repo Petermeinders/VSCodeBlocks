@@ -36,7 +36,7 @@ export interface FilteredTree {
   extension:string,
   locationX:string,
   locationY:string,
-  _startLine:string,
+  startLine:string,
   _startCharacter:string,
   _endLine:string,
   _endCharacter:string,
@@ -86,8 +86,6 @@ export interface DerivedGroup {
 
 
 type currentPanel = "editMode" | "codeBlocks" | "codeMap" | "settings";
-
-let originNewRender = 0;
 
 let originCodeMap:CodeMap;
 
@@ -242,12 +240,6 @@ export const currentZoom = writable(originZoom, (set) => {
    return () => { };
 });
 
-export const newRender = writable(originNewRender, (set) => {
-   console.log("debug: " + originNewRender);
-
-   //set([{id:0, name:""}]);
-   return () => { };
-});
 
 export const flatTree = writable(originFlatTree, (set) => {
    console.log("debug: " + originFlatTree);

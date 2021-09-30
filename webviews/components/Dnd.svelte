@@ -109,7 +109,7 @@
       newFlatItem.extension = "custom";
       newFlatItem.locationX = event.clientX-200 ?? 0;
       newFlatItem.locationY = event.clientY-50 ?? 0;
-      newFlatItem._startLine = "undefined";
+      newFlatItem.startLine = "undefined";
       newFlatItem._startCharacter = "undefined";
       newFlatItem._endLine = "undefined";
       newFlatItem._endCharacter = "undefined";

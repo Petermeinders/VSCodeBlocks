@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { flatTree, newRender, currentZoom, perimeterItem, codeMap, editItem } from "../../store";
-  import type {FilteredTree} from  "../../store";
+  import { flatTree, currentZoom, perimeterItem, codeMap, editItem } from "../../store";
+  import type { FilteredTree } from "../../store";
   import lodash, { flatten } from "lodash";
   import deepdash from "deepdash";
   import { afterUpdate, onMount } from "svelte";
@@ -21,35 +21,21 @@
     faTrashRestore,
   } from "@fortawesome/free-solid-svg-icons";
   import { faStar } from "@fortawesome/free-regular-svg-icons";
-
   import {} from "os";
-  import type { TreeItem } from "vscode";
 
   const _ = deepdash(lodash);
   export let left = 30;
   export let top = 30;
   export let card;
-  export let treeItem;
-
+  export let treeItem: FilteredTree;
   export let closeHandler = () => {};
-
   export let SelectPerimeter = () => {};
+  export let Minimize = (event: any, treeItem: FilteredTree) => {};
+  export let StartLink = (event: any, treeItem: FilteredTree) => {};
 
-  export let Minimize = (event, treeItem) => {};
-
-  export let StartLink = (event, treeItem) => {};
-
-  let menu;
-
-  function NameChangeMenu(e, treeItem) {
-
+  function NameChangeMenu(e: any, treeItem: FilteredTree) {
+    //Needs to be refactored here from Canvas -> ds.subscribe
   }
-
-  afterUpdate(() => {
-    $newRender = $newRender++;
-  });
-
-  console.log("rerender this item!");
 
   function GroupClick() {
     console.log("groupclick");
@@ -59,23 +45,48 @@
     };
   }
 
-  onMount(async () => {
+  onMount(async () => {});
 
-  })
+  document.body.addEventListener("contextmenu", (e) => {
+    e.preventDefault(); // cancel the built-in context menu
+    console.log("ITWORKED2!");
+    // let event = e;
+    // expand(event);
+  });
 
-
-  document.body.addEventListener('contextmenu', e => {
-  e.preventDefault(); // cancel the built-in context menu
-  console.log("ITWORKED2!");
-  // let event = e;
-  // expand(event);
-});
-
-  function dbClick(item: TreeItem) {
-    let dbClickValues = {};
+  function dbClickBlock(item: FilteredTree) {
+    let dbClickValues:FilteredTree = {
+    id: "",
+    path: "",
+    name: "",
+    size: 0,
+    type: "",
+    color: "",
+    tags: [],
+    placeholders: [],
+    code: "",
+    language: "",
+    visible: false,
+    open: false,
+    parentId: "",
+    outputx: 0,
+    outputy: 0,
+    inputx: 0,
+    inputy: 0,
+    children: [],
+    extension: "",
+    locationX: "",
+    locationY: "",
+    startLine: "",
+    _startCharacter: "",
+    _endLine: "",
+    _endCharacter: "",
+    starred: false,
+    linkedTargetBlocks: []
+};
     dbClickValues.path = item.path;
     dbClickValues.type = item.type;
-    dbClickValues.startLine = item._startLine;
+    dbClickValues.startLine = item.startLine;
 
     if (item.type === "outline") {
       $codeMap.flatTree.forEach((flatItem) => {
@@ -91,175 +102,159 @@
     });
   }
 
-  function StarClicked(treeItem) 
-  {
-    if (treeItem.starred)
-    {
-      treeItem.starred = false;  
-    }
-    else
-    {
+  function StarClicked(treeItem: FilteredTree) {
+    if (treeItem.starred) {
+      treeItem.starred = false;
+    } else {
       treeItem.starred = true;
     }
 
     let index = $codeMap.flatTree.indexOf(treeItem);
-    $codeMap.flatTree.splice(index,1,treeItem);
+    $codeMap.flatTree.splice(index, 1, treeItem);
     $codeMap.flatTree = $codeMap.flatTree;
-
   }
 
-  function HideBlock(e, treeItem){
+  function HideBlock(e: any, treeItem: FilteredTree) {
     treeItem.visible = false;
   }
 
-  function expand(e) {
+  function expand(e: any) {
     console.log(e);
     let menu;
 
-    if (e.target.classList.contains("menu"))
-      menu = e.target;
-    if (e.target.querySelector(".menu"))
-      menu = e.target.querySelector(".menu");
+    if (e.target.classList.contains("menu")) menu = e.target;
+    if (e.target.querySelector(".menu")) menu = e.target.querySelector(".menu");
 
-    if (menu !== null)
-    {
-      if (menu.classList.contains("opened")) 
-      {
+    if (menu !== null) {
+      if (menu.classList.contains("opened")) {
         menu.style.transform = "scale(0)";
-        menu.classList.remove("opened");  
-      } 
-      else 
-      {
+        menu.classList.remove("opened");
+      } else {
         menu.style.transform = "scale(3)";
-        menu.classList.add("opened");     
+        menu.classList.add("opened");
       }
     }
   }
 
-
-  function EditCodeBlock(event, treeItem: FilteredTree){
+  function EditCodeBlock(event: any, treeItem: FilteredTree) {
     console.log("EDIT TEST FROM MENU");
 
     $editItem = {
-              id: treeItem.id,
-              tempId: "",
-              code: treeItem.code ?? "",
-              language: treeItem.language ?? "",
-              linkedBlocks: [],
-              name: treeItem.name ?? "New Name",
-              placeholders: treeItem.placeholders ?? [],
-              tags: treeItem.tags ?? [],
-              visible: "true",
-              color: treeItem.color ?? "white",
-            };
+      id: treeItem.id,
+      tempId: "",
+      code: treeItem.code ?? "",
+      language: treeItem.language ?? "",
+      linkedBlocks: [],
+      name: treeItem.name ?? "New Name",
+      placeholders: treeItem.placeholders ?? [],
+      tags: treeItem.tags ?? [],
+      visible: "true",
+      color: treeItem.color ?? "white",
+    };
 
     tsvscode.postMessage({
       type: "editCode",
       value: treeItem,
     });
   }
-
 </script>
 
 <div class="ds-selected ds-hover absolute" style="display:none" />
 
 <main
-  on:dblclick={dbClick(treeItem)} on:contextmenu={(event) => expand(event)}
-  style=" background:{treeItem.color} ;z-index:101; {treeItem.locationX !== 0 && treeItem.locationY !== 0
+  on:dblclick={() => dbClickBlock(treeItem)}
+  on:contextmenu={(event) => expand(event)}
+  style=" background:{treeItem.color} ;z-index:101; {treeItem.locationX !== "0" && treeItem.locationY !== "0"
     ? 'transform: translate3d(' + treeItem.locationX + 'px, ' + treeItem.locationY + 'px, 1px) scale(' + $currentZoom + ');'
     : ''}"
   id={treeItem.id}
   data-fileType={treeItem.type}
   data-parentId={treeItem.parentId}
-  data-x1={treeItem.x1}
-  data-x2={treeItem.x2}
-  data-y1={treeItem.y1}
-  data-y2={treeItem.y2}
+
   class="card absolute highlight {treeItem.type === 'directory' ? 'directory' : 'file'}"
 >
+  <div class="menu" id="menu">
+    <a href="#">
+      {#if typeof treeItem.starred === "undefined" || treeItem.starred === false}
+        <Fa id="Star" on:click={() => StarClicked(treeItem)} size="1x" icon={faStar} style="color:yellow;" />
+      {:else}
+        <Fa id="Star" on:click={() => StarClicked(treeItem)} size="1x" icon={solidStar} style="color:yellow;" />
+      {/if}
+    </a>
+    <a href="#" class="tooltip">
+      <Fa id="MoveToPocketMenu" on:click={closeHandler} size="1x" icon={faTrashRestore} style="color:red;" />
+      <span class="tooltiptext">Text</span>
+    </a>
+    <a href="#">
+      <Fa id="SelectPerimeter" on:click={GroupClick} size="1x" icon={faBullseye} style="color:red;" />
+    </a>
+    <a href="#">
+      {#if typeof treeItem.open === "undefined" || treeItem.open === true}
+        <Fa id="Minimize" on:click={(event) => Minimize(event, treeItem)} size="1x" icon={faCompressArrowsAlt} style="color:yellow;" />
+      {:else}
+        <Fa id="Minimize" on:click={(event) => Minimize(event, treeItem)} size="1x" icon={faExpandAlt} style="color:yellow;" />
+      {/if}
+    </a>
+    <a href="#">
+      <Fa id="NameChangeMenu" on:click={(event) => NameChangeMenu(event, treeItem)} size="1x" icon={faFont} style="color:yellow;" />
+    </a>
+    <a href="#">
+      <!-- <Fa id="EditBlockMenu" on:click={(event) => EditBlockMenu(event, treeItem)} size="1x" icon={faPencilAlt} style="color:yellow;" /> -->
+      <span style=" cursor: pointer;" on:click={(event) => EditCodeBlock(event, treeItem)}><Fa icon={faPencilAlt} style="color:orange;" /> </span>
+    </a>
+  </div>
 
-<div class="menu" id="menu">
-  <a href="#">
-    {#if typeof treeItem.starred === "undefined" || treeItem.starred === false}
-      <Fa id="Star" on:click={() => StarClicked(treeItem)} size="1x" icon={faStar} style="color:yellow;" />
-    {:else}
-      <Fa id="Star" on:click={() => StarClicked(treeItem)} size="1x" icon={solidStar} style="color:yellow;" />
-    {/if}
-  </a>
-  <a href="#" class="tooltip">
-    <Fa id="MoveToPocketMenu" on:click={closeHandler} size="1x" icon={faTrashRestore} style="color:red;" />
-    <span class="tooltiptext">Text</span>
-  </a>
-  <a href="#">
-    <Fa id="SelectPerimeter" on:click={GroupClick} size="1x" icon={faBullseye} style="color:red;" />
-  </a>
-  <a href="#">
-    {#if typeof treeItem.open === "undefined" || treeItem.open === true}
-      <Fa id="Minimize" on:click={(event) => Minimize(event, treeItem)} size="1x" icon={faCompressArrowsAlt} style="color:yellow;" />
+  {#if treeItem.id !== "generated"}
+    <div class="cardButtons">
+      <!-- <button id="MoveToPocket"  on:click={closeHandler}><Fa size="1x" icon={faTrashRestore} style="color:red; padding-right: 4px; float:right" /></button> -->
+      {#if treeItem.type === "directory"}
+        <Fa size="1x" icon={faFolder} style="color:yellow; padding-right: 4px; padding-left:4px; float:right" />
+      {/if}
+
+      {#if treeItem.type === "file"}
+        <Fa size="1x" icon={faFile} style="color:white; padding-right: 4px; padding-left:4px; float:right" />
+      {/if}
+
+      {#if treeItem.type === "outline"}
+        <Fa size="1x" icon={faCode} style="color:white; padding-right: 4px; padding-left:4px; float:right" />
+      {/if}
+
+      {#if typeof treeItem.starred === "undefined" || treeItem.starred === false}
+        <button id="Star" on:click={() => StarClicked(treeItem)}
+          ><Fa size="1x" icon={faStar} style="color:yellow; padding-right: 4px; float:right" /></button
+        >
+      {:else}
+        <button id="Star" on:click={() => StarClicked(treeItem)}
+          ><Fa size="1x" icon={solidStar} style="color:yellow; padding-right: 4px; float:right" /></button
+        >
+      {/if}
+
+      <!-- <button id="SelectPerimeter" on:click={GroupClick}><Fa size="1x" icon={faBullseye} style="color:red; padding-right: 4px; float:right" /></button> -->
+
+      {#if typeof treeItem.open === "undefined" || treeItem.open === true}
+        <button id="Minimize" on:click={(event) => Minimize(event, treeItem)}>
+          <Fa size="1x" icon={faCompressArrowsAlt} style="color:yellow; padding-right: 4px; float:right" />
+        </button>
+      {:else}
+        <button id="Minimize" on:click={(event) => Minimize(event, treeItem)}>
+          <Fa size="1x" icon={faExpandAlt} style="color:yellow; padding-right: 4px; float:right" />
+        </button>
+      {/if}
+
+      <button id="StartLink" on:mousedown={(event) => StartLink(event, treeItem)}>
+        <Fa size="1x" icon={faLink} style="color:blue; padding-right: 4px; float:right" />
+      </button>
+      <button id="HideBlock" on:mousedown={(event) => HideBlock(event, treeItem)}>
+        <Fa size="1x" icon={faEyeSlash} style="color:black; padding-right: 4px; float:right" />
+      </button>
+    </div>
   {:else}
-      <Fa id="Minimize" on:click={(event) => Minimize(event, treeItem)} size="1x" icon={faExpandAlt} style="color:yellow;" />
+    <div class="generatedHeader">
+      <h2 style="color:blue">Grab to generate</h2>
+    </div>
   {/if}
-  </a>
-  <a href="#">
-    <Fa id="NameChangeMenu" on:click={(event) => NameChangeMenu(event, treeItem)} size="1x" icon={faFont} style="color:yellow;" />
-  </a>
-  <a href="#">
-    <!-- <Fa id="EditBlockMenu" on:click={(event) => EditBlockMenu(event, treeItem)} size="1x" icon={faPencilAlt} style="color:yellow;" /> -->
-      <span style=" cursor: pointer;" on:click={(event) => EditCodeBlock(event, treeItem)}
-        ><Fa icon={faPencilAlt} style="color:orange;" />
-      </span>
-  </a>
-</div>
 
-
-{#if treeItem.id !== "generated"}
-  <div class="cardButtons">
-    <!-- <button id="MoveToPocket"  on:click={closeHandler}><Fa size="1x" icon={faTrashRestore} style="color:red; padding-right: 4px; float:right" /></button> -->
-    {#if treeItem.type === "directory"}
-      <Fa size="1x" icon={faFolder} style="color:yellow; padding-right: 4px; padding-left:4px; float:right" />
-    {/if}
-
-    {#if treeItem.type === "file"}
-      <Fa size="1x" icon={faFile} style="color:white; padding-right: 4px; padding-left:4px; float:right" />
-    {/if}
-
-    {#if treeItem.type === "outline"}
-      <Fa size="1x" icon={faCode} style="color:white; padding-right: 4px; padding-left:4px; float:right" />
-    {/if}
-
-    {#if typeof treeItem.starred === "undefined" || treeItem.starred === false}
-      <button id="Star" on:click={() => StarClicked(treeItem)}><Fa size="1x" icon={faStar} style="color:yellow; padding-right: 4px; float:right" /></button>
-    {:else}
-      <button id="Star" on:click={() => StarClicked(treeItem)}><Fa size="1x" icon={solidStar} style="color:yellow; padding-right: 4px; float:right" /></button>
-    {/if}
-
-    <!-- <button id="SelectPerimeter" on:click={GroupClick}><Fa size="1x" icon={faBullseye} style="color:red; padding-right: 4px; float:right" /></button> -->
-
-    {#if typeof treeItem.open === "undefined" || treeItem.open === true}
-      <button id="Minimize" on:click={(event) => Minimize(event, treeItem)}>
-        <Fa size="1x" icon={faCompressArrowsAlt} style="color:yellow; padding-right: 4px; float:right" />
-      </button>
-    {:else}
-      <button id="Minimize" on:click={(event) => Minimize(event, treeItem)}>
-        <Fa size="1x" icon={faExpandAlt} style="color:yellow; padding-right: 4px; float:right" />
-      </button>
-    {/if}
-
-    <button id="StartLink" on:mousedown={(event) => StartLink(event, treeItem)}>
-      <Fa size="1x" icon={faLink} style="color:blue; padding-right: 4px; float:right" />
-    </button>
-    <button id="HideBlock" on:mousedown={(event) => HideBlock(event, treeItem)}>
-      <Fa size="1x" icon={faEyeSlash} style="color:black; padding-right: 4px; float:right" />
-    </button>
-  </div>
-{:else}
-  <div class="generatedHeader">
-    <h2 style="color:blue">Grab to generate</h2>
-  </div>
-{/if}
-
-<button type="button" class="inner-hide"> {treeItem.type === "outline" ? treeItem.name.substring(0, 25): treeItem.name}</button>
-
+  <button type="button" class="inner-hide"> {treeItem.type === "outline" ? treeItem.name.substring(0, 25) : treeItem.name}</button>
 </main>
 
 <!-- <button type="button" class="card one">1</button> -->
@@ -360,7 +355,7 @@
     background: #6e88ffcc;
   }
 
-  .generatedHeader{
+  .generatedHeader {
     align-content: center;
     text-align: center;
     margin-left: auto;
@@ -386,23 +381,12 @@
     padding: 5px 0;
     position: absolute;
     top: -25px;
-    font-size: .4rem;
+    font-size: 0.4rem;
     /* left: -5px; */
     z-index: 1;
-}
+  }
 
-
-
-
-
-
-
-
-
-
-
-
-/* 
+  /* 
   body {
     background-color: #eedddd;
     padding: 0px;
