@@ -95,6 +95,11 @@
 				"title": "Import code map json file previously saved"
 			},
 			{
+				"command": "vsblocksnipets.loadFROMCodeMapFromFile",
+				"category": "VSBlockSnipets",
+				"title": "Choose a codemap save file to load"
+			},
+			{
 				"command": "vsblocksnipets.SaveDataToFile",
 				"category": "VSBlockSnipets",
 				"title": "SaveDataToFile"
@@ -103,6 +108,11 @@
 				"command": "vsblocksnipets.SaveCodeMapToFile",
 				"category": "VSBlockSnipets",
 				"title": "SaveCodeMapToFile"
+			},
+			{
+				"command": "vsblocksnipets.SaveASCodeMapToFile",
+				"category": "VSBlockSnipets",
+				"title": "SaveASCodeMapToFile"
 			},
 			{
 				"command": "vsblocksnipets.addPlaceholder",

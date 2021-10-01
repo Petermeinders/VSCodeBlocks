@@ -63,7 +63,7 @@ export interface FilteredTree {
  
  export interface Group {
     groupId:string,
-    blockIds:[string],
+    blockIds:string[],
     color:string,
     name:string,
     visible:boolean,

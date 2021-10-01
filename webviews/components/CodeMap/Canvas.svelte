@@ -10,8 +10,10 @@
     activePath,
     lines,
     activeSelectionMeta,
+rightClickedBlockEvent,
   } from "../../store";
-  import type { Group } from '../../../src/Models';
+  import Fa from "svelte-fa";
+  import type { Group } from "../../../src/Models";
   import Card from "./Card.svelte";
   import { onMount, afterUpdate, beforeUpdate, tick } from "svelte";
   import DragSelect from "dragselect";
@@ -19,6 +21,8 @@
   import deepdash from "deepdash";
   import Line from "./Line.svelte";
   import Common from ".././Common.svelte";
+import { faSave } from "@fortawesome/free-regular-svg-icons";
+import { faFileDownload } from "@fortawesome/free-solid-svg-icons";
 
   let common: Common;
 
@@ -112,6 +116,13 @@
     });
   }
 
+  function SaveASCodeMapToFile(){
+    tsvscode.postMessage({
+      type: "saveASCodeMap",
+      value: $codeMap,
+    });
+  }
+
   function onDoubleClicked() {
     if (typeof $perimeterItem.id !== "undefined") {
       console.log("DOUBLE CLICK YO");
@@ -154,11 +165,6 @@
       if (OnMouseUpObject.event.target.nodeName === "BUTTON") buttonClick = true;
       else buttonClick = false;
 
-      // if (buttonClick)
-      // {
-      //   ds.addSelection($currentlySelected);
-      // }
-
       if (OnMouseUpObject?.items[0]?.id === "generated") {
         let selected = $codeMap.flatTree.find((x) => x.id === "generated");
 
@@ -187,7 +193,6 @@
             OnMouseUpObject.items[0].getAttribute("data-parentId") === card.id
           ) {
             card.classList.add("highlight");
-            // $currentlySelected.push(card);
           }
         });
 
@@ -205,7 +210,7 @@
         OnMouseUpObject.items.length === 0 &&
         (OnMouseUpObject.event.target.id === "GroupBlocks" || OnMouseUpObject.event.target.id === "UngroupBlocks")
       ) {
-      } else if (OnMouseUpObject.items.length === 0 && OnMouseUpObject.event.target.nodeName !== "BUTTON") {
+      } else if (OnMouseUpObject.items.length === 0 && OnMouseUpObject.event.target.nodeName !== "BUTTON" && OnMouseUpObject.event.target.nodeName !== "path") {
         $currentlySelected = [];
       }
 
@@ -220,7 +225,7 @@
       let buttonName = CheckForButton(OnMouseUpObject);
 
       //Check if it's a radial item
-      let radialItemId = CheckforRadialItemClick(OnMouseUpObject);
+      let radialItemId = CheckforRadialItemClick(OnMouseUpObject.event.target);
 
       //RADIAL CLICK ITEMS------------------------
       if (radialItemId === "MoveToPocketMenu") {
@@ -387,16 +392,16 @@
     }
   });
 
-  function CheckforRadialItemClick(OnMouseUpObject) {
+  function CheckforRadialItemClick(target) {
     let radialItemId;
-    if (OnMouseUpObject?.event?.target?.nodeName === "path") {
-      radialItemId = OnMouseUpObject.event.target.parentElement.parentElement.parentElement.id;
-      $currentlySelected.push(OnMouseUpObject.event.target.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement);
+    if (target?.nodeName === "path") {
+      radialItemId = target.parentElement.parentElement.parentElement.id;
+      $currentlySelected.push(target.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement);
       return radialItemId;
     }
-    if (OnMouseUpObject?.event?.target?.nodeName === "svg") {
-      radialItemId = OnMouseUpObject.event.target.id;
-      $currentlySelected.push(OnMouseUpObject.event.target.parentElement.parentElement.parentElement);
+    if (target?.nodeName === "svg") {
+      radialItemId = target.id;
+      $currentlySelected.push(target.parentElement.parentElement.parentElement);
       return radialItemId;
     }
   }
@@ -424,12 +429,19 @@
       }
 
       if ($codeMap?.canvas) {
-        faketree = JSON.parse(JSON.stringify($codeMap.canvas.children));
+        if ($codeMap.canvas !== "noAutoMap")
+        {
+          faketree = JSON.parse(JSON.stringify($codeMap.canvas.children));
         FlattenTree(faketree);
 
         // faketree = _.index(faketree)
 
-        $codeMap.flatTree = [...new Set(faketree)];
+          $codeMap.flatTree = [...new Set(faketree)];
+        }
+        else{
+          $codeMap.flatTree = [];
+        }
+
       }
     }
   };
@@ -470,7 +482,6 @@
       value: firstBlockInstance.id,
     });
 
-
     // firstBlockInstance.code;
     // firstBlockInstance.name;
     // firstBlockInstance.id;
@@ -479,17 +490,16 @@
   function CloseAllRadials() {
     let menu;
 
-    let allMenus = document.querySelectorAll("#menu.opened")
+    let allMenus = document.querySelectorAll("#menu.opened");
 
     // if (e.target.classList.contains("menu")) menu = e.target;
     // if (e.target.querySelector(".menu")) menu = e.target.querySelector(".menu");
 
     if (allMenus.length > 0) {
-      allMenus.forEach(menu => {
+      allMenus.forEach((menu) => {
         menu.style.transform = "scale(0)";
-      menu.classList.remove("opened");
-      })
-
+        menu.classList.remove("opened");
+      });
     }
   }
 
@@ -905,6 +915,14 @@
     });
   }
 
+  function LoadFROMCodeMap()
+  {
+    tsvscode.postMessage({
+      type: "LoadFROMCodeMapFromFile",
+      value: true,
+    });
+  }
+
   function OrganizeSelected() {
     //let selected = ds.getSelection();
     console.log($currentlySelected);
@@ -932,17 +950,46 @@
   //   console.log("get all the blocks!")
   // }
 
-  function GroupBlocks() {
+  function GroupBlocks(e:MouseEvent) {
     let blocks = GetSelectedCodeBlocks($currentlySelected);
-
+    if (blocks.length === 0)
+    {
+      let radialItemId = CheckforRadialItemClick(e.target);
+      let tempArray = new Array();
+      tempArray.push($rightClickedBlockEvent.target);
+      blocks = GetSelectedCodeBlocks(tempArray);
+      if (blocks.length === 0)
+        return;
+    }
+    
+    let foundGroup;
     let lastItem = $codeMap?.groups?.slice(-1)[0]; //Check if any groups exist
     let newGroup;
+
     if ($codeMap?.groups?.length > 0) {
+      $codeMap?.groups.forEach((group) => {
+        let blockFound = group.blockIds.find((id) => id === blocks[0].id);
+        if (blockFound) {
+          foundGroup = group;
+        }
+      });
+
+      if (foundGroup) {
+        RemoveColor(foundGroup);
+        let index = $codeMap.groups.indexOf(foundGroup);
+        $codeMap.groups.splice(index, 1);
+        RenderBlocks();
+      } else {
+        AddGroup(blocks);
+      }
     } else {
       $codeMap.groups = Array<Group>();
+      AddGroup(blocks);
     }
+  }
 
-    newGroup = { groupId: common.getNonce(), blockIds: [], name: "New Group", visible: true };
+  function AddGroup(blocks) {
+    let newGroup = { groupId: common.getNonce(), blockIds: [], name: "New Group", visible: true };
 
     newGroup.color = "#" + Math.floor(Math.random() * 16777215).toString(16);
 
@@ -959,6 +1006,29 @@
     newGroup.blockIds = newSet;
     // newGroup = RenderGroupRectangle(newGroup);
     $codeMap.groups.push(newGroup);
+  }
+
+  function UngroupBlocks() {
+    let selectedBlocks = GetSelectedCodeBlocks($currentlySelected);
+    let lastItem = $codeMap?.groups?.slice(-1)[0]; //Check if any groups exist
+
+    let foundGroup;
+
+    if (lastItem) {
+      $codeMap.groups.forEach((group) => {
+        group.blockIds.forEach((blockId) => {
+          selectedBlocks.forEach((selectedBlock) => {
+            if (blockId.toString() === selectedBlock.id.toString()) {
+              foundGroup = group;
+              RemoveColor(group);
+              let index = $codeMap.groups.indexOf(foundGroup);
+              $codeMap.groups.splice(index, 1);
+              RenderBlocks();
+            }
+          });
+        });
+      });
+    }
   }
 
   function RenderGroupRectangle(group) {
@@ -1013,29 +1083,6 @@
 
       ds.addSelection(selection);
       return selection;
-    }
-  }
-
-  function UngroupBlocks() {
-    let selectedBlocks = GetSelectedCodeBlocks($currentlySelected);
-    let lastItem = $codeMap?.groups?.slice(-1)[0]; //Check if any groups exist
-
-    let foundGroup;
-
-    if (lastItem) {
-      $codeMap.groups.forEach((group) => {
-        group.blockIds.forEach((blockId) => {
-          selectedBlocks.forEach((selectedBlock) => {
-            if (blockId.toString() === selectedBlock.id.toString()) {
-              foundGroup = group;
-              RemoveColor(group);
-              let index = $codeMap.groups.indexOf(foundGroup);
-              $codeMap.groups.splice(index, 1);
-              RenderBlocks();
-            }
-          });
-        });
-      });
     }
   }
 
@@ -1376,12 +1423,16 @@
 
   <div id="area" style="width:100%; height:100%; position:fixed;">
     <div class="ds-selected" style="display:none" />
-    <button type="button" on:click={SaveCodeMapToFile}>Save CodeMap</button>
-
-    <button type="button" on:click={LoadCodeMap}>Load CodeMap</button>
-    <button type="button" on:click={OrganizeSelected}>Cleanup Selected</button>
-    <button id="GroupBlocks" type="button" on:click={GroupBlocks}>Group</button>
-    <button id="UngroupBlocks" type="button" on:click={UngroupBlocks}>Ungroup</button>
+    <div style="display:flex; flex-direction: row; ">
+      <!-- <button type="button" on:click={SaveCodeMapToFile} style="display:inline;"> <Fa size="2x" icon={faSave} style="color:white;" /></button> -->
+      <button class="codeBlockTopButtons" type="button" on:click={SaveCodeMapToFile} style="display:inline;">Save</button>
+      <button class="codeBlockTopButtons" type="button" on:click={SaveASCodeMapToFile} style="display:inline;">Save As</button>
+      <button class="codeBlockTopButtons" type="button" on:click={LoadCodeMap} style="display:inline;">Load</button>
+      <button class="codeBlockTopButtons" type="button" on:click={LoadFROMCodeMap} style="display:inline;">Load From</button>
+      <button class="codeBlockTopButtons" type="button" on:click={OrganizeSelected} style="display:inline;">Cleanup Selected</button>
+    </div>
+    <!-- <button id="GroupBlocks" type="button" on:click={GroupBlocks}>Group</button>
+    <button id="UngroupBlocks" type="button" on:click={UngroupBlocks}>Ungroup</button> -->
 
     <!-- SINGLE CARD -->
     {#if $codeMap?.flatTree}
@@ -1393,7 +1444,7 @@
           <!-- //Not file or directory? //Directory and showFolders === true?   //file and showfiles === true? -->
           {#if typeof treeItem.visible === "undefined" || treeItem?.visible === true}
             {#if (treeItem.type !== "directory" && treeItem.type !== "file") || (treeItem.type === "directory" && $items.settings.showFolders === true) || (treeItem.type === "file" && $items.settings.showFiles === true)}
-              <Card {treeItem} {Minimize} {StartLink} />
+              <Card {treeItem} {Minimize} {StartLink} {GroupBlocks} />
             {/if}
           {/if}
         {/each}
@@ -1516,5 +1567,9 @@
     overflow: scroll;
     width: 49%;
     flex-direction: column;
+  }
+
+  .codeBlockTopButtons{
+    margin-right: 10px;
   }
 </style>

@@ -468,9 +468,13 @@ export class HellowWorldPanel {
 
         case "GetFiles": {
           //vscode.commands.executeCommand("vsblocksnipets.addPlaceholder");
-          let rootFolder = vscode.workspace.workspaceFolders[0];
+          let filtrate;
+
+if (data.value.mapEntireProject)
+{
+  let rootFolder = vscode.workspace.workspaceFolders[0];
           let fileFolders = { folders: {}, files: [] };
-          let exclusions = new RegExp(data.value, "g");
+          let exclusions = new RegExp(data.value.codeMapFolderExclusion, "g");
 
           const filteredTree = dirTree(rootFolder.uri.fsPath, { exclude: exclusions });
 
@@ -478,7 +482,7 @@ export class HellowWorldPanel {
           require("deepdash")(_);
           let i = 0;
 
-          let filtrate = _.eachDeep(filteredTree, (value, key, parentValue, context, options = { pathFormat: "array" }) => {
+          filtrate = _.eachDeep(filteredTree, (value, key, parentValue, context, options = { pathFormat: "array" }) => {
             if (typeof value === "object" && !Array.isArray(value)) {
               value.id = i;
               i = ++i;
@@ -525,10 +529,13 @@ export class HellowWorldPanel {
           // 	// 	y.getText(range);
           // 	// })
           // });
+}
+
+        
 
           let codeMap = { canvas: {}, pocket: [], activeWindow: {} };
 
-          codeMap.canvas = filtrate;
+          codeMap.canvas = filtrate ?? "noAutoMap";
           codeMap.pocket = [];
           codeMap.activeWindow = {};
           // TreeObj.settings;
@@ -557,6 +564,16 @@ export class HellowWorldPanel {
           }
 
           vscode.commands.executeCommand("vsblocksnipets.SaveCodeMapToFile", data.value);
+
+          break;
+        }
+
+        case "saveASCodeMap": {
+          if (!data.value) {
+            return;
+          }
+
+          vscode.commands.executeCommand("vsblocksnipets.SaveASCodeMapToFile", data.value);
 
           break;
         }
@@ -680,6 +697,17 @@ export class HellowWorldPanel {
           }
 
           vscode.commands.executeCommand("vsblocksnipets.loadCodeMapFromFile", false);
+
+          // vscode.workspace.openTextDocument(uri).then((document) => {
+          //   let text = document.getText();
+          break;
+        }
+        case "LoadFROMCodeMapFromFile": {
+          if (!data.value) {
+            return;
+          }
+
+          vscode.commands.executeCommand("vsblocksnipets.loadFROMCodeMapFromFile", false);
 
           // vscode.workspace.openTextDocument(uri).then((document) => {
           //   let text = document.getText();

@@ -122,6 +122,9 @@
       <input type=checkbox bind:checked={$items.settings.strictCodeMapOutlineWordMatch}/>  Strict CodeMap Outline Word Match?
     </div>
     <div class="subContainer">
+      <input type=checkbox bind:checked={$items.settings.mapEntireProject}/>Auto Map Entire Project? (WARNING: large save file and slower load times)
+    </div>
+    <div class="subContainer">
       <input type=checkbox bind:checked={$items.settings.showFolders}/> Show Folders
     </div>
     <div class="subContainer">

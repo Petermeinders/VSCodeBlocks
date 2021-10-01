@@ -103,9 +103,9 @@
   <Common bind:this={common} />
   <div class="tagSelected" />
   <div>
-    <button on:click={(event) => ToggleTags(event)} aria-expanded={isOpen}>
+    <button on:click={(event) => ToggleTags(event)} aria-expanded={isOpen} >
       <svg
-        style="tran"
+        style="tran; float:left;"
         width="20"
         height="20"
         fill="none"

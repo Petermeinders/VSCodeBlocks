@@ -276,9 +276,10 @@
                   $items.customSnippets.splice(index, 1);
                 }
               });
+              let settings = {codeMapFolderExclusion: $items.settings.codeMapFolderExclusion, mapEntireProject: $items.settings.mapEntireProject}
               tsvscode.postMessage({
                 type: "GetFiles",
-                value: $items.settings.codeMapFolderExclusion,
+                value: settings,
               });
             } catch(exception) {
               ErrorMessage("JSON Import Error");

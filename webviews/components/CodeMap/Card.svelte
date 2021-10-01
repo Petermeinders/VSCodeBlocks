@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { flatTree, currentZoom, perimeterItem, codeMap, editItem } from "../../store";
+  import { flatTree, currentZoom, perimeterItem, codeMap, editItem, rightClickedBlockEvent } from "../../store";
   import type { FilteredTree } from '../../../src/Models';
   import lodash, { flatten } from "lodash";
   import deepdash from "deepdash";
-  import { afterUpdate, onMount } from "svelte";
+  import { onMount } from "svelte";
   import Fa from "svelte-fa";
   import {
     faBullseye,
@@ -15,10 +15,9 @@
     faFolder,
     faFont,
     faLink,
+    faObjectGroup,
     faPencilAlt,
     faStar as solidStar,
-    faStarHalf,
-    faTrashRestore,
   } from "@fortawesome/free-solid-svg-icons";
   import { faStar } from "@fortawesome/free-regular-svg-icons";
   import {} from "os";
@@ -29,6 +28,7 @@
   export let card;
   export let treeItem: FilteredTree;
   export let closeHandler = () => {};
+  export let GroupBlocks = (event:MouseEvent) => {};
   export let SelectPerimeter = () => {};
   export let Minimize = (event: any, treeItem: FilteredTree) => {};
   export let StartLink = (event: any, treeItem: FilteredTree) => {};
@@ -122,6 +122,7 @@
     console.log(e);
     let menu;
 
+    $rightClickedBlockEvent = e;
     if (e.target.classList.contains("menu")) menu = e.target;
     if (e.target.querySelector(".menu")) menu = e.target.querySelector(".menu");
 
@@ -182,8 +183,8 @@
       {/if}
     </a>
     <a href="#" class="tooltip">
-      <Fa id="MoveToPocketMenu" on:click={closeHandler} size="1x" icon={faTrashRestore} style="color:red;" />
-      <span class="tooltiptext">Text</span>
+      <span style=" cursor: pointer;" on:click={(event) => GroupBlocks(event)}> <Fa id="GroupBlocks" size="1x" icon={faObjectGroup} style="color:red;" /></span>
+      <span class="tooltiptext">Group</span>
     </a>
     <a href="#">
       <Fa id="SelectPerimeter" on:click={GroupClick} size="1x" icon={faBullseye} style="color:red;" />

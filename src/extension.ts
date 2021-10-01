@@ -303,6 +303,51 @@ export function activate(context: vscode.ExtensionContext) {
 				}
 			}));
 
+			context.subscriptions.push(
+				vscode.commands.registerCommand('vsblocksnipets.SaveASCodeMapToFile', (data) => {
+
+					const config = vscode.workspace.getConfiguration('vsblocksnipets');
+					const saveLocation = config.get('codeMapSaveLocation');
+		
+					let fs = vscode.workspace.fs;
+		
+					if (typeof (data) === 'undefined') {
+						console.log("data is null. can't save null data.");
+						return;
+					}
+
+					let uri = vscode.Uri.file('%USERPROFILE%\.vscode\extensions');
+	
+					const options: vscode.OpenDialogOptions = {
+						canSelectMany: false,
+						defaultUri: uri,
+						openLabel: 'Select',
+						canSelectFolders: false,
+						canSelectFiles: true,
+	
+					};
+	
+					vscode.window.showOpenDialog(options).then((fileUri) => {
+						let URI: vscode.Uri;
+						if (typeof (fileUri) !== 'undefined') {
+							URI = fileUri[0];
+	
+							let codeString = JSON.stringify(data);
+							let uint8array = new TextEncoder().encode(codeString);
+							fs.writeFile(URI, uint8array);
+
+							config.update("codeMapSaveLocation", fileUri[0].fsPath, vscode.ConfigurationTarget.Global)
+								//take action here
+							
+	
+						}
+						else {
+							console.log("Error");
+						}
+					});
+
+				}));
+
 
 
 
@@ -772,6 +817,62 @@ export function activate(context: vscode.ExtensionContext) {
 				//});
 	
 			}));
+
+			context.subscriptions.push(
+				vscode.commands.registerCommand('vsblocksnipets.loadFROMCodeMapFromFile', (fromSidebar) => {
+					console.log("Importing Code Map From File:");
+	
+				const config = vscode.workspace.getConfiguration('vsblocksnipets');
+				const saveLocation = config.get('codeMapSaveLocation');
+	
+				let fs = vscode.workspace.fs;
+				let fileString;
+
+				vscode.window.showInformationMessage(config.has('codeMapSaveLocation').toString());
+	
+					let uri = vscode.Uri.file('%USERPROFILE%\.vscode\extensions');
+	
+					const options: vscode.OpenDialogOptions = {
+						canSelectMany: false,
+						defaultUri: uri,
+						openLabel: 'Select',
+						canSelectFolders: false,
+						canSelectFiles: true,
+	
+					};
+	
+					vscode.window.showOpenDialog(options).then((fileUri) => {
+						if (typeof (fileUri) !== 'undefined') {
+							let URI: vscode.Uri;
+							URI = fileUri[0];
+							vscode.window.showInformationMessage(fileUri[0].fsPath);
+	
+							config.update("codeMapSaveLocation", fileUri[0].fsPath, vscode.ConfigurationTarget.Global).then(() => {
+								//take action here
+							});
+	
+	
+							fs.readFile(URI).then(data => {
+								fileString = new TextDecoder().decode(data, { stream: true });
+	
+	
+	
+								if (fromSidebar) {
+									sidebarProvider._view?.webview.postMessage({
+										type: 'import-code-map-from-file',
+										value: fileString,
+									});
+								}
+								else {
+									// const text = activeTextEditor.document.getText(activeTextEditor.selection);
+									// vscode.window.showInformationMessage(text);
+	
+									HellowWorldPanel.CodeMapToWindow(fileString);
+								}
+							});
+						}
+					});
+				}));
 
 
 	context.subscriptions.push(

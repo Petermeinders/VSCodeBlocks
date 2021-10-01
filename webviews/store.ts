@@ -55,6 +55,7 @@ let originItems = {
       showDefaultRelationship:true,
       showCustomRelationship:true,
       strictCodeMapOutlineWordMatch:false,
+      mapEntireProject:false,
       codeMapFolderExclusion:"node_modules|packages",
       visibleOutlineBlocks: [
          {name: "Array", checked: false},
@@ -96,6 +97,7 @@ let originEditMode = {
 
 let originDebug = false;
 let originActivelySelectedText = "";
+let originalRightClickedBlock: MouseEvent = new MouseEvent("click");
 let originactiveSelectionMeta = {
    startLine: "",
    path:"",
@@ -136,6 +138,8 @@ export const linkedBlocks = writable(originLinkedBlocks);
 export const debug = writable(originDebug);
 
 export const activelySelectedText = writable(originActivelySelectedText);
+
+export const rightClickedBlockEvent = writable(originalRightClickedBlock);
 
 export const activeSelectionMeta = writable(originactiveSelectionMeta);
 
