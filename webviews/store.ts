@@ -50,6 +50,7 @@ let originItems = {
       codeMapSaveLocationRelative:"", 
       searchCode:false,
       currentPanel:"",
+      hideBlocksBar:true,
       showFolders:false,
       showFiles:true,
       showDefaultRelationship:true,

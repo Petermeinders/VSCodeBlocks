@@ -103,6 +103,9 @@
   </div>
   <div class="settingsContainer">
     <h2>CodeBlocks Settings</h2>
+    <div class="subContainer" style="display:flex;">
+      <input type=checkbox bind:checked={$items.settings.hideBlocksBar}/>  Hide CodeBlocks
+    </div>
     Save location
     <input type=textbox  bind:value={$items.settings.codeBlocksSaveLocation}/>  
     Save backup location

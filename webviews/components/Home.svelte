@@ -8,7 +8,7 @@
   import { codeMap } from "../store";
   import EditScreen from "./EditScreen.svelte";
   import LinkedBlocks from "./LinkedBlocks.svelte";
-  import { faCog, faCubes, faProjectDiagram } from "@fortawesome/free-solid-svg-icons";
+  import { faChevronLeft, faChevronRight, faCog, faCubes, faProjectDiagram } from "@fortawesome/free-solid-svg-icons";
   import Fa from "svelte-fa";
   import Canvas from "./CodeMap/Canvas.svelte";
   import SettingsScreen from "./SettingsScreen.svelte";
@@ -626,11 +626,16 @@
 
   <div class={$items.settings.currentPanel === "codeBlocks" ? "containerHeader": ""} hidden={$items.settings.currentPanel === "codeBlocks" ? false : true}>
     <div class="codeBlocksAndMapContainer">
-      <div class="codeBlocksContainer">
+      <div class={$items.settings.hideBlocksBar === true ? "" : "codeBlocksContainer"} hidden={$items.settings.hideBlocksBar}>
         <!-- PANEL -->
         <div class="container">
           <div id="code-container" class="code-container">
+            <div style="display:flex; flex-direction: row;">
             <Tags />
+            <button on:click={() => $items.settings.hideBlocksBar = true} class={$items.settings.hideBlocksBar === true ? "hide" : ""}>
+              <Fa icon={faChevronLeft} style="color:white;" />
+            </button>
+          </div>
             <LinkedBlocks />
             <Dnd {SearchTerm} {FullCodeSearch} />
 
@@ -657,6 +662,11 @@
         </div>
 
       </div>
+
+      <button style="margin-right:10px;" on:click={() => $items.settings.hideBlocksBar = false} class={typeof $items.settings.hideBlocksBar === "undefined" || $items.settings.hideBlocksBar === false ? "hide" : ""}>
+        <Fa icon={faChevronRight} style="color:white;" />
+      </button>
+
       <Canvas />
     </div>
   </div>
@@ -702,6 +712,9 @@
     flex-direction: column;
   }
 
+  .hide{
+    visibility: hidden;
+  }
 
   :global(.container) {
     display: flex; /* or inline-flex */
