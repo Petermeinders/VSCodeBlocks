@@ -121,6 +121,9 @@
       Save project location
       <input type=textbox  bind:value={$items.settings.codeMapSaveLocationRelative}/>  
     </div>
+    <!-- <div class="subContainer">
+      <input type=checkbox bind:checked={$items.settings.alwaysShowCodeBlockButtons}/> Always show buttons on codeBlocks
+    </div> -->
     <div class="subContainer">
       <input type=checkbox bind:checked={$items.settings.strictCodeMapOutlineWordMatch}/>  Strict CodeMap Outline Word Match?
     </div>
@@ -155,5 +158,6 @@ margin-bottom:20px;
 
 .subContainer {
 margin-bottom:10px;
+display: flex !important;
 }
 </style>

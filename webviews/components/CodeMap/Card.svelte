@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { flatTree, currentZoom, perimeterItem, codeMap, editItem, rightClickedBlockEvent } from "../../store";
+  import { flatTree, currentZoom, perimeterItem, codeMap, editItem, rightClickedBlockEvent, items } from "../../store";
   import type { FilteredTree } from '../../../src/Models';
   import lodash, { flatten } from "lodash";
   import deepdash from "deepdash";
@@ -32,6 +32,8 @@
   export let SelectPerimeter = () => {};
   export let Minimize = (event: any, treeItem: FilteredTree) => {};
   export let StartLink = (event: any, treeItem: FilteredTree) => {};
+
+  let buttonsDisplay = $items.settings.alwaysShowCodeBlockButtons ? 'display:flex;' : "display:none;";
 
   function NameChangeMenu(e: any, treeItem: FilteredTree) {
     //Needs to be refactored here from Canvas -> ds.subscribe
@@ -158,6 +160,15 @@
       value: treeItem,
     });
   }
+
+  function handleMouseOver(e:any) {
+		buttonsDisplay = 'display:flex;';
+	}
+	function handleMouseOut(e:any) {
+    if (!$items.settings.alwaysShowCodeBlockButtons){
+      buttonsDisplay = 'display:none;';
+    }
+	}
 </script>
 
 <div class="ds-selected ds-hover absolute" style="display:none" />
@@ -165,6 +176,7 @@
 <main
   on:dblclick={() => dbClickBlock(treeItem)}
   on:contextmenu={(event) => expand(event)}
+
   style=" background:{treeItem.color} ;z-index:101; {treeItem.locationX !== "0" && treeItem.locationY !== "0"
     ? 'transform: translate3d(' + treeItem.locationX + 'px, ' + treeItem.locationY + 'px, 1px) scale(' + $currentZoom + ');'
     : ''}"
@@ -255,53 +267,8 @@
     </div>
   {/if}
 
-  <button type="button" class="inner-hide"> {treeItem.type === "outline" ? treeItem.name.substring(0, 25) : treeItem.name}</button>
+  {treeItem.type === "outline" ? treeItem.name.substring(0, 25) : treeItem.name}
 </main>
-
-<!-- <button type="button" class="card one">1</button> -->
-
-<!-- <section style="top:{top}px; left:{left}px" class="card  {card.type === 'directory' ? 'directory' : 'file'}">
-  <div class="card-inner">
-    <slot></slot>
-  </div>
-</section> -->
-<!-- {@debug treeItem} -->
-
-<!-- {#if tree}
-<ul>
-    {#each tree as treeItem, i}
-    {#if i < 5}
-    <li>
-            <slot {treeItem}>No slot</slot>
-            {#if treeItem.children}
-                <svelte:self tree={treeItem.children} let:treeItem={treeItem}>
-                    <slot {treeItem}>No slot</slot>
-                </svelte:self>
-            {/if}
-          </li>
-        {/if}
-    {/each}
-  </ul>
-{/if} -->
-
-<!-- {#if tree && $flatTree}
-<div style="display:none;"></div>
-    {#each tree as treeItem, i}
-    {#if i < 20}
-
-            <slot {treeItem}>No slot</slot>
-            {$flatTree.push(treeItem)}
-            {#if treeItem.children}
-                <svelte:self tree={treeItem.children} let:treeItem={treeItem}>
-                    <slot {treeItem}>No slot</slot>
-                    {$flatTree.push(treeItem)}
-                </svelte:self>
-            {/if}
-
-            {/if}
-    {/each}
-  </div>
-{/if} -->
 <style>
   * {
     user-select: none;
@@ -314,17 +281,21 @@
   height: 50px; */
 
     display: flex;
-    justify-content: flex-start;
-    align-items: flex-start;
+
     flex-direction: column;
-    color: white;
+    color: black;
+    font-weight: bold;
     border: 0;
+    padding-bottom:10px;
+    text-align: center;
+
   }
 
   .cardButtons {
     display: flex;
     justify-content: flex-start;
     align-items: center;
+    padding-bottom: 10px;
   }
 
   .absolute {
@@ -385,6 +356,10 @@
     font-size: 0.4rem;
     /* left: -5px; */
     z-index: 1;
+  }
+
+  .DisplayNone {
+    display:none;
   }
 
   /* 
