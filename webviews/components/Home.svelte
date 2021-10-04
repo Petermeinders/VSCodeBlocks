@@ -690,7 +690,7 @@
   }
 
   .codeBlocksAndMapContainer {
-    display: flex;
+    display: flex !important;
     flex-direction: row;
   }
 

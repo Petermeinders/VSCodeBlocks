@@ -261,11 +261,12 @@
         <Fa size="1x" icon={faEyeSlash} style="color:black; padding-right: 4px; float:right" />
       </button>
     </div>
-  {:else}
+  {:else if treeItem.name !== ""}
     <div class="generatedHeader">
       <h2 style="color:blue">Grab to generate</h2>
     </div>
   {/if}
+
 
   {treeItem.type === "outline" ? treeItem.name.substring(0, 25) : treeItem.name}
 </main>
