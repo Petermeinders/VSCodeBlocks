@@ -40,9 +40,9 @@ export interface FilteredTree {
     locationX:string,
     locationY:string,
     startLine:string,
-    _startCharacter:string,
-    _endLine:string,
-    _endCharacter:string,
+    startCharacter:string,
+    endLine:string,
+    endCharacter:string,
     starred:boolean,
     linkedTargetBlocks: string[]
   }
@@ -81,6 +81,7 @@ export interface FilteredTree {
        location: {}, 
        name: string,
     }],
+    flatOutline:FilteredTree[]
  }
  
  export interface CodeMap {
@@ -101,3 +102,32 @@ export interface FilteredTree {
     visible:boolean,
  }
  
+
+ export enum OutlineTypeEnum {
+   Array = 17,
+   Boolean = 16,
+   Class = 4,
+   Constant = 13,
+   Constructor = 8,
+   Enum = 9,
+   EnumMember = 21,
+   Event = 23,
+   Field = 7,
+   File = 0,
+   Function = 11,
+   Interface = 10,
+   Key = 19,
+   Method = 5,
+   Module = 1,
+   Namespace = 2,
+   Null = 20,
+   Number = 15,
+   Object = 18,
+   Operator = 24,
+   Package = 3,
+   Property = 6,
+   String = 14,
+   Struct = 22,
+   TypeParameter = 25,
+   Variable = 12,
+ }

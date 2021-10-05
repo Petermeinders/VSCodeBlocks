@@ -30,7 +30,7 @@
       >
         {#each $codeMap.pocket as item (item.id)}
           <div id={item.id} class="pocketblock" animate:flip={{ duration: flipDurationMs }}>
-            <button id={item.id} type="button" style="width:50px;" on:click={(event) => common.MoveToCanvas(event)}>Add</button>
+            <button id={item.id} type="button" style="width:50px;" on:click={(event) => common.MoveToCanvasFromPocket(event)}>Add</button>
             {item.name.substring(0, 20)}
           </div>
         {/each}

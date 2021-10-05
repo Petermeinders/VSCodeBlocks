@@ -15,6 +15,8 @@
   import Common from "./Common.svelte";
   import Pocket from "./CodeMap/Pocket.svelte";
   import CodeMapGroups from "./CodeMap/CodeMapGroups.svelte";
+  import Outline from "./CodeMap/Outline.svelte";
+
 
   let common: Common;
 
@@ -246,6 +248,9 @@
         case "selection-to-codeMap":
           $activeSelectionMeta.path = message.value.path;
           $activeSelectionMeta.startLine = message.value.startLine;
+          $activeSelectionMeta.startCharacter = message.value.startCharacter;
+          $activeSelectionMeta.endLine = message.value.endLine;
+          $activeSelectionMeta.endCharacter = message.value.endCharacter;
           $activelySelectedText = message.value.searchString;
           $activePath = message.value.path;
           break;
@@ -335,6 +340,11 @@
 
           $codeMap.activeWindow.path = message.value.path;
           $codeMap.activeWindow.outline = outineObject;
+          
+          if (!$codeMap.activeWindow.flatOutline)
+          {
+            $codeMap.activeWindow.flatOutline = [];
+          }
 
           break;
       }
@@ -661,6 +671,9 @@
           <CodeMapGroups/>
         </div>
 
+        <div>
+          <Outline/>
+        </div>
       </div>
 
       <button style="margin-right:10px;" on:click={() => $items.settings.hideBlocksBar = false} class={typeof $items.settings.hideBlocksBar === "undefined" || $items.settings.hideBlocksBar === false ? "hide" : ""}>

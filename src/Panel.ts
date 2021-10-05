@@ -289,9 +289,9 @@ export class HellowWorldPanel {
     }
   }
 
-  public static PassSelectionToCodeMap(searchString: string, path:string, startLine:string) {
+  public static PassSelectionToCodeMap(searchString: string, path:string, startLine:string, startCharacter:string, endLine:string, endCharacter:string) {
     if (typeof HellowWorldPanel.currentPanel !== "undefined") {
-      let SearchStringPath = {searchString:searchString, path:path, startLine:startLine};
+      let SearchStringPath = {searchString:searchString, path:path, startLine:startLine, startCharacter:startCharacter, endLine:endLine, endCharacter:endCharacter};
       HellowWorldPanel.currentPanel._panel.webview.postMessage({
         type: "selection-to-codeMap",
         value: SearchStringPath,
@@ -728,10 +728,12 @@ if (data.value.mapEntireProject)
               
             if (data.value.type === "outline" || data.value.type === "custom")
             {
+              let newRange = new vscode.Range(data.value.startLine, data.value.startCharacter, data.value.endLine, data.value.endCharacter)
+
               let getNumber = Number(data.value.startLine);
-              let range = editor.document.lineAt(getNumber).range;
-              editor.selection =  new vscode.Selection(range.start, range.end);
-              editor.revealRange(range);
+              // let range2 = editor.document.lineAt(getNumber).range;
+              editor.selection =  new vscode.Selection(newRange.start, newRange.end);
+              editor.revealRange(newRange);
             }
             });
 

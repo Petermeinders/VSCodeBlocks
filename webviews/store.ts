@@ -102,6 +102,9 @@ let originActivelySelectedText = "";
 let originalRightClickedBlock: MouseEvent = new MouseEvent("click");
 let originactiveSelectionMeta = {
    startLine: "",
+   startCharacter:"",
+   endLine:"",
+   endCharacter:"",
    path:"",
 };
 let originActivePath = "";

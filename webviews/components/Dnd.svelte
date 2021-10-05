@@ -14,6 +14,21 @@
   export let SearchTerm: string;
   export let FullCodeSearch: boolean;
 
+  let isBlocksOpen = true;
+
+  const ToggleBlocks = (e: MouseEvent) => {
+    // $tags?.forEach(tag => {
+    //   $items.selectedTags.forEach(selectedTag => {
+    //   if(tag === selectedTag)
+    //   {
+
+    //   }
+    // })
+    // })
+
+    isBlocksOpen = !isBlocksOpen;
+  };
+
   let common: Common;
   let shouldIgnoreDndEvents = false;
   const flipDurationMs = 300;
@@ -50,7 +65,7 @@
 
     //console.warn(`got consider ${JSON.stringify(e.detail, null, 2)}`);
     const { trigger, id } = e.detail.info;
-    if (trigger === TRIGGERS.DRAG_STARTED) {
+    if (trigger === TRIGGERS.DRAG_STARTED) { //THIS WHOLE MESS IS FOR THE GETBOUNDINGRECTANGLE error thing
       // console.warn(`copying ${id}`);
       draggingItem = e.detail.items.find((x) => x.id.toString().includes("dnd-shadow"));
       draggingItem.tempId = e.detail.info.id;
@@ -110,9 +125,9 @@
       newFlatItem.locationX = event.clientX-200 ?? 0;
       newFlatItem.locationY = event.clientY-50 ?? 0;
       newFlatItem.startLine = "undefined";
-      newFlatItem._startCharacter = "undefined";
-      newFlatItem._endLine = "undefined";
-      newFlatItem._endCharacter = "undefined";
+      newFlatItem.startCharacter = "undefined";
+      newFlatItem.endLine = "undefined";
+      newFlatItem.endCharacter = "undefined";
       newFlatItem.linkedTargetBlocks = draggingItem.linkedBlocks;
 
       if (typeof $codeMap.flatTree.find((x) => x.id === newFlatItem.id) === "undefined") {
@@ -132,7 +147,7 @@
   function handleDndFinalize(e: any) {
     if (!shouldIgnoreDndEvents) {
       $items.customSnippets = e.detail.items;
-    } else {
+    } else { //THIS WHOLE MESS IS FOR THE GETBOUNDINGRECTANGLE error thing
       let newItems = $items.customSnippets;
       newItems.map((item) => {
         if (item.tempId === e.detail.info.id) {
@@ -539,6 +554,21 @@
 </script>
 
 <main class="item">
+  <button class="accordianButtons" on:click={(event) => ToggleBlocks(event)} aria-expanded={isBlocksOpen} >
+    <svg
+      style="tran; float:left;"
+      width="20"
+      height="20"
+      fill="none"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+      viewBox="0 0 24 16"
+      stroke="currentColor"><path d="M9 5l7 7-7 7" /></svg
+    >
+    Blocks
+  </button>
+  {#if isBlocksOpen }
   <button class="tooltip" on:click={AddCodeBlockFromSelection} style="height: 50px;"
     >Add Current Selection to CodeBlock<span class="tooltiptext">Text</span></button
   >
@@ -659,6 +689,7 @@
       </div>
     {/each}
   </section>
+  {/if}
 </main>
 
 <style lang="css">
@@ -712,6 +743,20 @@
     -webkit-transition: max-height 1s;
     -moz-transition: max-height 1s;
     transition: max-height 1s;
+  }
+
+  .accordianButtons {
+    background: none;
+    font-size: 16px;
+    color: inherit;
+  }
+
+  svg {
+    transition: transform 0.2s ease-in;
+  }
+
+  [aria-expanded="true"] svg {
+    transform: rotate(0.25turn);
   }
 
   .block {

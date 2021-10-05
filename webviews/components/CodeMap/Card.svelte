@@ -21,6 +21,8 @@
   } from "@fortawesome/free-solid-svg-icons";
   import { faStar } from "@fortawesome/free-regular-svg-icons";
   import {} from "os";
+  import CodeIcons from "../CodeIcons.svelte"
+
 
   const _ = deepdash(lodash);
   export let left = 30;
@@ -80,15 +82,19 @@
     locationX: "",
     locationY: "",
     startLine: "",
-    _startCharacter: "",
-    _endLine: "",
-    _endCharacter: "",
+    startCharacter: "",
+    endLine: "",
+    endCharacter: "",
     starred: false,
     linkedTargetBlocks: []
 };
     dbClickValues.path = item.path;
     dbClickValues.type = item.type;
     dbClickValues.startLine = item.startLine;
+    dbClickValues.startCharacter = item.startCharacter;
+    dbClickValues.endLine = item.endLine;
+    dbClickValues.endCharacter = item.endCharacter;
+
 
     if (item.type === "outline") {
       $codeMap.flatTree.forEach((flatItem) => {
@@ -228,8 +234,12 @@
         <Fa size="1x" icon={faFile} style="color:white; padding-right: 4px; padding-left:4px; float:right" />
       {/if}
 
-      {#if treeItem.type === "outline"}
+      {#if treeItem.type === "custom"}
         <Fa size="1x" icon={faCode} style="color:white; padding-right: 4px; padding-left:4px; float:right" />
+      {/if}
+
+      {#if treeItem.type === "outline" }
+      <CodeIcons blockType={treeItem.extension}/>    
       {/if}
 
       {#if typeof treeItem.starred === "undefined" || treeItem.starred === false}
@@ -263,7 +273,7 @@
     </div>
   {:else if treeItem.name !== ""}
     <div class="generatedHeader">
-      <h2 style="color:blue">Grab to generate</h2>
+      <h2 style="color:blue">Grab to create block</h2>
     </div>
   {/if}
 

@@ -1,6 +1,11 @@
 <script lang="ts">
   import { codeMap, debug, editItem, editMode, items } from "../store";
   import type { DerivedGroup, Group, Item } from '../../src/Models';
+  import {OutlineTypeEnum} from '../../src/Models';
+  import lodash from "lodash";
+  import deepdash from "deepdash";
+
+  const _ = deepdash(lodash);
 
   export const ImportCode = () => {
     if ($debug) console.log("Import Data Start!");
@@ -170,7 +175,7 @@
     return element.parentNode && ParentHasId(<HTMLElement>element.parentNode, id);
   };
 
-  export const MoveToCanvas = (e:any) => {
+  export const MoveToCanvasFromPocket = (e:any) => {
     $codeMap.pocket.forEach((block) => {
       if (block.id.toString() === e.target.id) {
         if (typeof $codeMap.flatTree.find(b => b.id === block.id) === "undefined")
@@ -188,6 +193,30 @@
          $codeMap.pocket.splice(index, 1);
          existingBlock.visible = true;
          $codeMap.pocket = $codeMap.pocket;
+        }
+      }
+    });
+  }
+
+
+  export const MoveToCanvasFromOutline = (e:any) => {
+    $codeMap.activeWindow.flatOutline.forEach((block) => {
+      if (block.id.toString() === e.target.id) {
+        if (typeof $codeMap.flatTree.find(b => b.id === block.id) === "undefined")
+        {
+          let index = $codeMap.activeWindow.flatOutline.indexOf(block);
+          $codeMap.activeWindow.flatOutline.splice(index, 1);
+          block.visible = true;
+          $codeMap.flatTree.push(block);
+          $codeMap = $codeMap;
+        }
+        else
+        {
+         let existingBlock = $codeMap.flatTree.find(b => b.id === block.id);
+         let index = $codeMap.activeWindow.flatOutline.indexOf(block);
+         $codeMap.activeWindow.flatOutline.splice(index, 1);
+         existingBlock.visible = true;
+         $codeMap.activeWindow.flatOutline = $codeMap.activeWindow.flatOutline;
         }
       }
     });
@@ -213,6 +242,78 @@
     $codeMap?.flatTree.forEach((treeItem) => {
       if (typeof treeItem.visible === "undefined") treeItem.visible = true;
     });
+  }
+
+  export function GetOutline(currentParentBlock) {
+    let OutlineArray = [];
+
+    if ($codeMap?.activeWindow?.outline) {
+      let outline = $codeMap.activeWindow.outline;
+      if (outline.length > 0) {
+        if ($debug) {
+          console.log("OUTLINE: ");
+          console.log(outline);
+         
+        }
+        $codeMap.activeWindow.flatOutline = [];
+        // let currentParentBlock = $codeMap.activeWindow.block;
+
+        _.eachDeep(outline, (value, key, parentValue, context) => {
+          if (typeof value === "object" && typeof value.name !== "undefined") {
+            // console.log(`${key} : ${outline[key]}`);
+            let defaultVisibility = false;
+            // if (value.kind !== 5) {
+            //   vis = false;
+            // }
+
+            let newTreeItem = {
+              id: value.id,
+              parentId: currentParentBlock?.id ?? -99,
+              path: value.location.uri.path,
+              name: value.name,
+              size: 0,
+              type: "outline",
+              color: "",
+              visible: defaultVisibility,
+              open: null,
+              children: [],
+              extension: OutlineTypeEnum[value.kind],
+              locationX: currentParentBlock?.locationX ?? "0",
+              locationY: currentParentBlock?.locationY ?? "0",
+              startLine: value.location.range._start._line,
+              startCharacter: value.location.range._start._character,
+              endLine: value.location.range._end._line,
+              endCharacter: value.location.range._end._character,
+              linkedTargetBlocks: [],
+            };
+            let hit = 0;
+            if ($codeMap.activeWindow.flatOutline.length > 0)
+            {
+              $codeMap.activeWindow.flatOutline.forEach((flatItem) => {
+              if (
+                flatItem.id === newTreeItem.id ||
+                (typeof flatItem?.uri?.path !== "undefined" && flatItem.name === newTreeItem.name && flatItem.uri.path === newTreeItem.uri.path)
+              ) {
+                hit += 1;
+              }
+            });
+            }
+          
+            if (hit === 0) {
+              if ($debug) {
+                console.log("New Outline item added:");
+                console.log(newTreeItem);
+              }
+              // $codeMap.flatTree.push(newTreeItem);
+              $codeMap.activeWindow.flatOutline.push(newTreeItem)
+            }
+          }
+        });
+        //$codeMap.flatTree = [...$codeMap.flatTree, ...OutlineArray];
+      }
+    }
+
+    return OutlineArray;
   }
   
 </script>
