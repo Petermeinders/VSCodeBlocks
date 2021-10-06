@@ -229,34 +229,39 @@ import { faFileDownload } from "@fortawesome/free-solid-svg-icons";
       let pointerX = OnMouseUpObject.event.clientX ?? 0;
       let pointerY = OnMouseUpObject.event.clientY ?? 0;
 
-      OnMouseUpObject.event.srcElement.style.display = "none";
-      let bottomElement = document.elementFromPoint(pointerX, pointerY);
+      if (OnMouseUpObject.items.length > 0)
+      {
+        OnMouseUpObject.event.srcElement.style.display = "none";
 
-      if ($debug) console.log(bottomElement);
+let bottomElement = document.elementFromPoint(pointerX, pointerY);
 
-      if (bottomElement && (OnMouseUpObject?.event?.target?.nodeName !== "BUTTON" || OnMouseUpObject?.event?.srcElement?.nodeName !== "BUTTON")) {
-        let isPocketHovered = common.ParentHasId(bottomElement, "pocketAndMapGroups");
-        if (isPocketHovered) {
-          let pocketAndGroup = document.getElementById("pocketAndMapGroups");
-          if ($debug) console.log("Moving to pocket");
-          MoveToPocket($currentlySelected, OnMouseUpObject.event);
-        }
+if ($debug) console.log(bottomElement);
 
-        if (!isPocketHovered) {
-          let isCodeBlockHovered = common.ParentHasId(bottomElement, "code-container");
-          if (isCodeBlockHovered) {
-            if ($debug) console.log("Moving to Blocks");
-            {
-              MoveToCodeBlocks($currentlySelected, OnMouseUpObject.event);
-             OnMouseUpObject.items = [];
-            ds.clearSelection();
-             
-            }
-          }
-        }
+if (bottomElement && (OnMouseUpObject?.event?.target?.nodeName !== "BUTTON" || OnMouseUpObject?.event?.srcElement?.nodeName !== "BUTTON")) {
+  let isPocketHovered = common.ParentHasId(bottomElement, "pocketAndMapGroups");
+  if (isPocketHovered) {
+    let pocketAndGroup = document.getElementById("pocketAndMapGroups");
+    if ($debug) console.log("Moving to pocket");
+    MoveToPocket($currentlySelected, OnMouseUpObject.event);
+  }
+
+  if (!isPocketHovered) {
+    let isCodeBlockHovered = common.ParentHasId(bottomElement, "code-container");
+    if (isCodeBlockHovered) {
+      if ($debug) console.log("Moving to Blocks");
+      {
+        MoveToCodeBlocks($currentlySelected, OnMouseUpObject.event);
+       OnMouseUpObject.items = [];
+      ds.clearSelection();
+       
       }
+    }
+  }
+}
 
-      OnMouseUpObject.event.srcElement.style.display = "block";
+OnMouseUpObject.event.srcElement.style.display = "block";
+      }
+    
       CloseAllRadials();
     });
 
