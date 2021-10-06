@@ -97,7 +97,7 @@
     <div class="settingsContainer">
       <h2>Outline Blocks Visibility</h2>
       {#each $items.settings.visibleOutlineBlocks as {name, checked}}
-        <input type=checkbox  bind:checked={checked}/>  {name}
+        <input type="checkbox"  bind:checked={checked}/> <span> {name}</span>
       {/each}
     </div>
   </div>

@@ -1,6 +1,6 @@
 <script lang="ts">
     // @ts-nocheck
-    import { codeMap } from "../../store";
+    import { codeMap, items } from "../../store";
     import { flip } from "svelte/animate";
     import { dndzone, SHADOW_ITEM_MARKER_PROPERTY_NAME, TRIGGERS } from "svelte-dnd-action";
     import Common from ".././Common.svelte";
@@ -30,8 +30,11 @@
         });
         $codeMap.activeWindow.flatOutline = e.detail.items;
         shouldIgnoreDndEvents = true;
-      } else {
+      } else if (!shouldIgnoreDndEvents) {
         $codeMap.activeWindow.flatOutline = e.detail.items;
+      } else {
+        $codeMap.activeWindow.flatOutline =  [...$codeMap.activeWindow.flatOutline];
+
       }
     }
   
@@ -132,17 +135,24 @@
         <section
           class="outline"
           style="margin:auto; width: 100%;"
+          autoAriaDisabled:true
           use:dndzone={{ items: $codeMap?.activeWindow?.flatOutline, flipDurationMs }}
           on:consider={handleDndConsider}
           on:finalize={handleDndFinalize}
         >
           {#each $codeMap?.activeWindow?.flatOutline as item (item.id)}
-            <div on:click={() => ClickOutline(item)} id={item.id} class="pocketblock outline-item-parent" animate:flip={{ duration: flipDurationMs }}>
-                <CodeIcons blockType={item.extension}/>
+            {#if $items.settings.visibleOutlineBlocks.find(ext => ext.name === item.extension).checked}
+            <div on:click={() => ClickOutline(item)} id={item.id} class=".outline-item outline-item" >
+              <CodeIcons blockType={item.extension}/>
+          
+            <!-- <button id={item.id} type="button" style="width:50px;" on:click={(event) => common.MoveToCanvasFromOutline(event)}>-></button> -->
+            {item.name.substring(0, 25)}
+          </div>
+          {:else}
+          <div>
+          </div>
+            {/if}
             
-              <!-- <button id={item.id} type="button" style="width:50px;" on:click={(event) => common.MoveToCanvasFromOutline(event)}>-></button> -->
-              {item.name.substring(0, 25)}
-            </div>
           {/each}
         </section>
       </div>
@@ -150,15 +160,17 @@
   </main>
   
   <style>
-    .pocket {
+    /* .outline {
       max-height: 150px;
       overflow: scroll;
       min-height: 100px;
-    }
+    } */
+
   
-    .outline-item-parent {
+    .outline-item {
       display: flex;
       flex-direction: row;
+      margin-top: 5px;
     }
   </style>
   

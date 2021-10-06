@@ -5,7 +5,7 @@
   console.log(blockType);
 </script>
 
-<main>
+<main style="margin-right: 3px;">
   {#if blockType === "Method"}
     <div style="width:22px;">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"
@@ -81,6 +81,13 @@
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><style>.icon-canvas-transparent{opacity:0;fill:#2d2d30}.icon-vs-out{fill:#2d2d30}.icon-vs-bg{fill:#c5c5c5}.icon-vs-fg{fill:#2b282e}.icon-vs-action-blue{fill:#75beff}</style><path class="icon-canvas-transparent" d="M16 16H0V0h16v16z" id="canvas"/><path class="icon-vs-out" d="M11 3v1.015L8.733 2.882 5 4.749V3H0v10h5v-1.859l2.156 1.077L11 10.295V13h5V3h-5z" id="outline" style="display: none;"/><path class="icon-vs-bg" d="M2 5v6h2v1H1V4h3v1H2zm10 6v1h3V4h-3v1h2v6h-2z" id="iconBg"/><path class="icon-vs-fg" d="M7.156 7.156l-1.578-.789 3.156-1.578 1.578.789-3.156 1.578z" id="iconFg" style="display: none;"/><path class="icon-vs-action-blue" d="M8.733 4L4 6.367v3.156L7.156 11.1l4.733-2.367V5.578L8.733 4zM7.156 7.156l-1.578-.789 3.156-1.578 1.578.789-3.156 1.578z" id="colorImportance"/></svg>
   </div>
   {/if}
+
+  {#if blockType === "Function"}
+  <div style="width:22px;">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><style>.icon-canvas-transparent{opacity:0;fill:#2d2d30}.icon-vs-out{fill:#2d2d30}.icon-vs-fg{fill:#2b282e}.icon-vs-action-purple{fill:#b180d7}</style><path class="icon-canvas-transparent" d="M16 16H0V0h16v16z" id="canvas"/><path class="icon-vs-out" d="M15 3.349v8.403L8.975 16H8.07L1 11.582V3.327L7.595 0h1.118L15 3.349z" id="outline"/><path class="icon-vs-fg" d="M12.715 4.398L8.487 7.02 3.565 4.272l4.578-2.309 4.572 2.435zM3 5.102l5 2.792v5.705l-5-3.125V5.102zm6 8.434V7.878l4-2.48v5.317l-4 2.821z" id="iconFg"/><path class="icon-vs-action-purple" d="M8.156.837L2 3.942v7.085L8.517 15.1 14 11.233V3.95L8.156.837zm4.559 3.561L8.487 7.02 3.565 4.272l4.578-2.309 4.572 2.435zM3 5.102l5 2.792v5.705l-5-3.125V5.102zm6 8.434V7.878l4-2.48v5.317l-4 2.821z" id="iconBg"/></svg>
+  </div>
+  {/if}
+
 
 
 </main>

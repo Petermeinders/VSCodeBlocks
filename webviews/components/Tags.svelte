@@ -167,6 +167,8 @@
     text-align: left;
   }
 
+
+
   svg {
     transition: transform 0.2s ease-in;
   }

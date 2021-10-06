@@ -739,6 +739,10 @@
     /* border-bottom: 1px dotted black; */
   }
 
+  :global(input) {
+    display:inline-block !important;
+  }
+
   :global(.tooltip .tooltiptext) {
     visibility: hidden;
     width: 120px;
