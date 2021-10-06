@@ -97,7 +97,9 @@
         newFlatItem.startCharacter = draggingItem.startCharacter;
         newFlatItem.endLine = draggingItem.endLine;
         newFlatItem.endCharacter = draggingItem.endCharacter;
-        newFlatItem.linkedTargetBlocks = draggingItem.linkedBlocks;
+        newFlatItem.linkedTargetBlocks = draggingItem.linkedBlocks ?? [];
+        newFlatItem.linkedBlocks = draggingItem.linkedBlocks ?? [];
+        newFlatItem.starred = true;
   
         if (typeof $codeMap.flatTree.find((x) => x.id === newFlatItem.id) === "undefined") {
           $codeMap.flatTree.push(newFlatItem);

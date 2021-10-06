@@ -14,6 +14,7 @@ rightClickedBlockEvent,
   } from "../../store";
   import Fa from "svelte-fa";
   import type { Group } from "../../../src/Models";
+  import {OutlineTypeEnum} from "../../../src/Models";
   import Card from "./Card.svelte";
   import { onMount, afterUpdate, beforeUpdate, tick } from "svelte";
   import DragSelect from "dragselect";
@@ -34,34 +35,7 @@ import { faFileDownload } from "@fortawesome/free-solid-svg-icons";
     }
   }
 
-  enum OutlineTypeEnum {
-    Array = 17,
-    Boolean = 16,
-    Class = 4,
-    Constant = 13,
-    Constructor = 8,
-    Enum = 9,
-    EnumMember = 21,
-    Event = 23,
-    Field = 7,
-    File = 0,
-    Function = 11,
-    Interface = 10,
-    Key = 19,
-    Method = 5,
-    Module = 1,
-    Namespace = 2,
-    Null = 20,
-    Number = 15,
-    Object = 18,
-    Operator = 24,
-    Package = 3,
-    Property = 6,
-    String = 14,
-    Struct = 22,
-    TypeParameter = 25,
-    Variable = 12,
-  }
+
 
   const _ = deepdash(lodash);
   let ds;
@@ -272,7 +246,12 @@ import { faFileDownload } from "@fortawesome/free-solid-svg-icons";
           let isCodeBlockHovered = common.ParentHasId(bottomElement, "code-container");
           if (isCodeBlockHovered) {
             if ($debug) console.log("Moving to Blocks");
-            MoveToCodeBlocks($currentlySelected, OnMouseUpObject.event);
+            {
+              MoveToCodeBlocks($currentlySelected, OnMouseUpObject.event);
+             OnMouseUpObject.items = [];
+            ds.clearSelection();
+             
+            }
           }
         }
       }
@@ -503,70 +482,70 @@ import { faFileDownload } from "@fortawesome/free-solid-svg-icons";
     }
   }
 
-  function GetOutline(currentParentBlock) {
-    let OutlineArray = [];
+  // function GetOutline(currentParentBlock) {
+  //   let OutlineArray = [];
 
-    if ($codeMap?.activeWindow?.outline) {
-      let outline = $codeMap.activeWindow.outline;
-      if (outline.length > 0) {
-        if ($debug) {
-          console.log("OUTLINE: ");
-          console.log(outline);
-        }
-        // let currentParentBlock = $codeMap.activeWindow.block;
+  //   if ($codeMap?.activeWindow?.outline) {
+  //     let outline = $codeMap.activeWindow.outline;
+  //     if (outline.length > 0) {
+  //       if ($debug) {
+  //         console.log("OUTLINE: ");
+  //         console.log(outline);
+  //       }
+  //       // let currentParentBlock = $codeMap.activeWindow.block;
 
-        _.eachDeep(outline, (value, key, parentValue, context) => {
-          if (typeof value === "object" && typeof value.name !== "undefined") {
-            // console.log(`${key} : ${outline[key]}`);
-            let defaultVisibility = false;
-            // if (value.kind !== 5) {
-            //   vis = false;
-            // }
+  //       _.eachDeep(outline, (value, key, parentValue, context) => {
+  //         if (typeof value === "object" && typeof value.name !== "undefined") {
+  //           // console.log(`${key} : ${outline[key]}`);
+  //           let defaultVisibility = false;
+  //           // if (value.kind !== 5) {
+  //           //   vis = false;
+  //           // }
 
-            let newTreeItem = {
-              id: value.id,
-              parentId: currentParentBlock.id,
-              path: value.location.uri.path,
-              name: value.name,
-              size: 0,
-              type: "outline",
-              color: "",
-              visible: defaultVisibility,
-              open: null,
-              children: [],
-              extension: OutlineTypeEnum[value.kind],
-              locationX: currentParentBlock.locationX,
-              locationY: currentParentBlock.locationY,
-              startLine: value.location.range._start._line,
-              _startCharacter: value.location.range._start._character,
-              _endLine: value.location.range._end._line,
-              _endCharacter: value.location.range._end._character,
-              linkedTargetBlocks: [],
-            };
-            let hit = 0;
-            $codeMap.flatTree.forEach((flatItem) => {
-              if (
-                flatItem.id === newTreeItem.id ||
-                (typeof flatItem?.uri?.path !== "undefined" && flatItem.name === newTreeItem.name && flatItem.uri.path === newTreeItem.uri.path)
-              ) {
-                hit += 1;
-              }
-            });
-            if (hit === 0) {
-              if ($debug) {
-                console.log("New Outline item added:");
-                console.log(newTreeItem);
-              }
-              $codeMap.flatTree.push(newTreeItem);
-            }
-          }
-        });
-        //$codeMap.flatTree = [...$codeMap.flatTree, ...OutlineArray];
-      }
-    }
+  //           let newTreeItem = {
+  //             id: value.id,
+  //             parentId: currentParentBlock.id,
+  //             path: value.location.uri.path,
+  //             name: value.name,
+  //             size: 0,
+  //             type: "outline",
+  //             color: "",
+  //             visible: defaultVisibility,
+  //             open: null,
+  //             children: [],
+  //             extension: OutlineTypeEnum[value.kind],
+  //             locationX: currentParentBlock.locationX,
+  //             locationY: currentParentBlock.locationY,
+  //             startLine: value.location.range._start._line,
+  //             _startCharacter: value.location.range._start._character,
+  //             _endLine: value.location.range._end._line,
+  //             _endCharacter: value.location.range._end._character,
+  //             linkedTargetBlocks: [],
+  //           };
+  //           let hit = 0;
+  //           $codeMap.flatTree.forEach((flatItem) => {
+  //             if (
+  //               flatItem.id === newTreeItem.id ||
+  //               (typeof flatItem?.uri?.path !== "undefined" && flatItem.name === newTreeItem.name && flatItem.uri.path === newTreeItem.uri.path)
+  //             ) {
+  //               hit += 1;
+  //             }
+  //           });
+  //           if (hit === 0) {
+  //             if ($debug) {
+  //               console.log("New Outline item added:");
+  //               console.log(newTreeItem);
+  //             }
+  //             $codeMap.flatTree.push(newTreeItem);
+  //           }
+  //         }
+  //       });
+  //       //$codeMap.flatTree = [...$codeMap.flatTree, ...OutlineArray];
+  //     }
+  //   }
 
-    return OutlineArray;
-  }
+  //   return OutlineArray;
+  // }
 
   function SetVisibility() {
     $codeMap?.flatTree.forEach((treeItem) => {
@@ -773,6 +752,7 @@ import { faFileDownload } from "@fortawesome/free-solid-svg-icons";
         $codeMap.pocket = $codeMap.pocket;
       }
     });
+    $currentlySelected = [];
   }
 
   function MoveToCodeBlocks(selectedBlocks, event) {
@@ -806,11 +786,12 @@ import { faFileDownload } from "@fortawesome/free-solid-svg-icons";
         newBlock.locationX = block.locationX;
         newBlock.locationY = block.locationY;
         newBlock.startLine = block.startLine;
-        newBlock._startCharacter = block._startCharacter;
-        newBlock._endLine = block._endLine;
-        newBlock._endCharacter = block._endCharacter;
+        newBlock.startCharacter = block.startCharacter;
+        newBlock.endLine = block.endLine;
+        newBlock.endCharacter = block.endCharacter;
         newBlock.starred = block.starred;
         newBlock.linkedTargetBlocks = block.linkedTargetBlocks;
+        newBlock.linkedBlocks = block.linkedTargetBlocks;
         //id: "0",
         //tempId:"",
         //name: "test",
@@ -834,8 +815,10 @@ import { faFileDownload } from "@fortawesome/free-solid-svg-icons";
         $items.customSnippets = $items.customSnippets;
         console.log($codeMap.flatTree.find((b) => b.id === block.id));
         block.visible = false;
+       
       }
     });
+    $currentlySelected = [];
   }
 
   function GetSelectedCodeBlocks(selectedBlocks) {
@@ -1237,7 +1220,7 @@ import { faFileDownload } from "@fortawesome/free-solid-svg-icons";
           flatItem.visible = true;
           $codeMap.activeWindow.id = flatItem.id.toString();
           $codeMap.activeWindow.block = flatItem;
-          GetOutline($codeMap.activeWindow.block);
+          common.GetOutline($codeMap.activeWindow.block);
           ShowRecursivelyUPFromFile(flatItem, false);
           //ShowRecursivelyDOWNFromFile(flatItem);
 
@@ -1254,6 +1237,7 @@ import { faFileDownload } from "@fortawesome/free-solid-svg-icons";
           // }
         }
       });
+      common.GetOutline($codeMap.activeWindow.block);
     }
   }
 
@@ -1475,6 +1459,10 @@ import { faFileDownload } from "@fortawesome/free-solid-svg-icons";
           </div>
         {/if}
       {/if}
+    {/if}
+
+    {#if $codeMap?.groups > 0}
+       
     {/if}
 
     {#if $codeMap}
