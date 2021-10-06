@@ -211,6 +211,14 @@
     if ($debug) console.log("double clicked. Future implementation.");
   }
 
+  function ClearSearchInput(){
+    SearchTerm = "";
+    searchCode("",false);
+
+    let searchBox = document.getElementById("CodeBlocksSearchInput");
+      searchBox.value = SearchTerm;
+  }
+
   export function searchCode(e: any, FullCodeSearch: any) {
     let searchString: any = "";
 
@@ -595,6 +603,7 @@
     >Add Current Selection to CodeBlock<span class="tooltiptext">Text</span></button
   >
   <div style="display:flex; align-items: center; background: #3c3c3c">
+    <button style="background:#3c3c3c;" on:click={ClearSearchInput}><Fa icon={faTimesCircle} style="color:white; padding-right: 4px; padding-left: 4px; cursor:pointer;" /></button>
     <input id="CodeBlocksSearchInput" type="text" placeholder="Search" value={(SearchTerm = SearchTerm ?? "")} on:change={(event) => searchCode(event, FullCodeSearch)} />
     <span class="tooltip">
       <input type="checkbox" id="searchCode" name="searchCode" value="false" bind:checked={$items.settings.searchCode} />
