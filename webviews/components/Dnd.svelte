@@ -212,38 +212,60 @@
   }
 
   export function searchCode(e: any, FullCodeSearch: any) {
-    let searchString: string;
-    if (typeof e === "string") {
+    let searchString: any = "";
+
+    // let linkedBlock = $items.customSnippets.find(b => b.id === e);
+    //   if (linkedBlock)
+    //   {
+    //     SearchTerm = linkedBlock.name;
+    //     return;
+    //   }
+
+    if (typeof e === "string" && e !== "") {
       searchString = e;
-    } else {
+    } else if (e !== "") {
       searchString = e.target.value;
     }
 
+
+
+
     if ($debug) console.log(searchString);
 
-    let foundArray: Item[];
-    if ($items.settings.searchCode) {
-      try {
+    let foundArray: Item[] = [];
+    let linkBlockFound = $items.customSnippets.find(b => b.id === e);
+
+    if (linkBlockFound)
+    {
+      foundArray.push(linkBlockFound);
+      let searchBox = document.getElementById("CodeBlocksSearchInput");
+      searchBox.value = searchString;
+    }
+    else
+    {
+      if ($items.settings.searchCode) {
+        try {
+          foundArray = $items.customSnippets.filter(
+            (item) =>
+              item.name.toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 ||
+              item.id.toString().toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 ||
+              item?.tags?.findIndex((x) => x?.toLowerCase()?.trim() === searchString?.toLowerCase()?.trim()) !== -1 ||
+              FuzzyCheck(item, searchString)
+          );
+        } catch {
+          foundArray = [];
+          console.log("Tags/Search error!");
+        }
+      } else {
         foundArray = $items.customSnippets.filter(
           (item) =>
             item.name.toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 ||
             item.id.toString().toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 ||
-            item?.tags?.findIndex((x) => x?.toLowerCase()?.trim() === searchString?.toLowerCase()?.trim()) !== -1 ||
-            FuzzyCheck(item, searchString)
+            item?.tags?.findIndex((x) => x?.toLowerCase()?.trim() === searchString?.toLowerCase()?.trim()) !== -1
         );
-      } catch {
-        foundArray = [];
-        console.log("Tags/Search error!");
       }
-    } else {
-      foundArray = $items.customSnippets.filter(
-        (item) =>
-          item.name.toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 ||
-          item.id.toString().toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 ||
-          item?.tags?.findIndex((x) => x?.toLowerCase()?.trim() === searchString?.toLowerCase()?.trim()) !== -1
-      );
-    }
-    if ($debug) console.log(foundArray);
+      if ($debug) console.log(foundArray);
+  }
 
     $items.customSnippets.map((item) => {
       item.visible = "false";
@@ -573,7 +595,7 @@
     >Add Current Selection to CodeBlock<span class="tooltiptext">Text</span></button
   >
   <div style="display:flex; align-items: center; background: #3c3c3c">
-    <input type="text" placeholder="Search" value={(SearchTerm = SearchTerm ?? "")} on:change={(event) => searchCode(event, FullCodeSearch)} />
+    <input id="CodeBlocksSearchInput" type="text" placeholder="Search" value={(SearchTerm = SearchTerm ?? "")} on:change={(event) => searchCode(event, FullCodeSearch)} />
     <span class="tooltip">
       <input type="checkbox" id="searchCode" name="searchCode" value="false" bind:checked={$items.settings.searchCode} />
       <span class="tooltiptext">Search Code</span>
