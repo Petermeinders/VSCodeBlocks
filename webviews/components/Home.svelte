@@ -1,13 +1,13 @@
 <script lang="ts">
-  import Dnd from "./Dnd.svelte";
-  import Tags from "./Tags.svelte";
+  import Dnd from "./CodeBlocks/Dnd.svelte";
+  import Tags from "./CodeBlocks/Tags.svelte";
   import { onMount } from "svelte";
-  import { activelySelectedText, activePath, activeSelectionMeta, debug, editItem, editMode, items } from "../store";
+  import { activelySelectedText, activePath, activeSelectionMeta, debug, editItem, editMode, items, searchTerm } from "../store";
   import { tags } from "../store";
   import { page } from "../store";
   import { codeMap } from "../store";
   import EditScreen from "./EditScreen.svelte";
-  import LinkedBlocks from "./LinkedBlocks.svelte";
+  import LinkedBlocks from "./CodeBlocks/LinkedBlocks.svelte";
   import { faChevronLeft, faChevronRight, faCog, faCubes, faProjectDiagram } from "@fortawesome/free-solid-svg-icons";
   import Fa from "svelte-fa";
   import Canvas from "./CodeMap/Canvas.svelte";
@@ -20,7 +20,7 @@
 
   let common: Common;
 
-  let SearchTerm: string = "";
+ 
   let FullCodeSearch: boolean = true;
 
   // $: $items.settings.currentPanel;
@@ -242,7 +242,7 @@
           break;
 
         case "selection-to-search":
-          SearchTerm = message.value;
+         $searchTerm = message.value;
           break;
 
         case "selection-to-codeMap":
@@ -647,7 +647,7 @@
             </button>
           </div>
             <LinkedBlocks />
-            <Dnd {SearchTerm} {FullCodeSearch} />
+            <Dnd {FullCodeSearch} />
 
           </div>
         </div>

@@ -110,6 +110,8 @@ let originactiveSelectionMeta = {
 let originActivePath = "";
 let originLines: string | any[] = [];
 
+let originSearchTerm = "";
+
 let originEditItem = {
    "id": "0", "tempId":"", "name": "test", "code":"if(${1:condition} ||${1:condition}){${2:expression}})", "linkedBlocks": [], "language":"java", "placeholders":["condition","expression"], "color":'white', "visible":"", "tags":["tag1","tag2"] 
 }
@@ -153,6 +155,8 @@ export const activePath = writable(originActivePath);
 export const lines = writable(originLines);
 
 export const editItem = writable(originEditItem);
+
+export const searchTerm = writable(originSearchTerm);
 
 export const editMode = writable(originEditMode, (set) => {
    console.log("Editmode Set!");

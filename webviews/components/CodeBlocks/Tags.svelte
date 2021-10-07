@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { items } from "../store";
-  import { tags } from "../store";
+  import { items } from "../../../webviews/store";
+  import { tags } from "../../../webviews/store";
   import { slide } from "svelte/transition";
-  import Common from "./Common.svelte";
+  import Common from "../Common.svelte";
 
   let common: Common;
 

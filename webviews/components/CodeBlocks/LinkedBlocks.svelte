@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { items, linkedBlocks } from "../store";
+  import { items, linkedBlocks } from "../../../webviews/store";
   import { flip } from "svelte/animate";
   import { dndzone } from "svelte-dnd-action";
 

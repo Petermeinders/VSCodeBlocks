@@ -2,16 +2,16 @@
   import { flip } from "svelte/animate";
   import { dndzone, SHADOW_ITEM_MARKER_PROPERTY_NAME, TRIGGERS } from "svelte-dnd-action";
   import { afterUpdate, beforeUpdate, onMount } from "svelte";
-  import { codeMap, debug, editMode, items } from "../store";
+  import { codeMap, debug, editMode, items, searchTerm } from "../../../webviews/store";
   // import type { item } from "../store";
-  import Common from "./Common.svelte";
+  import Common from "../Common.svelte";
   import Fa from "svelte-fa";
   import { faTint, faTag, faFont, faPlusCircle, faPencilAlt, faTimesCircle, faSearch } from "@fortawesome/free-solid-svg-icons";
   import { setDebugMode } from "svelte-dnd-action";
   import levenshtein from "fast-levenshtein";
-  import type { Item } from "../store";
+  import type { Item } from "../../../webviews/store";
+import CodeBlockSearch from "./CodeBlockSearch.svelte";
 
-  export let SearchTerm: string;
   export let FullCodeSearch: boolean;
 
   let isBlocksOpen = true;
@@ -35,9 +35,9 @@
   let draggingItem = {};
 
   $: {
-    SearchTerm;
-    if ($debug) console.log("Search Changed: " + SearchTerm);
-    searchCode(SearchTerm, FullCodeSearch);
+    $searchTerm;
+    if ($debug) console.log("Search Changed: " + $searchTerm);
+    searchCode($searchTerm, FullCodeSearch);
   }
 
   $: {
@@ -211,13 +211,7 @@
     if ($debug) console.log("double clicked. Future implementation.");
   }
 
-  function ClearSearchInput(){
-    SearchTerm = "";
-    searchCode("",false);
 
-    let searchBox = document.getElementById("CodeBlocksSearchInput");
-      searchBox.value = SearchTerm;
-  }
 
   export function searchCode(e: any, FullCodeSearch: any) {
     let searchString: any = "";
@@ -255,10 +249,10 @@
         try {
           foundArray = $items.customSnippets.filter(
             (item) =>
-              item.name.toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 ||
+              item?.name?.toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 ||
               item.id.toString().toLowerCase().indexOf(searchString.toLowerCase().trim()) !== -1 ||
               item?.tags?.findIndex((x) => x?.toLowerCase()?.trim() === searchString?.toLowerCase()?.trim()) !== -1 ||
-              FuzzyCheck(item, searchString)
+              CodeCheck(item, searchString)
           );
         } catch {
           foundArray = [];
@@ -305,11 +299,11 @@
     // }
   }
 
-  function FuzzyCheck(item: Item, searchString: string) {
+  function CodeCheck(item: Item, searchString: string) {
     if ($items.settings.isFuzzy) {
       return CodeCompareWholeFile(item, searchString);
     } else {
-      if (item.code.toLowerCase().includes(searchString.toLowerCase().trim()) === true) {
+      if (item?.code?.toLowerCase().includes(searchString.toLowerCase().trim()) === true) {
         return true;
       } else {
         return false;
@@ -330,10 +324,12 @@
     let CodeBlocks = searchString.split(/\n\s*\n/);
 
     CodeBlocks.forEach((Block) => {
-      let shtein = levenshtein.get(Block, x.code);
+      if (typeof x?.code !== "undefined")
+      {
+        let shtein = levenshtein.get(Block, x.code);
       if (shtein < 200) {
-        let changeMinusx = Block.length - x.code.length;
-        let xMinusChange = x.code.length - Block.length;
+        let changeMinusx = Block?.length - x.code?.length;
+        let xMinusChange = x.code?.length - Block?.length;
         if (Math.abs(changeMinusx) < 100) {
           console.log("Name: " + x.name + ": " + changeMinusx + ": " + xMinusChange + ": " + "Stein: " + shtein);
           found = ++found;
@@ -343,6 +339,8 @@
           //return false;
         }
       }
+      }
+    
     });
 
     if (found >= 0) {
@@ -602,19 +600,8 @@
   <button class="tooltip" on:click={AddCodeBlockFromSelection} style="height: 50px;"
     >Add Current Selection to CodeBlock<span class="tooltiptext">Text</span></button
   >
-  <div style="display:flex; align-items: center; background: #3c3c3c">
-    <button style="background:#3c3c3c;" on:click={ClearSearchInput}><Fa icon={faTimesCircle} style="color:white; padding-right: 4px; padding-left: 4px; cursor:pointer;" /></button>
-    <input id="CodeBlocksSearchInput" type="text" placeholder="Search" value={(SearchTerm = SearchTerm ?? "")} on:change={(event) => searchCode(event, FullCodeSearch)} />
-    <span class="tooltip">
-      <input type="checkbox" id="searchCode" name="searchCode" value="false" bind:checked={$items.settings.searchCode} />
-      <span class="tooltiptext">Search Code</span>
-    </span>
-    <span class="tooltip"
-      ><input title="Text to show" type="checkbox" id="isFuzzy" name="isFuzzy" bind:checked={$items.settings.isFuzzy} />
-      <span class="tooltiptext">Fuzzy Search</span>
-    </span>
-  </div>
 
+<CodeBlockSearch/>
   <section
     aria-label={listName}
     autoAriaDisabled:true
