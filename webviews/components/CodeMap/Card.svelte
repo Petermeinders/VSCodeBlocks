@@ -303,7 +303,7 @@
   }
 
   .cardButtons {
-    display: flex;
+    display: flex !important;
     justify-content: flex-start;
     align-items: center;
     padding-bottom: 10px;
