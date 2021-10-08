@@ -1318,7 +1318,7 @@ OnMouseUpObject.event.srcElement.style.display = "block";
         generatedBlock.startCharacter = $activeSelectionMeta.startCharacter.toString();
         generatedBlock.endLine = $activeSelectionMeta.endLine.toString();
         generatedBlock.endCharacter = $activeSelectionMeta.endCharacter.toString();
-        generatedBlock.starred = true;
+        generatedBlock.starred = false;
         generatedBlock.linkedTargetBlocks = [];
 
         $codeMap.flatTree.splice(index, 1, generatedBlock);

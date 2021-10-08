@@ -257,6 +257,7 @@
 
           case "onActiveEditorChange":
             ColorCode(message.value);
+            HideShowBlocks(message.value);
 
             break;
 
@@ -487,6 +488,20 @@
     }
    
   }
+
+ function HideShowBlocks(path){
+   $codeMap.flatTree.forEach(block => {
+     if(block.starred === false && block.path !== path)
+     {
+       block.visible = false;
+     }
+
+     if(block.path === path)
+     {
+       block.visible = true;
+     }
+   })
+ }
 
   function CreateTabStop(placeholderValue: string) {
     let item = $editItem;
