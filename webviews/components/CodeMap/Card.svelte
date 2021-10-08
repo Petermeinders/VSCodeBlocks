@@ -134,6 +134,11 @@ import Canvas from "./Canvas.svelte";
     treeItem.visible = false;
   }
 
+  function DeleteBlock(e: any, treeItem: FilteredTree) {
+    let index = $codeMap.flatTree.indexOf(treeItem);
+    $codeMap.flatTree.splice(index,1);
+  }
+
   function expand(e: any) {
     console.log(e);
     let menu;
@@ -283,7 +288,7 @@ import Canvas from "./Canvas.svelte";
         <Fa size="1x" icon={faLink} style="color:blue; padding-right: 4px; float:right" />
       </button>
       {#if treeItem.type === "custom" || treeItem.type === "outline"}
-      <button id="HideBlock" on:mousedown={(event) => HideBlock(event, treeItem)}>
+      <button id="DeleteBlock" on:mousedown={(event) => DeleteBlock(event, treeItem)}>
         <Fa size="1x" icon={faTimesCircle} style="color:red; padding-right: 4px; float:right" />
       </button>
       {:else}
