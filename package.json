@@ -182,6 +182,7 @@
 		"lodash-es": "^4.17.21",
 		"svelte-dnd-action": "^0.9.9",
 		"svelte-fa": "^2.2.1",
-		"svelte-material-ui": "^4.2.0"
+		"svelte-material-ui": "^4.2.0",
+		"vanilla-colorful": "^0.6.2"
 	}
 }

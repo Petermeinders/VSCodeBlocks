@@ -255,6 +255,11 @@
           $activePath = message.value.path;
           break;
 
+          case "onActiveEditorChange":
+            ColorCode(message.value);
+
+            break;
+
         case "code-from-active-window":
           let activeScreenCode = message.value;
           SaveCodeFromEdit(activeScreenCode);
@@ -463,6 +468,25 @@
   //     let val = code.search($editItem.placeholders[0]);
   //     console.log(val);
   // }
+
+  function ColorCode(path) {
+    let colorBlocks = [];
+    $codeMap.flatTree.forEach(block => {
+      if (block.visible && block.path === path)
+      {
+        colorBlocks.push(block)
+      }
+    })
+
+    if ($items.settings.colorCodetoMatchCodeBlocks && colorBlocks.length > 0)
+    {
+      tsvscode.postMessage({
+      type: "colorActiveCode",
+      value: colorBlocks,
+    });
+    }
+   
+  }
 
   function CreateTabStop(placeholderValue: string) {
     let item = $editItem;

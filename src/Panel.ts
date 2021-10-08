@@ -300,6 +300,13 @@ export class HellowWorldPanel {
     }
   }
 
+  public static onActiveEditorChange(path){
+    HellowWorldPanel.currentPanel._panel.webview.postMessage({
+      type: "onActiveEditorChange",
+      value: path,
+    });
+  }
+
   public static GetActiveEditor(hasText: any) {
     let editor = vscode.window.activeTextEditor;
     let viewColum = vscode?.window?.visibleTextEditors[0]?.viewColumn;
@@ -600,6 +607,33 @@ if (data.value.mapEntireProject)
           break;
         }
 
+        case "colorActiveCode":{
+          if (!data.value) {
+            return;
+          }
+          let visibleBlocks = data.value;
+          
+          visibleBlocks.forEach(block => {
+
+            let colorWithTrans = block.color + "24";
+
+            let style = vscode.window.createTextEditorDecorationType(
+              { backgroundColor: colorWithTrans}
+              //{borderColor:block.color, border:" 5px solid red left"}
+             //{outlineColor: block.color, outlineStyle: "solid", outlineWidth: "1px;"}
+              );
+    
+            let selectedRange = new vscode.Range(  parseInt(block.startLine), parseInt(block.startCharacter), parseInt(block.endLine),  parseInt(block.endCharacter));
+            let ranges: vscode.Range[] = [];
+            ranges.push(selectedRange);
+            vscode.window.activeTextEditor.setDecorations(style, ranges);
+          })
+
+
+          break;
+        }
+          
+
         case "GetCodeFromEditScreen": {
           if (!data.value) {
             return;
@@ -728,7 +762,7 @@ if (data.value.mapEntireProject)
               
             if (data.value.type === "outline" || data.value.type === "custom")
             {
-              let newRange = new vscode.Range(data.value.startLine, data.value.startCharacter, data.value.endLine, data.value.endCharacter)
+              let newRange = new vscode.Range(parseInt(data.value.startLine), parseInt(data.value.startCharacter), parseInt(data.value.endLine), parseInt(data.value.endCharacter))
 
               let getNumber = Number(data.value.startLine);
               // let range2 = editor.document.lineAt(getNumber).range;

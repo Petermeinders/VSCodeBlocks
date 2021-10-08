@@ -408,7 +408,7 @@ OnMouseUpObject.event.srcElement.style.display = "block";
         SetVisibility();
 
         $codeMap.flatTree = [...new Set($codeMap.flatTree)];
-
+        //ColorCode();
         return;
       }
 
@@ -429,6 +429,8 @@ OnMouseUpObject.event.srcElement.style.display = "block";
       }
     }
   };
+
+
 
   function StarClicked(currentlySelected) {
     let flatBlock = GetSelectedCodeBlocks(currentlySelected);
@@ -1313,9 +1315,9 @@ OnMouseUpObject.event.srcElement.style.display = "block";
         generatedBlock.locationX = 0;
         generatedBlock.locationY = 0;
         generatedBlock.startLine = $activeSelectionMeta.startLine.toString();
-        generatedBlock._startCharacter = undefined;
-        generatedBlock._endLine = undefined;
-        generatedBlock._endCharacter = undefined;
+        generatedBlock.startCharacter = $activeSelectionMeta.startCharacter.toString();
+        generatedBlock.endLine = $activeSelectionMeta.endLine.toString();
+        generatedBlock.endCharacter = $activeSelectionMeta.endCharacter.toString();
         generatedBlock.starred = true;
         generatedBlock.linkedTargetBlocks = [];
 
@@ -1347,9 +1349,9 @@ OnMouseUpObject.event.srcElement.style.display = "block";
         generatedBlock.locationX = 0;
         generatedBlock.locationY = 0;
         generatedBlock.startLine = $activeSelectionMeta.startLine.toString();
-        generatedBlock._startCharacter = undefined;
-        generatedBlock._endLine = undefined;
-        generatedBlock._endCharacter = undefined;
+        generatedBlock.startCharacter = $activeSelectionMeta.startCharacter.toString();
+        generatedBlock.endLine = $activeSelectionMeta.endLine.toString();
+        generatedBlock.endCharacter = $activeSelectionMeta.endCharacter.toString();
         generatedBlock.starred = true;
         generatedBlock.linkedTargetBlocks = [];
 

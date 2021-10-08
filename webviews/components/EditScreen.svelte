@@ -3,8 +3,16 @@
   import Fa from "svelte-fa";
   import { faTint, faTag, faFont, faPlusCircle, faPencilAlt, faTimesCircle, faSearch } from "@fortawesome/free-solid-svg-icons";
   import Common from "./Common.svelte";
-
+	import 'vanilla-colorful';
+  
   let common: Common;
+
+  let color = "#1e88e5";
+
+function handleColorChanged(event:any) {
+  color = event.detail.value;
+  $editItem.color = color;
+}
 
   function UpdateCodeOnPlaceHolderChange() {
     tsvscode.postMessage({
@@ -89,7 +97,11 @@
       </div>
 
       <div style="display:flex" class="inputStyle colorInput ">
-        <Fa icon={faTint} style="color:yellow; padding-right: 4px;  " />
+        <div>
+          <hex-color-picker color="{color}" on:color-changed="{handleColorChanged}"></hex-color-picker>
+          <output>{color}</output>
+        </div>
+        <Fa icon={faTint} style="color:{$editItem.color}; padding-right: 4px;  " />
         <input type="text" id={common.getNonce()} style="float:left;" value={$editItem.color} class="" placeholder="red" on:change={(event) => common.changeColor(event, $editItem, true)} />
       </div>
 
@@ -144,5 +156,10 @@
 </main>
 
 <style>
-
+	output {
+		display: block;
+		margin-top: 10px;
+		font-size: 1.25rem;
+		text-align: center;
+	}
 </style>

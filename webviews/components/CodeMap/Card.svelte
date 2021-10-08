@@ -22,6 +22,7 @@
   import { faStar } from "@fortawesome/free-regular-svg-icons";
   import {} from "os";
   import CodeIcons from "../CodeIcons.svelte"
+import Canvas from "./Canvas.svelte";
 
 
   const _ = deepdash(lodash);
@@ -147,6 +148,12 @@
 
   function EditCodeBlock(event: any, treeItem: FilteredTree) {
     console.log("EDIT TEST FROM MENU");
+
+    $codeMap.flatTree.forEach(block => {
+      if (treeItem.path === block.path && typeof block.path !== "undefined"){
+        treeItem.language = block.language;
+      }
+    })
 
     $editItem = {
       id: treeItem.id,

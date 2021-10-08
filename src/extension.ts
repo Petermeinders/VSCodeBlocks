@@ -93,6 +93,8 @@ export function activate(context: vscode.ExtensionContext) {
 		if (event) {
 			console.log(event.document.isClosed);
 			let path = event.document.fileName;
+			let uri = event.document.uri;
+			let path2 = uri.path;
 			 let outline = HellowWorldPanel.GetOutline(path);
 			//event.viewColumn = 1;
 
@@ -104,10 +106,8 @@ export function activate(context: vscode.ExtensionContext) {
 
 			}
 			
-			//console.log(event.document.isUntitled);
-			// (async () => {
-			// 	console.log("TextEditor CHANGED!");
-			// })();
+			HellowWorldPanel.onActiveEditorChange(path2);
+
 			
 		}
 
@@ -162,7 +162,6 @@ export function activate(context: vscode.ExtensionContext) {
 
 			if (text !== null && text !== 'undefined' && text1 === text) {
 				//console.log('after delay: ' + text);
-
 				const wentToWindow = HellowWorldPanel.PassSearchStringToWindow(text);
 				HellowWorldPanel.PassSelectionToCodeMap(text, path, startLine.toString(), startCharacter.toString(), endLine.toString(), endCharacter.toString());
 				if (!wentToWindow) {

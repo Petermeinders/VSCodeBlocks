@@ -58,6 +58,7 @@ let originItems = {
       alwaysShowCodeBlockButtons:true,
       strictCodeMapOutlineWordMatch:false,
       mapEntireProject:false,
+      colorCodetoMatchCodeBlocks:true,
       codeMapFolderExclusion:"node_modules|packages",
       visibleOutlineBlocks: [
          {name: "Array", checked: false},

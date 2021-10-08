@@ -10,22 +10,13 @@
   import { setDebugMode } from "svelte-dnd-action";
   import levenshtein from "fast-levenshtein";
   import type { Item } from "../../../webviews/store";
-import CodeBlockSearch from "./CodeBlockSearch.svelte";
+  import CodeBlockSearch from "./CodeBlockSearch.svelte";
 
   export let FullCodeSearch: boolean;
 
   let isBlocksOpen = true;
 
   const ToggleBlocks = (e: MouseEvent) => {
-    // $tags?.forEach(tag => {
-    //   $items.selectedTags.forEach(selectedTag => {
-    //   if(tag === selectedTag)
-    //   {
-
-    //   }
-    // })
-    // })
-
     isBlocksOpen = !isBlocksOpen;
   };
 
@@ -65,7 +56,8 @@ import CodeBlockSearch from "./CodeBlockSearch.svelte";
 
     //console.warn(`got consider ${JSON.stringify(e.detail, null, 2)}`);
     const { trigger, id } = e.detail.info;
-    if (trigger === TRIGGERS.DRAG_STARTED) { //THIS WHOLE MESS IS FOR THE GETBOUNDINGRECTANGLE error thing
+    if (trigger === TRIGGERS.DRAG_STARTED) {
+      //THIS WHOLE MESS IS FOR THE GETBOUNDINGRECTANGLE error thing
       // console.warn(`copying ${id}`);
       draggingItem = e.detail.items.find((x) => x.id.toString().includes("dnd-shadow"));
       draggingItem.tempId = e.detail.info.id;
@@ -94,12 +86,12 @@ import CodeBlockSearch from "./CodeBlockSearch.svelte";
 
     let pointerX = event.clientX ?? 0;
     let pointerY = event.clientY ?? 0;
-    
+
     let selectedBlock = document.getElementById("dnd-action-dragged-el");
 
     selectedBlock.style.display = "none";
     let bottomElement = document.elementFromPoint(pointerX, pointerY);
-    let isOverCanvas = common.ParentHasId(bottomElement, "area") 
+    let isOverCanvas = common.ParentHasId(bottomElement, "area");
     console.log(bottomElement);
 
     if (isOverCanvas) {
@@ -122,8 +114,8 @@ import CodeBlockSearch from "./CodeBlockSearch.svelte";
       newFlatItem.open = false;
       newFlatItem.children = [];
       newFlatItem.extension = "custom";
-      newFlatItem.locationX = event.clientX-200 ?? 0;
-      newFlatItem.locationY = event.clientY-50 ?? 0;
+      newFlatItem.locationX = event.clientX - 200 ?? 0;
+      newFlatItem.locationY = event.clientY - 50 ?? 0;
       newFlatItem.startLine = "undefined";
       newFlatItem.startCharacter = "undefined";
       newFlatItem.endLine = "undefined";
@@ -132,8 +124,7 @@ import CodeBlockSearch from "./CodeBlockSearch.svelte";
 
       if (typeof $codeMap.flatTree.find((x) => x.id === newFlatItem.id) === "undefined") {
         $codeMap.flatTree.push(newFlatItem);
-      }
-      else{
+      } else {
         let existingItem = $codeMap.flatTree.find((x) => x.id === newFlatItem.id);
         existingItem.visible = true;
       }
@@ -147,7 +138,8 @@ import CodeBlockSearch from "./CodeBlockSearch.svelte";
   function handleDndFinalize(e: any) {
     if (!shouldIgnoreDndEvents) {
       $items.customSnippets = e.detail.items;
-    } else { //THIS WHOLE MESS IS FOR THE GETBOUNDINGRECTANGLE error thing
+    } else {
+      //THIS WHOLE MESS IS FOR THE GETBOUNDINGRECTANGLE error thing
       let newItems = $items.customSnippets;
       newItems.map((item) => {
         if (item.tempId === e.detail.info.id) {
@@ -211,8 +203,6 @@ import CodeBlockSearch from "./CodeBlockSearch.svelte";
     if ($debug) console.log("double clicked. Future implementation.");
   }
 
-
-
   export function searchCode(e: any, FullCodeSearch: any) {
     let searchString: any = "";
 
@@ -229,22 +219,16 @@ import CodeBlockSearch from "./CodeBlockSearch.svelte";
       searchString = e.target.value;
     }
 
-
-
-
     if ($debug) console.log(searchString);
 
     let foundArray: Item[] = [];
-    let linkBlockFound = $items.customSnippets.find(b => b.id === e);
+    let linkBlockFound = $items.customSnippets.find((b) => b.id === e);
 
-    if (linkBlockFound)
-    {
+    if (linkBlockFound) {
       foundArray.push(linkBlockFound);
       let searchBox = document.getElementById("CodeBlocksSearchInput");
       searchBox.value = searchString;
-    }
-    else
-    {
+    } else {
       if ($items.settings.searchCode) {
         try {
           foundArray = $items.customSnippets.filter(
@@ -267,7 +251,7 @@ import CodeBlockSearch from "./CodeBlockSearch.svelte";
         );
       }
       if ($debug) console.log(foundArray);
-  }
+    }
 
     $items.customSnippets.map((item) => {
       item.visible = "false";
@@ -324,23 +308,21 @@ import CodeBlockSearch from "./CodeBlockSearch.svelte";
     let CodeBlocks = searchString.split(/\n\s*\n/);
 
     CodeBlocks.forEach((Block) => {
-      if (typeof x?.code !== "undefined")
-      {
+      if (typeof x?.code !== "undefined") {
         let shtein = levenshtein.get(Block, x.code);
-      if (shtein < 200) {
-        let changeMinusx = Block?.length - x.code?.length;
-        let xMinusChange = x.code?.length - Block?.length;
-        if (Math.abs(changeMinusx) < 100) {
-          console.log("Name: " + x.name + ": " + changeMinusx + ": " + xMinusChange + ": " + "Stein: " + shtein);
-          found = ++found;
+        if (shtein < 200) {
+          let changeMinusx = Block?.length - x.code?.length;
+          let xMinusChange = x.code?.length - Block?.length;
+          if (Math.abs(changeMinusx) < 100) {
+            console.log("Name: " + x.name + ": " + changeMinusx + ": " + xMinusChange + ": " + "Stein: " + shtein);
+            found = ++found;
 
-          // return true;
-        } else {
-          //return false;
+            // return true;
+          } else {
+            //return false;
+          }
         }
       }
-      }
-    
     });
 
     if (found >= 0) {
@@ -355,71 +337,6 @@ import CodeBlockSearch from "./CodeBlockSearch.svelte";
       return false;
     }
   }
-
-  // function CodeCompareForEachItem(item: Item, searchString: string) {
-  //   const x = item;
-  //   if (searchString === "") {
-  //     return false;
-  //   }
-
-  //   let shtein = levenshtein.get(searchString, x.code);
-  //   if (shtein < 100) {
-  //     let changeMinusx = searchString.length - x.code.length;
-  //     let xMinusChange = x.code.length - searchString.length;
-  //     if (Math.abs(changeMinusx) < 50) {
-  //       console.log(
-  //         "Name: " +
-  //           x.name +
-  //           ": " +
-  //           changeMinusx +
-  //           ": " +
-  //           xMinusChange +
-  //           ": " +
-  //           "Stein: " +
-  //           shtein
-  //       );
-  //       //x.visible = "true";
-  //       return true;
-  //     } else {
-  //       // x.visible = "false";
-  //       return false;
-  //     }
-  //   }
-  //   //return x;
-  //   return false;
-
-  //   $items = { ...$items };
-  // }
-
-  //TODO: AI detect if block is found based on levenshtein.
-
-  //   function CodeCompare(changedCode){
-  //     $items.customSnippets.map(x => {
-  //       if(changedCode === "")
-  //       {
-  // return;
-  //       }
-
-  //       let shtein = levenshtein.get(changedCode,x.code);
-  //       if (shtein < 100){
-  //         let changeMinusx = changedCode.length - x.code.length;
-  //         let xMinusChange = x.code.length - changedCode.length;
-  //         if(Math.abs(changeMinusx) < 50)
-  //         {
-  //           console.log(x.name + ": " + changeMinusx + ": " + xMinusChange + ": " + shtein);
-  //           x.visible = "true";
-  //         }
-  //         else{
-  //           x.visible = "false";
-  //         }
-
-  //       }
-  //       return x;
-  //     });
-
-  //     $items = {...$items}
-
-  //   }
 
   function ShowColorPicker(item: item) {
     if ($debug) {
@@ -506,16 +423,6 @@ import CodeBlockSearch from "./CodeBlockSearch.svelte";
     }
   }
 
-  // function OnPlaceholderFocus(e, item, placeholder){
-  //   // e.target.setAttribute('data-prev', e.target.value);
-  //   // console.log("Previous:" + e.target.getAttribute('data-prev'));
-  // }
-
-  // function OnPlaceHolderInput(e, item, placeholder){
-  //   // e.target.setAttribute('data-prev', e.target.value);
-  //   // console.log("Previous:" + e.target.getAttribute('data-prev'));
-  // }
-
   function OnPlaceHolderChange(e: any, item: item, placeholder: any) {
     let prevValue = placeholder; //e.target.getAttribute('data-prev');
 
@@ -582,7 +489,7 @@ import CodeBlockSearch from "./CodeBlockSearch.svelte";
 </script>
 
 <main class="item">
-  <button class="accordianButtons" on:click={(event) => ToggleBlocks(event)} aria-expanded={isBlocksOpen} >
+  <button class="accordianButtons" on:click={(event) => ToggleBlocks(event)} aria-expanded={isBlocksOpen}>
     <svg
       style="tran; float:left;"
       width="20"
@@ -596,117 +503,124 @@ import CodeBlockSearch from "./CodeBlockSearch.svelte";
     >
     Blocks
   </button>
-  {#if isBlocksOpen }
-  <button class="tooltip" on:click={AddCodeBlockFromSelection} style="height: 50px;"
-    >Add Current Selection to CodeBlock<span class="tooltiptext">Text</span></button
-  >
+  {#if isBlocksOpen}
+    <button class="tooltip" on:click={AddCodeBlockFromSelection} style="height: 50px;"
+      >Add Current Selection to CodeBlock<span class="tooltiptext">Text</span></button
+    >
 
-<CodeBlockSearch/>
-  <section
-    aria-label={listName}
-    autoAriaDisabled:true
-    use:dndzone={{ items: $items.customSnippets, flipDurationMs }}
-    on:consider={handleDndConsider}
-    on:finalize={handleDndFinalize}
-  >
-    {#each $items.customSnippets as item (item.id)}
-      <div
-        aria-label={item.name}
-        id={item.id}
-        class="cell block {item.visible === 'false' ? 'hide' : 'showBlock'}"
-        animate:flip={{ duration: flipDurationMs }}
-        on:mouseleave={(event) => onBlockLeave(event, item)}
-        on:mouseover={(event) => onBlockHover(event, item)}
-        on:mouseenter={() => onmouseenter}
-        on:dblclick={() => onItemDoubleClick(item)}
-        style="border-color:{item.color}; display:{item.visible}"
-      >
-        <div>
-          <Common bind:this={common} />
+    <CodeBlockSearch />
+    <section
+      aria-label={listName}
+      autoAriaDisabled:true
+      use:dndzone={{ items: $items.customSnippets, flipDurationMs }}
+      on:consider={handleDndConsider}
+      on:finalize={handleDndFinalize}
+    >
+      {#each $items.customSnippets as item (item.id)}
+        <div
+          aria-label={item.name}
+          id={item.id}
+          class="cell block {item.visible === 'false' ? 'hide' : 'showBlock'}"
+          animate:flip={{ duration: flipDurationMs }}
+          on:mouseleave={(event) => onBlockLeave(event, item)}
+          on:mouseover={(event) => onBlockHover(event, item)}
+          on:mouseenter={() => onmouseenter}
+          on:dblclick={() => onItemDoubleClick(item)}
+          style="border-color:{item.color}; display:{item.visible}"
+        >
+          <div>
+            <Common bind:this={common} />
 
-          {#if common !== null && typeof common !== "undefined"}
-            <span style="display:none;">{common.updateTagView()}</span>
-          {/if}
+            {#if common !== null && typeof common !== "undefined"}
+              <span style="display:none;">{common.updateTagView()}</span>
+            {/if}
 
-          <span style=" cursor: pointer;" on:click={() => pasteCodeFromBlock(item)}
-            ><Fa icon={faPlusCircle} style="color:#00c300; padding-right: 4px;" />
-          </span>
-          <span style=" cursor: pointer;" on:click={(event) => EditCodeBlock(item)}
-            ><Fa icon={faPencilAlt} style="color:orange; padding-right: 4px;" />
-          </span>
-          <span style="cursor: pointer;" on:click={() => ShowColorPicker(item)}><Fa icon={faTint} style="color:yellow; padding-right: 4px;" /> </span>
-          <span style="cursor: pointer;" on:click={() => ShowTags(item)}><Fa icon={faTag} style="color:#007acc; padding-right: 4px;" /> </span>
+            <span style=" cursor: pointer;" on:click={() => pasteCodeFromBlock(item)}
+              ><Fa icon={faPlusCircle} style="color:#00c300; padding-right: 4px;" />
+            </span>
+            <span style=" cursor: pointer;" on:click={(event) => EditCodeBlock(item)}
+              ><Fa icon={faPencilAlt} style="color:orange; padding-right: 4px;" />
+            </span>
+            <span style="cursor: pointer;" on:click={() => ShowColorPicker(item)}
+              ><Fa icon={faTint} style="color:yellow; padding-right: 4px;" />
+            </span>
+            <span style="cursor: pointer;" on:click={() => ShowTags(item)}><Fa icon={faTag} style="color:#007acc; padding-right: 4px;" /> </span>
 
-          <span on:click={() => deleteItem($items.customSnippets, item)} class="show" style="float:right; cursor: pointer;"
-            ><Fa icon={faTimesCircle} style="color:red; padding-right: 4px; padding-top: 3px;" /></span
-          >
-          <span style="float:right; font-weight: bold; margin-right:10px;">{item.language}</span>
-        </div>
-        <div>
-          <div class="show inputStyle">
-            <input
-              type="text"
-              class="blockTitle"
-              style="color:{item.color};"
-              bind:value={item.name}
-              on:change={() => common.changedName(item, false)}
-            />
+            <span on:click={() => deleteItem($items.customSnippets, item)} class="show" style="float:right; cursor: pointer;"
+              ><Fa icon={faTimesCircle} style="color:red; padding-right: 4px; padding-top: 3px;" /></span
+            >
+            <span style="float:right; font-weight: bold; margin-right:10px;">{item.language}</span>
+          </div>
+          <div>
+            <div class="show inputStyle">
+              <input
+                type="text"
+                class="blockTitle"
+                style="color:{item.color};"
+                bind:value={item.name}
+                on:change={() => common.changedName(item, false)}
+              />
+            </div>
+
+            {#if common}
+              <div class="hide colorInput inputStyle">
+                <Fa icon={faTint} style="color:yellow; padding-right: 4px;  " />
+                <input
+                  type="text"
+                  id={common.getNonce()}
+                  style="float:left;"
+                  value={item.color}
+                  class=""
+                  placeholder="red"
+                  on:change={(event) => common.changeColor(event, item, false)}
+                />
+              </div>
+
+              <div class="hide tagInput inputStyle">
+                <Fa icon={faTag} style="color:#007acc; padding-right: 4px;" />
+                <input
+                  type="text"
+                  id={common.getNonce()}
+                  style="float:left;"
+                  value={item.tags}
+                  placeholder="tag1, tag2"
+                  on:change={(event) => common.changeTags(event, item, false)}
+                />
+              </div>
+            {/if}
           </div>
 
-          {#if common}
-            <div class="hide colorInput inputStyle">
-              <Fa icon={faTint} style="color:yellow; padding-right: 4px;  " />
-              <input
-                type="text"
-                id={common.getNonce()}
-                style="float:left;"
-                value={item.color}
-                class=""
-                placeholder="red"
-                on:change={(event) => common.changeColor(event, item, false)}
-              />
-            </div>
-
-            <div class="hide tagInput inputStyle">
-              <Fa icon={faTag} style="color:#007acc; padding-right: 4px;" />
-              <input
-                type="text"
-                id={common.getNonce()}
-                style="float:left;"
-                value={item.tags}
-                placeholder="tag1, tag2"
-                on:change={(event) => common.changeTags(event, item, false)}
-              />
-            </div>
-          {/if}
+          <div class="codeblock">
+            <textarea disabled style="height:100px; width:100%" bind:value={item.code} on:change={(event) => OnCodeChange(event, item)} />
+            {#if item.placeholders !== null && typeof item.placeholders !== "undefined" && item.placeholders.length > 0}
+              {#each item.placeholders as placeholder}
+                <input
+                  type="text"
+                  disabled
+                  bind:value={placeholder}
+                  on:change={(event) => OnPlaceHolderChange(event, item, placeholder.toString())}
+                />
+              {/each}
+            {/if}
+          </div>
+          <div class="linkedStyles">
+            {#if item.linkedBlocks !== null && typeof item.linkedBlocks !== "undefined" && item.linkedBlocks.length > 0}
+              {#each item.linkedBlocks as linkedBlock}
+                <div class="linkedStyleBlock">
+                  <span style="cursor: pointer;" on:click={(event) => searchCode(linkedBlock, FullCodeSearch)}
+                    ><Fa icon={faSearch} style="color:#23f1de; padding-right: 4px;" />
+                  </span>
+                  <input type="text" style="color:#b3fffb" disabled value={getLinkedName(linkedBlock)} />
+                  <span on:click={() => deleteCodeLink(item, linkedBlock)} class="show" style="float:right; cursor: pointer;"
+                    ><Fa icon={faTimesCircle} style="color:red; padding-right: 4px; " /></span
+                  >
+                </div>
+              {/each}
+            {/if}
+          </div>
         </div>
-
-        <div class="codeblock">
-          <textarea disabled style="height:100px; width:100%" bind:value={item.code} on:change={(event) => OnCodeChange(event, item)} />
-          {#if item.placeholders !== null && typeof item.placeholders !== "undefined" && item.placeholders.length > 0}
-            {#each item.placeholders as placeholder}
-              <input type="text" disabled bind:value={placeholder} on:change={(event) => OnPlaceHolderChange(event, item, placeholder.toString())} />
-            {/each}
-          {/if}
-        </div>
-        <div class="linkedStyles">
-          {#if item.linkedBlocks !== null && typeof item.linkedBlocks !== "undefined" && item.linkedBlocks.length > 0}
-            {#each item.linkedBlocks as linkedBlock}
-              <div class="linkedStyleBlock">
-                <span style="cursor: pointer;" on:click={(event) => searchCode(linkedBlock, FullCodeSearch)}
-                  ><Fa icon={faSearch} style="color:#23f1de; padding-right: 4px;" />
-                </span>
-                <input type="text" style="color:#b3fffb" disabled value={getLinkedName(linkedBlock)} />
-                <span on:click={() => deleteCodeLink(item, linkedBlock)} class="show" style="float:right; cursor: pointer;"
-                  ><Fa icon={faTimesCircle} style="color:red; padding-right: 4px; " /></span
-                >
-              </div>
-            {/each}
-          {/if}
-        </div>
-      </div>
-    {/each}
-  </section>
+      {/each}
+    </section>
   {/if}
 </main>
 

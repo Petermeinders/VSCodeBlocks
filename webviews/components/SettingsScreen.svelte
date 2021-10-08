@@ -121,6 +121,9 @@
       Save project location
       <input type=textbox  bind:value={$items.settings.codeMapSaveLocationRelative}/>  
     </div>
+    <div class="subContainer">
+      <input type=checkbox bind:checked={$items.settings.colorCodetoMatchCodeBlocks}/>Color code to match CodeBlocks
+    </div>
     <!-- <div class="subContainer">
       <input type=checkbox bind:checked={$items.settings.alwaysShowCodeBlockButtons}/> Always show buttons on codeBlocks
     </div> -->
