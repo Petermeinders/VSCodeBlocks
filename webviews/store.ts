@@ -59,6 +59,8 @@ let originItems = {
       strictCodeMapOutlineWordMatch:false,
       mapEntireProject:false,
       colorCodetoMatchCodeBlocks:true,
+      randomizeNewBlockColors:false,
+      defaultBlockColor:"blue",
       codeMapFolderExclusion:"node_modules|packages",
       visibleOutlineBlocks: [
          {name: "Array", checked: false},

@@ -77,7 +77,7 @@
       if (isOverCanvas) {
         let newFlatItem = {};
         newFlatItem.code = draggingItem.code;
-        newFlatItem.color = draggingItem.color;
+        newFlatItem.color =  $items.settings.randomizeNewBlockColors ? "#" + Math.floor(Math.random() * 16777215).toString(16) : draggingItem.color;
         newFlatItem.language = draggingItem.language;
         newFlatItem.linkedBlocks = draggingItem.linkedBlocks;
         newFlatItem.name = draggingItem.name.substring(0, 25);
@@ -90,7 +90,6 @@
         newFlatItem.parentId = "undefined";
         newFlatItem.path = draggingItem.path;
         newFlatItem.type = "outline";
-        newFlatItem.color = draggingItem.color;
         newFlatItem.open = false;
         newFlatItem.children = [];
         newFlatItem.extension = draggingItem.extension;

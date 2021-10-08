@@ -5,6 +5,8 @@
   import deepdash from "deepdash";
   import { onMount } from "svelte";
   import Fa from "svelte-fa";
+  import ColorPicker from "../ColorPicker.svelte";
+
   import {
     faBullseye,
     faCode,
@@ -18,6 +20,7 @@
     faObjectGroup,
     faPencilAlt,
     faStar as solidStar,
+faTimesCircle,
   } from "@fortawesome/free-solid-svg-icons";
   import { faStar } from "@fortawesome/free-regular-svg-icons";
   import {} from "os";
@@ -49,6 +52,10 @@ import Canvas from "./Canvas.svelte";
       parentId: treeItem.parentId,
     };
   }
+
+  // function ColorChange(currentBlock, color:string){
+  //   currentBlock.color
+  // }
 
   onMount(async () => {});
 
@@ -233,6 +240,7 @@ import Canvas from "./Canvas.svelte";
   {#if treeItem.id !== "generated"}
     <div class="cardButtons">
       <!-- <button id="MoveToPocket"  on:click={closeHandler}><Fa size="1x" icon={faTrashRestore} style="color:red; padding-right: 4px; float:right" /></button> -->
+      <ColorPicker currentBlock={treeItem} color={treeItem.color}/>
       {#if treeItem.type === "directory"}
         <Fa size="1x" icon={faFolder} style="color:yellow; padding-right: 4px; padding-left:4px; float:right" />
       {/if}
@@ -274,13 +282,19 @@ import Canvas from "./Canvas.svelte";
       <button id="StartLink" on:mousedown={(event) => StartLink(event, treeItem)}>
         <Fa size="1x" icon={faLink} style="color:blue; padding-right: 4px; float:right" />
       </button>
+      {#if treeItem.type === "custom" || treeItem.type === "outline"}
+      <button id="HideBlock" on:mousedown={(event) => HideBlock(event, treeItem)}>
+        <Fa size="1x" icon={faTimesCircle} style="color:red; padding-right: 4px; float:right" />
+      </button>
+      {:else}
       <button id="HideBlock" on:mousedown={(event) => HideBlock(event, treeItem)}>
         <Fa size="1x" icon={faEyeSlash} style="color:black; padding-right: 4px; float:right" />
       </button>
+      {/if}
     </div>
   {:else if treeItem.name !== ""}
     <div class="generatedHeader">
-      <h2 style="color:blue">Grab to create block</h2>
+      <h2 style="color:white">Grab to create block</h2>
     </div>
   {/if}
 
@@ -301,7 +315,7 @@ import Canvas from "./Canvas.svelte";
     display: flex;
 
     flex-direction: column;
-    color: black;
+    color: white;
     font-weight: bold;
     border: 0;
     padding-bottom:10px;
@@ -323,7 +337,7 @@ import Canvas from "./Canvas.svelte";
   .ds-selected {
     outline: 3px solid red;
     outline-offset: 3px;
-    color: black;
+    color: #dedede;
     font-weight: bold;
   }
 

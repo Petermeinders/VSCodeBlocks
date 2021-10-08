@@ -4,6 +4,7 @@
   import { faTint, faTag, faFont, faPlusCircle, faPencilAlt, faTimesCircle, faSearch } from "@fortawesome/free-solid-svg-icons";
   import Common from "./Common.svelte";
 	import 'vanilla-colorful';
+import ColorPicker from "./ColorPicker.svelte";
   
   let common: Common;
 
@@ -97,11 +98,8 @@ function handleColorChanged(event:any) {
       </div>
 
       <div style="display:flex" class="inputStyle colorInput ">
-        <div>
-          <hex-color-picker color="{color}" on:color-changed="{handleColorChanged}"></hex-color-picker>
-          <output>{color}</output>
-        </div>
-        <Fa icon={faTint} style="color:{$editItem.color}; padding-right: 4px;  " />
+        <ColorPicker currentBlock={undefined} color={$editItem.color}/>
+        <!-- <Fa icon={faTint} style="color:{$editItem.color}; padding-right: 4px;  " /> -->
         <input type="text" id={common.getNonce()} style="float:left;" value={$editItem.color} class="" placeholder="red" on:change={(event) => common.changeColor(event, $editItem, true)} />
       </div>
 

@@ -121,6 +121,12 @@
       Save project location
       <input type=textbox  bind:value={$items.settings.codeMapSaveLocationRelative}/>  
     </div>
+    <!-- <div class="subContainer">
+      <input type=checkbox bind:checked={$items.settings.defaultBlockColor}/>Default block color
+    </div> -->
+    <div class="subContainer">
+      <input type=checkbox bind:checked={$items.settings.randomizeNewBlockColors}/>Randomize new block colors
+    </div>
     <div class="subContainer">
       <input type=checkbox bind:checked={$items.settings.colorCodetoMatchCodeBlocks}/>Color code to match CodeBlocks
     </div>
