@@ -6,6 +6,7 @@
   import { onMount } from "svelte";
   import Fa from "svelte-fa";
   import ColorPicker from "../ColorPicker.svelte";
+  import RadialMenu from "./CardRadial.svelte";
 
   import {
     faBullseye,
@@ -26,6 +27,7 @@ faTimesCircle,
   import {} from "os";
   import CodeIcons from "../CodeIcons.svelte"
 import Canvas from "./Canvas.svelte";
+import CardMenu from "./CardMenu.svelte";
 
 
   const _ = deepdash(lodash);
@@ -41,17 +43,6 @@ import Canvas from "./Canvas.svelte";
 
   let buttonsDisplay = $items.settings.alwaysShowCodeBlockButtons ? 'display:flex;' : "display:none;";
 
-  function NameChangeMenu(e: any, treeItem: FilteredTree) {
-    //Needs to be refactored here from Canvas -> ds.subscribe
-  }
-
-  function GroupClick() {
-    console.log("groupclick");
-    $perimeterItem = {
-      id: treeItem.id,
-      parentId: treeItem.parentId,
-    };
-  }
 
   // function ColorChange(currentBlock, color:string){
   //   currentBlock.color
@@ -130,14 +121,6 @@ import Canvas from "./Canvas.svelte";
     $codeMap.flatTree = $codeMap.flatTree;
   }
 
-  function HideBlock(e: any, treeItem: FilteredTree) {
-    treeItem.visible = false;
-  }
-
-  function DeleteBlock(e: any, treeItem: FilteredTree) {
-    let index = $codeMap.flatTree.indexOf(treeItem);
-    $codeMap.flatTree.splice(index,1);
-  }
 
   function expand(e: any) {
     console.log(e);
@@ -158,42 +141,15 @@ import Canvas from "./Canvas.svelte";
     }
   }
 
-  function EditCodeBlock(event: any, treeItem: FilteredTree) {
-    console.log("EDIT TEST FROM MENU");
-
-    $codeMap.flatTree.forEach(block => {
-      if (treeItem.path === block.path && typeof block.path !== "undefined"){
-        treeItem.language = block.language;
-      }
-    })
-
-    $editItem = {
-      id: treeItem.id,
-      tempId: "",
-      code: treeItem.code ?? "",
-      language: treeItem.language ?? "",
-      linkedBlocks: [],
-      name: treeItem.name ?? "New Name",
-      placeholders: treeItem.placeholders ?? [],
-      tags: treeItem.tags ?? [],
-      visible: "true",
-      color: treeItem.color ?? "white",
-    };
-
-    tsvscode.postMessage({
-      type: "editCode",
-      value: treeItem,
-    });
-  }
-
-  function handleMouseOver(e:any) {
-		buttonsDisplay = 'display:flex;';
-	}
-	function handleMouseOut(e:any) {
-    if (!$items.settings.alwaysShowCodeBlockButtons){
-      buttonsDisplay = 'display:none;';
-    }
-	}
+ 
+  // function handleMouseOver(e:any) {
+	// 	buttonsDisplay = 'display:flex;';
+	// }
+	// function handleMouseOut(e:any) {
+  //   if (!$items.settings.alwaysShowCodeBlockButtons){
+  //     buttonsDisplay = 'display:none;';
+  //   }
+	// }
 </script>
 
 <div class="ds-selected ds-hover absolute" style="display:none" />
@@ -201,102 +157,18 @@ import Canvas from "./Canvas.svelte";
 <main
   on:dblclick={() => dbClickBlock(treeItem)}
   on:contextmenu={(event) => expand(event)}
-
   style=" background:{treeItem.color} ;z-index:101; {treeItem.locationX !== "0" && treeItem.locationY !== "0"
     ? 'transform: translate3d(' + treeItem.locationX + 'px, ' + treeItem.locationY + 'px, 1px) scale(' + $currentZoom + ');'
     : ''}"
   id={treeItem.id}
   data-fileType={treeItem.type}
   data-parentId={treeItem.parentId}
+  class="card absolute highlight {treeItem.type === 'directory' ? 'directory' : 'file'}">
 
-  class="card absolute highlight {treeItem.type === 'directory' ? 'directory' : 'file'}"
->
-  <div class="menu" id="menu">
-    <a href="#">
-      {#if typeof treeItem.starred === "undefined" || treeItem.starred === false}
-        <Fa id="Star" on:click={() => StarClicked(treeItem)} size="1x" icon={faStar} style="color:yellow;" />
-      {:else}
-        <Fa id="Star" on:click={() => StarClicked(treeItem)} size="1x" icon={solidStar} style="color:yellow;" />
-      {/if}
-    </a>
-    <a href="#" class="tooltip">
-      <span style=" cursor: pointer;" on:click={(event) => GroupBlocks(event)}> <Fa id="GroupBlocks" size="1x" icon={faObjectGroup} style="color:red;" /></span>
-      <span class="tooltiptext">Group</span>
-    </a>
-    <a href="#">
-      <Fa id="SelectPerimeter" on:click={GroupClick} size="1x" icon={faBullseye} style="color:red;" />
-    </a>
-    <a href="#">
-      {#if typeof treeItem.open === "undefined" || treeItem.open === true}
-        <Fa id="Minimize" on:click={(event) => Minimize(event, treeItem)} size="1x" icon={faCompressArrowsAlt} style="color:yellow;" />
-      {:else}
-        <Fa id="Minimize" on:click={(event) => Minimize(event, treeItem)} size="1x" icon={faExpandAlt} style="color:yellow;" />
-      {/if}
-    </a>
-    <a href="#">
-      <Fa id="NameChangeMenu" on:click={(event) => NameChangeMenu(event, treeItem)} size="1x" icon={faFont} style="color:yellow;" />
-    </a>
-    <a href="#">
-      <!-- <Fa id="EditBlockMenu" on:click={(event) => EditBlockMenu(event, treeItem)} size="1x" icon={faPencilAlt} style="color:yellow;" /> -->
-      <span style=" cursor: pointer;" on:click={(event) => EditCodeBlock(event, treeItem)}><Fa icon={faPencilAlt} style="color:orange;" /> </span>
-    </a>
-  </div>
+  <RadialMenu treeItem={treeItem} {StarClicked}  {GroupBlocks} />
 
   {#if treeItem.id !== "generated"}
-    <div class="cardButtons">
-      <!-- <button id="MoveToPocket"  on:click={closeHandler}><Fa size="1x" icon={faTrashRestore} style="color:red; padding-right: 4px; float:right" /></button> -->
-      <ColorPicker currentBlock={treeItem} color={treeItem.color}/>
-      {#if treeItem.type === "directory"}
-        <Fa size="1x" icon={faFolder} style="color:yellow; padding-right: 4px; padding-left:4px; float:right" />
-      {/if}
-
-      {#if treeItem.type === "file"}
-        <Fa size="1x" icon={faFile} style="color:white; padding-right: 4px; padding-left:4px; float:right" />
-      {/if}
-
-      {#if treeItem.type === "custom"}
-        <Fa size="1x" icon={faCode} style="color:white; padding-right: 4px; padding-left:4px; float:right" />
-      {/if}
-
-      {#if treeItem.type === "outline" }
-      <CodeIcons blockType={treeItem.extension}/>    
-      {/if}
-
-      {#if typeof treeItem.starred === "undefined" || treeItem.starred === false}
-        <button id="Star" on:click={() => StarClicked(treeItem)}
-          ><Fa size="1x" icon={faStar} style="color:yellow; padding-right: 4px; float:right" /></button
-        >
-      {:else}
-        <button id="Star" on:click={() => StarClicked(treeItem)}
-          ><Fa size="1x" icon={solidStar} style="color:yellow; padding-right: 4px; float:right" /></button
-        >
-      {/if}
-
-      <!-- <button id="SelectPerimeter" on:click={GroupClick}><Fa size="1x" icon={faBullseye} style="color:red; padding-right: 4px; float:right" /></button> -->
-
-      {#if typeof treeItem.open === "undefined" || treeItem.open === true}
-        <button id="Minimize" on:click={(event) => Minimize(event, treeItem)}>
-          <Fa size="1x" icon={faCompressArrowsAlt} style="color:yellow; padding-right: 4px; float:right" />
-        </button>
-      {:else}
-        <button id="Minimize" on:click={(event) => Minimize(event, treeItem)}>
-          <Fa size="1x" icon={faExpandAlt} style="color:yellow; padding-right: 4px; float:right" />
-        </button>
-      {/if}
-
-      <button id="StartLink" on:mousedown={(event) => StartLink(event, treeItem)}>
-        <Fa size="1x" icon={faLink} style="color:blue; padding-right: 4px; float:right" />
-      </button>
-      {#if treeItem.type === "custom" || treeItem.type === "outline"}
-      <button id="DeleteBlock" on:mousedown={(event) => DeleteBlock(event, treeItem)}>
-        <Fa size="1x" icon={faTimesCircle} style="color:red; padding-right: 4px; float:right" />
-      </button>
-      {:else}
-      <button id="HideBlock" on:mousedown={(event) => HideBlock(event, treeItem)}>
-        <Fa size="1x" icon={faEyeSlash} style="color:black; padding-right: 4px; float:right" />
-      </button>
-      {/if}
-    </div>
+   <CardMenu treeItem={treeItem} {StarClicked} {Minimize} {StartLink}/>
   {:else if treeItem.name !== ""}
     <div class="generatedHeader">
       <h2 style="color:white">Grab to create block</h2>
@@ -326,13 +198,6 @@ import Canvas from "./Canvas.svelte";
     padding-bottom:10px;
     text-align: center;
 
-  }
-
-  .cardButtons {
-    display: flex !important;
-    justify-content: flex-start;
-    align-items: center;
-    padding-bottom: 10px;
   }
 
   .absolute {
@@ -407,84 +272,5 @@ import Canvas from "./Canvas.svelte";
     overflow: hidden;
   } */
 
-  .toggle {
-    background-color: #c87f8a;
-    text-align: center;
-    height: 100px;
-    width: 100px;
-    border-radius: 50%;
-    position: absolute;
-    margin: auto;
-    top: 0px;
-    bottom: 0px;
-    left: 0px;
-    right: 0px;
-  }
-
-  .fa-plus {
-    font-size: 60px;
-    color: white;
-    display: block;
-    margin-top: 20px;
-    transition: 0.7s;
-  }
-
-  .menu {
-    background-color: #3794ff00;
-    height: 100px;
-    width: 100px;
-    transform: scale(0);
-    border-radius: 50%;
-    border-style: double;
-    border-color: #3794ff;
-    position: absolute;
-    margin: auto;
-    top: 0px;
-    bottom: 0px;
-    left: 0px;
-    right: 0px;
-    z-index: -1;
-    transition: 0.1s;
-  }
-
-  a {
-    display: inline-block;
-    position: absolute;
-    font-size: 15px;
-    color: #bbbbbb;
-  }
-
-  a:nth-child(1) {
-    top: 0px;
-    left: 38px;
-  }
-
-  a:nth-child(2) {
-    top: 14px;
-    left: 68px;
-  }
-
-  a:nth-child(3) {
-    top: 54px;
-    left: 72px;
-  }
-
-  a:nth-child(4) {
-    top: 72px;
-    left: 41px;
-  }
-
-  a:nth-child(5) {
-    top: 58px;
-    left: 10px;
-  }
-
-  a:nth-child(6) {
-    top: 19px;
-    left: 7px;
-  }
-
-  a:hover {
-    color: #c87f8a;
-  }
+ 
 </style>
