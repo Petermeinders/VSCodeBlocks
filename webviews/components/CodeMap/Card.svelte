@@ -26,7 +26,7 @@ faTimesCircle,
   import { faStar } from "@fortawesome/free-regular-svg-icons";
   import {} from "os";
   import CodeIcons from "../CodeIcons.svelte"
-import Canvas from "./Canvas.svelte";
+import Canvas from "./CodeMap.svelte";
 import CardMenu from "./CardMenu.svelte";
 
 

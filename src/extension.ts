@@ -4,8 +4,6 @@ import { HellowWorldPanel } from './Panel';
 import * as vscode from 'vscode';
 import { SidebarProvider } from './SidebarProvider';
 import { TextDecoder, TextEncoder } from 'util';
-import { stringify } from 'querystring';
-import { worker } from 'cluster';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -56,6 +54,9 @@ export function activate(context: vscode.ExtensionContext) {
 	item2.text = "$(beaker) CodeBlocks";
 	item2.command = "vsblocksnipets.startPanelWithoutItems";
 	item2.show();
+	let style: vscode.TextEditorDecorationType;
+	let listOfStyles = [];
+
 
 	function delay(ms: number) {
 		return new Promise(resolve => setTimeout(resolve, ms));
@@ -600,10 +601,43 @@ export function activate(context: vscode.ExtensionContext) {
 
 		}));
 
+		function deactivate(style) {
+			// Remove the text highlighting when the plugin is terminated
+			
+			if (style !== undefined){
+			  style.dispose();
+			}
+		  }
 
 
+		context.subscriptions.push(
+			vscode.commands.registerCommand('vsblocksnipets.changeTextColor', (data) => {
+				let visibleBlocks = data.value;
 
+				//REMOVEs ALL COLORS ON CODE
+				listOfStyles.forEach( s => {
+					deactivate(s);
+				  });
+	  
+				  //SET COLORS ON CODE
+				visibleBlocks.forEach(block => {
+				  let colorWithTrans = block.color + "24";
+	  
+				  style = vscode.window.createTextEditorDecorationType(
+					{ backgroundColor: colorWithTrans}
+					//{borderColor:block.color, border:" 5px solid red left"}
+				   //{outlineColor: block.color, outlineStyle: "solid", outlineWidth: "1px;"}
+					);
 
+				listOfStyles.push(style);
+
+				  let selectedRange = new vscode.Range(  parseInt(block.startLine), parseInt(block.startCharacter), parseInt(block.endLine),  parseInt(block.endCharacter));
+				  let ranges: vscode.Range[] = [];
+				  ranges.push(selectedRange);
+
+				  vscode.window.activeTextEditor.setDecorations(style, ranges);
+				});
+			}));
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand('vsblocksnipets.importCode', (items) => {

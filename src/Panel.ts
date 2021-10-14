@@ -14,6 +14,8 @@ export class HellowWorldPanel {
    * Track the currently panel. Only allow a single panel to exist at a time.
    */
 
+  
+
   public static currentPanel: HellowWorldPanel | undefined;
 
   public static readonly viewType = "hello-world";
@@ -22,7 +24,7 @@ export class HellowWorldPanel {
   public readonly _extensionUri: vscode.Uri;
   public _disposables: vscode.Disposable[] = [];
   public static testobj = { children: [], containerName: "", detail: "", kind: 0, name: "", location: {}, range: {} };
-
+  
   public static createOrShow(extensionUri: vscode.Uri, message: string) {
     // const column = vscode.window.activeTextEditor
     //   ? vscode.window.activeTextEditor.viewColumn
@@ -416,6 +418,9 @@ export class HellowWorldPanel {
     }
   }
 
+
+
+
   private async _update() {
     const webview = this._panel.webview;
 
@@ -611,24 +616,7 @@ if (data.value.mapEntireProject)
           if (!data.value) {
             return;
           }
-          let visibleBlocks = data.value;
-          
-          visibleBlocks.forEach(block => {
-
-            let colorWithTrans = block.color + "24";
-
-            let style = vscode.window.createTextEditorDecorationType(
-              { backgroundColor: colorWithTrans}
-              //{borderColor:block.color, border:" 5px solid red left"}
-             //{outlineColor: block.color, outlineStyle: "solid", outlineWidth: "1px;"}
-              );
-    
-            let selectedRange = new vscode.Range(  parseInt(block.startLine), parseInt(block.startCharacter), parseInt(block.endLine),  parseInt(block.endCharacter));
-            let ranges: vscode.Range[] = [];
-            ranges.push(selectedRange);
-            vscode.window.activeTextEditor.setDecorations(style, ranges);
-          })
-
+            vscode.commands.executeCommand("vsblocksnipets.changeTextColor", data);
 
           break;
         }

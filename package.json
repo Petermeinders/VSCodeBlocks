@@ -25,6 +25,7 @@
 		"onCommand:vsblocksnipets.importCodeMapFromFile",
 		"onCommand:vsblocksnipets.passBlocksToWindow",
 		"onCommand:vsblocksnipets.passBlocksToSidebar",
+		"onCommand:vsblocksnipets.changeTextColor",
 		"onView:vsblocksnipets-sidebar"
 	],
 	"main": "./dist/extension.js",
@@ -123,6 +124,11 @@
 				"command": "vsblocksnipets.editCode",
 				"category": "VSBlockSnipets",
 				"title": "editCode"
+			},
+			{
+				"command": "vsblocksnipets.changeTextColor",
+				"category": "VSBlockSnipets",
+				"title": "changeTextColor"
 			}
 		]
 	},

@@ -10,7 +10,7 @@
   import LinkedBlocks from "./CodeBlocks/LinkedBlocks.svelte";
   import { faChevronLeft, faChevronRight, faCog, faCubes, faProjectDiagram } from "@fortawesome/free-solid-svg-icons";
   import Fa from "svelte-fa";
-  import Canvas from "./CodeMap/Canvas.svelte";
+  import CodeMap from "./CodeMap/CodeMap.svelte";
   import SettingsScreen from "./SettingsScreen.svelte";
   import Common from "./Common.svelte";
   import Pocket from "./CodeMap/Pocket.svelte";
@@ -719,7 +719,7 @@
         <Fa icon={faChevronRight} style="color:white;" />
       </button>
 
-      <Canvas />
+      <CodeMap />
     </div>
   </div>
   <div hidden={$items.settings.currentPanel === "settings" ? false : true}>

@@ -45,6 +45,7 @@
   function DeleteBlock(e: any, treeItem: FilteredTree) {
     let index = $codeMap.flatTree.indexOf(treeItem);
     $codeMap.flatTree.splice(index,1);
+
   }
 
 
