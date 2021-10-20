@@ -315,6 +315,25 @@
 
     return OutlineArray;
   }
+
+  export function ColorCode(path) {
+    let colorBlocks = [];
+    $codeMap.flatTree.forEach(block => {
+      if (block.visible && block.path === path && block.id !== "generated")
+      {
+        colorBlocks.push(block)
+      }
+    })
+
+    if ($items.settings.colorCodetoMatchCodeBlocks && colorBlocks.length > 0)
+    {
+      tsvscode.postMessage({
+      type: "colorActiveCode",
+      value: colorBlocks,
+    });
+    }
+   
+  }
   
 </script>
 

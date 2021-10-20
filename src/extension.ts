@@ -618,6 +618,7 @@ export function activate(context: vscode.ExtensionContext) {
 				listOfStyles.forEach( s => {
 					deactivate(s);
 				  });
+				  listOfStyles = [];
 	  
 				  //SET COLORS ON CODE
 				visibleBlocks.forEach(block => {
@@ -635,7 +636,10 @@ export function activate(context: vscode.ExtensionContext) {
 				  let ranges: vscode.Range[] = [];
 				  ranges.push(selectedRange);
 
+				  if (vscode.window.activeTextEditor)
 				  vscode.window.activeTextEditor.setDecorations(style, ranges);
+				  else
+				  vscode.window.visibleTextEditors[0].setDecorations(style, ranges);
 				});
 			}));
 

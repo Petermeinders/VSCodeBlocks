@@ -256,7 +256,7 @@
           break;
 
           case "onActiveEditorChange":
-            ColorCode(message.value);
+            common.ColorCode(message.value);
             HideShowBlocks(message.value);
 
             break;
@@ -470,24 +470,7 @@
   //     console.log(val);
   // }
 
-  function ColorCode(path) {
-    let colorBlocks = [];
-    $codeMap.flatTree.forEach(block => {
-      if (block.visible && block.path === path)
-      {
-        colorBlocks.push(block)
-      }
-    })
 
-    if ($items.settings.colorCodetoMatchCodeBlocks && colorBlocks.length > 0)
-    {
-      tsvscode.postMessage({
-      type: "colorActiveCode",
-      value: colorBlocks,
-    });
-    }
-   
-  }
 
  function HideShowBlocks(path){
    $codeMap.flatTree.forEach(block => {

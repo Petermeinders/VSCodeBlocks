@@ -59,6 +59,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           if (!data.value) {
             return;
           }
+          
 
 
           vscode?.window?.activeTextEditor?.edit(builder => {

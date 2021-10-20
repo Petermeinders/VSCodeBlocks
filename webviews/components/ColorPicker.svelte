@@ -2,8 +2,10 @@
     import {editItem} from "../store";
     import Fa from "svelte-fa";
     import { faTint} from "@fortawesome/free-solid-svg-icons";
-      import 'vanilla-colorful';
+    import Common from "../components/Common.svelte"
+    import 'vanilla-colorful';
     
+    let common: Common;
   
     export let color = "#1e88e5";
     let ColorPickerVisible = false;
@@ -21,6 +23,8 @@
       $editItem.color = color;
     }
 
+
+
   
   }
 
@@ -37,10 +41,14 @@
 	}
 
     function lostFocus(){
+      {
         ColorPickerVisible = false;
+        common.ColorCode(currentBlock.path);
+      }
     }
   
   </script>
+    <Common bind:this={common} />
  {#if ColorPickerVisible === false}
    <button on:click={handleClick} style="width:40px; height:30px; border:white solid 1px; background-color:{color}">
     <Fa icon={faTint} style="color:yellow; padding-right: 4px;  " />
