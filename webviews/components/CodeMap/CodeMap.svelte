@@ -15,7 +15,7 @@ rightClickedBlockEvent,
   import Fa from "svelte-fa";
   import type { Group } from "../../../src/Models";
   import {OutlineTypeEnum} from "../../../src/Models";
-  import Card from "./Card.svelte";
+  import Card from "./Card/Card.svelte";
   import { onMount, afterUpdate, beforeUpdate, tick } from "svelte";
   import DragSelect from "dragselect";
   import lodash from "lodash";
@@ -1404,6 +1404,7 @@ OnMouseUpObject.event.srcElement.style.display = "block";
     document.removeEventListener("mousemove", handleMousemove);
     document.removeEventListener("mouseup", handleMouseup);
   }
+
 </script>
 
 <main id="Canvas">
