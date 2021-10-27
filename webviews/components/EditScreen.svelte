@@ -1,19 +1,19 @@
 <script lang="ts">
   import { debug, editItem, editMode, items } from "../store";
   import Fa from "svelte-fa";
-  import { faTint, faTag, faFont, faPlusCircle, faPencilAlt, faTimesCircle, faSearch } from "@fortawesome/free-solid-svg-icons";
+  import { faTag, faFont } from "@fortawesome/free-solid-svg-icons";
   import Common from "./Common.svelte";
-	import 'vanilla-colorful';
-import ColorPicker from "./ColorPicker.svelte";
-  
+  import "vanilla-colorful";
+  import ColorPicker from "./ColorPicker.svelte";
+
   let common: Common;
 
   let color = "#1e88e5";
 
-function handleColorChanged(event:any) {
-  color = event.detail.value;
-  $editItem.color = color;
-}
+  // function handleColorChanged(event:any) {
+  //   color = event.detail.value;
+  //   $editItem.color = color;
+  // }
 
   function UpdateCodeOnPlaceHolderChange() {
     tsvscode.postMessage({
@@ -94,18 +94,41 @@ function handleColorChanged(event:any) {
     {#if common}
       <div style="display:flex" class="inputStyle colorInput ">
         <!-- <Fa icon={faTint} style="color:yellow; padding-right: 4px;  " /> -->
-        <input type="text" id={common.getNonce()} style="float:left;" value={$editItem.language} class="" placeholder="programming language" on:change={(event) => common.ChangeLanguage(event)} />
+        <input
+          type="text"
+          id={common.getNonce()}
+          style="float:left;"
+          value={$editItem.language}
+          class=""
+          placeholder="programming language"
+          on:change={(event) => common.ChangeLanguage(event)}
+        />
       </div>
 
       <div style="display:flex" class="inputStyle colorInput ">
-        <ColorPicker currentBlock={undefined} color={$editItem.color}/>
+        <ColorPicker currentBlock={undefined} color={$editItem.color} />
         <!-- <Fa icon={faTint} style="color:{$editItem.color}; padding-right: 4px;  " /> -->
-        <input type="text" id={common.getNonce()} style="float:left;" value={$editItem.color} class="" placeholder="red" on:change={(event) => common.changeColor(event, $editItem, true)} />
+        <input
+          type="text"
+          id={common.getNonce()}
+          style="float:left;"
+          value={$editItem.color}
+          class=""
+          placeholder="red"
+          on:change={(event) => common.changeColor(event, $editItem, true)}
+        />
       </div>
 
       <div style="display:flex" class="inputStyle tagInput ">
         <Fa icon={faTag} style="color:#007acc; padding-right: 4px;" />
-        <input type="text" id={common.getNonce()} style="float:left;" value={$editItem.tags} placeholder="tag1, tag2" on:change={(event) => common.changeTags(event, $editItem, true)} />
+        <input
+          type="text"
+          id={common.getNonce()}
+          style="float:left;"
+          value={$editItem.tags}
+          placeholder="tag1, tag2"
+          on:change={(event) => common.changeTags(event, $editItem, true)}
+        />
       </div>
     {/if}
 
@@ -154,10 +177,10 @@ function handleColorChanged(event:any) {
 </main>
 
 <style>
-	output {
-		display: block;
-		margin-top: 10px;
-		font-size: 1.25rem;
-		text-align: center;
-	}
+  output {
+    display: block;
+    margin-top: 10px;
+    font-size: 1.25rem;
+    text-align: center;
+  }
 </style>

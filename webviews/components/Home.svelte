@@ -14,7 +14,7 @@
   import SettingsScreen from "./SettingsScreen.svelte";
   import Common from "./Common.svelte";
   import Pocket from "./CodeMap/Pocket.svelte";
-  import CodeMapGroups from "./CodeMap/CodeMapGroups.svelte";
+  import CodeMapGroups from "./CodeMap/CodeMapGroupsContainer.svelte";
   import Outline from "./CodeMap/Outline.svelte";
 
 

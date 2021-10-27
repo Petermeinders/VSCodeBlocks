@@ -1,7 +1,7 @@
 <script lang="ts">
   import { codeMap, debug, editItem, editMode, items } from "../store";
-  import type { DerivedGroup, Group, Item } from '../../src/Models';
-  import {OutlineTypeEnum} from '../../src/Models';
+  import type { DerivedGroup, Group, Item } from "../../src/Models";
+  import { OutlineTypeEnum } from "../../src/Models";
   import lodash from "lodash";
   import deepdash from "deepdash";
 
@@ -13,7 +13,7 @@
       type: "ImportDataFromFile",
       value: true,
     });
-  }
+  };
 
   export const getNonce = () => {
     let text = "";
@@ -45,9 +45,9 @@
     }
   };
 
-  export const ChangeLanguage = (e:any) => {
+  export const ChangeLanguage = (e: any) => {
     $editItem.language = e.target.value;
-  }
+  };
 
   export const changeColor = (e: any, item: Item, isEditItem: boolean) => {
     if ($debug) {
@@ -68,7 +68,6 @@
       i.color = item.color;
       $editItem = i;
     }
-
   };
 
   export const changeTags = (e: any, item: Item, isEditItem: boolean) => {
@@ -99,40 +98,40 @@
     let selectedTags = $items.selectedTags ?? [];
 
     let i = $items.customSnippets.filter((item) => {
-        let found = 0;
+      let found = 0;
 
-        if (typeof item.tags !== "undefined" && typeof $items.selectedTags !== "undefined") {
-          if (selectedTags.length === 0) {
-            //EMTPY
-            item.visible = "";
-            return item;
-          } else {
-            //NOT EMTPY
-
-            selectedTags.forEach((selectedTag) => {
-              if (item.tags.findIndex((tagName) => tagName.toUpperCase().includes(selectedTag)) !== -1) {
-                // x.visible = "";
-                found = ++found;
-              } else {
-                //x.visible = "None";
-              }
-            });
-          }
-        }
-
-        if (found > 0) {
+      if (typeof item.tags !== "undefined" && typeof $items.selectedTags !== "undefined") {
+        if (selectedTags.length === 0) {
+          //EMTPY
           item.visible = "";
+          return item;
         } else {
-          item.visible = "None";
+          //NOT EMTPY
+
+          selectedTags.forEach((selectedTag) => {
+            if (item.tags.findIndex((tagName) => tagName.toUpperCase().includes(selectedTag)) !== -1) {
+              // x.visible = "";
+              found = ++found;
+            } else {
+              //x.visible = "None";
+            }
+          });
         }
+      }
 
-        return item;
-      });
+      if (found > 0) {
+        item.visible = "";
+      } else {
+        item.visible = "None";
+      }
 
-      $items.customSnippets = [...i];
-  }
+      return item;
+    });
 
-  export const onGroupNameChange = (derivedGroup, e:any) => {
+    $items.customSnippets = [...i];
+  };
+
+  export const onGroupNameChange = (derivedGroup, e: any) => {
     let group = $codeMap.groups.find((group) => group.groupId === derivedGroup.groupId);
 
     if (group) {
@@ -140,10 +139,10 @@
       let index = $codeMap.groups.indexOf(group);
       $codeMap.groups.splice(index, 1, group);
     }
-  }
+  };
 
-  export const HideGroup = (derivedGroup:DerivedGroup) => {
-    let group:any = $codeMap.groups.find((group) => group.groupId === derivedGroup.groupId);
+  export const HideGroup = (derivedGroup: DerivedGroup) => {
+    let group: any = $codeMap.groups.find((group) => group.groupId === derivedGroup.groupId);
 
     if (group) {
       if (typeof derivedGroup.visible === "undefined" || derivedGroup.visible === true) {
@@ -163,7 +162,7 @@
       // let index = $codeMap.groups.indexOf(group);
       // $codeMap.groups.splice(index, 1);
     }
-  }
+  };
 
   export const ParentHasClass = (element: HTMLElement, classname: string): boolean | null => {
     if (element.classList.contains(classname) === true) return true;
@@ -175,70 +174,61 @@
     return element.parentNode && ParentHasId(<HTMLElement>element.parentNode, id);
   };
 
-  export const MoveToCanvasFromPocket = (e:any) => {
+  export const MoveToCanvasFromPocket = (e: any) => {
     $codeMap.pocket.forEach((block) => {
       if (block.id.toString() === e.target.id) {
-        if (typeof $codeMap.flatTree.find(b => b.id === block.id) === "undefined")
-        {
+        if (typeof $codeMap.flatTree.find((b) => b.id === block.id) === "undefined") {
           let index = $codeMap.pocket.indexOf(block);
           $codeMap.pocket.splice(index, 1);
           block.visible = true;
           $codeMap.flatTree.push(block);
           $codeMap = $codeMap;
-        }
-        else
-        {
-         let existingBlock = $codeMap.flatTree.find(b => b.id === block.id);
-         let index = $codeMap.pocket.indexOf(block);
-         $codeMap.pocket.splice(index, 1);
-         existingBlock.visible = true;
-         $codeMap.pocket = $codeMap.pocket;
+        } else {
+          let existingBlock = $codeMap.flatTree.find((b) => b.id === block.id);
+          let index = $codeMap.pocket.indexOf(block);
+          $codeMap.pocket.splice(index, 1);
+          existingBlock.visible = true;
+          $codeMap.pocket = $codeMap.pocket;
         }
       }
     });
-  }
+  };
 
-
-  export const MoveToCanvasFromOutline = (e:any) => {
+  export const MoveToCanvasFromOutline = (e: any) => {
     $codeMap.activeWindow.flatOutline.forEach((block) => {
       if (block.id.toString() === e.target.id) {
-        if (typeof $codeMap.flatTree.find(b => b.id === block.id) === "undefined")
-        {
+        if (typeof $codeMap.flatTree.find((b) => b.id === block.id) === "undefined") {
           let index = $codeMap.activeWindow.flatOutline.indexOf(block);
           $codeMap.activeWindow.flatOutline.splice(index, 1);
           block.visible = true;
           $codeMap.flatTree.push(block);
           $codeMap = $codeMap;
-        }
-        else
-        {
-         let existingBlock = $codeMap.flatTree.find(b => b.id === block.id);
-         let index = $codeMap.activeWindow.flatOutline.indexOf(block);
-         $codeMap.activeWindow.flatOutline.splice(index, 1);
-         existingBlock.visible = true;
-         $codeMap.activeWindow.flatOutline = $codeMap.activeWindow.flatOutline;
+        } else {
+          let existingBlock = $codeMap.flatTree.find((b) => b.id === block.id);
+          let index = $codeMap.activeWindow.flatOutline.indexOf(block);
+          $codeMap.activeWindow.flatOutline.splice(index, 1);
+          existingBlock.visible = true;
+          $codeMap.activeWindow.flatOutline = $codeMap.activeWindow.flatOutline;
         }
       }
     });
-  }
+  };
 
   const ReRenderBlocks = () => {
-
-      if ($debug) {
-        console.log("RenderBlocks");
-      }
-
-      if ($codeMap?.flatTree) {
-        SetVisibility();
-
-        $codeMap.flatTree = [...new Set($codeMap.flatTree)];
-
-        return;
-      }
+    if ($debug) {
+      console.log("RenderBlocks");
     }
 
+    if ($codeMap?.flatTree) {
+      SetVisibility();
 
-    function SetVisibility() {
+      $codeMap.flatTree = [...new Set($codeMap.flatTree)];
+
+      return;
+    }
+  };
+
+  function SetVisibility() {
     $codeMap?.flatTree.forEach((treeItem) => {
       if (typeof treeItem.visible === "undefined") treeItem.visible = true;
     });
@@ -253,7 +243,6 @@
         if ($debug) {
           console.log("OUTLINE: ");
           console.log(outline);
-         
         }
         $codeMap.activeWindow.flatOutline = [];
         // let currentParentBlock = $codeMap.activeWindow.block;
@@ -287,25 +276,24 @@
               linkedTargetBlocks: [],
             };
             let hit = 0;
-            if ($codeMap.activeWindow.flatOutline.length > 0)
-            {
+            if ($codeMap.activeWindow.flatOutline.length > 0) {
               $codeMap.activeWindow.flatOutline.forEach((flatItem) => {
-              if (
-                flatItem.id === newTreeItem.id ||
-                (typeof flatItem?.uri?.path !== "undefined" && flatItem.name === newTreeItem.name && flatItem.uri.path === newTreeItem.uri.path)
-              ) {
-                hit += 1;
-              }
-            });
+                if (
+                  flatItem.id === newTreeItem.id ||
+                  (typeof flatItem?.uri?.path !== "undefined" && flatItem.name === newTreeItem.name && flatItem.uri.path === newTreeItem.uri.path)
+                ) {
+                  hit += 1;
+                }
+              });
             }
-          
+
             if (hit === 0) {
               if ($debug) {
                 console.log("New Outline item added:");
                 console.log(newTreeItem);
               }
               // $codeMap.flatTree.push(newTreeItem);
-              $codeMap.activeWindow.flatOutline.push(newTreeItem)
+              $codeMap.activeWindow.flatOutline.push(newTreeItem);
             }
           }
         });
@@ -318,28 +306,22 @@
 
   export function ColorCode(path) {
     let colorBlocks = [];
-    $codeMap.flatTree.forEach(block => {
-      if (block.visible && block.path === path && block.id !== "generated")
-      {
-        colorBlocks.push(block)
+    $codeMap.flatTree.forEach((block) => {
+      if (block.visible && block.path === path && block.id !== "generated") {
+        colorBlocks.push(block);
       }
-    })
-
-    if ($items.settings.colorCodetoMatchCodeBlocks && colorBlocks.length > 0)
-    {
-      tsvscode.postMessage({
-      type: "colorActiveCode",
-      value: colorBlocks,
     });
+
+    if ($items.settings.colorCodetoMatchCodeBlocks && colorBlocks.length > 0) {
+      tsvscode.postMessage({
+        type: "colorActiveCode",
+        value: colorBlocks,
+      });
     }
-   
   }
-  
 </script>
 
-<main>
-
-</main>
+<main />
 
 <style>
 </style>

@@ -33,34 +33,35 @@
 
 
   export let treeItem: FilteredTree = {
-    id: "",
-    path: "",
-    name: "",
-    size: 0,
-    type: "",
-    color: "",
-    tags: [],
-    placeholders: [],
-    code: "",
-    language: "",
-    visible: false,
-    open: false,
-    parentId: "",
-    outputx: 0,
-    outputy: 0,
-    inputx: 0,
-    inputy: 0,
-    children: [],
-    extension: "",
-    locationX: "",
-    locationY: "",
-    startLine: "",
-    startCharacter: "",
-    endLine: "",
-    endCharacter: "",
-    starred: false,
-    linkedTargetBlocks: [],
-  };
+id: "",
+path: "",
+name: "",
+size: 0,
+type: "",
+color: "",
+tags: [],
+placeholders: [],
+code: "",
+language: "",
+visible: false,
+open: false,
+parentId: "",
+outputx: 0,
+outputy: 0,
+inputx: 0,
+inputy: 0,
+children: [],
+extension: "",
+locationX: "",
+locationY: "",
+startLine: "",
+startCharacter: "",
+endLine: "",
+endCharacter: "",
+starred: false,
+linkedTargetBlocks: [],
+codeDiff: false
+};
 
   function NameChangeMenu(e: any, treeItem: FilteredTree) {
     //Needs to be refactored here from Canvas -> ds.subscribe
@@ -81,7 +82,6 @@
   }
 
   function EditCodeBlock(event: any, treeItem: FilteredTree) {
-    console.log("EDIT TEST FROM MENU");
 
     $codeMap.flatTree.forEach(block => {
       if (treeItem.path === block.path && typeof block.path !== "undefined"){
@@ -109,7 +109,7 @@
   }
 
 
-  function GroupClick() {
+  function GroupButtonClick() {
     console.log("groupclick");
     $perimeterItem = {
       id: treeItem.id,
@@ -133,7 +133,7 @@
     <span class="tooltiptext">Group</span>
   </a>
   <a href="#">
-    <Fa id="SelectPerimeter" on:click={GroupClick} size="1x" icon={faBullseye} style="color:red;" />
+    <Fa id="SelectPerimeter" on:click={GroupButtonClick} size="1x" icon={faBullseye} style="color:red;" />
   </a>
   <a href="#">
     {#if typeof treeItem.open === "undefined" || treeItem.open === true}
