@@ -45,6 +45,7 @@ export interface FilteredTree {
     endCharacter:string,
     starred:boolean,
     linkedTargetBlocks: string[]
+    codeDiff: boolean;
   }
 
   export interface Item {
@@ -81,7 +82,8 @@ export interface FilteredTree {
        location: {}, 
        name: string,
     }],
-    flatOutline:FilteredTree[]
+    flatOutline:FilteredTree[], 
+    code:string
  }
  
  export interface CodeMap {

@@ -48,13 +48,35 @@ import CardMenu from "./CardMenu.svelte";
   //   currentBlock.color
   // }
 
+
+  //
   onMount(async () => {});
 
+  function expand(e: any) {
+    console.log(e);
+    let menu;
+
+    $rightClickedBlockEvent = e;
+    if (e.target.classList.contains("menu")) menu = e.target;
+    if (e.target.querySelector(".menu")) menu = e.target.querySelector(".menu");
+    
+    if (menu !== null) {
+      if (menu.classList.contains("opened")) {
+        menu.style.transform = "scale(0)";
+        
+        menu.classList.remove("opened");
+        //New stuff here!!!
+      } else {
+        menu.style.transform = "scale(3)";
+        //New stuff here!!!
+        menu.classList.add("opened");
+      }
+    }
+  }
+
   document.body.addEventListener("contextmenu", (e) => {
-    e.preventDefault(); // cancel the built-in context menu
+    e.preventDefault();
     console.log("ITWORKED2!");
-    // let event = e;
-    // expand(event);
   });
 
   function dbClickBlock(item: FilteredTree) {
@@ -122,24 +144,7 @@ import CardMenu from "./CardMenu.svelte";
   }
 
 
-  function expand(e: any) {
-    console.log(e);
-    let menu;
-
-    $rightClickedBlockEvent = e;
-    if (e.target.classList.contains("menu")) menu = e.target;
-    if (e.target.querySelector(".menu")) menu = e.target.querySelector(".menu");
-
-    if (menu !== null) {
-      if (menu.classList.contains("opened")) {
-        menu.style.transform = "scale(0)";
-        menu.classList.remove("opened");
-      } else {
-        menu.style.transform = "scale(3)";
-        menu.classList.add("opened");
-      }
-    }
-  }
+ 
 
  
   // function handleMouseOver(e:any) {

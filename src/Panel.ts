@@ -302,10 +302,11 @@ export class HellowWorldPanel {
     }
   }
 
-  public static onActiveEditorChange(path){
+  public static onActiveEditorChange(path, code){
+    let pathAndCode = {path:path, code:code};
     HellowWorldPanel.currentPanel._panel.webview.postMessage({
       type: "onActiveEditorChange",
-      value: path,
+      value: pathAndCode,
     });
   }
 

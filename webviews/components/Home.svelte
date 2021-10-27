@@ -20,7 +20,7 @@
 
   let common: Common;
 
- 
+
   let FullCodeSearch: boolean = true;
 
   // $: $items.settings.currentPanel;
@@ -256,8 +256,10 @@
           break;
 
           case "onActiveEditorChange":
-            common.ColorCode(message.value);
-            HideShowBlocks(message.value);
+            $codeMap.activeWindow.code = message.value.code ?? "";
+            common.ColorCode(message.value.path);
+            HideShowBlocks(message.value.path);
+            CheckCodeBlocksAccuracy();
 
             break;
 
@@ -629,6 +631,50 @@
   };
 
   let clicked = 0;
+
+  // Ever time user changes tabs, we need check the visible code blocks 
+  //and make sure code matches the lines stored on the blocks
+  function CheckCodeBlocksAccuracy(){
+    let activeWindowCode = $codeMap.activeWindow.code;
+
+    $codeMap.flatTree.forEach((codeBlock) => {
+      if (codeBlock.visible === true)
+      {
+       if (activeWindowCode.includes(codeBlock.code))
+       {
+        var codeBlockLines = codeBlock.code.split('\n');
+        let codeBlockFirstLine = codeBlockLines[0] === "" || "\r" ? codeBlockLines[1] : codeBlockLines[0];
+        let codeBlockLastLine = codeBlockLines[codeBlockLines.length - 1] === "" || "\r" ? codeBlockLines[codeBlockLines.length - 2] : codeBlockLines[codeBlockLines.length - 1];
+        let foundStartLine = -1;
+        let foundEndLine = -1;
+
+        var lines = activeWindowCode.split('\n');
+          for(var i = 0;i < lines.length;i++){
+            if (foundStartLine === -1 && lines[i].includes(codeBlockFirstLine)){
+              foundStartLine = i;
+              let endval = foundStartLine + codeBlock.code.length;
+            }
+
+            if (foundEndLine === -1 && lines[i].includes(codeBlockLastLine)){
+              foundEndLine = i;
+            }
+          }
+
+          if (foundStartLine !== -1 && foundEndLine !== -1)
+          {
+            codeBlock.startLine = foundStartLine.toString(); 
+            codeBlock.endLine = foundEndLine.toString(); 
+            //Check line numbers and update?
+
+          }
+          else{
+            codeBlock.codeDiff = true;
+            //Mark codeDiff = true;
+          }
+       }
+      }
+    });
+  }
 </script>
 
 <main>

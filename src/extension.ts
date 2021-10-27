@@ -95,6 +95,7 @@ export function activate(context: vscode.ExtensionContext) {
 			console.log(event.document.isClosed);
 			let path = event.document.fileName;
 			let uri = event.document.uri;
+			let code = event.document.getText();
 			let path2 = uri.path;
 			 let outline = HellowWorldPanel.GetOutline(path);
 			//event.viewColumn = 1;
@@ -107,7 +108,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 			}
 			
-			HellowWorldPanel.onActiveEditorChange(path2);
+			HellowWorldPanel.onActiveEditorChange(path2, code);
 
 			
 		}
