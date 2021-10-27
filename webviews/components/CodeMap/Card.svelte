@@ -4,30 +4,9 @@
   import lodash, { flatten } from "lodash";
   import deepdash from "deepdash";
   import { onMount } from "svelte";
-  import Fa from "svelte-fa";
-  import ColorPicker from "../ColorPicker.svelte";
   import RadialMenu from "./CardRadial.svelte";
-
-  import {
-    faBullseye,
-    faCode,
-    faCompressArrowsAlt,
-    faExpandAlt,
-    faEyeSlash,
-    faFile,
-    faFolder,
-    faFont,
-    faLink,
-    faObjectGroup,
-    faPencilAlt,
-    faStar as solidStar,
-faTimesCircle,
-  } from "@fortawesome/free-solid-svg-icons";
-  import { faStar } from "@fortawesome/free-regular-svg-icons";
   import {} from "os";
-  import CodeIcons from "../CodeIcons.svelte"
-import Canvas from "./CodeMap.svelte";
-import CardMenu from "./CardMenu.svelte";
+  import CardMenu from "./CardMenu.svelte";
 
 
   const _ = deepdash(lodash);
@@ -41,7 +20,7 @@ import CardMenu from "./CardMenu.svelte";
   export let Minimize = (event: any, treeItem: FilteredTree) => {};
   export let StartLink = (event: any, treeItem: FilteredTree) => {};
 
-  let buttonsDisplay = $items.settings.alwaysShowCodeBlockButtons ? 'display:flex;' : "display:none;";
+  // let buttonsDisplay = $items.settings.alwaysShowCodeBlockButtons ? 'display:flex;' : "display:none;";
 
 
   // function ColorChange(currentBlock, color:string){
@@ -50,16 +29,20 @@ import CardMenu from "./CardMenu.svelte";
 
 
   //
-  onMount(async () => {});
 
-  function expand(e: any) {
+  // onMount(async () => {});
+
+
+  //Expand or collapse radial menu
+  function expand(e: any) 
+  {
     console.log(e);
     let menu;
 
     $rightClickedBlockEvent = e;
     if (e.target.classList.contains("menu")) menu = e.target;
     if (e.target.querySelector(".menu")) menu = e.target.querySelector(".menu");
-    
+
     if (menu !== null) {
       if (menu.classList.contains("opened")) {
         menu.style.transform = "scale(0)";
@@ -79,6 +62,7 @@ import CardMenu from "./CardMenu.svelte";
     console.log("ITWORKED2!");
   });
 
+  //Double Clicking block opens file and takes you to the line
   function dbClickBlock(item: FilteredTree) {
     let dbClickValues:FilteredTree = {
     id: "",
@@ -107,7 +91,8 @@ import CardMenu from "./CardMenu.svelte";
     endLine: "",
     endCharacter: "",
     starred: false,
-    linkedTargetBlocks: []
+    linkedTargetBlocks: [],
+    codeDiff: false
 };
     dbClickValues.path = item.path;
     dbClickValues.type = item.type;
@@ -131,6 +116,7 @@ import CardMenu from "./CardMenu.svelte";
     });
   }
 
+  //Pin/Unpin block
   function StarClicked(treeItem: FilteredTree) {
     if (treeItem.starred) {
       treeItem.starred = false;
@@ -143,10 +129,6 @@ import CardMenu from "./CardMenu.svelte";
     $codeMap.flatTree = $codeMap.flatTree;
   }
 
-
- 
-
- 
   // function handleMouseOver(e:any) {
 	// 	buttonsDisplay = 'display:flex;';
 	// }
@@ -157,8 +139,10 @@ import CardMenu from "./CardMenu.svelte";
 	// }
 </script>
 
-<div class="ds-selected ds-hover absolute" style="display:none" />
 
+
+
+<div class="ds-selected ds-hover absolute" style="display:none" />
 <main
   on:dblclick={() => dbClickBlock(treeItem)}
   on:contextmenu={(event) => expand(event)}
@@ -179,10 +163,11 @@ import CardMenu from "./CardMenu.svelte";
       <h2 style="color:white">Grab to create block</h2>
     </div>
   {/if}
-
-
   {treeItem.type === "outline" ? treeItem.name.substring(0, 25) : treeItem.name}
 </main>
+
+
+
 <style>
   * {
     user-select: none;
