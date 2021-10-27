@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { flatTree, currentZoom, perimeterItem, codeMap, editItem, rightClickedBlockEvent, items } from "../../store";
-  import type { FilteredTree } from '../../../src/Models';
+  import { flatTree, currentZoom, perimeterItem, codeMap, editItem, rightClickedBlockEvent, items } from "../../../store";
+  import type { FilteredTree } from '../../../../src/Models';
   import lodash, { flatten } from "lodash";
   import deepdash from "deepdash";
   import { onMount } from "svelte";
-  import RadialMenu from "./CardRadial.svelte";
+  import RadialMenu from "../Card/CardRadial.svelte";
   import {} from "os";
-  import CardMenu from "./CardMenu.svelte";
+  import CardMenu from "../Card/CardMenu.svelte";
 
 
   const _ = deepdash(lodash);

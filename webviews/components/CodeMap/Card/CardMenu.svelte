@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { flatTree, currentZoom, perimeterItem, codeMap, editItem, rightClickedBlockEvent, items } from "../../store";
-  import type { FilteredTree } from "../../../src/Models";
+  import { flatTree, currentZoom, perimeterItem, codeMap, editItem, rightClickedBlockEvent, items } from "../../../store";
+  import type { FilteredTree } from "../../../../src/Models";
   import Fa from "svelte-fa";
-  import ColorPicker from "../ColorPicker.svelte";
+  import ColorPicker from "../../ColorPicker.svelte";
 
   import {
     faCode,
@@ -17,7 +17,7 @@
   } from "@fortawesome/free-solid-svg-icons";
   import { faStar } from "@fortawesome/free-regular-svg-icons";
   import {} from "os";
-  import CodeIcons from "../CodeIcons.svelte";
+  import CodeIcons from "../../CodeIcons.svelte";
 
   export let closeHandler = () => {};
   export let StarClicked = (treeItem: any) => {};

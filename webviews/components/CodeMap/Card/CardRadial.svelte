@@ -1,12 +1,11 @@
 <script lang="ts">
-  import { flatTree, currentZoom, perimeterItem, codeMap, editItem, rightClickedBlockEvent, items } from "../../store";
-  import type { FilteredTree } from "../../../src/Models";
+  import { flatTree, currentZoom, perimeterItem, codeMap, editItem, rightClickedBlockEvent, items } from "../../../store";
+  import type { FilteredTree } from "../../../../src/Models";
   import deepdash from "deepdash";
   import { onMount } from "svelte";
   import Fa from "svelte-fa";
   import ColorPicker from "../ColorPicker.svelte";
   import Radial from "./CardRadial.svelte";
-
   import {
     faBullseye,
     faCode,
@@ -28,40 +27,39 @@
 
   export let closeHandler = () => {};
   export let StarClicked = (treeItem: any) => {};
-  export let GroupBlocks = (event:MouseEvent) => {};
+  export let GroupBlocks = (event: MouseEvent) => {};
   export let Minimize = (event: any, treeItem: FilteredTree) => {};
 
-
   export let treeItem: FilteredTree = {
-id: "",
-path: "",
-name: "",
-size: 0,
-type: "",
-color: "",
-tags: [],
-placeholders: [],
-code: "",
-language: "",
-visible: false,
-open: false,
-parentId: "",
-outputx: 0,
-outputy: 0,
-inputx: 0,
-inputy: 0,
-children: [],
-extension: "",
-locationX: "",
-locationY: "",
-startLine: "",
-startCharacter: "",
-endLine: "",
-endCharacter: "",
-starred: false,
-linkedTargetBlocks: [],
-codeDiff: false
-};
+    id: "",
+    path: "",
+    name: "",
+    size: 0,
+    type: "",
+    color: "",
+    tags: [],
+    placeholders: [],
+    code: "",
+    language: "",
+    visible: false,
+    open: false,
+    parentId: "",
+    outputx: 0,
+    outputy: 0,
+    inputx: 0,
+    inputy: 0,
+    children: [],
+    extension: "",
+    locationX: "",
+    locationY: "",
+    startLine: "",
+    startCharacter: "",
+    endLine: "",
+    endCharacter: "",
+    starred: false,
+    linkedTargetBlocks: [],
+    codeDiff: false,
+  };
 
   function NameChangeMenu(e: any, treeItem: FilteredTree) {
     //Needs to be refactored here from Canvas -> ds.subscribe
@@ -82,12 +80,11 @@ codeDiff: false
   }
 
   function EditCodeBlock(event: any, treeItem: FilteredTree) {
-
-    $codeMap.flatTree.forEach(block => {
-      if (treeItem.path === block.path && typeof block.path !== "undefined"){
+    $codeMap.flatTree.forEach((block) => {
+      if (treeItem.path === block.path && typeof block.path !== "undefined") {
         treeItem.language = block.language;
       }
-    })
+    });
 
     $editItem = {
       id: treeItem.id,
@@ -107,7 +104,6 @@ codeDiff: false
       value: treeItem,
     });
   }
-
 
   function GroupButtonClick() {
     console.log("groupclick");
