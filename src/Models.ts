@@ -24,6 +24,7 @@ export interface FilteredTree {
     size:number,
     type:string,
     color:string,
+    image:string,
     tags:[] | string[],
     placeholders:[] | string[],
     code:string,
@@ -74,6 +75,7 @@ export interface FilteredTree {
     path:string,
     id:string,
     block:FilteredTree,
+    activelySelectedBlocks:FilteredTree[],
     outline: [{
        children:[],
        containerName:string,

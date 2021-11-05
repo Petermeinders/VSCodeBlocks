@@ -120,6 +120,9 @@
       <Fa size="1x" icon={faEyeSlash} style="color:black; padding-right: 4px; float:right" />
     </button>
   {/if}
+  <!-- {#if treeItem.image !== ""}
+    <img src={treeItem.image} style="width:100%; height:100%; padding-right: 4px; float:right" />
+  {/if} -->
 </div>
 
 <style>

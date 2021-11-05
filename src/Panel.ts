@@ -258,6 +258,15 @@ export class HellowWorldPanel {
     }
   }
 
+  public static pasteImage(image: string) {
+    if (typeof HellowWorldPanel.currentPanel !== "undefined") {
+      HellowWorldPanel.currentPanel._panel.webview.postMessage({
+        type: "paste-image",
+        value: image,
+      });
+    }
+  }
+
   //TODO:Figure out how to pass code and update respective tabstops
   // public static PassEditItemChange(code: string){
   //   if (typeof (HellowWorldPanel.currentPanel) !== 'undefined') {
@@ -550,7 +559,7 @@ if (data.value.mapEntireProject)
 
           codeMap.canvas = filtrate ?? "noAutoMap";
           codeMap.pocket = [];
-          codeMap.activeWindow = {};
+          codeMap.activeWindow = {activelySelectedBlocks: []};
           // TreeObj.settings;
           console.log("Filtrate", codeMap);
 
@@ -777,6 +786,19 @@ if (data.value.mapEntireProject)
 
           // vscode.workspace.openTextDocument(uri).then((document) => {
           //   let text = document.getText();
+          break;
+        }
+
+        case "pasteImage":{
+          if (!data.value) {
+            return;
+          }
+          vscode.env.clipboard.readText().then(text => {
+            let  clipboard_content = text; 
+            HellowWorldPanel.pasteImage(clipboard_content);
+
+          });
+
           break;
         }
 

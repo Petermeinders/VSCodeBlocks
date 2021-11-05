@@ -4,7 +4,7 @@
   import deepdash from "deepdash";
   import { onMount } from "svelte";
   import Fa from "svelte-fa";
-  import ColorPicker from "../ColorPicker.svelte";
+  import ColorPicker from "../../ColorPicker.svelte";
   import Radial from "./CardRadial.svelte";
   import {
     faBullseye,
@@ -23,7 +23,7 @@
   } from "@fortawesome/free-solid-svg-icons";
   import { faStar } from "@fortawesome/free-regular-svg-icons";
   import {} from "os";
-  import CodeIcons from "../CodeIcons.svelte";
+  import CodeIcons from "../../CodeIcons.svelte";
 
   export let closeHandler = () => {};
   export let StarClicked = (treeItem: any) => {};
@@ -112,6 +112,17 @@
       parentId: treeItem.parentId,
     };
   }
+
+  function PasteImage(event){
+    console.log("PageImage");
+
+    // tsvscode.postMessage({
+    //   type: "pasteImage",
+    //   value: treeItem,
+    // });
+  }
+
+
 </script>
 
 <div class="menu" id="menu">
@@ -129,7 +140,9 @@
     <span class="tooltiptext">Group</span>
   </a>
   <a href="#">
-    <Fa id="SelectPerimeter" on:click={GroupButtonClick} size="1x" icon={faBullseye} style="color:red;" />
+    <span style=" cursor: pointer;" on:click={(event) => PasteImage(event)}>
+      <Fa size="1x" icon={faBullseye} style="color:red;" />
+    </span>
   </a>
   <a href="#">
     {#if typeof treeItem.open === "undefined" || treeItem.open === true}

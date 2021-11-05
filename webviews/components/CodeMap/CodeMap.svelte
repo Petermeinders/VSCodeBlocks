@@ -236,6 +236,8 @@ let bottomElement = document.elementFromPoint(pointerX, pointerY);
 
 if ($debug) console.log(bottomElement);
 
+$codeMap.activeWindow.activelySelectedBlocks = GetSelectedCodeBlocks($currentlySelected);
+
 if (bottomElement && (OnMouseUpObject?.event?.target?.nodeName !== "BUTTON" || OnMouseUpObject?.event?.srcElement?.nodeName !== "BUTTON")) {
   let isPocketHovered = common.ParentHasId(bottomElement, "pocketAndMapGroups");
   if (isPocketHovered) {

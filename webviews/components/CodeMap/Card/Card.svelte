@@ -137,6 +137,25 @@
   //     buttonsDisplay = 'display:none;';
   //   }
 	// }
+
+  document.onpaste = function (event) {
+    var items = (event.clipboardData || event.originalEvent.clipboardData).items;
+    console.log(JSON.stringify(items)); // might give you mime types
+    for (var index in items) {
+        var item = items[index];
+        if (item.kind === 'file') {
+            var blob = item.getAsFile();
+            var reader = new FileReader();
+            reader.onload = function (event) {
+                console.log(event.target.result); // data url!
+                $codeMap.activeWindow.activelySelectedBlocks.forEach((block) => {
+                  block.image = event?.target?.result ?? "";
+                });
+            }; 
+            reader.readAsDataURL(blob);
+        }
+    }
+};
 </script>
 
 
@@ -146,13 +165,14 @@
 <main
   on:dblclick={() => dbClickBlock(treeItem)}
   on:contextmenu={(event) => expand(event)}
-  style=" background:{treeItem.color} ;z-index:101; {treeItem.locationX !== "0" && treeItem.locationY !== "0"
+  style="  background:{treeItem?.image !== "" && typeof(treeItem?.image) !== "undefined" ?
+   "url(" + treeItem.image + ")" : treeItem.color  ?? "black" }; z-index:101; {treeItem.locationX !== "0" && treeItem.locationY !== "0"
     ? 'transform: translate3d(' + treeItem.locationX + 'px, ' + treeItem.locationY + 'px, 1px) scale(' + $currentZoom + ');'
     : ''}"
   id={treeItem.id}
   data-fileType={treeItem.type}
   data-parentId={treeItem.parentId}
-  class="card absolute highlight {treeItem.type === 'directory' ? 'directory' : 'file'}">
+  class="card absolute highlight BlockImage {treeItem.type === 'directory' ? 'directory' : 'file'}">
 
   <RadialMenu treeItem={treeItem} {StarClicked}  {GroupBlocks} />
 
@@ -163,7 +183,9 @@
       <h2 style="color:white">Grab to create block</h2>
     </div>
   {/if}
-  {treeItem.type === "outline" ? treeItem.name.substring(0, 25) : treeItem.name}
+  {#if treeItem?.image === "" || typeof(treeItem?.image) === "undefined"}
+    {treeItem.type === "outline" ? treeItem.name.substring(0, 25) : treeItem.name}
+  {/if}
 </main>
 
 
@@ -252,6 +274,13 @@
 
   .DisplayNone {
     display:none;
+  }
+
+  .BlockImage {
+   background-size: contain !important;
+   background-position-y: 30px  !important;
+   background-repeat: no-repeat !important;
+   min-height: 70px;
   }
 
   /* 
