@@ -543,6 +543,11 @@ if (data.value.mapEntireProject)
           });
 
           // let uri = vscode.workspace.textDocuments[0].uri;
+          let codeMap = {canvas:{}, pocket:[]};
+          codeMap.canvas = filtrate;
+          codeMap.pocket = [];
+          // TreeObj.settings;
+         console.log('Filtrate',codeMap);
 
           // vscode.commands.executeCommand("vscode.executeDocumentSymbolProvider", uri).then(x => {
           // 	console.log(x);
