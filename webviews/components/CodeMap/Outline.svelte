@@ -3,11 +3,11 @@
     import { codeMap, items } from "../../store";
     import { flip } from "svelte/animate";
     import { dndzone, SHADOW_ITEM_MARKER_PROPERTY_NAME, TRIGGERS } from "svelte-dnd-action";
-    import Common from ".././Common.svelte";
+    import Shared from "../Shared.svelte";
     import CodeIcons from "../CodeIcons.svelte"
     // import codeIcons from "codeIcons";
   
-    let common: Common;
+    let common: Shared;
     let draggingItem = {};
     let shouldIgnoreDndEvents = false;
   
@@ -127,7 +127,7 @@
   </script>
   
   <main>
-    <Common bind:this={common} />
+    <Shared bind:this={common} />
     {#if $codeMap?.activeWindow?.flatOutline}
       <div style="">
         <h2>Outline</h2>

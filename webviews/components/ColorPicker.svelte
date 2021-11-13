@@ -2,11 +2,11 @@
   import { editItem } from "../store";
   import Fa from "svelte-fa";
   import { faTint } from "@fortawesome/free-solid-svg-icons";
-  import Common from "../components/Common.svelte";
+  import Shared from "./Shared.svelte";
   import "vanilla-colorful";
   import type { FilteredTree } from "../../src/Models";
 
-  let common: Common;
+  let common: Shared;
 
   export let color = "#1e88e5";
   let ColorPickerVisible = false;
@@ -39,7 +39,7 @@
   }
 </script>
 
-<Common bind:this={common} />
+<Shared bind:this={common} />
 {#if ColorPickerVisible === false}
   <button on:click={handleClick} style="width:40px; height:30px; border:white solid 1px; background-color:{color}">
     <Fa icon={faTint} style="color:yellow; padding-right: 4px;  " />

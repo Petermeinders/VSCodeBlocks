@@ -3,9 +3,9 @@
   import {codeMap} from "../../store";
   import { flip } from "svelte/animate";
   import { dndzone } from "svelte-dnd-action";
-  import Common from ".././Common.svelte";
+  import Shared from "../Shared.svelte";
 
-  let common: Common;
+  let common: Shared;
 
   const flipDurationMs = 300;
   function handleDndConsider(e:any) {
@@ -18,7 +18,7 @@
 </script>
 
 <main>
-    <Common bind:this={common} />
+    <Shared bind:this={common} />
     {#if $codeMap?.pocket}
     <div style="">
       <h2>Pocket</h2>

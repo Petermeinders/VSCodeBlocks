@@ -2,9 +2,9 @@
   import { items } from "../../../webviews/store";
   import { tags } from "../../../webviews/store";
   import { slide } from "svelte/transition";
-  import Common from "../Common.svelte";
+  import Shared from "../Shared.svelte";
 
-  let common: Common;
+  let common: Shared;
 
   // $:{
   //   $items.selectedTags
@@ -100,7 +100,7 @@
 </script>
 
 <main class="item">
-  <Common bind:this={common} />
+  <Shared bind:this={common} />
   <div class="tagSelected" />
   <div>
     <button on:click={(event) => ToggleTags(event)} aria-expanded={isOpen} >

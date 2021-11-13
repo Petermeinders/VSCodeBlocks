@@ -1,14 +1,14 @@
 <script lang="ts">
   import { derivedGroups } from "../../store";
-  import Common from ".././Common.svelte";
+  import Shared from "../Shared.svelte";
   import Fa from "svelte-fa";
   import { faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
-  let common: Common;
+  let common: Shared;
 </script>
 
 <main>
-  <Common bind:this={common} />
+  <Shared bind:this={common} />
   {#if $derivedGroups}
     <div style="" class="groupList codeMapGroup">
       <h2>Groups</h2>

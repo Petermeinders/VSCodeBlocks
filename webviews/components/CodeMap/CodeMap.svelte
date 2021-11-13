@@ -21,11 +21,11 @@ rightClickedBlockEvent,
   import lodash from "lodash";
   import deepdash from "deepdash";
   import Line from "./Line.svelte";
-  import Common from ".././Common.svelte";
+  import Shared from "../Shared.svelte";
 import { faSave } from "@fortawesome/free-regular-svg-icons";
 import { faFileDownload } from "@fortawesome/free-solid-svg-icons";
 
-  let common: Common;
+  let common: Shared;
 
   function RenderPocket() {
     if ($codeMap) {
@@ -1410,7 +1410,7 @@ OnMouseUpObject.event.srcElement.style.display = "block";
 </script>
 
 <main id="Canvas">
-  <Common bind:this={common} />
+  <Shared bind:this={common} />
   <!-- The mouse position is {m.x} x {m.y} -->
   <!-- <h1 style="text-align:center;">Code Map</h1> -->
 

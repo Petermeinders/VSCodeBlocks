@@ -2,11 +2,11 @@
   import { debug, editItem, editMode, items } from "../store";
   import Fa from "svelte-fa";
   import { faTag, faFont } from "@fortawesome/free-solid-svg-icons";
-  import Common from "./Common.svelte";
+  import Shared from "./Shared.svelte";
   import "vanilla-colorful";
   import ColorPicker from "./ColorPicker.svelte";
 
-  let common: Common;
+  let common: Shared;
 
   let color = "#1e88e5";
 
@@ -89,7 +89,7 @@
 </script>
 
 <main>
-  <Common bind:this={common} />
+  <Shared bind:this={common} />
   <div>
     {#if common}
       <div style="display:flex" class="inputStyle colorInput ">

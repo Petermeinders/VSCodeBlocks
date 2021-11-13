@@ -12,13 +12,13 @@
   import Fa from "svelte-fa";
   import CodeMap from "./CodeMap/CodeMap.svelte";
   import SettingsScreen from "./SettingsScreen.svelte";
-  import Common from "./Common.svelte";
+  import Shared from "./Shared.svelte";
   import Pocket from "./CodeMap/Pocket.svelte";
   import CodeMapGroups from "./CodeMap/CodeMapGroupsContainer.svelte";
   import Outline from "./CodeMap/Outline.svelte";
 
 
-  let common: Common;
+  let common: Shared;
 
 
   let FullCodeSearch: boolean = true;
@@ -678,7 +678,7 @@
 </script>
 
 <main>
-  <Common bind:this={common} />
+  <Shared bind:this={common} />
 
   <div hidden={$items.settings.currentPanel === "editMode" ? false : true}>
     <h1>EDIT MODE</h1>

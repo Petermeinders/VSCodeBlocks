@@ -4,7 +4,7 @@
   import { afterUpdate, beforeUpdate, onMount } from "svelte";
   import { codeMap, debug, editMode, items, searchTerm } from "../../../webviews/store";
   // import type { item } from "../store";
-  import Common from "../Common.svelte";
+  import Shared from "../Shared.svelte";
   import Fa from "svelte-fa";
   import { faTint, faTag, faFont, faPlusCircle, faPencilAlt, faTimesCircle, faSearch } from "@fortawesome/free-solid-svg-icons";
   import { setDebugMode } from "svelte-dnd-action";
@@ -20,7 +20,7 @@
     isBlocksOpen = !isBlocksOpen;
   };
 
-  let common: Common;
+  let common: Shared;
   let shouldIgnoreDndEvents = false;
   const flipDurationMs = 300;
   let draggingItem = {};
@@ -529,7 +529,7 @@
           style="border-color:{item.color}; display:{item.visible}"
         >
           <div>
-            <Common bind:this={common} />
+            <Shared bind:this={common} />
 
             {#if common !== null && typeof common !== "undefined"}
               <span style="display:none;">{common.updateTagView()}</span>

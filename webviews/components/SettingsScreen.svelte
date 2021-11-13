@@ -2,9 +2,9 @@
   import { codeMap, debug, editItem, editMode, items } from "../store";
   import Fa from "svelte-fa";
   import { faTint, faTag, faFont, faPlusCircle, faPencilAlt, faTimesCircle, faSearch } from "@fortawesome/free-solid-svg-icons";
-  import Common from "./Common.svelte";
+  import Shared from "./Shared.svelte";
 
-  let common: Common;
+  let common: Shared;
 
   function SaveSettings() {
     if ($debug) {
@@ -20,7 +20,7 @@
 </script>
 
 <main>
-  <Common bind:this={common} />
+  <Shared bind:this={common} />
   <div>
     <div class="settingsContainer">
       <h2>Outline Blocks Visibility</h2>
