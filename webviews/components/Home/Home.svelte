@@ -1,27 +1,28 @@
 <script lang="ts">
-  import Dnd from "./CodeBlocks/Dnd.svelte";
-  import Tags from "./CodeBlocks/Tags.svelte";
+  import Dnd from "../CodeBlocks/Dnd.svelte";
+  import Tags from "../CodeBlocks/Tags.svelte";
   import { onMount } from "svelte";
-  import { activelySelectedText, activePath, activeSelectionMeta, debug, editItem, editMode, items, searchTerm } from "../store";
-  import { tags } from "../store";
-  import { page } from "../store";
-  import { codeMap } from "../store";
-  import EditScreen from "./EditScreen.svelte";
-  import LinkedBlocks from "./CodeBlocks/LinkedBlocks.svelte";
+  import { activelySelectedText, activePath, activeSelectionMeta, debug, editItem, editMode, items, searchTerm } from "../../store";
+  import { tags } from "../../store";
+  import { page } from "../../store";
+  import { codeMap } from "../../store";
+  import EditScreen from "../EditScreen.svelte";
+  import LinkedBlocks from "../CodeBlocks/LinkedBlocks.svelte";
   import { faChevronLeft, faChevronRight, faCog, faCubes, faProjectDiagram } from "@fortawesome/free-solid-svg-icons";
   import Fa from "svelte-fa";
-  import CodeMap from "./CodeMap/CodeMap.svelte";
-  import SettingsScreen from "./SettingsScreen.svelte";
+  import CodeMap from "../CodeMap/CodeMap.svelte";
+  import SettingsScreen from "../SettingsScreen.svelte";
   import Shared from "./Shared.svelte";
-  import Pocket from "./CodeMap/Pocket.svelte";
-  import CodeMapGroups from "./CodeMap/CodeMapGroupsContainer.svelte";
-  import Outline from "./CodeMap/Outline.svelte";
+  import Pocket from "../CodeMap/Pocket.svelte";
+  import CodeMapGroups from "../CodeMap/CodeMapGroupsContainer.svelte";
+  import Outline from "../CodeMap/Outline.svelte";
+  import ParseVSCodeSnippet from "./VSCodeSnippets.svelte";
 
 
   let common: Shared;
-
-
+  let parseVSCodeSnippet: ParseVSCodeSnippet;
   let FullCodeSearch: boolean = true;
+  let editScreen: EditScreen;
 
   // $: $items.settings.currentPanel;
 
@@ -106,7 +107,7 @@
         let findDuplicates = i.customSnippets.filter((item) => item.id === element.id);
 
         if (findDuplicates.length > 1) {
-          if (debug) ErrorMessage("Duplicate codeblock found. Removing item.");
+          if (debug) ErrorMessageVSCall("Duplicate codeblock found. Removing item.");
           let duplicateIndex = i.customSnippets.indexOf(findDuplicates[0]);
           i.customSnippets.splice(duplicateIndex, 1);
         }
@@ -116,7 +117,7 @@
         console.warn("BAD STATE! Not saving. Please check your import file.");
       } else {
         tsvscode.setState({ i, p, t });
-        ExportCode();
+        ExportCodeVSCall();
         console.log("STATE SET FROM HOME!");
       }
     } else {
@@ -127,7 +128,7 @@
   onMount(() => {
     window.addEventListener("message", (event) => {
       const message = event.data; // The json data that the extension sent
-      let lastId = getNonce();
+      let lastId = common.getNonce();
       switch (message.type) {
         case "add-code":
           if (message.value !== "") {
@@ -171,7 +172,7 @@
               fileName: filename,
               importType: "editBlock",
             };
-            InfoMessage("Edit Mode started. Press cancel to return.");
+            InfoMessageVSCall("Edit Mode started. Press cancel to return.");
           }
           break;
 
@@ -265,16 +266,16 @@
 
         case "code-from-active-window":
           let activeScreenCode = message.value;
-          SaveCodeFromEdit(activeScreenCode);
+          editScreen.SaveCodeFromEdit(activeScreenCode);
           break;
 
         case "code-vssnippet-from-active-window":
           let snippetCode = message.value;
-          ParseVSCodeSnippet(snippetCode);
+          parseVSCodeSnippet.ParseVSCodeSnippet(snippetCode);
           break;
 
         case "add-placeholder":
-          CreateTabStop(message.value);
+          editScreen.CreateTabStop(message.value);
           break;
 
         case "import-code":
@@ -295,7 +296,7 @@
                 value: settings,
               });
             } catch(exception) {
-              ErrorMessage("JSON Import Error");
+              ErrorMessageVSCall("JSON Import Error");
               console.log(exception);
             }
           } else {
@@ -359,112 +360,9 @@
     });
   });
 
-  function ParseVSCodeSnippet(text) {
-    //TODO: add vscode message on parse failure.
-    const vsSnip = JSON.parse(text);
-    const snippetNumber = Object.keys(vsSnip).length;
 
-    for (let snip in vsSnip) {
-      const bodArray = vsSnip[snip].body;
-      const description = vsSnip[snip].description;
-      const prefix = vsSnip[snip].prefix;
-      const name = snip;
-      const body = bodArray.join("\n");
-      let regex = /\$\{\d*:|\$\{\\d*\|/g;
-      let placeholdersArray: any[] = [];
 
-      bodArray.forEach((line) => {
-        let str = line,
-          re = regex,
-          match;
 
-        let openBrackets = [];
-
-        while ((match = re.exec(str))) {
-          openBrackets.push(match.index);
-          //console.log(match.index); // logs 1 through 9
-        }
-
-        // let openBracket = regex.exec(line);
-
-        if (openBrackets.length > 0) {
-          openBrackets.forEach((bracket) => {
-            if (bracket !== -1) bracket = ++bracket;
-
-            if (bracket !== -1) {
-              let closingBracket = findOpenParen(line, bracket);
-
-              if (line[closingBracket] !== "}") closingBracket = --closingBracket;
-
-              let snipValue = line.substring(bracket, ++closingBracket);
-
-              const indexMinusOne = snipValue.length - 1;
-              const cleanedSnip = snipValue.substring(3, indexMinusOne);
-              console.log(cleanedSnip);
-
-              placeholdersArray.push(cleanedSnip);
-            }
-          });
-        }
-      });
-
-      let filteredArray = [...new Set(placeholdersArray)];
-
-      let tags: string[] = [];
-      if (Array.isArray(prefix)) {
-        tags = prefix;
-      }
-
-      $editItem.tags.forEach((tag) => {
-        tags.push(tag);
-      });
-
-      //let importItem = { id: getNonce(), name: name.substr(0, 25), code: body, language: "temp", placeholders: filteredArray, color: "white", visible: "true", tags: tags };
-      let importItem = {
-        id: getNonce(),
-        tempId: "",
-        linkedBlocks: [],
-        name: name.substr(0, 25),
-        code: body,
-        language: $editItem.language,
-        placeholders: filteredArray,
-        color: "white",
-        visible: "true",
-        tags: tags,
-      };
-
-      $items.customSnippets.push(importItem);
-      if ($debug) console.log(importItem);
-    }
-
-    InfoMessage("VSCode Snippet Imported!");
-  }
-
-  function findOpenParen(text: string, openPos) {
-    let closePos = openPos;
-    let counter = 1;
-    while (counter > 0) {
-      let c = text[++closePos];
-      if (c == "{") {
-        counter++;
-      } else if (c == "}") {
-        counter--;
-      } else if (typeof c === "undefined") {
-        return -1;
-      }
-    }
-    return closePos;
-  }
-
-  function CheckExistingPlaceholders(item: item) {
-    if (item.placeholders === null || typeof item.placeholders === "undefined" || item.placeholders.length === 0) {
-      if ($debug) console.log("no placeholders");
-      return -1;
-    } else {
-      if ($debug) console.log("Placeholders:" + item.placeholders.length);
-      return item.placeholders.length;
-    }
-  }
 
   //TODO:Figure out how to pass code and update respective tabstops
   // function EditItemCodeChange(code:string){
@@ -474,7 +372,7 @@
 
 
 
- function HideShowBlocks(path){
+ const HideShowBlocks = (path) => {
    $codeMap.flatTree.forEach(block => {
      if(block.starred === false && block.path !== path)
      {
@@ -488,63 +386,9 @@
    })
  }
 
-  function CreateTabStop(placeholderValue: string) {
-    let item = $editItem;
-    var lastNumber = CheckExistingPlaceholders(item);
-    if (lastNumber === -1) {
-      item.placeholders = [];
-      lastNumber = 1;
-    } else {
-      lastNumber = ++lastNumber;
-    }
+  
 
-    var selectedString = placeholderValue;
-
-    if (selectedString === "") {
-      return;
-    }
-
-    if ($debug) {
-      console.log(selectedString);
-      console.log(item.code);
-    }
-
-    var newCode = item.code.replaceAll(selectedString, "${" + lastNumber + ":" + selectedString + "}");
-    // item.placeholders.push(selectedString);
-
-    let newPlaceholder = $editItem.placeholders;
-    newPlaceholder.push(selectedString.toString());
-    let newItem = $editItem;
-
-    newItem.placeholders = newPlaceholder;
-    newItem.code = newCode;
-
-    $editItem = { ...newItem };
-    if ($debug) {
-      console.log("New placeholder on new item.");
-      console.log($editItem);
-    }
-
-    UpdateCodeWithNewTabStop();
-  }
-
-  function getNonce() {
-    let text = "";
-    const possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    for (let i = 0; i < 32; i++) {
-      text += possible.charAt(Math.floor(Math.random() * possible.length));
-    }
-    return text;
-  }
-
-  function UpdateCodeWithNewTabStop() {
-    tsvscode.postMessage({
-      type: "UpdateCodeWithNewTabStop",
-      value: $editItem.code,
-    });
-  }
-
-  function ExportCode() {
+  const ExportCodeVSCall = () => {
     if ($debug) {
       console.log("Export Data Start!");
       console.log($items);
@@ -564,65 +408,26 @@
     });
   }
 
-  function ImportVSSnippet() {
-    tsvscode.postMessage({
-      type: "ImportVSCodeSnippet",
-      value: $editMode,
-    });
-  }
-
-  function InfoMessage(message: any) {
+  const InfoMessageVSCall = (message: any) => {
     tsvscode.postMessage({
       type: "onInfo",
       value: message,
     });
   }
 
-  function ErrorMessage(message: any) {
+  const ErrorMessageVSCall = (message: any) => {
     tsvscode.postMessage({
       type: "onError",
       value: message,
     });
   }
 
-  function SaveCodeFromEdit(latesCode: string) {
-    let existingBlock = $items?.customSnippets?.find((x) => x?.id === $editItem?.id);
-    let existingCodeMapBlock = $codeMap.flatTree?.find((x) => x?.id === $editItem?.id);
 
-    console.log(latesCode);
-
-    if (existingCodeMapBlock)
-    {
-      existingCodeMapBlock.code = latesCode;
-      existingCodeMapBlock.name = $editItem.name;
-      existingCodeMapBlock.language = $editItem.language;
-      existingCodeMapBlock.color = $editItem.color;
-      existingCodeMapBlock.tags = $editItem.tags;
-      existingCodeMapBlock.placeholders = $editItem.placeholders;
-
-      const index = $codeMap?.flatTree?.indexOf(existingCodeMapBlock);
-      $codeMap.flatTree.splice(index, 1, existingCodeMapBlock);
-      // $codeMap.flatTree = [$editItem, ...$codeMap.flatTree];
-      InfoMessage("Saved codemap changes to: " + existingCodeMapBlock.name);
-    }
-    else if (existingBlock) {
-      existingBlock.code = latesCode;
-      const index = $items?.customSnippets.indexOf(existingBlock);
-      $items.customSnippets.splice(index, 1);
-      $items.customSnippets = [$editItem, ...$items.customSnippets];
-      InfoMessage("Saved changes to ." + existingBlock.name);
-    } else {
-      $editItem.code = latesCode;
-      $items.customSnippets = [$editItem, ...$items.customSnippets];
-      InfoMessage("Added new codeblock.");
-    }
-  }
-
-  function ShowSettings() {
+  const ShowSettings = () => {
     $items.settings.currentPanel = "settings";
   }
 
-  function ShowCodeMap() {
+  const ShowCodeMap = () => {
     $items.settings.currentPanel = "codeMap";
   }
 
@@ -630,11 +435,9 @@
     $items.settings.currentPanel = "codeBlocks";
   };
 
-  let clicked = 0;
-
   // Ever time user changes tabs, we need check the visible code blocks 
   //and make sure code matches the lines stored on the blocks
-  function CheckCodeBlocksAccuracy(){
+  const CheckCodeBlocksAccuracy = () => {
     let activeWindowCode = $codeMap.activeWindow.code;
 
     $codeMap.flatTree.forEach((codeBlock) => {
@@ -679,6 +482,7 @@
 
 <main>
   <Shared bind:this={common} />
+  <ParseVSCodeSnippet bind:this={parseVSCodeSnippet} />
 
   <div hidden={$items.settings.currentPanel === "editMode" ? false : true}>
     <h1>EDIT MODE</h1>
@@ -722,13 +526,13 @@
         <div class="codeBlocksButtons">
           <!-- BUTTONS -->
           <div>
-            <button class="tooltip" on:click={ExportCode}>Export Code<span class="tooltiptext">Export JSON Code to chosen file. </span> </button>
+            <button class="tooltip" on:click={ExportCodeVSCall}>Export Code<span class="tooltiptext">Export JSON Code to chosen file. </span> </button>
           </div>
           <div>
             <button on:click={common.ImportCode}>Import Code </button>
           </div>
           <div>
-            <button class="tooltip" on:click={ImportVSSnippet}
+            <button class="tooltip" on:click={parseVSCodeSnippet.ImportVSSnippet}
               >Import VS Snippet
               <span class="tooltiptext">Import selected text in the VSCode snippet format. Make sure json starts and ends with brackets.</span>
             </button>

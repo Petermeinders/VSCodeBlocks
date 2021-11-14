@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { debug, editItem, editMode, items } from "../store";
+  import { debug, editItem, editMode, items, codeMap } from "../store";
   import Fa from "svelte-fa";
   import { faTag, faFont } from "@fortawesome/free-solid-svg-icons";
   import Shared from "./Shared.svelte";
@@ -14,6 +14,39 @@
   //   color = event.detail.value;
   //   $editItem.color = color;
   // }
+
+  export const SaveCodeFromEdit = (latesCode: string) => {
+    let existingBlock = $items?.customSnippets?.find((x) => x?.id === $editItem?.id);
+    let existingCodeMapBlock = $codeMap.flatTree?.find((x) => x?.id === $editItem?.id);
+
+    console.log(latesCode);
+
+    if (existingCodeMapBlock)
+    {
+      existingCodeMapBlock.code = latesCode;
+      existingCodeMapBlock.name = $editItem.name;
+      existingCodeMapBlock.language = $editItem.language;
+      existingCodeMapBlock.color = $editItem.color;
+      existingCodeMapBlock.tags = $editItem.tags;
+      existingCodeMapBlock.placeholders = $editItem.placeholders;
+
+      const index = $codeMap?.flatTree?.indexOf(existingCodeMapBlock);
+      $codeMap.flatTree.splice(index, 1, existingCodeMapBlock);
+      // $codeMap.flatTree = [$editItem, ...$codeMap.flatTree];
+      InfoMessage("Saved codemap changes to: " + existingCodeMapBlock.name);
+    }
+    else if (existingBlock) {
+      existingBlock.code = latesCode;
+      const index = $items?.customSnippets.indexOf(existingBlock);
+      $items.customSnippets.splice(index, 1);
+      $items.customSnippets = [$editItem, ...$items.customSnippets];
+      InfoMessage("Saved changes to ." + existingBlock.name);
+    } else {
+      $editItem.code = latesCode;
+      $items.customSnippets = [$editItem, ...$items.customSnippets];
+      InfoMessage("Added new codeblock.");
+    }
+  }
 
   function UpdateCodeOnPlaceHolderChange() {
     tsvscode.postMessage({
@@ -43,13 +76,70 @@
     UpdateCodeOnPlaceHolderChange();
   }
 
-  function CreateTabStop() {
+  function CreateTabStopCall() {
     tsvscode.postMessage({
       type: "createTabStop",
       value: $editItem,
     });
   }
 
+
+  export const CreateTabStop = (placeholderValue: string) => {
+    let item = $editItem;
+    var lastNumber = CheckExistingPlaceholders(item);
+    if (lastNumber === -1) {
+      item.placeholders = [];
+      lastNumber = 1;
+    } else {
+      lastNumber = ++lastNumber;
+    }
+
+    var selectedString = placeholderValue;
+
+    if (selectedString === "") {
+      return;
+    }
+
+    if ($debug) {
+      console.log(selectedString);
+      console.log(item.code);
+    }
+
+    var newCode = item.code.replaceAll(selectedString, "${" + lastNumber + ":" + selectedString + "}");
+    // item.placeholders.push(selectedString);
+
+    let newPlaceholder = $editItem.placeholders;
+    newPlaceholder.push(selectedString.toString());
+    let newItem = $editItem;
+
+    newItem.placeholders = newPlaceholder;
+    newItem.code = newCode;
+
+    $editItem = { ...newItem };
+    if ($debug) {
+      console.log("New placeholder on new item.");
+      console.log($editItem);
+    }
+
+    UpdateCodeWithNewTabStop();
+  }
+
+  function CheckExistingPlaceholders(item: item) {
+    if (item.placeholders === null || typeof item.placeholders === "undefined" || item.placeholders.length === 0) {
+      if ($debug) console.log("no placeholders");
+      return -1;
+    } else {
+      if ($debug) console.log("Placeholders:" + item.placeholders.length);
+      return item.placeholders.length;
+    }
+  }
+
+  function UpdateCodeWithNewTabStop() {
+    tsvscode.postMessage({
+      type: "UpdateCodeWithNewTabStop",
+      value: $editItem.code,
+    });
+  }
   // function ShowSidebar() {
   //   if ($debug) console.log("Sidebar mode");
   //   tsvscode.postMessage({
@@ -138,7 +228,7 @@
     </div>
   </div>
   <div>
-    <button on:click={() => CreateTabStop()}>Selection to tabstop </button>
+    <button on:click={() => CreateTabStopCall()}>Selection to tabstop </button>
 
     {#if $editItem.placeholders !== null && typeof $editItem.placeholders !== "undefined" && $editItem.placeholders.length > 0}
       <h3>TabStops</h3>
