@@ -138,6 +138,8 @@ export const currentlySelected = writable(originCurrentlySelected);
 export const perimeterItem = writable(originperimeterItem);
 
 export const currentZoom = writable(originZoom);
+export const currentScaleX = writable(1);
+export const currentScaleY = writable(1);
 
 export const flatTree = writable(originFlatTree);
 

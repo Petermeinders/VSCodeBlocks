@@ -12,7 +12,7 @@
   import Fa from "svelte-fa";
   import CodeMap from "../CodeMap/CodeMap.svelte";
   import SettingsScreen from "../SettingsScreen.svelte";
-  import Shared from "./Shared.svelte";
+  import Shared from "../Shared.svelte";
   import Pocket from "../CodeMap/Pocket.svelte";
   import CodeMapGroups from "../CodeMap/CodeMapGroupsContainer.svelte";
   import Outline from "../CodeMap/Outline.svelte";
@@ -24,8 +24,7 @@
   let FullCodeSearch: boolean = true;
   let editScreen: EditScreen;
 
-  // $: $items.settings.currentPanel;
-
+  // On Store Changes
   $: {
     if ($items !== null && $items.customSnippets[0] !== undefined) {
       $items.customSnippets.map((item) => {
@@ -100,9 +99,6 @@
           console.log(index);
           i.customSnippets.splice(index, 1);
         }
-        // let findDuplicates = i.customSnippets.foreach(item => {
-        //   if(i.customSnippets.filter())
-        // })
 
         let findDuplicates = i.customSnippets.filter((item) => item.id === element.id);
 
@@ -125,6 +121,7 @@
     }
   }
 
+  // Before Render
   onMount(() => {
     window.addEventListener("message", (event) => {
       const message = event.data; // The json data that the extension sent
@@ -179,22 +176,6 @@
         case "update-lang":
           if (message.value !== "") {
             let langId = message.value;
-
-            // if (typeof $editItem === "undefined")
-            // {
-            //   $editItem = {
-            //   id: lastId,
-            //   tempId: "",
-            //   code: message.value,
-            //   language: "",
-            //   linkedBlocks: [],
-            //   name: "New Name",
-            //   placeholders: [],
-            //   visible: "true",
-            //   color: "white",
-            //   tags: [""],
-            // };
-            // }
             $editItem.language = langId;
           }
           break;
@@ -388,6 +369,7 @@
 
   
 
+ // All the methods for making calls to the VS backend
   const ExportCodeVSCall = () => {
     if ($debug) {
       console.log("Export Data Start!");
@@ -559,12 +541,11 @@
 
     <SettingsScreen />
   </div>
-
- 
 </main>
 
-<style>
 
+
+<style>
   .pocketAndMapGroups{
     display: flex;
     flex-direction: column;

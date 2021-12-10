@@ -2,6 +2,8 @@
   import {
     codeMap,
     currentZoom,
+    currentScaleX,
+    currentScaleY,
     perimeterItem,
     currentlySelected,
     items,
@@ -10,11 +12,11 @@
     activePath,
     lines,
     activeSelectionMeta,
-rightClickedBlockEvent,
+    rightClickedBlockEvent,
   } from "../../store";
   import Fa from "svelte-fa";
   import type { Group } from "../../../src/Models";
-  import {OutlineTypeEnum} from "../../../src/Models";
+  import { OutlineTypeEnum } from "../../../src/Models";
   import Card from "./Card/Card.svelte";
   import { onMount, afterUpdate, beforeUpdate, tick } from "svelte";
   import DragSelect from "dragselect";
@@ -22,8 +24,9 @@ rightClickedBlockEvent,
   import deepdash from "deepdash";
   import Line from "./Line.svelte";
   import Shared from "../Shared.svelte";
-import { faSave } from "@fortawesome/free-regular-svg-icons";
-import { faFileDownload } from "@fortawesome/free-solid-svg-icons";
+  import { faSave } from "@fortawesome/free-regular-svg-icons";
+  import { faFileDownload } from "@fortawesome/free-solid-svg-icons";
+  import panzoom from "panzoom";
 
   let common: Shared;
 
@@ -34,7 +37,6 @@ import { faFileDownload } from "@fortawesome/free-solid-svg-icons";
       }
     }
   }
-
 
   const _ = deepdash(lodash);
   let ds;
@@ -89,7 +91,7 @@ import { faFileDownload } from "@fortawesome/free-solid-svg-icons";
     });
   }
 
-  function SaveASCodeMapToFile(){
+  function SaveASCodeMapToFile() {
     tsvscode.postMessage({
       type: "saveASCodeMap",
       value: $codeMap,
@@ -128,12 +130,53 @@ import { faFileDownload } from "@fortawesome/free-solid-svg-icons";
 
     ds = new DragSelect({
       selectables: document.getElementsByClassName("card"),
+       useTransform: false,
+      
       callback: (e) => e,
-      // area: document.getElementById("area"),
+      //  zoom: 2,
+
+        area: document.getElementById("area"),
     });
+
+    // just grab a DOM element
+    var element = document.querySelector("#canvas-inner");
+
+
+
+    // And pass it to panzoom
+    var instance = panzoom(element, {
+      // zoomSpeed: 0.095,
+      smoothScroll: false,
+      maxZoom: 1,
+      minZoom: 0.1,
+      initialZoom: 1,
+      beforeMouseDown: function (e) {
+        // allow mouse-down panning only if altKey is down. Otherwise - ignore
+        var shouldIgnore = !e.altKey;
+        return shouldIgnore;
+      },
+    });
+
+    instance.on('zoom', function(e) {
+  console.log(e.getTransform());
+  $currentZoom = e.getTransform().scale;
+  $currentScaleX = e.getTransform().x;
+  $currentScaleY = e.getTransform().y;
+  //e.zoomTo(.90);
+  // ds.zoom = e.getTransform();
+  console.log("LOADED!");
+  console.log(instance.getTransform());
+  // document.getElementById("area").style.transform = `scale(${e.getTransform()})`;
+});
+    
 
     ds.subscribe("callback", (OnMouseUpObject) => {
       let buttonClick;
+      console.log(OnMouseUpObject.event);
+
+      if (OnMouseUpObject.event.altKey) {
+        return;
+      }
 
       if (OnMouseUpObject.event.target.nodeName === "BUTTON") buttonClick = true;
       else buttonClick = false;
@@ -183,7 +226,11 @@ import { faFileDownload } from "@fortawesome/free-solid-svg-icons";
         OnMouseUpObject.items.length === 0 &&
         (OnMouseUpObject.event.target.id === "GroupBlocks" || OnMouseUpObject.event.target.id === "UngroupBlocks")
       ) {
-      } else if (OnMouseUpObject.items.length === 0 && OnMouseUpObject.event.target.nodeName !== "BUTTON" && OnMouseUpObject.event.target.nodeName !== "path") {
+      } else if (
+        OnMouseUpObject.items.length === 0 &&
+        OnMouseUpObject.event.target.nodeName !== "BUTTON" &&
+        OnMouseUpObject.event.target.nodeName !== "path"
+      ) {
         $currentlySelected = [];
       }
 
@@ -228,46 +275,51 @@ import { faFileDownload } from "@fortawesome/free-solid-svg-icons";
       let pointerX = OnMouseUpObject.event.clientX ?? 0;
       let pointerY = OnMouseUpObject.event.clientY ?? 0;
 
-      if (OnMouseUpObject.items.length > 0)
-      {
+      if (OnMouseUpObject.items.length > 0) {
         OnMouseUpObject.event.srcElement.style.display = "none";
 
-let bottomElement = document.elementFromPoint(pointerX, pointerY);
+        let bottomElement = document.elementFromPoint(pointerX, pointerY);
 
-if ($debug) console.log(bottomElement);
+        if ($debug) console.log(bottomElement);
 
-$codeMap.activeWindow.activelySelectedBlocks = GetSelectedCodeBlocks($currentlySelected);
+        $codeMap.activeWindow.activelySelectedBlocks = GetSelectedCodeBlocks($currentlySelected);
 
-if (bottomElement && (OnMouseUpObject?.event?.target?.nodeName !== "BUTTON" || OnMouseUpObject?.event?.srcElement?.nodeName !== "BUTTON")) {
-  let isPocketHovered = common.ParentHasId(bottomElement, "pocketAndMapGroups");
-  if (isPocketHovered) {
-    let pocketAndGroup = document.getElementById("pocketAndMapGroups");
-    if ($debug) console.log("Moving to pocket");
-    MoveToPocket($currentlySelected, OnMouseUpObject.event);
-  }
+        if (bottomElement && (OnMouseUpObject?.event?.target?.nodeName !== "BUTTON" || OnMouseUpObject?.event?.srcElement?.nodeName !== "BUTTON")) {
+          let isPocketHovered = common.ParentHasId(bottomElement, "pocketAndMapGroups");
+          if (isPocketHovered) {
+            let pocketAndGroup = document.getElementById("pocketAndMapGroups");
+            if ($debug) console.log("Moving to pocket");
+            MoveToPocket($currentlySelected, OnMouseUpObject.event);
+          }
 
-  if (!isPocketHovered) {
-    let isCodeBlockHovered = common.ParentHasId(bottomElement, "code-container");
-    if (isCodeBlockHovered) {
-      if ($debug) console.log("Moving to Blocks");
-      {
-        MoveToCodeBlocks($currentlySelected, OnMouseUpObject.event);
-       OnMouseUpObject.items = [];
-      ds.clearSelection();
-       
+          if (!isPocketHovered) {
+            let isCodeBlockHovered = common.ParentHasId(bottomElement, "code-container");
+            if (isCodeBlockHovered) {
+              if ($debug) console.log("Moving to Blocks");
+              {
+                MoveToCodeBlocks($currentlySelected, OnMouseUpObject.event);
+                OnMouseUpObject.items = [];
+                ds.clearSelection();
+              }
+            }
+          }
+        }
+
+        OnMouseUpObject.event.srcElement.style.display = "block";
       }
-    }
-  }
-}
 
-OnMouseUpObject.event.srcElement.style.display = "block";
-      }
-    
       CloseAllRadials();
     });
 
     ds.subscribe("dragstart", (DragStartObject) => {
       let buttonClick;
+
+      if (DragStartObject.event.altKey) {
+        // ds.stop();
+        // document.addEventListener("keyup", handleAltUp);
+        ds.break();
+        return;
+      }
 
       if (DragStartObject.event.target.nodeName === "BUTTON") buttonClick = true;
       else buttonClick = false;
@@ -282,7 +334,7 @@ OnMouseUpObject.event.srcElement.style.display = "block";
 
         let translate = "translate3d(" + x + "px, " + y + "px, 1px) scale(" + $currentZoom + ")";
 
-        DragStartObject.items[0].style.transform = translate;
+        // DragStartObject.items[0].style.transform = translate;
       }
       if (DragStartObject.items.length === 1 && !buttonClick) {
         let groupItems = SelectGroup(DragStartObject.event.target.id);
@@ -290,27 +342,85 @@ OnMouseUpObject.event.srcElement.style.display = "block";
       }
     });
 
+    // function handleAltUp(e){
+    //   if (e.key === "Alt"){
+    //     ds.start();
+    //     document.removeEventListener("keyup", handleAltUp);
+    //   }
+    // }
+
     ds.subscribe("dragmove", (DragMovedObject) => {
       //console.log("moving");
-      let id = DragMovedObject.event.target.id;
+      let canvas = document.getElementById("canvas-inner");
+      if (DragMovedObject.event.altKey) {
+        let x = document.getElementById("canvas-inner").style.getPropertyValue("transform").match(/(-?[0-9\.]+)/g)[4];
+        let y = document.getElementById("canvas-inner").style.getPropertyValue("transform").match(/(-?[0-9\.]+)/g)[5];
+
+        $currentScaleX = parseInt(x);
+        $currentScaleY = parseInt(y);
+        console.log($currentScaleX);;
+        return;
+      }
 
       DragMovedObject.event.preventDefault();
 
       if (DragMovedObject.isDragging) {
-        let childPos = DragMovedObject.items[0].getBoundingClientRect();
-        let parentPos = DragMovedObject.items[0].parentElement.getBoundingClientRect();
-        let x = childPos.x - parentPos.x;
-        let y = childPos.y - parentPos.y;
-        // let translate = "translate3d("+x+"px, "+y+"px, 1px) scale(2)";
-        // DragMovedObject.items[0].style.transform = translate;
+        // let childPos = DragMovedObject.items[0].getBoundingClientRect();
+        // let parentPos = DragMovedObject.items[0].parentElement.getBoundingClientRect();
+        // let x = childPos.x - parentPos.x;
+        // let y = childPos.y - parentPos.y;
 
-        //let transform = DragMovedObject.items[0].style.transform
+        //let testx = childPos.x + $currentScaleX;
+        //console.log("currentx: " + $currentScaleX);
+
+
+        // let selectedX = DragMovedObject.event.x + DragMovedObject.event.offsetX;
+        // let selectedY = DragMovedObject.event.y + DragMovedObject.event.offsetY;
+
+        let selectedX = DragMovedObject.event.x / $currentZoom - 100 - ($currentScaleX / $currentZoom);
+        let selectedY = DragMovedObject.event.y / $currentZoom - 100 - ($currentScaleY / $currentZoom);
+
+      //let id = DragMovedObject.event.target.id;
+
+      DragMovedObject.items.forEach(item => {
+        let id = item.id;
+
+        
+          let element = document.getElementById(id);
+
+          // let selectedX = (DragMovedObject.event.x / $currentZoom); // - (($currentScaleX + 100) / $currentZoom);  //- currentScaleX
+          // let selectedY = (DragMovedObject.event.y / $currentZoom); //- ($currentScaleY + 100 / $currentZoom);//+ ($currentScaleY * $currentZoom);
+
+          // console.log("obj:" + element.offsetLeft + " Mouse:" + DragMovedObject.event.x + " MouseOff:" + DragMovedObject.event.offsetX + " zoom:" + $currentZoom + " ScaleX:" + $currentScaleX + " ScaleY:" + $currentScaleY + " XScaleDivided: " +  ($currentScaleX / $currentZoom) );
+          // console.log((DragMovedObject.event.x / $currentZoom))
+          //console.log($currentScaleX / $currentZoom);
+
+          element.style.left = selectedX  + "px";
+          element.style.top = selectedY + "px";
+          //element.style.transformOrigin = $currentScaleX + "px " + $currentScaleY + "px";
+
+          //  element?.style.transform-origin = "0% 0%";
+
+          // element.style.left = "99px";
+          // element.style.top = "99px";
+
+
+          // let translate = "translate3d("+x+"px, "+y+"px, 1px) scale(2)";
+          // DragMovedObject.items[0].style.transform = translate;
+
+          //let transform = DragMovedObject.items[0].style.transform
+      })
+     
       }
     });
 
     ds.subscribe("callback", (DragEndedObject) => {
       // let x = DragEndedObject.event.screenX;
       // let y = DragEndedObject.event.screenY;
+
+      if (DragEndedObject.event.altKey) {
+        return;
+      }
 
       if (typeof DragEndedObject?.items[0] !== "undefined" && DragEndedObject.isDragging) {
         //let itemArray
@@ -340,7 +450,7 @@ OnMouseUpObject.event.srcElement.style.display = "block";
           let x2 = childPos2.x - parentPos2.x;
           let y2 = childPos2.y - parentPos2.y;
           let translate = "translate3d(" + x2 + "px, " + y2 + "px, 1px) scale(" + $currentZoom + ")";
-          block.style.transform = translate;
+          //block.style.transform = translate;
 
           let tempvalues;
           let fakeMap = $codeMap.flatTree;
@@ -349,8 +459,8 @@ OnMouseUpObject.event.srcElement.style.display = "block";
             if (flatBlock.id.toString() === block.id) {
               let indexOfFlatBlock = $codeMap.flatTree.indexOf(flatBlock);
               tempvalues = flatBlock;
-              tempvalues.locationX = x2.toString();
-              tempvalues.locationY = y2.toString();
+              tempvalues.locationX = block.style.left.replace("px", "").toString(); //x2.toString();
+              tempvalues.locationY = block.style.top.replace("px", "").toString();  //y2.toString();
               fakeMap.splice(indexOfFlatBlock, 1, tempvalues);
             }
           });
@@ -414,24 +524,19 @@ OnMouseUpObject.event.srcElement.style.display = "block";
       }
 
       if ($codeMap?.canvas) {
-        if ($codeMap.canvas !== "noAutoMap")
-        {
+        if ($codeMap.canvas !== "noAutoMap") {
           faketree = JSON.parse(JSON.stringify($codeMap.canvas.children));
-        FlattenTree(faketree);
+          FlattenTree(faketree);
 
-        // faketree = _.index(faketree)
+          // faketree = _.index(faketree)
 
           $codeMap.flatTree = [...new Set(faketree)];
-        }
-        else{
+        } else {
           $codeMap.flatTree = [];
         }
-
       }
     }
   };
-
-
 
   function StarClicked(currentlySelected) {
     let flatBlock = GetSelectedCodeBlocks(currentlySelected);
@@ -823,7 +928,6 @@ OnMouseUpObject.event.srcElement.style.display = "block";
         $items.customSnippets = $items.customSnippets;
         console.log($codeMap.flatTree.find((b) => b.id === block.id));
         block.visible = false;
-       
       }
     });
     $currentlySelected = [];
@@ -846,14 +950,13 @@ OnMouseUpObject.event.srcElement.style.display = "block";
   //   const zoomElement = document.querySelector(".zoom");
 
   //   if (e.deltaY > 0) {
-  //     $currentZoom = zoom -= ZOOM_SPEED;
-  //     //zoomElement.style.transform = `scale(${(zoom -= ZOOM_SPEED)})`;
-  //     //ds.zoom = zoom;
+  //     zoomElement.style.transform = `scale(${(zoom -= ZOOM_SPEED)})`;
+  //     ds.zoom = zoom;
+  //     $currentZoom = zoom;
   //   } else {
-  //     $currentZoom = zoom += ZOOM_SPEED;
-  //    // zoomElement.style.transform = `scale(${(zoom += ZOOM_SPEED)})`;
-  //    // ds.zoom = zoom ;
-
+  //    zoomElement.style.transform = `scale(${(zoom += ZOOM_SPEED)})`;
+  //     ds.zoom = zoom ;
+  //     $currentZoom = zoom;
   //   }
   //   console.log($currentZoom);
   // });
@@ -906,8 +1009,7 @@ OnMouseUpObject.event.srcElement.style.display = "block";
     });
   }
 
-  function LoadFROMCodeMap()
-  {
+  function LoadFROMCodeMap() {
     tsvscode.postMessage({
       type: "LoadFROMCodeMapFromFile",
       value: true,
@@ -941,18 +1043,16 @@ OnMouseUpObject.event.srcElement.style.display = "block";
   //   console.log("get all the blocks!")
   // }
 
-  function GroupBlocks(e:MouseEvent) {
+  function GroupBlocks(e: MouseEvent) {
     let blocks = GetSelectedCodeBlocks($currentlySelected);
-    if (blocks.length === 0)
-    {
+    if (blocks.length === 0) {
       let radialItemId = CheckforRadialItemClick(e.target);
       let tempArray = new Array();
       tempArray.push($rightClickedBlockEvent.target);
       blocks = GetSelectedCodeBlocks(tempArray);
-      if (blocks.length === 0)
-        return;
+      if (blocks.length === 0) return;
     }
-    
+
     let foundGroup;
     let lastItem = $codeMap?.groups?.slice(-1)[0]; //Check if any groups exist
     let newGroup;
@@ -1406,7 +1506,6 @@ OnMouseUpObject.event.srcElement.style.display = "block";
     document.removeEventListener("mousemove", handleMousemove);
     document.removeEventListener("mouseup", handleMouseup);
   }
-
 </script>
 
 <main id="Canvas">
@@ -1426,57 +1525,56 @@ OnMouseUpObject.event.srcElement.style.display = "block";
     </div>
     <!-- <button id="GroupBlocks" type="button" on:click={GroupBlocks}>Group</button>
     <button id="UngroupBlocks" type="button" on:click={UngroupBlocks}>Ungroup</button> -->
+    <div id="canvas-inner">
+      <!-- SINGLE CARD -->
+      {#if $codeMap?.flatTree}
+        <div class="zoom">
+          <!-- Card -->
+          {#each $codeMap.flatTree as treeItem}
+            <!-- && typeof(treeItem.open) === "undefined" || treeItem?.open === true -->
 
-    <!-- SINGLE CARD -->
-    {#if $codeMap?.flatTree}
-      <div class="zoom">
-        <!-- Card -->
-        {#each $codeMap.flatTree as treeItem}
-          <!-- && typeof(treeItem.open) === "undefined" || treeItem?.open === true -->
-
-          <!-- //Not file or directory? //Directory and showFolders === true?   //file and showfiles === true? -->
-          {#if typeof treeItem.visible === "undefined" || treeItem?.visible === true}
-            {#if (treeItem.type !== "directory" && treeItem.type !== "file") || (treeItem.type === "directory" && $items.settings.showFolders === true) || (treeItem.type === "file" && $items.settings.showFiles === true)}
-              <Card {treeItem} {Minimize} {StartLink} {GroupBlocks} />
-            {/if}
-          {/if}
-        {/each}
-      </div>
-
-      <!-- Line -->
-      {#if $lines}
-        <div>
-          {#each $lines as line, i}
-            {#if line.customLine || ($items.settings.showDefaultRelationship === true && line.customLine === false)}
-              <Line
-                lineIndex={i}
-                color={line.color}
-                sourceId={line.sourceId}
-                destId={line.destId}
-                x1={line.x1}
-                x2={line.x2}
-                y1={line.y1}
-                y2={line.y2}
-              />
-              <div style="display:none;">{i + 1}</div>
+            <!-- //Not file or directory? //Directory and showFolders === true?   //file and showfiles === true? -->
+            {#if typeof treeItem.visible === "undefined" || treeItem?.visible === true}
+              {#if (treeItem.type !== "directory" && treeItem.type !== "file") || (treeItem.type === "directory" && $items.settings.showFolders === true) || (treeItem.type === "file" && $items.settings.showFiles === true)}
+                <Card {treeItem} {Minimize} {StartLink} {GroupBlocks} />
+              {/if}
             {/if}
           {/each}
         </div>
-        {#if linkLineDragging}
+
+        <!-- Line -->
+        {#if $lines}
           <div>
-            <Line color="green" x1={start.x} x2={m.x} y1={start.y} y2={m.y} />
+            {#each $lines as line, i}
+              {#if line.customLine || ($items.settings.showDefaultRelationship === true && line.customLine === false)}
+                <Line
+                  lineIndex={i}
+                  color={line.color}
+                  sourceId={line.sourceId}
+                  destId={line.destId}
+                  x1={line.x1}
+                  x2={line.x2}
+                  y1={line.y1}
+                  y2={line.y2}
+                />
+                <div style="display:none;">{i + 1}</div>
+              {/if}
+            {/each}
           </div>
+          {#if linkLineDragging}
+            <div>
+              <Line color="green" x1={start.x} x2={m.x} y1={start.y} y2={m.y} />
+            </div>
+          {/if}
         {/if}
       {/if}
-    {/if}
 
-    {#if $codeMap?.groups > 0}
-       
-    {/if}
+      {#if $codeMap?.groups > 0}{/if}
 
-    {#if $codeMap}
-      <div style="display:none;">{RenderBlocks()}</div>
-    {/if}
+      {#if $codeMap}
+        <div style="display:none;">{RenderBlocks()}</div>
+      {/if}
+    </div>
   </div>
 </main>
 
@@ -1566,7 +1664,7 @@ OnMouseUpObject.event.srcElement.style.display = "block";
     flex-direction: column;
   }
 
-  .codeBlockTopButtons{
+  .codeBlockTopButtons {
     margin-right: 10px;
   }
 </style>

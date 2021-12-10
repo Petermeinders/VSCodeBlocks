@@ -186,6 +186,7 @@
 		"directory-tree": "^2.2.9",
 		"fast-levenshtein": "^3.0.0",
 		"lodash-es": "^4.17.21",
+		"panzoom": "^9.4.2",
 		"svelte-dnd-action": "^0.9.9",
 		"svelte-fa": "^2.2.1",
 		"svelte-material-ui": "^4.2.0",

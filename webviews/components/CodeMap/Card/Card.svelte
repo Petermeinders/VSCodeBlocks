@@ -162,13 +162,13 @@
 
 
 <div class="ds-selected ds-hover absolute" style="display:none" />
+{@debug treeItem}
 <main
   on:dblclick={() => dbClickBlock(treeItem)}
   on:contextmenu={(event) => expand(event)}
   style="  background:{treeItem?.image !== "" && typeof(treeItem?.image) !== "undefined" ?
-   "url(" + treeItem.image + ")" : treeItem.color  ?? "black" }; z-index:101; {treeItem.locationX !== "0" && treeItem.locationY !== "0"
-    ? 'transform: translate3d(' + treeItem.locationX + 'px, ' + treeItem.locationY + 'px, 1px) scale(' + $currentZoom + ');'
-    : ''}"
+   "url(" + treeItem.image + ")" : treeItem.color  ?? "black" }; z-index:101; 
+   {treeItem.locationX !== "0" && treeItem.locationY !== "0" ? 'left:' + treeItem.locationX + "px" + '; ' + 'top:' + treeItem.locationY + "px" + ";": ''}"
   id={treeItem.id}
   data-fileType={treeItem.type}
   data-parentId={treeItem.parentId}
