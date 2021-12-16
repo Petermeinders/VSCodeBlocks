@@ -41,21 +41,23 @@
 
 <main>
 
-  <svg style="z-index:-99; width:100%; height:100%;     position: absolute;">
+  <svg style="z-index:-99; width:1000vh; height:1000vh; position: absolute; top:-500vh; left:-500vh">
     <marker id="triangle" viewBox="0 0 10 10" refX="1" refY="5" markerUnits="strokeWidth" markerWidth="10" markerHeight="10" orient="auto">
       <path d="M 0 0 L 10 5 L 0 10 z" fill="#f00" />
     </marker>
     <marker id="triangleStart" viewBox="0 0 10 10" refX="1" refY="5" markerUnits="strokeWidth" markerWidth="10" markerHeight="10" orient="auto">
       <path d="M 0 0 L 10 5 L 0 10 z" fill="blue" />
     </marker>
+    {@debug sourceId }
+
     <line
       on:click={() => DeleteLine(sourceId, destId)}
       data-sourceId={sourceId}
       data-destId={destId}
-      {x1}
-      {y1}
-      {x2}
-      {y2}
+      x1 = "calc(500vh + {x1}px)"
+      y1 = "calc(500vh + {y1}px)"
+      x2 = "calc(500vh + {x2}px)"
+      y2 = "calc(500vh + {y2}px)"
       marker-start="url(#triangleStart)"
       marker-end="url(#triangle)"
       style="stroke:{color};stroke-width:3"

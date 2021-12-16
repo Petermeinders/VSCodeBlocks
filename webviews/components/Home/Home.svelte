@@ -18,6 +18,7 @@
   import Outline from "../CodeMap/Outline.svelte";
   import ParseVSCodeSnippet from "./VSCodeSnippets.svelte";
 
+//Parent component for the code map and code blocks
 
   let common: Shared;
   let parseVSCodeSnippet: ParseVSCodeSnippet;

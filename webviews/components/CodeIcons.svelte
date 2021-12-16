@@ -1,5 +1,7 @@
 <script lang="ts">
 
+//File purpose:
+//SVG for icons used in the app
 
   export let blockType = "";
   console.log(blockType);

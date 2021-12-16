@@ -374,16 +374,14 @@
         //console.log("currentx: " + $currentScaleX);
 
 
-        // let selectedX = DragMovedObject.event.x + DragMovedObject.event.offsetX;
-        // let selectedY = DragMovedObject.event.y + DragMovedObject.event.offsetY;
-
-        let selectedX = DragMovedObject.event.x / $currentZoom - 100 - ($currentScaleX / $currentZoom);
-        let selectedY = DragMovedObject.event.y / $currentZoom - 100 - ($currentScaleY / $currentZoom);
+        let mouseX = DragMovedObject.event.x / $currentZoom  - ($currentScaleX / $currentZoom);
+        let mouseY = DragMovedObject.event.y / $currentZoom  - ($currentScaleY / $currentZoom);
 
       //let id = DragMovedObject.event.target.id;
 
       DragMovedObject.items.forEach(item => {
         let id = item.id;
+        let activeBlock = $codeMap.flatTree.find((x) => x.id === id);
 
         
           let element = document.getElementById(id);
@@ -394,21 +392,26 @@
           // console.log("obj:" + element.offsetLeft + " Mouse:" + DragMovedObject.event.x + " MouseOff:" + DragMovedObject.event.offsetX + " zoom:" + $currentZoom + " ScaleX:" + $currentScaleX + " ScaleY:" + $currentScaleY + " XScaleDivided: " +  ($currentScaleX / $currentZoom) );
           // console.log((DragMovedObject.event.x / $currentZoom))
           //console.log($currentScaleX / $currentZoom);
+          // console.log("MouseX: " + mouseX + " MouseY: " + mouseY);
+          // console.log("StyleLeft:" + element.style.left + " StyleTop:" + element.style.top);
+          // console.log("XbyZoom:" + element.style.left.replace("px","") / $currentZoom);
 
-          element.style.left = selectedX  + "px";
-          element.style.top = selectedY + "px";
-          //element.style.transformOrigin = $currentScaleX + "px " + $currentScaleY + "px";
+          // element.style.left = element.style.left + mouseX  + "px";
+          // element.style.top = element.style.top + mouseY + "px";
 
-          //  element?.style.transform-origin = "0% 0%";
+          let relativeX = activeBlock.locationX;
+          let relativeY = activeBlock.locationY;
 
-          // element.style.left = "99px";
-          // element.style.top = "99px";
+          console.log("mouseX:" + mouseX + " relX:" + relativeX + " LocationX: " + activeBlock.locationX + " Zoom: " + $currentZoom );
+          console.log("MouseY:" + mouseY + " relY:" + relativeY  + " LocationY: " + activeBlock.locationY + " Zoom: " + $currentZoom );
 
 
-          // let translate = "translate3d("+x+"px, "+y+"px, 1px) scale(2)";
-          // DragMovedObject.items[0].style.transform = translate;
+         // element.style.left = mouseX - relativeX + "px";
+         // element.style.top =  mouseY - relativeY + "px";
 
-          //let transform = DragMovedObject.items[0].style.transform
+          // element.style.left = mouseX - (100 / $currentZoom)  + "px";
+          // element.style.top =  mouseY - (100 / $currentZoom) + "px";
+
       })
      
       }
@@ -914,7 +917,7 @@
         //    "condition",
         //    "expression"
         // ],
-        // color: "white",
+      // color: "white",
         // visible: "",
         // linkedBlocks: [],
         // tags: [
@@ -1513,9 +1516,9 @@
   <!-- The mouse position is {m.x} x {m.y} -->
   <!-- <h1 style="text-align:center;">Code Map</h1> -->
 
-  <div id="area" style="width:100%; height:100%; position:fixed;">
+  <div id="area" style="width:100%; height:100%; position:fixed; overflow:hidden">
     <div class="ds-selected" style="display:none" />
-    <div style="display:flex; flex-direction: row; ">
+    <div style="display:flex; flex-direction: row;      z-index: 10; position: absolute;">
       <!-- <button type="button" on:click={SaveCodeMapToFile} style="display:inline;"> <Fa size="2x" icon={faSave} style="color:white;" /></button> -->
       <button class="codeBlockTopButtons" type="button" on:click={SaveCodeMapToFile} style="display:inline;">Save</button>
       <button class="codeBlockTopButtons" type="button" on:click={SaveASCodeMapToFile} style="display:inline;">Save As</button>
@@ -1582,7 +1585,7 @@
   .zoom {
     height: 1vh;
     width: 100%;
-    display: grid;
+    display: contents;
     place-items: center;
     top: 0;
     left: 0;

@@ -162,7 +162,6 @@
 
 
 <div class="ds-selected ds-hover absolute" style="display:none" />
-{@debug treeItem}
 <main
   on:dblclick={() => dbClickBlock(treeItem)}
   on:contextmenu={(event) => expand(event)}

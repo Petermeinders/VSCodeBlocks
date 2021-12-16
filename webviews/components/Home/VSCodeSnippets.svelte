@@ -2,6 +2,8 @@
       import { activelySelectedText, activePath, activeSelectionMeta, debug, editItem, editMode, items, searchTerm } from "../../store";
       import Shared from "../Shared.svelte";
 
+//File purpose:
+//Parse code into a VSCode snippet friently format.
 
       let common: Shared;
 

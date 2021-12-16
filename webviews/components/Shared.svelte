@@ -7,6 +7,8 @@
 
   const _ = deepdash(lodash);
 
+  //Shared functions for other files
+
   export const ImportCode = () => {
     if ($debug) console.log("Import Data Start!");
     tsvscode.postMessage({
