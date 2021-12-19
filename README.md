@@ -47,7 +47,7 @@ Right now this project is highly experimental and it's taking me time to fix all
 I'l be writing up much more documentation here later.
 
 ## Contributing
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+Pull requests are welcome as I can use all the help I can get :)
 
 Ben Awad's VSCode extension creation tutorial was a huge help!
 
