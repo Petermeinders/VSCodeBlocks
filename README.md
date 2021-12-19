@@ -1,6 +1,8 @@
 
 # VSCode Blocks
 
+![alt text](https://github.com/Petermeinders/VSCodeBlockSnippets/blob/main/ReadMe%20Files/CodeCode.jpg "VSCode Blocks Image")
+
 1. VSCode Blocks is partly a VSCode extension for saving off blocks/snippets of your code into searchable/taggable blocks that can be seen and retrieved from a left sidebar. It uses JSON format to store and retrieve previously saved blocks and your store can be shared with others. I'm currently working on refining it and extending functionality further.
 
 2. VSCode Blocks' second part is the ability to build code maps from snippets of code easily and quickly. Essentially providing a visual metadata design to your project. My goal is to keep this code agnostic and efficient to use so that it will enhance a developers day to day work.
