@@ -42,7 +42,7 @@ let customSnippets:Item[] =
    }
 ]
 
-let originItems = {
+export let originItems = {
    customSnippets,
    "vsSnippets": [
       "vsSnippets1",
@@ -97,7 +97,6 @@ let originItems = {
          {name: "Variable", checked: false}
       ]
    }
-
 };
 
 let originEditMode = {

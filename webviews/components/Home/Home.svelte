@@ -6,6 +6,7 @@
   import { tags } from "../../store";
   import { page } from "../../store";
   import { codeMap } from "../../store";
+  import { originItems } from "../../store";
   import EditScreen from "../EditScreen.svelte";
   import LinkedBlocks from "../CodeBlocks/LinkedBlocks.svelte";
   import { faChevronLeft, faChevronRight, faCog, faCubes, faProjectDiagram } from "@fortawesome/free-solid-svg-icons";
@@ -24,11 +25,16 @@
   let parseVSCodeSnippet: ParseVSCodeSnippet;
   let FullCodeSearch: boolean = true;
   let editScreen: EditScreen;
+  let importError = false;
+
+  $: importError;
+
+  $: console.log("importError: ", importError);
 
   // On Store Changes
   $: {
-    if ($items !== null && $items?.customSnippets.length > 0) {
-      $items.customSnippets.map((item) => {
+    if ($items !== null && $items?.customSnippets?.length > 0) {
+      $items?.customSnippets?.map((item) => {
         item.tags = item.tags ?? [""];
       });
 
@@ -112,6 +118,7 @@
 
       if (i.customSnippets[0].id === "0") {
         console.warn("BAD STATE! Not saving. Please check your import file.");
+        $items = originItems;
       } else {
         tsvscode.setState({ i, p, t });
         ExportCodeVSCall();
@@ -328,21 +335,22 @@
                   { name: "Variable", checked: false },
                 ],
               },
+              error: false,
             };
-          }
-          else
-          if (typeof message.value === "string") {
+          } else if (typeof message.value === "string") {
             try {
-              $items = JSON.parse(message.value);
+              //importError = false;
+              let importedItems = JSON.parse(message.value);
+              $items = importedItems;
 
-              $items.customSnippets.forEach((element) => {
-                if (element.id.toString().includes("id:")) {
+              $items?.customSnippets.forEach((element) => {
+                if (element?.id.toString().includes("id:")) {
                   let index = $items.customSnippets.indexOf(element);
                   console.log(index);
-                  $items.customSnippets.splice(index, 1);
+                  $items?.customSnippets.splice(index, 1);
                 }
               });
-              let settings = { codeMapFolderExclusion: $items.settings.codeMapFolderExclusion, mapEntireProject: $items.settings.mapEntireProject };
+              let settings = { codeMapFolderExclusion: $items?.settings.codeMapFolderExclusion, mapEntireProject: $items?.settings.mapEntireProject };
               tsvscode.postMessage({
                 type: "GetFiles",
                 value: settings,
@@ -350,9 +358,12 @@
             } catch (exception) {
               ErrorMessageVSCall("JSON Import Error");
               console.log(exception);
+              $items = originItems;
+              importError = true;
             }
           } else {
-            $items.customSnippets.forEach((element) => {
+            //importError = false;
+            $items?.customSnippets.forEach((element) => {
               if (element.id.toString().includes("id:")) {
                 let index = $items.customSnippets.indexOf(element);
                 console.log(index);
@@ -516,18 +527,23 @@
       }
     });
   };
+
+  const DeleteUserSettings = () => {
+    $items.settings.currentPanel = "codeBlocks";
+  };
 </script>
 
 <main>
   <Shared bind:this={common} />
+
   <ParseVSCodeSnippet bind:this={parseVSCodeSnippet} />
 
-  <div hidden={$items.settings.currentPanel === "editMode" ? false : true}>
+  <div hidden={$items?.settings?.currentPanel === "editMode" ? false : true}>
     <h1>EDIT MODE</h1>
-    <EditScreen />
+    <EditScreen bind:this={editScreen}  />
   </div>
 
-  <div hidden={$items.settings.currentPanel !== "editMode" ? false : true}>
+  <div hidden={$items?.settings?.currentPanel !== "editMode" ? false : true}>
     <div style="display: flex, align-items: center">
       <h1 style="display: flex, align-items: center, justify-content: space-between;">
         CodeBlocks
@@ -541,21 +557,28 @@
           ><Fa size="1x" icon={faProjectDiagram} style="color:#007acc; padding-right: 4px; float:right" />
         </span> -->
       </h1>
+      {@debug importError}
+      {#if importError === true}
+        <div style="color:red;">
+          JSON import error. Please fix your JSON file!
+          <!-- <button on:click={() => DeleteUserSettings()}>JSON Import Error. Delete all user data?</button> -->
+        </div>
+      {/if}
     </div>
   </div>
 
   <div
-    class={$items.settings.currentPanel === "codeBlocks" ? "containerHeader" : ""}
-    hidden={$items.settings.currentPanel === "codeBlocks" ? false : true}
+    class={$items?.settings?.currentPanel === "codeBlocks" ? "containerHeader" : ""}
+    hidden={$items?.settings?.currentPanel === "codeBlocks" ? false : true}
   >
     <div class="codeBlocksAndMapContainer">
-      <div class={$items.settings.hideBlocksBar === true ? "" : "codeBlocksContainer"} hidden={$items.settings.hideBlocksBar}>
+      <div class={$items?.settings?.hideBlocksBar === true ? "" : "codeBlocksContainer"} hidden={$items?.settings?.hideBlocksBar}>
         <!-- PANEL -->
         <div class="container">
           <div id="code-container" class="code-container">
             <div style="display:flex; flex-direction: row;">
               <Tags />
-              <button on:click={() => ($items.settings.hideBlocksBar = true)} class={$items.settings.hideBlocksBar === true ? "hide" : ""}>
+              <button on:click={() => ($items.settings.hideBlocksBar = true)} class={$items?.settings?.hideBlocksBar === true ? "hide" : ""}>
                 <Fa icon={faChevronLeft} style="color:white;" />
               </button>
             </div>
@@ -593,7 +616,7 @@
       <button
         style="margin-right:10px;"
         on:click={() => ($items.settings.hideBlocksBar = false)}
-        class={typeof $items.settings.hideBlocksBar === "undefined" || $items.settings.hideBlocksBar === false ? "hide" : ""}
+        class={typeof $items?.settings?.hideBlocksBar === "undefined" || $items?.settings?.hideBlocksBar === false ? "hide" : ""}
       >
         <Fa icon={faChevronRight} style="color:white;" />
       </button>
@@ -601,7 +624,7 @@
       <CodeMap />
     </div>
   </div>
-  <div hidden={$items.settings.currentPanel === "settings" ? false : true}>
+  <div hidden={$items?.settings?.currentPanel !== undefined ? ($items.settings.currentPanel === "settings" ? false : true) : true}>
     <SettingsScreen />
   </div>
 </main>
