@@ -693,7 +693,7 @@ export function activate(context: vscode.ExtensionContext) {
 			let fileString;
 
 
-			if (saveLocation === "testvalue") {
+			if (saveLocation === "testvalue" || saveLocation === "") {
 				vscode.window.showInformationMessage(config.has('codeBlockSaveLocation').toString());
 
 				let uri = vscode.Uri.file('%USERPROFILE%\.vscode\extensions');

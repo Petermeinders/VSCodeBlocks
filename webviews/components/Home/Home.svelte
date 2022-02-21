@@ -18,7 +18,7 @@
   import Outline from "../CodeMap/Outline.svelte";
   import ParseVSCodeSnippet from "./VSCodeSnippets.svelte";
 
-//Parent component for the code map and code blocks
+  //Parent component for the code map and code blocks
 
   let common: Shared;
   let parseVSCodeSnippet: ParseVSCodeSnippet;
@@ -27,7 +27,7 @@
 
   // On Store Changes
   $: {
-    if ($items !== null && $items.customSnippets[0] !== undefined) {
+    if ($items !== null && $items?.customSnippets.length > 0) {
       $items.customSnippets.map((item) => {
         item.tags = item.tags ?? [""];
       });
@@ -161,9 +161,8 @@
 
             $items.settings.currentPanel = "editMode";
             let editItemFound = $items?.customSnippets?.find((x) => x?.id === id);
-            
-            if (editItemFound)
-              $editItem = editItemFound;
+
+            if (editItemFound) $editItem = editItemFound;
 
             $editMode = {
               id: id,
@@ -225,7 +224,7 @@
           break;
 
         case "selection-to-search":
-         $searchTerm = message.value;
+          $searchTerm = message.value;
           break;
 
         case "selection-to-codeMap":
@@ -238,13 +237,13 @@
           $activePath = message.value.path;
           break;
 
-          case "onActiveEditorChange":
-            $codeMap.activeWindow.code = message.value.code ?? "";
-            common.ColorCode(message.value.path);
-            HideShowBlocks(message.value.path);
-            CheckCodeBlocksAccuracy();
+        case "onActiveEditorChange":
+          $codeMap.activeWindow.code = message.value.code ?? "";
+          common.ColorCode(message.value.path);
+          HideShowBlocks(message.value.path);
+          CheckCodeBlocksAccuracy();
 
-            break;
+          break;
 
         case "code-from-active-window":
           let activeScreenCode = message.value;
@@ -261,6 +260,77 @@
           break;
 
         case "import-code":
+          if (message.value === "") {
+            let customSnippets = [
+              {
+                id: "0",
+                tempId: "",
+                name: "test",
+                code: "if(${1:condition} ||${1:condition}){${2:expression}})",
+                language: "typescript",
+                placeholders: ["condition", "expression"],
+                color: "white",
+                visible: "",
+                linkedBlocks: [],
+                tags: ["tag1", "tag2"],
+              },
+            ];
+
+            $items = {
+              customSnippets,
+              vsSnippets: ["vsSnippets1", "vsSnippets2"],
+              selectedTags: [""],
+              settings: {
+                isFuzzy: false,
+                codeBlocksSaveLocation: "",
+                codeBlocksSaveLocationBackup: "",
+                codeMapSaveLocationRelative: "",
+                searchCode: false,
+                currentPanel: "",
+                hideBlocksBar: false,
+                showFolders: false,
+                showFiles: true,
+                showDefaultRelationship: true,
+                showCustomRelationship: true,
+                alwaysShowCodeBlockButtons: true,
+                strictCodeMapOutlineWordMatch: false,
+                mapEntireProject: false,
+                colorCodetoMatchCodeBlocks: true,
+                randomizeNewBlockColors: false,
+                defaultBlockColor: "blue",
+                codeMapFolderExclusion: "node_modules|packages",
+                visibleOutlineBlocks: [
+                  { name: "Array", checked: false },
+                  { name: "Boolean", checked: false },
+                  { name: "Class", checked: false },
+                  { name: "Constant", checked: false },
+                  { name: "Constructor", checked: false },
+                  { name: "Enum", checked: false },
+                  { name: "EnumMember", checked: false },
+                  { name: "Event", checked: false },
+                  { name: "Field", checked: false },
+                  { name: "File", checked: false },
+                  { name: "Function", checked: false },
+                  { name: "Interface", checked: false },
+                  { name: "Key", checked: false },
+                  { name: "Method", checked: true },
+                  { name: "Module", checked: false },
+                  { name: "Namespace", checked: false },
+                  { name: "Null", checked: false },
+                  { name: "Number", checked: false },
+                  { name: "Object", checked: false },
+                  { name: "Operator", checked: false },
+                  { name: "Package", checked: false },
+                  { name: "Property", checked: false },
+                  { name: "String", checked: false },
+                  { name: "Struct", checked: false },
+                  { name: "TypeParameter", checked: false },
+                  { name: "Variable", checked: false },
+                ],
+              },
+            };
+          }
+          else
           if (typeof message.value === "string") {
             try {
               $items = JSON.parse(message.value);
@@ -272,12 +342,12 @@
                   $items.customSnippets.splice(index, 1);
                 }
               });
-              let settings = {codeMapFolderExclusion: $items.settings.codeMapFolderExclusion, mapEntireProject: $items.settings.mapEntireProject}
+              let settings = { codeMapFolderExclusion: $items.settings.codeMapFolderExclusion, mapEntireProject: $items.settings.mapEntireProject };
               tsvscode.postMessage({
                 type: "GetFiles",
                 value: settings,
               });
-            } catch(exception) {
+            } catch (exception) {
               ErrorMessageVSCall("JSON Import Error");
               console.log(exception);
             }
@@ -314,26 +384,24 @@
           if ($debug) console.log($codeMap);
           break;
 
-          case "changeNameMenu":
-            let block = $codeMap.flatTree.find( block => block.id === message.value.blockId);
+        case "changeNameMenu":
+          let block = $codeMap.flatTree.find((block) => block.id === message.value.blockId);
 
-            if (block)
-            {
-              block.name = message.value.newName;
-            }
+          if (block) {
+            block.name = message.value.newName;
+          }
           break;
 
         case "window-change":
-          if (!$codeMap.activeWindow) {
+          if ($codeMap !== null && $codeMap.activeWindow !== null) {
             $codeMap.activeWindow = { path: "", outline: {} };
           }
           let outineObject = JSON.parse(message.value.outline);
 
           $codeMap.activeWindow.path = message.value.path;
           $codeMap.activeWindow.outline = outineObject;
-          
-          if (!$codeMap.activeWindow.flatOutline)
-          {
+
+          if (!$codeMap.activeWindow.flatOutline) {
             $codeMap.activeWindow.flatOutline = [];
           }
 
@@ -342,35 +410,25 @@
     });
   });
 
-
-
-
-
   //TODO:Figure out how to pass code and update respective tabstops
   // function EditItemCodeChange(code:string){
   //     let val = code.search($editItem.placeholders[0]);
   //     console.log(val);
   // }
 
+  const HideShowBlocks = (path) => {
+    $codeMap.flatTree.forEach((block) => {
+      if (block.starred === false && block.path !== path) {
+        block.visible = false;
+      }
 
+      if (block.path === path) {
+        block.visible = true;
+      }
+    });
+  };
 
- const HideShowBlocks = (path) => {
-   $codeMap.flatTree.forEach(block => {
-     if(block.starred === false && block.path !== path)
-     {
-       block.visible = false;
-     }
-
-     if(block.path === path)
-     {
-       block.visible = true;
-     }
-   })
- }
-
-  
-
- // All the methods for making calls to the VS backend
+  // All the methods for making calls to the VS backend
   const ExportCodeVSCall = () => {
     if ($debug) {
       console.log("Export Data Start!");
@@ -381,7 +439,7 @@
       type: "saveData",
       value: $items,
     });
-  }
+  };
 
   function FullScreen() {
     if ($debug) console.log("Full Screen Mode!");
@@ -396,71 +454,68 @@
       type: "onInfo",
       value: message,
     });
-  }
+  };
 
   const ErrorMessageVSCall = (message: any) => {
     tsvscode.postMessage({
       type: "onError",
       value: message,
     });
-  }
-
+  };
 
   const ShowSettings = () => {
     $items.settings.currentPanel = "settings";
-  }
+  };
 
   const ShowCodeMap = () => {
     $items.settings.currentPanel = "codeMap";
-  }
+  };
 
   const ShowCodeBlocks = () => {
     $items.settings.currentPanel = "codeBlocks";
   };
 
-  // Ever time user changes tabs, we need check the visible code blocks 
+  // Ever time user changes tabs, we need check the visible code blocks
   //and make sure code matches the lines stored on the blocks
   const CheckCodeBlocksAccuracy = () => {
     let activeWindowCode = $codeMap.activeWindow.code;
 
     $codeMap.flatTree.forEach((codeBlock) => {
-      if (codeBlock.visible === true)
-      {
-       if (activeWindowCode.includes(codeBlock.code))
-       {
-        var codeBlockLines = codeBlock.code.split('\n');
-        let codeBlockFirstLine = codeBlockLines[0] === "" || "\r" ? codeBlockLines[1] : codeBlockLines[0];
-        let codeBlockLastLine = codeBlockLines[codeBlockLines.length - 1] === "" || "\r" ? codeBlockLines[codeBlockLines.length - 2] : codeBlockLines[codeBlockLines.length - 1];
-        let foundStartLine = -1;
-        let foundEndLine = -1;
+      if (codeBlock.visible === true) {
+        if (activeWindowCode.includes(codeBlock.code)) {
+          var codeBlockLines = codeBlock.code.split("\n");
+          let codeBlockFirstLine = codeBlockLines[0] === "" || "\r" ? codeBlockLines[1] : codeBlockLines[0];
+          let codeBlockLastLine =
+            codeBlockLines[codeBlockLines.length - 1] === "" || "\r"
+              ? codeBlockLines[codeBlockLines.length - 2]
+              : codeBlockLines[codeBlockLines.length - 1];
+          let foundStartLine = -1;
+          let foundEndLine = -1;
 
-        var lines = activeWindowCode.split('\n');
-          for(var i = 0;i < lines.length;i++){
-            if (foundStartLine === -1 && lines[i].includes(codeBlockFirstLine)){
+          var lines = activeWindowCode.split("\n");
+          for (var i = 0; i < lines.length; i++) {
+            if (foundStartLine === -1 && lines[i].includes(codeBlockFirstLine)) {
               foundStartLine = i;
               let endval = foundStartLine + codeBlock.code.length;
             }
 
-            if (foundEndLine === -1 && lines[i].includes(codeBlockLastLine)){
+            if (foundEndLine === -1 && lines[i].includes(codeBlockLastLine)) {
               foundEndLine = i;
             }
           }
 
-          if (foundStartLine !== -1 && foundEndLine !== -1)
-          {
-            codeBlock.startLine = foundStartLine.toString(); 
-            codeBlock.endLine = foundEndLine.toString(); 
+          if (foundStartLine !== -1 && foundEndLine !== -1) {
+            codeBlock.startLine = foundStartLine.toString();
+            codeBlock.endLine = foundEndLine.toString();
             //Check line numbers and update?
-
-          }
-          else{
+          } else {
             codeBlock.codeDiff = true;
             //Mark codeDiff = true;
           }
-       }
+        }
       }
     });
-  }
+  };
 </script>
 
 <main>
@@ -471,7 +526,7 @@
     <h1>EDIT MODE</h1>
     <EditScreen />
   </div>
-  
+
   <div hidden={$items.settings.currentPanel !== "editMode" ? false : true}>
     <div style="display: flex, align-items: center">
       <h1 style="display: flex, align-items: center, justify-content: space-between;">
@@ -489,27 +544,31 @@
     </div>
   </div>
 
-  <div class={$items.settings.currentPanel === "codeBlocks" ? "containerHeader": ""} hidden={$items.settings.currentPanel === "codeBlocks" ? false : true}>
+  <div
+    class={$items.settings.currentPanel === "codeBlocks" ? "containerHeader" : ""}
+    hidden={$items.settings.currentPanel === "codeBlocks" ? false : true}
+  >
     <div class="codeBlocksAndMapContainer">
       <div class={$items.settings.hideBlocksBar === true ? "" : "codeBlocksContainer"} hidden={$items.settings.hideBlocksBar}>
         <!-- PANEL -->
         <div class="container">
           <div id="code-container" class="code-container">
             <div style="display:flex; flex-direction: row;">
-            <Tags />
-            <button on:click={() => $items.settings.hideBlocksBar = true} class={$items.settings.hideBlocksBar === true ? "hide" : ""}>
-              <Fa icon={faChevronLeft} style="color:white;" />
-            </button>
-          </div>
+              <Tags />
+              <button on:click={() => ($items.settings.hideBlocksBar = true)} class={$items.settings.hideBlocksBar === true ? "hide" : ""}>
+                <Fa icon={faChevronLeft} style="color:white;" />
+              </button>
+            </div>
             <LinkedBlocks />
             <Dnd {FullCodeSearch} />
-
           </div>
         </div>
         <div class="codeBlocksButtons">
           <!-- BUTTONS -->
           <div>
-            <button class="tooltip" on:click={ExportCodeVSCall}>Export Code<span class="tooltiptext">Export JSON Code to chosen file. </span> </button>
+            <button class="tooltip" on:click={ExportCodeVSCall}
+              >Export Code<span class="tooltiptext">Export JSON Code to chosen file. </span>
+            </button>
           </div>
           <div>
             <button on:click={common.ImportCode}>Import Code </button>
@@ -522,16 +581,20 @@
           </div>
         </div>
         <div id="pocketAndMapGroups" class="pocketAndMapGroups">
-          <Pocket/>
-          <CodeMapGroups/>
+          <Pocket />
+          <CodeMapGroups />
         </div>
 
         <div>
-          <Outline/>
+          <Outline />
         </div>
       </div>
 
-      <button style="margin-right:10px;" on:click={() => $items.settings.hideBlocksBar = false} class={typeof $items.settings.hideBlocksBar === "undefined" || $items.settings.hideBlocksBar === false ? "hide" : ""}>
+      <button
+        style="margin-right:10px;"
+        on:click={() => ($items.settings.hideBlocksBar = false)}
+        class={typeof $items.settings.hideBlocksBar === "undefined" || $items.settings.hideBlocksBar === false ? "hide" : ""}
+      >
         <Fa icon={faChevronRight} style="color:white;" />
       </button>
 
@@ -539,15 +602,12 @@
     </div>
   </div>
   <div hidden={$items.settings.currentPanel === "settings" ? false : true}>
-
     <SettingsScreen />
   </div>
 </main>
 
-
-
 <style>
-  .pocketAndMapGroups{
+  .pocketAndMapGroups {
     display: flex;
     flex-direction: column;
     border: black;
@@ -561,7 +621,7 @@
     flex-direction: row;
   }
 
-  .codeBlocksButtons{
+  .codeBlocksButtons {
     display: flex;
     flex-direction: row;
   }
@@ -579,7 +639,7 @@
     flex-direction: column;
   }
 
-  .hide{
+  .hide {
     visibility: hidden;
   }
 
@@ -594,7 +654,7 @@
   }
 
   :global(input) {
-    display:inline-block !important;
+    display: inline-block !important;
   }
 
   :global(.tooltip .tooltiptext) {

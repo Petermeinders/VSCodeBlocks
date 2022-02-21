@@ -4,7 +4,13 @@ import type { CodeMap, FilteredTree, Item, DerivedGroup } from './../src/Models'
 import { writable, derived } from "svelte/store";
 type currentPanel = "editMode" | "codeBlocks" | "codeMap" | "settings";
 
-let originCodeMap:CodeMap;
+let originCodeMap:CodeMap = {
+   canvas:{},
+   flatTree: [],
+   pocket: [],
+   groups: [],
+   activeWindow: {},
+}
 
 let originZoom = 1;
 
@@ -169,17 +175,13 @@ export const editMode = writable(originEditMode, (set) => {
    return () => { };
 });
 
-export const items = writable(originItems, (set) => {
-   console.log("Store Code Block Items Set!");
-   console.log(originItems);
-   return () => { };
-});
+export const items = writable(originItems);
 
 export const tags = derived(
    items,
    $items => {
       if (typeof ($items) !== 'undefined') {
-         let s = new Set($items.customSnippets.map(item => item.tags).flat());
+         let s = new Set($items?.customSnippets?.map(item => item.tags).flat());
          let newSet = Array.from(s);
          newSet.forEach(item => {
             if (typeof item === "undefined")
