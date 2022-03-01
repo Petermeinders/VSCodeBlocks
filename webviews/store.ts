@@ -115,6 +115,7 @@ let originactiveSelectionMeta = {
    endLine:"",
    endCharacter:"",
    path:"",
+   isStarred:false,
 };
 let originActivePath = "";
 let originLines: string | any[] = [];

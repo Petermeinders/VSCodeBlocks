@@ -86,9 +86,6 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 
 	});
- 
-	
-
 
 	vscode.window.onDidChangeActiveTextEditor(async (event) => {
 		if (event) {
@@ -97,14 +94,19 @@ export function activate(context: vscode.ExtensionContext) {
 			let uri = event.document.uri;
 			let code = event.document.getText();
 			let path2 = uri.path;
-			 let outline = HellowWorldPanel.GetOutline(path);
+			let scheme = uri.scheme;
+			let outline = HellowWorldPanel.GetOutline(path);
+			let name = event.document.uri.path.split("/")[event.document.uri.path.split("/").length-1];
+
 			//event.viewColumn = 1;
 
 			if (event.viewColumn === 2){
 
+				//Add file to code map
 				vscode.commands.executeCommand("workbench.action.revertAndCloseActiveEditor");
 				await delay(100);
-				await vscode.window.showTextDocument(event.document,1);
+				DragAndDropFileOrFolder(path, scheme, name);
+				 await vscode.window.showTextDocument(event.document,1);
 
 			}
 			
@@ -114,6 +116,11 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 
 	});
+
+
+	function DragAndDropFileOrFolder(path: string, scheme: string, name: string) {
+		HellowWorldPanel.onDragAndDrop(path, scheme, name);
+	}
 
 	// vscode.window.onDidChangeWindowState(event => {
 	// 	if (event) {

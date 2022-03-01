@@ -126,6 +126,16 @@ export class HellowWorldPanel {
     }
   }
 
+  public static onDragAndDrop(path: string, scheme: string, name: string) {
+    if (typeof HellowWorldPanel.currentPanel !== "undefined") {
+      let value = { path, scheme, name };
+      HellowWorldPanel.currentPanel._panel.webview.postMessage({
+        type: "on-drag-and-drop",
+        value: value,
+      });
+    }
+  }
+
   public static PassCodeToWindow(items: any) {
     if (typeof HellowWorldPanel.currentPanel !== "undefined") {
       HellowWorldPanel.currentPanel._panel.webview.postMessage({

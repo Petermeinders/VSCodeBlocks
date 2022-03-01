@@ -1,6 +1,6 @@
 <script lang="ts">
-  import Dnd from "../CodeBlocks/Dnd.svelte";
-  import Tags from "../CodeBlocks/Tags.svelte";
+  // import Dnd from "../CodeBlocks/Dnd.svelte";
+  // import Tags from "../CodeBlocks/Tags.svelte";
   import { onMount } from "svelte";
   import { activelySelectedText, activePath, activeSelectionMeta, debug, editItem, editMode, items, searchTerm } from "../../store";
   import { tags } from "../../store";
@@ -23,7 +23,8 @@
 
   let common: Shared;
   let parseVSCodeSnippet: ParseVSCodeSnippet;
-  let FullCodeSearch: boolean = true;
+  let map: CodeMap;
+  // let FullCodeSearch: boolean = true;
   let editScreen: EditScreen;
   
   let importError = false;
@@ -220,7 +221,6 @@
             importType: "vsSnippet",
           };
 
-          //ParseVSCodeSnippet(text);
           break;
 
         case "filtered-tree":
@@ -264,6 +264,27 @@
         case "add-placeholder":
           editScreen.CreateTabStop(message.value);
           break;
+        
+        case "on-drag-and-drop":
+          let dragAndDropData = message.value;
+          let path = dragAndDropData.path;
+          let string = dragAndDropData.string;
+          let name = dragAndDropData.name;
+
+         
+
+          $activeSelectionMeta.path = path;
+          $activeSelectionMeta.startLine = "0";
+          $activeSelectionMeta.startCharacter = "0";
+          $activeSelectionMeta.endLine = "0";
+          $activeSelectionMeta.endCharacter = "0";
+          $activelySelectedText = name;
+          $activeSelectionMeta.isStarred = true;
+          $activePath = path;
+          map.GenerateCodeBlockFromSelectedText();
+          map.ConvertGeneratedBlock();
+
+          break
 
         case "import-code":
           if (message.value === "") {
@@ -618,8 +639,7 @@
       >
         <Fa icon={faChevronRight} style="color:white;" />
       </button>
-
-      <CodeMap />
+      <CodeMap bind:this={map} />
     </div>
   </div>
   <div hidden={$items?.settings?.currentPanel !== undefined ? ($items.settings.currentPanel === "settings" ? false : true) : true}>

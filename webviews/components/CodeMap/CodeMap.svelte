@@ -1387,9 +1387,14 @@
     }
   }
 
-  function GenerateCodeBlockFromSelectedText() {
+  export const GenerateCodeBlockFromSelectedText = () => {
     if ($codeMap?.flatTree) {
       let ExistingGenerated = $codeMap?.flatTree.find((x) => x.id === "generated");
+      let duplicate =  $codeMap?.flatTree.find((x) => x.name === $activelySelectedText);
+
+      if (duplicate !== undefined) {
+        return;
+      }
 
       if (ExistingGenerated) {
         let index = $codeMap?.flatTree.indexOf(ExistingGenerated);
@@ -1422,7 +1427,7 @@
         generatedBlock.startCharacter = $activeSelectionMeta.startCharacter.toString();
         generatedBlock.endLine = $activeSelectionMeta.endLine.toString();
         generatedBlock.endCharacter = $activeSelectionMeta.endCharacter.toString();
-        generatedBlock.starred = false;
+        generatedBlock.starred = $activeSelectionMeta.isStarred;
         generatedBlock.linkedTargetBlocks = [];
 
         $codeMap.flatTree.splice(index, 1, generatedBlock);
@@ -1464,6 +1469,18 @@
     }
   }
 
+  export const ConvertGeneratedBlock = () => {
+    let selected = $codeMap.flatTree.find((x) => x.id === "generated");
+    let duplicate = $codeMap.flatTree.find((x) => x.name === selected?.name && x.id !== "generated");
+
+      if (selected && duplicate === undefined) {
+        selected.id = common.getNonce();
+        // if (document.getElementById("generated") !== null) {
+        //   document.getElementById("generated").id = selected.id;
+        // }
+        //OnMouseUpObject.items[0].id = selected.id;
+      }
+  }
   let m = { x: 0, y: 0 };
   let start = { x: 0, y: 0 };
 
