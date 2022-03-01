@@ -190,6 +190,7 @@
 		"svelte-dnd-action": "^0.9.9",
 		"svelte-fa": "^2.2.1",
 		"svelte-material-ui": "^4.2.0",
-		"vanilla-colorful": "^0.6.2"
+		"vanilla-colorful": "^0.6.2",
+		"vsce": "^2.6.7"
 	}
 }
