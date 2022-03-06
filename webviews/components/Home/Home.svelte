@@ -18,6 +18,7 @@
   import CodeMapGroups from "../CodeMap/CodeMapGroupsContainer.svelte";
   import Outline from "../CodeMap/Outline.svelte";
   import ParseVSCodeSnippet from "./VSCodeSnippets.svelte";
+import { Sibling } from "../../../src/Models";
 
   //Parent component for the code map and code blocks
 
@@ -281,8 +282,8 @@
           $activelySelectedText = name;
           $activeSelectionMeta.isStarred = true;
           $activePath = path;
-          map.GenerateCodeBlockFromSelectedText();
-          map.ConvertGeneratedBlock();
+          map.GenerateCodeBlockFromSelectedText(Sibling.Self);
+          // map.ConvertGeneratedBlock();
 
           break
 
@@ -503,8 +504,8 @@
     $items.settings.currentPanel = "codeBlocks";
   };
 
-  // Ever time user changes tabs, we need check the visible code blocks
-  //and make sure code matches the lines stored on the blocks
+  // Every time user changes tabs, we need check the visible code blocks
+  // and make sure code matches the lines stored on the blocks
   const CheckCodeBlocksAccuracy = () => {
     let activeWindowCode = $codeMap.activeWindow.code;
 
@@ -512,9 +513,9 @@
       if (codeBlock.visible === true) {
         if (activeWindowCode.includes(codeBlock.code)) {
           var codeBlockLines = codeBlock.code.split("\n");
-          let codeBlockFirstLine = codeBlockLines[0] === "" || "\r" ? codeBlockLines[1] : codeBlockLines[0];
+          let codeBlockFirstLine = codeBlockLines[0] === "" || codeBlockLines[0] ===  "\r" ? codeBlockLines[1] : codeBlockLines[0];
           let codeBlockLastLine =
-            codeBlockLines[codeBlockLines.length - 1] === "" || "\r"
+            codeBlockLines[codeBlockLines.length - 1] === "" || codeBlockLines[codeBlockLines.length - 1] ===  "\r"
               ? codeBlockLines[codeBlockLines.length - 2]
               : codeBlockLines[codeBlockLines.length - 1];
           let foundStartLine = -1;

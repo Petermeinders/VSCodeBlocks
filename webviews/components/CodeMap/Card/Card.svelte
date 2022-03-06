@@ -1,6 +1,7 @@
 <script lang="ts">
   import { flatTree, currentZoom, perimeterItem, codeMap, editItem, rightClickedBlockEvent, items } from "../../../store";
   import type { FilteredTree } from '../../../../src/Models';
+  import { Sibling } from '../../../../src/Models';
   import lodash, { flatten } from "lodash";
   import deepdash from "deepdash";
   import { onMount } from "svelte";
@@ -116,6 +117,22 @@
     });
   }
 
+  const GetCardSpawnLocationX = (treeItem: FilteredTree) => {
+    // if (treeItem.sibling === Sibling.Parent) {
+    //   return treeItem.locationX;
+    // }
+
+    return treeItem.locationX;
+  }
+
+  const GetCardSpawnLocationY = (treeItem: FilteredTree) => {
+    // if (treeItem.sibling === Sibling.Parent) {
+    //   return treeItem.locationY + 100;
+    // }
+
+    return treeItem.locationY;
+  }
+
   //Pin/Unpin block
   function StarClicked(treeItem: FilteredTree) {
     if (treeItem.starred) {
@@ -162,26 +179,43 @@
 
 
 <div class="ds-selected ds-hover absolute" style="display:none" />
+
+
 <main
   on:dblclick={() => dbClickBlock(treeItem)}
   on:contextmenu={(event) => expand(event)}
-  style="  background:{treeItem?.image !== "" && typeof(treeItem?.image) !== "undefined" ?
-   "url(" + treeItem.image + ")" : treeItem.color  ?? "black" }; z-index:101; 
-   {treeItem.locationX !== "0" && treeItem.locationY !== "0" ? 'left:' + treeItem.locationX + "px" + '; ' + 'top:' + treeItem.locationY + "px" + ";": ''}"
+
+  style="
+    background:{treeItem?.image !== "" && typeof(treeItem?.image) !== "undefined" ? "url(" + treeItem.image + ")" : treeItem.color  ?? "black" }; 
+    z-index:101; 
+    {treeItem.locationX !== "0" && treeItem.locationY !== "0" ? 'left:' + GetCardSpawnLocationX(treeItem) + "px" + '; ' + 'top:' + GetCardSpawnLocationY(treeItem) + "px" + ";": ''}"
   id={treeItem.id}
   data-fileType={treeItem.type}
   data-parentId={treeItem.parentId}
   class="card absolute highlight BlockImage {treeItem.type === 'directory' ? 'directory' : 'file'}">
 
+
+
   <RadialMenu treeItem={treeItem} {StarClicked}  {GroupBlocks} />
 
-  {#if treeItem.id !== "generated"}
-   <CardMenu treeItem={treeItem} {StarClicked} {Minimize} {StartLink}/>
-  {:else if treeItem.name !== ""}
-    <div class="generatedHeader">
-      <h2 style="color:white">Grab to create block</h2>
-    </div>
+  <!-- GENERATED -->
+  {#if treeItem.sibling === Sibling.Self || treeItem.sibling === undefined}
+    {#if treeItem.id !== "generated"}
+        <CardMenu treeItem={treeItem} {StarClicked} {Minimize} {StartLink}/>
+        {:else if treeItem.name !== ""}
+          <div class="generatedHeader">
+            <h2 style="color:white">Grab to create block</h2>
+          </div>
+    {/if}
+  {:else if treeItem.sibling === Sibling.Parent}
+    <!-- Generated Sibling -->
+  <div class="generatedHeader">
+    <h2 style="color:white">Generated Parent</h2>
+  </div>
   {/if}
+
+
+
   {#if treeItem?.image === "" || typeof(treeItem?.image) === "undefined"}
     {treeItem.type === "outline" ? treeItem.name.substring(0, 25) : treeItem.name}
   {/if}

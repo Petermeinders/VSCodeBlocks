@@ -105,10 +105,12 @@ export function activate(context: vscode.ExtensionContext) {
 				//Add file to code map
 				vscode.commands.executeCommand("workbench.action.revertAndCloseActiveEditor");
 				await delay(100);
-				DragAndDropFileOrFolder(path, scheme, name);
+				
 				 await vscode.window.showTextDocument(event.document,1);
 
 			}
+
+			DragAndDropFileOrFolder(path, scheme, name);
 			
 			HellowWorldPanel.onActiveEditorChange(path2, code);
 

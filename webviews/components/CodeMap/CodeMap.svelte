@@ -15,7 +15,7 @@
     rightClickedBlockEvent,
   } from "../../store";
   import Fa from "svelte-fa";
-  import type { Group } from "../../../src/Models";
+  import type { FilteredTree, Group } from "../../../src/Models";
   import { OutlineTypeEnum } from "../../../src/Models";
   import Card from "./Card/Card.svelte";
   import { onMount, afterUpdate, beforeUpdate, tick } from "svelte";
@@ -27,6 +27,7 @@
   import { faSave } from "@fortawesome/free-regular-svg-icons";
   import { faFileDownload } from "@fortawesome/free-solid-svg-icons";
   import panzoom from "panzoom";
+  import {Sibling, Type} from "../../../src/Models";
 
   let common: Shared;
 
@@ -66,6 +67,7 @@
   let zoom = 1;
   const ZOOM_SPEED = 0.1;
   let faketree = [];
+  let didDrag = false;
 
   $: isMoving;
 
@@ -182,16 +184,25 @@
       else buttonClick = false;
 
       if (OnMouseUpObject?.items[0]?.id === "generated") {
-        let selected = $codeMap.flatTree.find((x) => x.id === "generated");
+         let selected = $codeMap.flatTree.find((x) => x.id === "generated");
 
-        if (selected) {
-          selected.id = common.getNonce();
-          OnMouseUpObject.items[0].id = selected.id;
+        if (selected?.sibling === Sibling.Self)
+        {
+          ConvertGeneratedBlock(OnMouseUpObject, true);
         }
+        else{
+          ConvertGeneratedBlock(OnMouseUpObject, false);
+        }
+
+
+        // if (selected) {
+        //   selected.id = common.getNonce();
+        //   OnMouseUpObject.items[0].id = selected.id;
+        // }
       }
 
+      //Change block Highlight
       if (OnMouseUpObject.items.length === 1 && !buttonClick) {
-        //DragStartObject.items[0].
 
         let cards = document.querySelectorAll(".card");
 
@@ -214,7 +225,13 @@
 
         $currentlySelected.push(OnMouseUpObject.items[0]);
         console.log("highlightme");
-        //SelectGroup(OnMouseUpObject.event.target.id);
+
+        // Generate temporary parent block
+        let selected = $codeMap.flatTree.find((x) => x.id === OnMouseUpObject.items[0].id);
+        if (selected && selected.name !== undefined && !didDrag) {
+          ExpandTreeParent(selected, false);
+
+        }
       }
 
       if (OnMouseUpObject.items.length === 1 && buttonClick && $currentlySelected.length === 1) {
@@ -239,6 +256,10 @@
         OnMouseUpObject.items.forEach((card) => {
           $currentlySelected.push(card);
         });
+      }
+
+      if (OnMouseUpObject.items.length === 0) {
+        GenerateCodeBlockFromSelectedText()
       }
 
       //Check if it's a button
@@ -307,7 +328,16 @@
 
         OnMouseUpObject.event.srcElement.style.display = "block";
       }
+      // On clicking the background, remove all generated blocks
+        if (OnMouseUpObject.event.target.id === "" && OnMouseUpObject.event.target.localName === "svg") {
+          let generated = $codeMap.flatTree.find(x => x.id === "generated")
+          if (generated) {
+            $codeMap.flatTree.splice($codeMap.flatTree.indexOf(generated), 1);
+          }
+        }
+      
 
+      didDrag = false;
       CloseAllRadials();
     });
 
@@ -351,6 +381,7 @@
 
     ds.subscribe("dragmove", (DragMovedObject) => {
       //console.log("moving");
+      didDrag = true;
       let canvas = document.getElementById("canvas-inner");
       if (DragMovedObject.event.altKey) {
         let x = document.getElementById("canvas-inner").style.getPropertyValue("transform").match(/(-?[0-9\.]+)/g)[4];
@@ -479,7 +510,7 @@
     if (!linkLineDragging) {
       if ($debug) console.log("update lines!");
       RenderBlocks();
-      RenderLines();
+      
     }
   });
 
@@ -487,6 +518,7 @@
     if (!linkLineDragging) {
       BlocksToTreeStyleLayout();
       AddCardsToDrag();
+      RenderLines();
     }
   });
 
@@ -1194,21 +1226,24 @@
     console.log("not yet implemented");
   };
 
-  const Minimize = (e, treeItem) => {
+  const Minimize = (e, treeItem: FilteredTree) => {
+    
+
+
     console.log("MINIMIZE");
     console.log(e);
     console.log(treeItem);
     let selection = [];
 
-    if (typeof treeItem.open === "undefined" || treeItem.open === true) {
-      treeItem.open = false;
-      HideRecursively(treeItem);
-    } else {
-      treeItem.open = true;
-      let fileClicked = treeItem.type === "file" ? true : false;
-      ShowRecursivelyFromParent(treeItem, fileClicked);
-      RenderBlocks();
-    }
+    // if (typeof treeItem.open === "undefined" || treeItem.open === true) {
+    //   treeItem.open = false;
+    //   HideRecursively(treeItem);
+    // } else {
+    //   treeItem.open = true;
+    //   let fileClicked = treeItem.type === "file" ? true : false;
+    //   ShowRecursivelyFromParent(treeItem, fileClicked);
+    //   RenderBlocks();
+    // }
 
     // $codeMap.flatTree.forEach(flatItem => {
     //   if (flatItem.parentId === treeItem.id){
@@ -1221,6 +1256,41 @@
 
     ds.setSelection($currentlySelected);
   };
+
+  function ExpandTreeParent(treeItem: FilteredTree) {
+    let  pathToArray: string[];
+
+    if (treeItem.path.indexOf("/") !== -1){
+      pathToArray = treeItem.path.split('/'); 
+    }
+    else{
+      pathToArray = treeItem.path.split('\\');
+    }
+   
+      
+
+    let parentFolder = pathToArray[pathToArray.length - 2];
+    let pathMinusOne = pathToArray.splice(0,  pathToArray.length - 1).join("\\");
+
+    let tempParent = { ...treeItem };
+
+    tempParent.id = "generated"
+    tempParent.startLine = "0";
+    tempParent.startCharacter = "0";
+    tempParent.endLine = "0";
+    tempParent.endCharacter = "0";
+    tempParent.path = pathMinusOne;
+    tempParent.name = parentFolder;
+    tempParent.parentOrChildId = treeItem.id;
+    tempParent.linkedTargetBlocks = [];
+
+    tempParent.sibling = Sibling.Parent;
+    tempParent.locationX = treeItem.locationX;
+    tempParent.locationY = (+treeItem?.locationY - 100).toString();
+    
+
+    GenerateCodeBlockFromSelectedText(Sibling.Parent, tempParent);
+  }
 
   function HideRecursively(treeItem) {
     $codeMap.flatTree.forEach((flatItem) => {
@@ -1362,7 +1432,9 @@
 
   function SelectedTextChange() {
     // let existingOutline = ShowActivelySelectedOutline();
-    GenerateCodeBlockFromSelectedText();
+    if ($activelySelectedText.length > 0) {
+    GenerateCodeBlockFromSelectedText(Sibling.Self);
+    }
   }
 
   function ShowActivelySelectedOutline() {
@@ -1387,16 +1459,35 @@
     }
   }
 
-  export const GenerateCodeBlockFromSelectedText = () => {
+  export const GenerateCodeBlockFromSelectedText = (sibling:Sibling, existingTreeItem: FilteredTree) => {
     if ($codeMap?.flatTree) {
       let ExistingGenerated = $codeMap?.flatTree.find((x) => x.id === "generated");
-      let duplicate =  $codeMap?.flatTree.find((x) => x.name === $activelySelectedText);
+      let duplicate = $codeMap?.flatTree.find((x) => x.name === $activelySelectedText && existingTreeItem === undefined);
 
       if (duplicate !== undefined) {
+        //TODO: Highlight duplicate Blocks so it is obvious they are duplicates on screen.
         return;
       }
+      
+      // Generating Child/Parent
+      if (existingTreeItem && sibling !== Sibling.Self) {
+        if (Sibling.Parent)
+          existingTreeItem.type = Type.Folder;
 
-      if (ExistingGenerated) {
+
+        if (ExistingGenerated)
+        {
+          let index = $codeMap?.flatTree.indexOf(ExistingGenerated);
+          $codeMap.flatTree.splice(index, 1, existingTreeItem);
+          $codeMap.flatTree = [...$codeMap.flatTree];
+        }
+        else {
+          $codeMap.flatTree = [...$codeMap.flatTree, existingTreeItem]
+        }
+      }
+      else { 
+      // Generating new block from selected text or file  
+        if (ExistingGenerated) {
         let index = $codeMap?.flatTree.indexOf(ExistingGenerated);
         let generatedBlock = {};
 
@@ -1411,6 +1502,7 @@
         generatedBlock.linkedBlocks = [];
         generatedBlock.tags = ["custom"];
 
+        generatedBlock.sibling = sibling;
         generatedBlock.size = undefined;
         generatedBlock.type = "custom";
         generatedBlock.open = true;
@@ -1421,8 +1513,8 @@
         generatedBlock.inputy = undefined;
         generatedBlock.children = undefined;
         generatedBlock.extension = "custom";
-        generatedBlock.locationX = 0;
-        generatedBlock.locationY = 0;
+        generatedBlock.locationX = existingTreeItem !== undefined ? existingTreeItem?.locationX : 0;
+        generatedBlock.locationY = existingTreeItem !== undefined ? (+existingTreeItem?.locationY - 100).toString() : 0;
         generatedBlock.startLine = $activeSelectionMeta.startLine.toString();
         generatedBlock.startCharacter = $activeSelectionMeta.startCharacter.toString();
         generatedBlock.endLine = $activeSelectionMeta.endLine.toString();
@@ -1445,6 +1537,7 @@
         generatedBlock.linkedBlocks = [];
         generatedBlock.tags = ["custom"];
 
+        generatedBlock.sibling = sibling;
         generatedBlock.size = undefined;
         generatedBlock.type = "custom";
         generatedBlock.open = true;
@@ -1455,8 +1548,8 @@
         generatedBlock.inputy = undefined;
         generatedBlock.children = undefined;
         generatedBlock.extension = "custom";
-        generatedBlock.locationX = 0;
-        generatedBlock.locationY = 0;
+        generatedBlock.locationX = existingTreeItem !== undefined ? existingTreeItem?.locationX : 0;
+        generatedBlock.locationY = existingTreeItem !== undefined ? (+existingTreeItem?.locationY + 100).toString() : 0;
         generatedBlock.startLine = $activeSelectionMeta.startLine.toString();
         generatedBlock.startCharacter = $activeSelectionMeta.startCharacter.toString();
         generatedBlock.endLine = $activeSelectionMeta.endLine.toString();
@@ -1466,15 +1559,45 @@
 
         $codeMap.flatTree.push(generatedBlock);
       }
+      }
+
+     
     }
   }
 
-  export const ConvertGeneratedBlock = () => {
+  export const ConvertGeneratedBlock = (OnMouseUpObject: any, keepOriginal:boolean) => {
     let selected = $codeMap.flatTree.find((x) => x.id === "generated");
-    let duplicate = $codeMap.flatTree.find((x) => x.name === selected?.name && x.id !== "generated");
+    let duplicate = $codeMap.flatTree.find((x) => x.name === selected?.name && x.id !== "generated" && x.type === Type.Custom);
 
       if (selected && duplicate === undefined) {
         selected.id = common.getNonce();
+        
+        OnMouseUpObject.items[0].id = selected.id;
+
+        //Brand New Block
+        if (selected.sibling === Sibling.Self) {
+          selected.sibling = Sibling.Self;
+          $codeMap.flatTree.push(selected);
+            $codeMap.flatTree = [...$codeMap.flatTree];
+        }
+        else { //Child or Parent block
+          if (!keepOriginal) { //Remove old block
+            selected.sibling = Sibling.Self;
+            let existingBlock = $codeMap?.flatTree.find(x => x.id === selected?.parentOrChildId);
+            let index = $codeMap?.flatTree.indexOf(existingBlock);
+            $codeMap.flatTree.splice(index, 1);
+            $codeMap.flatTree = [...$codeMap.flatTree];
+
+          }
+          else {  //Keep old block
+            selected.sibling = Sibling.Self;
+            $codeMap.flatTree.push(selected);
+            $codeMap.flatTree = [...$codeMap.flatTree];
+          }
+
+        
+
+        }
         // if (document.getElementById("generated") !== null) {
         //   document.getElementById("generated").id = selected.id;
         // }

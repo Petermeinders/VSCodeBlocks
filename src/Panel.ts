@@ -768,6 +768,8 @@ if (data.value.mapEntireProject)
 
 
           let viewColum = vscode?.window?.visibleTextEditors[0]?.viewColumn;
+          if (viewColum === undefined) 
+            viewColum = 1;
 
           let fileURI = vscode.Uri.file(data.value.path);
           vscode.workspace.openTextDocument(fileURI).then((document) => {

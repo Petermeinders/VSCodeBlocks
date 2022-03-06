@@ -15,6 +15,18 @@ import * as _vscode from "vscode";
 //         tags: [];
 // }
 
+export enum Sibling {
+      "Parent",
+      "Child",
+      "Self"
+
+}
+
+export enum Type {
+   "File",
+   "Folder",
+   "Custom"
+}
 
 
 export interface FilteredTree {
@@ -25,6 +37,7 @@ export interface FilteredTree {
     type:string,
     color:string,
     image:string,
+    parentOrChildId:string,
     tags:[] | string[],
     placeholders:[] | string[],
     code:string,
