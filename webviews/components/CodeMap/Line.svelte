@@ -1,10 +1,10 @@
 <script lang="ts">
   import { codeMap, lines } from "../../store";
 
-  export let x1: number;
-  export let x2: number;
-  export let y1: number;
-  export let y2: number;
+  export let x1: number = 0;
+  export let x2: number = 0;
+  export let y1: number = 0;
+  export let y2: number = 0;
   export let id: string;
 
   export let sourceId: string;
@@ -48,7 +48,7 @@
     <marker id="triangleStart" viewBox="0 0 10 10" refX="1" refY="5" markerUnits="strokeWidth" markerWidth="10" markerHeight="10" orient="auto">
       <path d="M 0 0 L 10 5 L 0 10 z" fill="blue" />
     </marker>
-    {@debug sourceId }
+    <!-- {@debug sourceId } -->
 
     <line
       on:click={() => DeleteLine(sourceId, destId)}

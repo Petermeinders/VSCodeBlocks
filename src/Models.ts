@@ -28,6 +28,16 @@ export enum Type {
    "Custom"
 }
 
+export interface GroupedSquare {
+   groupId: string;
+   blocks: Array<FilteredTree>;
+   minX: number;
+   minY: number;
+   maxX: number;
+   maxY: number;
+}
+
+
 
 export interface FilteredTree {
     id:string,

@@ -13,9 +13,10 @@
     lines,
     activeSelectionMeta,
     rightClickedBlockEvent,
+groupedSquares,
   } from "../../store";
   import Fa from "svelte-fa";
-  import type { FilteredTree, Group } from "../../../src/Models";
+  import type { FilteredTree, Group, GroupedSquare } from "../../../src/Models";
   import { OutlineTypeEnum } from "../../../src/Models";
   import Card from "./Card/Card.svelte";
   import { onMount, afterUpdate, beforeUpdate, tick } from "svelte";
@@ -28,6 +29,7 @@
   import { faFileDownload } from "@fortawesome/free-solid-svg-icons";
   import panzoom from "panzoom";
   import {Sibling, Type} from "../../../src/Models";
+  import GroupOfBlocks from "./GroupOfBlocks.svelte";
 
   let common: Shared;
 
@@ -70,6 +72,7 @@
   let didDrag = false;
 
   $: isMoving;
+  //$: $groupedSquares;
 
   $: {
     $lines;
@@ -1114,9 +1117,14 @@
     }
   }
 
-  function AddGroup(blocks) {
+  function AddGroup(blocks:FilteredTree[]) {
     let newGroup = { groupId: common.getNonce(), blockIds: [], name: "New Group", visible: true };
+    $groupedSquares.push({
+      groupId: common.getNonce(),
+      blocks: blocks
+    });
 
+    $groupedSquares = $groupedSquares;
     newGroup.color = "#" + Math.floor(Math.random() * 16777215).toString(16);
 
     blocks.forEach((block) => {
@@ -1712,7 +1720,13 @@
         {/if}
       {/if}
 
-      {#if $codeMap?.groups > 0}{/if}
+      {#if $groupedSquares}
+            {#each $groupedSquares as groupedSquare}
+             <GroupOfBlocks {groupedSquare}/>
+            {/each}
+      {/if}
+
+      <!-- {#if $codeMap?.groups > 0}{/if} -->
 
       {#if $codeMap}
         <div style="display:none;">{RenderBlocks()}</div>

@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-import type { CodeMap, FilteredTree, Item, DerivedGroup } from './../src/Models';
+import type { CodeMap, FilteredTree, Item, DerivedGroup, GroupedSquare } from './../src/Models';
 import { writable, derived } from "svelte/store";
 type currentPanel = "editMode" | "codeBlocks" | "codeMap" | "settings";
 
@@ -100,6 +100,17 @@ export let originItems = {
 
 };
 
+// let tempgroups: GroupedSquare = {
+//    groupId: "",
+//    blocks: [],
+//    minX: 0,
+//    minY: 0,
+//    maxX: 0,
+//    maxY: 0,
+// };
+
+let originGroupedSquares: GroupedSquare[] = [];
+
 let originEditMode = {
       "id": "-1",
       "fileName":"",
@@ -165,6 +176,7 @@ export const activeSelectionMeta = writable(originactiveSelectionMeta);
 export const activePath = writable(originActivePath);
 
 export const lines = writable(originLines);
+export const groupedSquares: GroupedSquare[] = writable(originGroupedSquares);
 
 export const editItem = writable(originEditItem);
 
