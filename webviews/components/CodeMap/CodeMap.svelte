@@ -13,10 +13,11 @@
     lines,
     activeSelectionMeta,
     rightClickedBlockEvent,
-groupedSquares,
+  groupedSquares,
+  blockContainerStore,
   } from "../../store";
   import Fa from "svelte-fa";
-  import type { FilteredTree, Group, GroupedSquare } from "../../../src/Models";
+  import type { FilteredTree, Group, BlockContainerInterface } from "../../../src/Models";
   import { OutlineTypeEnum } from "../../../src/Models";
   import Card from "./Card/Card.svelte";
   import { onMount, afterUpdate, beforeUpdate, tick } from "svelte";
@@ -30,6 +31,8 @@ groupedSquares,
   import panzoom from "panzoom";
   import {Sibling, Type} from "../../../src/Models";
   import GroupOfBlocks from "./GroupOfBlocks.svelte";
+  import BlockContainer from "./Card/BlockContainer.svelte";
+
 
   let common: Shared;
 
@@ -341,6 +344,9 @@ groupedSquares,
       
 
       didDrag = false;
+      if (OnMouseUpObject?.items[0]?.getAttribute("data-fileType") === "3") {
+        OnMouseUpObject.items[0].style.zIndex = "-99";
+      }
       CloseAllRadials();
     });
 
@@ -417,6 +423,23 @@ groupedSquares,
         let id = item.id;
         let activeBlock = $codeMap.flatTree.find((x) => x.id === id);
 
+        //Check if container and log it.
+        if (!activeBlock)
+        {
+          console.log("Could not find block with id: " + id);
+
+          if (id === "" || id === undefined) {
+          return;
+          }
+
+          let containerBlock = $blockContainerStore.find((x) => x.id === id);
+
+          if (containerBlock) {
+            console.log("Active Block is a container");
+          }
+
+          return;
+        }
         
           let element = document.getElementById(id);
 
@@ -1054,6 +1077,19 @@ groupedSquares,
     });
   }
 
+  function OnNewContainerClick() {
+    let newContainer:BlockContainerInterface = {
+    id: common.getNonce(),
+    name: "Name Here!",
+    blocks: [],
+    locationX: 0,
+    locationY: 0
+    };
+    $blockContainerStore.push(newContainer);
+    $blockContainerStore = $blockContainerStore;
+    console.log($blockContainerStore);
+  }
+
   function OrganizeSelected() {
     //let selected = ds.getSelection();
     console.log($currentlySelected);
@@ -1673,6 +1709,7 @@ groupedSquares,
       <button class="codeBlockTopButtons" type="button" on:click={LoadCodeMap} style="display:inline;">Load</button>
       <button class="codeBlockTopButtons" type="button" on:click={LoadFROMCodeMap} style="display:inline;">Load From</button>
       <button class="codeBlockTopButtons" type="button" on:click={OrganizeSelected} style="display:inline;">Cleanup Selected</button>
+      <button class="codeBlockTopButtons" type="button" on:click={OnNewContainerClick} style="display:inline;">New Container</button>
     </div>
     <!-- <button id="GroupBlocks" type="button" on:click={GroupBlocks}>Group</button>
     <button id="UngroupBlocks" type="button" on:click={UngroupBlocks}>Ungroup</button> -->
@@ -1718,6 +1755,12 @@ groupedSquares,
             </div>
           {/if}
         {/if}
+      {/if}
+
+      {#if $blockContainerStore}
+        {#each $blockContainerStore as blockContainer}
+          <BlockContainer {blockContainer} />
+        {/each}
       {/if}
 
       {#if $groupedSquares}

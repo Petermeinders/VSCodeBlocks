@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-import type { CodeMap, FilteredTree, Item, DerivedGroup, GroupedSquare } from './../src/Models';
+import type { CodeMap, FilteredTree, Item, DerivedGroup, GroupedSquare, BlockContainerInterface } from './../src/Models';
 import { writable, derived } from "svelte/store";
 type currentPanel = "editMode" | "codeBlocks" | "codeMap" | "settings";
 
@@ -19,6 +19,8 @@ let originperimeterItem = {};
 let originCurrentlySelected: string | any[] = [];
 
 let originFlatTree: string | any[] = [];
+
+let originBlockContainer: BlockContainerInterface[] = [];
 
 let customSnippets:Item[] =
 [
@@ -166,6 +168,8 @@ export const codeMap = writable(originCodeMap);
 export const linkedBlocks = writable(originLinkedBlocks);
 
 export const debug = writable(originDebug);
+
+export const blockContainerStore = writable(originBlockContainer);
 
 export const activelySelectedText = writable(originActivelySelectedText);
 

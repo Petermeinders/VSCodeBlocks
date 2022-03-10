@@ -25,7 +25,19 @@ export enum Sibling {
 export enum Type {
    "File",
    "Folder",
-   "Custom"
+   "Custom",
+   "Container"
+}
+
+export interface BlockContainerInterface {
+   id: string;
+   name: string;
+   blocks: Array<FilteredTree>;
+   locationX: number;
+   locationY: number;
+   width: number;
+   height: number;
+   
 }
 
 export interface GroupedSquare {
