@@ -438,6 +438,20 @@
           let objX = +item?.style?.left.replace("px", "");
           let objY = +item?.style?.top.replace("px", "");
 
+
+
+            let containerBlock = $blockContainerStore.find((x) => x.id === id);
+
+            if (item.classList.contains("Container")) {
+              let container = item;
+              if (container){
+                console.log("Active Block is a container");
+                item.style.left = (objX * $currentZoom + (mouseX - objX) * $currentZoom) / $currentZoom - 100 + "px";
+                item.style.top = (objY * $currentZoom + (mouseY - objY) * $currentZoom) / $currentZoom - 100 + "px";
+              }
+              return;
+            }
+
           //Check if container and log it.
           if (!activeBlock) {
             console.log("Could not find block with id: " + id);
@@ -446,14 +460,9 @@
               return;
             }
 
-            let containerBlock = $blockContainerStore.find((x) => x.id === id);
-
-            if (containerBlock) {
-              console.log("Active Block is a container");
-            }
-
             return;
           }
+          
 
           let element = document.getElementById(id);
 
