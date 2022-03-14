@@ -37,21 +37,26 @@
   
   <div class="ds-selected ds-hover absolute" style="display:none" />
   
-  
-  <main  
+  <main class="card absolute highlight BlockImage Container" style="display: flex;">
+    <div class="generatedHeader Container">
+      <h2 style="color:white" class="Container">Container</h2>
+  </div>
+    <div  
     style="
-      background: black; 
+      background: transparent; 
+      border: #00ff89;
+      border-width: 2px;
+      border-style: dashed;
       z-index:{z} !important; width:{width}px; height:{height}px;
       {blockContainer.locationX !== 0 && blockContainer.locationY !== 0 ? 'left:' + GetCardSpawnLocationX(blockContainer) + "px" + '; ' + 'top:' + GetCardSpawnLocationY(blockContainer) + "px" + ";": ''}"
       data-fileType={Type.Container}
       id={blockContainer.id}
-    class="card  highlight BlockImage">
-  
-    <div class=" generatedHeader">
-        <h2 class="card absolute" style="color:white">Container</h2>
-    </div>
+    >
 
+  </div>
   </main>
+
+
   
   
   

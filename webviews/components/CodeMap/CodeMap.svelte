@@ -13,8 +13,8 @@
     lines,
     activeSelectionMeta,
     rightClickedBlockEvent,
-  groupedSquares,
-  blockContainerStore,
+    groupedSquares,
+    blockContainerStore,
   } from "../../store";
   import Fa from "svelte-fa";
   import type { FilteredTree, Group, BlockContainerInterface } from "../../../src/Models";
@@ -29,10 +29,9 @@
   import { faSave } from "@fortawesome/free-regular-svg-icons";
   import { faFileDownload } from "@fortawesome/free-solid-svg-icons";
   import panzoom from "panzoom";
-  import {Sibling, Type} from "../../../src/Models";
+  import { Sibling, Type } from "../../../src/Models";
   import GroupOfBlocks from "./GroupOfBlocks.svelte";
   import BlockContainer from "./Card/BlockContainer.svelte";
-
 
   let common: Shared;
 
@@ -52,6 +51,10 @@
   let selectedBlocks;
   let changedFile;
   let linkLineDragging = false;
+  let clickedId = 0;
+  let mouseStatPointX = 0;
+  let mouseStatPointY = 0;
+
 
   // Order:------------------
   // . OnMount()
@@ -138,18 +141,16 @@
 
     ds = new DragSelect({
       selectables: document.getElementsByClassName("card"),
-       useTransform: false,
-      
+      useTransform: false,
+
       callback: (e) => e,
       //  zoom: 2,
 
-        area: document.getElementById("area"),
+      area: document.getElementById("area"),
     });
 
     // just grab a DOM element
     var element = document.querySelector("#canvas-inner");
-
-
 
     // And pass it to panzoom
     var instance = panzoom(element, {
@@ -165,18 +166,17 @@
       },
     });
 
-    instance.on('zoom', function(e) {
-  console.log(e.getTransform());
-  $currentZoom = e.getTransform().scale;
-  $currentScaleX = e.getTransform().x;
-  $currentScaleY = e.getTransform().y;
-  //e.zoomTo(.90);
-  // ds.zoom = e.getTransform();
-  console.log("LOADED!");
-  console.log(instance.getTransform());
-  // document.getElementById("area").style.transform = `scale(${e.getTransform()})`;
-});
-    
+    instance.on("zoom", function (e) {
+      console.log(e.getTransform());
+      $currentZoom = e.getTransform().scale;
+      $currentScaleX = e.getTransform().x;
+      $currentScaleY = e.getTransform().y;
+      //e.zoomTo(.90);
+      // ds.zoom = e.getTransform();
+      console.log("LOADED!");
+      console.log(instance.getTransform());
+      // document.getElementById("area").style.transform = `scale(${e.getTransform()})`;
+    });
 
     ds.subscribe("callback", (OnMouseUpObject) => {
       let buttonClick;
@@ -190,16 +190,13 @@
       else buttonClick = false;
 
       if (OnMouseUpObject?.items[0]?.id === "generated") {
-         let selected = $codeMap.flatTree.find((x) => x.id === "generated");
+        let selected = $codeMap.flatTree.find((x) => x.id === "generated");
 
-        if (selected?.sibling === Sibling.Self)
-        {
+        if (selected?.sibling === Sibling.Self) {
           ConvertGeneratedBlock(OnMouseUpObject, true);
-        }
-        else{
+        } else {
           ConvertGeneratedBlock(OnMouseUpObject, false);
         }
-
 
         // if (selected) {
         //   selected.id = common.getNonce();
@@ -209,7 +206,6 @@
 
       //Change block Highlight
       if (OnMouseUpObject.items.length === 1 && !buttonClick) {
-
         let cards = document.querySelectorAll(".card");
 
         cards.forEach((card) => {
@@ -236,7 +232,6 @@
         let selected = $codeMap.flatTree.find((x) => x.id === OnMouseUpObject.items[0].id);
         if (selected && selected.name !== undefined && !didDrag) {
           ExpandTreeParent(selected, false);
-
         }
       }
 
@@ -265,7 +260,7 @@
       }
 
       if (OnMouseUpObject.items.length === 0) {
-        GenerateCodeBlockFromSelectedText()
+        GenerateCodeBlockFromSelectedText();
       }
 
       //Check if it's a button
@@ -332,16 +327,19 @@
           }
         }
 
-        OnMouseUpObject.event.srcElement.style.display = "block";
+        if (OnMouseUpObject?.items[0].classList.contains("Container")) {
+          OnMouseUpObject.event.srcElement.style.display = "flex";
+        } else {
+          OnMouseUpObject.event.srcElement.style.display = "block";
+        }
       }
       // On clicking the background, remove all generated blocks
-        if (OnMouseUpObject.event.target.id === "" && OnMouseUpObject.event.target.localName === "svg") {
-          let generated = $codeMap.flatTree.find(x => x.id === "generated")
-          if (generated) {
-            $codeMap.flatTree.splice($codeMap.flatTree.indexOf(generated), 1);
-          }
+      if (OnMouseUpObject.event.target.id === "" && OnMouseUpObject.event.target.localName === "svg") {
+        let generated = $codeMap.flatTree.find((x) => x.id === "generated");
+        if (generated) {
+          $codeMap.flatTree.splice($codeMap.flatTree.indexOf(generated), 1);
         }
-      
+      }
 
       didDrag = false;
       if (OnMouseUpObject?.items[0]?.getAttribute("data-fileType") === "3") {
@@ -352,6 +350,9 @@
 
     ds.subscribe("dragstart", (DragStartObject) => {
       let buttonClick;
+      clickedId = DragStartObject.event.target.id;
+      mouseStatPointX = DragStartObject.event.x / $currentZoom - $currentScaleX / $currentZoom;
+      mouseStatPointY = DragStartObject.event.y / $currentZoom - $currentScaleY / $currentZoom;
 
       if (DragStartObject.event.altKey) {
         // ds.stop();
@@ -368,12 +369,15 @@
 
         let childPos = DragStartObject.items[0].getBoundingClientRect();
         let parentPos = DragStartObject.items[0].parentElement.getBoundingClientRect();
-        let x = childPos.x - parentPos.x;
-        let y = childPos.y - parentPos.y;
+        //let x = childPos.x - parentPos.x;
+        // let y = childPos.y - parentPos.y;
+
+        let x = childPos.x * $currentZoom;
+        let y = childPos.y * $currentZoom;
 
         let translate = "translate3d(" + x + "px, " + y + "px, 1px) scale(" + $currentZoom + ")";
 
-        // DragStartObject.items[0].style.transform = translate;
+        //DragStartObject.items[0].style.transform = translate;
       }
       if (DragStartObject.items.length === 1 && !buttonClick) {
         let groupItems = SelectGroup(DragStartObject.event.target.id);
@@ -393,12 +397,18 @@
       didDrag = true;
       let canvas = document.getElementById("canvas-inner");
       if (DragMovedObject.event.altKey) {
-        let x = document.getElementById("canvas-inner").style.getPropertyValue("transform").match(/(-?[0-9\.]+)/g)[4];
-        let y = document.getElementById("canvas-inner").style.getPropertyValue("transform").match(/(-?[0-9\.]+)/g)[5];
+        let x = document
+          .getElementById("canvas-inner")
+          .style.getPropertyValue("transform")
+          .match(/(-?[0-9\.]+)/g)[4];
+        let y = document
+          .getElementById("canvas-inner")
+          .style.getPropertyValue("transform")
+          .match(/(-?[0-9\.]+)/g)[5];
 
         $currentScaleX = parseInt(x);
         $currentScaleY = parseInt(y);
-        console.log($currentScaleX);;
+        console.log($currentScaleX);
         return;
       }
 
@@ -413,34 +423,38 @@
         //let testx = childPos.x + $currentScaleX;
         //console.log("currentx: " + $currentScaleX);
 
+        let mouseX = DragMovedObject.event.x / $currentZoom - $currentScaleX / $currentZoom;
+        let mouseY = DragMovedObject.event.y / $currentZoom - $currentScaleY / $currentZoom;
 
-        let mouseX = DragMovedObject.event.x / $currentZoom  - ($currentScaleX / $currentZoom);
-        let mouseY = DragMovedObject.event.y / $currentZoom  - ($currentScaleY / $currentZoom);
+        //  let objX = +DragMovedObject?.items[0]?.style?.left.replace("px","")
 
-      //let id = DragMovedObject.event.target.id;
+        //let objXNumber:Number = +objX;
 
-      DragMovedObject.items.forEach(item => {
-        let id = item.id;
-        let activeBlock = $codeMap.flatTree.find((x) => x.id === id);
+        DragMovedObject.items.forEach((item) => {
+          let id = item.id;
+          let activeBlock = $codeMap.flatTree.find((x) => x.id === id);
+          activeBlock?.locationX
 
-        //Check if container and log it.
-        if (!activeBlock)
-        {
-          console.log("Could not find block with id: " + id);
+          let objX = +item?.style?.left.replace("px", "");
+          let objY = +item?.style?.top.replace("px", "");
 
-          if (id === "" || id === undefined) {
-          return;
+          //Check if container and log it.
+          if (!activeBlock) {
+            console.log("Could not find block with id: " + id);
+
+            if (id === "" || id === undefined) {
+              return;
+            }
+
+            let containerBlock = $blockContainerStore.find((x) => x.id === id);
+
+            if (containerBlock) {
+              console.log("Active Block is a container");
+            }
+
+            return;
           }
 
-          let containerBlock = $blockContainerStore.find((x) => x.id === id);
-
-          if (containerBlock) {
-            console.log("Active Block is a container");
-          }
-
-          return;
-        }
-        
           let element = document.getElementById(id);
 
           // let selectedX = (DragMovedObject.event.x / $currentZoom); // - (($currentScaleX + 100) / $currentZoom);  //- currentScaleX
@@ -459,18 +473,59 @@
           let relativeX = activeBlock.locationX;
           let relativeY = activeBlock.locationY;
 
-          console.log("mouseX:" + mouseX + " relX:" + relativeX + " LocationX: " + activeBlock.locationX + " Zoom: " + $currentZoom );
-          console.log("MouseY:" + mouseY + " relY:" + relativeY  + " LocationY: " + activeBlock.locationY + " Zoom: " + $currentZoom );
+         
 
+          if (clickedId === item.id) {
+            if (element) {
+              //element.style.left = (+mouseX) - 100 + "px";
+              element.style.left = (objX * $currentZoom + (mouseX - objX) * $currentZoom) / $currentZoom - 100 + "px";
+              element.style.top = (objY * $currentZoom + (mouseY - objY) * $currentZoom) / $currentZoom - 100 + "px";
+            } else {
+              console.log("Could not find element with id: " + id);
+            }
+          }
+          else {
+            if (element) {
+              console.log(
+            "mouseX:" +
+              mouseX +
+              " relX:" +
+              relativeX +
+              " ObjX:" +
+              objX +
+              " Diff:" +
+              (mouseX - objX) +
+              " LocationX: " +
+              activeBlock.locationX +
+              " Zoom: " +
+              $currentZoom +
+              " StartLocationX: " +
+              activeBlock?.locationX
+          );
 
-         // element.style.left = mouseX - relativeX + "px";
-         // element.style.top =  mouseY - relativeY + "px";
+          console.log((objX * $currentZoom + (mouseX - objX) * $currentZoom) / $currentZoom + "px");
+
+              //element.style.left = (+mouseX) - 100 + "px";
+              element.style.left = ((objX * $currentZoom + (mouseX - objX) * $currentZoom) / $currentZoom) - (mouseStatPointX - +activeBlock?.locationX) + "px";
+              element.style.top = ((objY * $currentZoom + (mouseY - objY) * $currentZoom) / $currentZoom) - (mouseStatPointY - +activeBlock?.locationY) + "px";
+            } else {
+              console.log("Could not find element with id: " + id);
+            }
+
+         
+
+          }
+
+          
+
+          //console.log("MouseY:" + mouseY + " relY:" + relativeY  + " LocationY: " + activeBlock.locationY + " Zoom: " + $currentZoom );
+
+          //element.style.left = mouseX - relativeX + "px";
+          // element.style.top =  mouseY - relativeY + "px";
 
           // element.style.left = mouseX - (100 / $currentZoom)  + "px";
           // element.style.top =  mouseY - (100 / $currentZoom) + "px";
-
-      })
-     
+        });
       }
     });
 
@@ -520,7 +575,7 @@
               let indexOfFlatBlock = $codeMap.flatTree.indexOf(flatBlock);
               tempvalues = flatBlock;
               tempvalues.locationX = block.style.left.replace("px", "").toString(); //x2.toString();
-              tempvalues.locationY = block.style.top.replace("px", "").toString();  //y2.toString();
+              tempvalues.locationY = block.style.top.replace("px", "").toString(); //y2.toString();
               fakeMap.splice(indexOfFlatBlock, 1, tempvalues);
             }
           });
@@ -536,7 +591,6 @@
     if (!linkLineDragging) {
       if ($debug) console.log("update lines!");
       RenderBlocks();
-      
     }
   });
 
@@ -975,7 +1029,7 @@
         //    "condition",
         //    "expression"
         // ],
-      // color: "white",
+        // color: "white",
         // visible: "",
         // linkedBlocks: [],
         // tags: [
@@ -1078,12 +1132,12 @@
   }
 
   function OnNewContainerClick() {
-    let newContainer:BlockContainerInterface = {
-    id: common.getNonce(),
-    name: "Name Here!",
-    blocks: [],
-    locationX: 0,
-    locationY: 0
+    let newContainer: BlockContainerInterface = {
+      id: common.getNonce(),
+      name: "Name Here!",
+      blocks: [],
+      locationX: 0,
+      locationY: 0,
     };
     $blockContainerStore.push(newContainer);
     $blockContainerStore = $blockContainerStore;
@@ -1153,11 +1207,11 @@
     }
   }
 
-  function AddGroup(blocks:FilteredTree[]) {
+  function AddGroup(blocks: FilteredTree[]) {
     let newGroup = { groupId: common.getNonce(), blockIds: [], name: "New Group", visible: true };
     $groupedSquares.push({
       groupId: common.getNonce(),
-      blocks: blocks
+      blocks: blocks,
     });
 
     $groupedSquares = $groupedSquares;
@@ -1271,9 +1325,6 @@
   };
 
   const Minimize = (e, treeItem: FilteredTree) => {
-    
-
-
     console.log("MINIMIZE");
     console.log(e);
     console.log(treeItem);
@@ -1302,23 +1353,20 @@
   };
 
   function ExpandTreeParent(treeItem: FilteredTree) {
-    let  pathToArray: string[];
+    let pathToArray: string[];
 
-    if (treeItem.path.indexOf("/") !== -1){
-      pathToArray = treeItem.path.split('/'); 
+    if (treeItem.path.indexOf("/") !== -1) {
+      pathToArray = treeItem.path.split("/");
+    } else {
+      pathToArray = treeItem.path.split("\\");
     }
-    else{
-      pathToArray = treeItem.path.split('\\');
-    }
-   
-      
 
     let parentFolder = pathToArray[pathToArray.length - 2];
-    let pathMinusOne = pathToArray.splice(0,  pathToArray.length - 1).join("\\");
+    let pathMinusOne = pathToArray.splice(0, pathToArray.length - 1).join("\\");
 
     let tempParent = { ...treeItem };
 
-    tempParent.id = "generated"
+    tempParent.id = "generated";
     tempParent.startLine = "0";
     tempParent.startCharacter = "0";
     tempParent.endLine = "0";
@@ -1331,7 +1379,6 @@
     tempParent.sibling = Sibling.Parent;
     tempParent.locationX = treeItem.locationX;
     tempParent.locationY = (+treeItem?.locationY - 100).toString();
-    
 
     GenerateCodeBlockFromSelectedText(Sibling.Parent, tempParent);
   }
@@ -1477,7 +1524,7 @@
   function SelectedTextChange() {
     // let existingOutline = ShowActivelySelectedOutline();
     if ($activelySelectedText.length > 0) {
-    GenerateCodeBlockFromSelectedText(Sibling.Self);
+      GenerateCodeBlockFromSelectedText(Sibling.Self);
     }
   }
 
@@ -1503,7 +1550,7 @@
     }
   }
 
-  export const GenerateCodeBlockFromSelectedText = (sibling:Sibling, existingTreeItem: FilteredTree) => {
+  export const GenerateCodeBlockFromSelectedText = (sibling: Sibling, existingTreeItem: FilteredTree) => {
     if ($codeMap?.flatTree) {
       let ExistingGenerated = $codeMap?.flatTree.find((x) => x.id === "generated");
       let duplicate = $codeMap?.flatTree.find((x) => x.name === $activelySelectedText && existingTreeItem === undefined);
@@ -1512,142 +1559,132 @@
         //TODO: Highlight duplicate Blocks so it is obvious they are duplicates on screen.
         return;
       }
-      
+
       // Generating Child/Parent
       if (existingTreeItem && sibling !== Sibling.Self) {
-        if (Sibling.Parent)
-          existingTreeItem.type = Type.Folder;
+        if (Sibling.Parent) existingTreeItem.type = Type.Folder;
 
-
-        if (ExistingGenerated)
-        {
+        if (ExistingGenerated) {
           let index = $codeMap?.flatTree.indexOf(ExistingGenerated);
           $codeMap.flatTree.splice(index, 1, existingTreeItem);
           $codeMap.flatTree = [...$codeMap.flatTree];
+        } else {
+          $codeMap.flatTree = [...$codeMap.flatTree, existingTreeItem];
         }
-        else {
-          $codeMap.flatTree = [...$codeMap.flatTree, existingTreeItem]
-        }
-      }
-      else { 
-      // Generating new block from selected text or file  
-        if (ExistingGenerated) {
-        let index = $codeMap?.flatTree.indexOf(ExistingGenerated);
-        let generatedBlock = {};
-
-        generatedBlock.id = "generated";
-        generatedBlock.name = $activelySelectedText.substring(0, 25);
-        generatedBlock.path = $activeSelectionMeta.path.toString();
-        generatedBlock.code = $activelySelectedText;
-        generatedBlock.language = undefined;
-        generatedBlock.placeholders = [];
-        generatedBlock.color = $items.settings.randomizeNewBlockColors ? "#" + Math.floor(Math.random() * 16777215).toString(16) : "#3c3c3ce3";
-        generatedBlock.visible = true;
-        generatedBlock.linkedBlocks = [];
-        generatedBlock.tags = ["custom"];
-
-        generatedBlock.sibling = sibling;
-        generatedBlock.size = undefined;
-        generatedBlock.type = "custom";
-        generatedBlock.open = true;
-        generatedBlock.parentId = undefined;
-        generatedBlock.outputx = undefined;
-        generatedBlock.outputy = undefined;
-        generatedBlock.inputx = undefined;
-        generatedBlock.inputy = undefined;
-        generatedBlock.children = undefined;
-        generatedBlock.extension = "custom";
-        generatedBlock.locationX = existingTreeItem !== undefined ? existingTreeItem?.locationX : 0;
-        generatedBlock.locationY = existingTreeItem !== undefined ? (+existingTreeItem?.locationY - 100).toString() : 0;
-        generatedBlock.startLine = $activeSelectionMeta.startLine.toString();
-        generatedBlock.startCharacter = $activeSelectionMeta.startCharacter.toString();
-        generatedBlock.endLine = $activeSelectionMeta.endLine.toString();
-        generatedBlock.endCharacter = $activeSelectionMeta.endCharacter.toString();
-        generatedBlock.starred = $activeSelectionMeta.isStarred;
-        generatedBlock.linkedTargetBlocks = [];
-
-        $codeMap.flatTree.splice(index, 1, generatedBlock);
       } else {
-        let generatedBlock = {};
+        // Generating new block from selected text or file
+        if (ExistingGenerated) {
+          let index = $codeMap?.flatTree.indexOf(ExistingGenerated);
+          let generatedBlock = {};
 
-        generatedBlock.id = "generated";
-        generatedBlock.name = $activelySelectedText.substring(0, 25);
-        generatedBlock.path = $activeSelectionMeta.path;
-        generatedBlock.code = $activelySelectedText;
-        generatedBlock.language = undefined;
-        generatedBlock.placeholders = [];
-        generatedBlock.color = "#3c3c3ce3";
-        generatedBlock.visible = true;
-        generatedBlock.linkedBlocks = [];
-        generatedBlock.tags = ["custom"];
+          generatedBlock.id = "generated";
+          generatedBlock.name = $activelySelectedText.substring(0, 25);
+          generatedBlock.path = $activeSelectionMeta.path.toString();
+          generatedBlock.code = $activelySelectedText;
+          generatedBlock.language = undefined;
+          generatedBlock.placeholders = [];
+          generatedBlock.color = $items.settings.randomizeNewBlockColors ? "#" + Math.floor(Math.random() * 16777215).toString(16) : "#3c3c3ce3";
+          generatedBlock.visible = true;
+          generatedBlock.linkedBlocks = [];
+          generatedBlock.tags = ["custom"];
 
-        generatedBlock.sibling = sibling;
-        generatedBlock.size = undefined;
-        generatedBlock.type = "custom";
-        generatedBlock.open = true;
-        generatedBlock.parentId = undefined;
-        generatedBlock.outputx = undefined;
-        generatedBlock.outputy = undefined;
-        generatedBlock.inputx = undefined;
-        generatedBlock.inputy = undefined;
-        generatedBlock.children = undefined;
-        generatedBlock.extension = "custom";
-        generatedBlock.locationX = existingTreeItem !== undefined ? existingTreeItem?.locationX : 0;
-        generatedBlock.locationY = existingTreeItem !== undefined ? (+existingTreeItem?.locationY + 100).toString() : 0;
-        generatedBlock.startLine = $activeSelectionMeta.startLine.toString();
-        generatedBlock.startCharacter = $activeSelectionMeta.startCharacter.toString();
-        generatedBlock.endLine = $activeSelectionMeta.endLine.toString();
-        generatedBlock.endCharacter = $activeSelectionMeta.endCharacter.toString();
-        generatedBlock.starred = true;
-        generatedBlock.linkedTargetBlocks = [];
+          generatedBlock.sibling = sibling;
+          generatedBlock.size = undefined;
+          generatedBlock.type = "custom";
+          generatedBlock.open = true;
+          generatedBlock.parentId = undefined;
+          generatedBlock.outputx = undefined;
+          generatedBlock.outputy = undefined;
+          generatedBlock.inputx = undefined;
+          generatedBlock.inputy = undefined;
+          generatedBlock.children = undefined;
+          generatedBlock.extension = "custom";
+          generatedBlock.locationX = existingTreeItem !== undefined ? existingTreeItem?.locationX : 0;
+          generatedBlock.locationY = existingTreeItem !== undefined ? (+existingTreeItem?.locationY - 100).toString() : 0;
+          generatedBlock.startLine = $activeSelectionMeta.startLine.toString();
+          generatedBlock.startCharacter = $activeSelectionMeta.startCharacter.toString();
+          generatedBlock.endLine = $activeSelectionMeta.endLine.toString();
+          generatedBlock.endCharacter = $activeSelectionMeta.endCharacter.toString();
+          generatedBlock.starred = $activeSelectionMeta.isStarred;
+          generatedBlock.linkedTargetBlocks = [];
 
-        $codeMap.flatTree.push(generatedBlock);
+          $codeMap.flatTree.splice(index, 1, generatedBlock);
+        } else {
+          let generatedBlock = {};
+
+          generatedBlock.id = "generated";
+          generatedBlock.name = $activelySelectedText.substring(0, 25);
+          generatedBlock.path = $activeSelectionMeta.path;
+          generatedBlock.code = $activelySelectedText;
+          generatedBlock.language = undefined;
+          generatedBlock.placeholders = [];
+          generatedBlock.color = "#3c3c3ce3";
+          generatedBlock.visible = true;
+          generatedBlock.linkedBlocks = [];
+          generatedBlock.tags = ["custom"];
+
+          generatedBlock.sibling = sibling;
+          generatedBlock.size = undefined;
+          generatedBlock.type = "custom";
+          generatedBlock.open = true;
+          generatedBlock.parentId = undefined;
+          generatedBlock.outputx = undefined;
+          generatedBlock.outputy = undefined;
+          generatedBlock.inputx = undefined;
+          generatedBlock.inputy = undefined;
+          generatedBlock.children = undefined;
+          generatedBlock.extension = "custom";
+          generatedBlock.locationX = existingTreeItem !== undefined ? existingTreeItem?.locationX : 0;
+          generatedBlock.locationY = existingTreeItem !== undefined ? (+existingTreeItem?.locationY + 100).toString() : 0;
+          generatedBlock.startLine = $activeSelectionMeta.startLine.toString();
+          generatedBlock.startCharacter = $activeSelectionMeta.startCharacter.toString();
+          generatedBlock.endLine = $activeSelectionMeta.endLine.toString();
+          generatedBlock.endCharacter = $activeSelectionMeta.endCharacter.toString();
+          generatedBlock.starred = true;
+          generatedBlock.linkedTargetBlocks = [];
+
+          $codeMap.flatTree.push(generatedBlock);
+        }
       }
-      }
-
-     
     }
-  }
+  };
 
-  export const ConvertGeneratedBlock = (OnMouseUpObject: any, keepOriginal:boolean) => {
+  export const ConvertGeneratedBlock = (OnMouseUpObject: any, keepOriginal: boolean) => {
     let selected = $codeMap.flatTree.find((x) => x.id === "generated");
     let duplicate = $codeMap.flatTree.find((x) => x.name === selected?.name && x.id !== "generated" && x.type === Type.Custom);
 
-      if (selected && duplicate === undefined) {
-        selected.id = common.getNonce();
-        
-        OnMouseUpObject.items[0].id = selected.id;
+    if (selected && duplicate === undefined) {
+      selected.id = common.getNonce();
 
-        //Brand New Block
-        if (selected.sibling === Sibling.Self) {
+      OnMouseUpObject.items[0].id = selected.id;
+
+      //Brand New Block
+      if (selected.sibling === Sibling.Self) {
+        selected.sibling = Sibling.Self;
+        $codeMap.flatTree.push(selected);
+        $codeMap.flatTree = [...$codeMap.flatTree];
+      } else {
+        //Child or Parent block
+        if (!keepOriginal) {
+          //Remove old block
+          selected.sibling = Sibling.Self;
+          let existingBlock = $codeMap?.flatTree.find((x) => x.id === selected?.parentOrChildId);
+          let index = $codeMap?.flatTree.indexOf(existingBlock);
+          $codeMap.flatTree.splice(index, 1);
+          $codeMap.flatTree = [...$codeMap.flatTree];
+        } else {
+          //Keep old block
           selected.sibling = Sibling.Self;
           $codeMap.flatTree.push(selected);
-            $codeMap.flatTree = [...$codeMap.flatTree];
+          $codeMap.flatTree = [...$codeMap.flatTree];
         }
-        else { //Child or Parent block
-          if (!keepOriginal) { //Remove old block
-            selected.sibling = Sibling.Self;
-            let existingBlock = $codeMap?.flatTree.find(x => x.id === selected?.parentOrChildId);
-            let index = $codeMap?.flatTree.indexOf(existingBlock);
-            $codeMap.flatTree.splice(index, 1);
-            $codeMap.flatTree = [...$codeMap.flatTree];
-
-          }
-          else {  //Keep old block
-            selected.sibling = Sibling.Self;
-            $codeMap.flatTree.push(selected);
-            $codeMap.flatTree = [...$codeMap.flatTree];
-          }
-
-        
-
-        }
-        // if (document.getElementById("generated") !== null) {
-        //   document.getElementById("generated").id = selected.id;
-        // }
-        //OnMouseUpObject.items[0].id = selected.id;
       }
-  }
+      // if (document.getElementById("generated") !== null) {
+      //   document.getElementById("generated").id = selected.id;
+      // }
+      //OnMouseUpObject.items[0].id = selected.id;
+    }
+  };
   let m = { x: 0, y: 0 };
   let start = { x: 0, y: 0 };
 
@@ -1764,9 +1801,9 @@
       {/if}
 
       {#if $groupedSquares}
-            {#each $groupedSquares as groupedSquare}
-             <GroupOfBlocks {groupedSquare}/>
-            {/each}
+        {#each $groupedSquares as groupedSquare}
+          <GroupOfBlocks {groupedSquare} />
+        {/each}
       {/if}
 
       <!-- {#if $codeMap?.groups > 0}{/if} -->
