@@ -19,12 +19,13 @@
   import Outline from "../CodeMap/Outline.svelte";
   import ParseVSCodeSnippet from "./VSCodeSnippets.svelte";
 import { Sibling } from "../../../src/Models";
+import CodeMapMove from "../CodeMap/CodeMapMove.svelte";
 
   //Parent component for the code map and code blocks
 
   let common: Shared;
   let parseVSCodeSnippet: ParseVSCodeSnippet;
-  let map: CodeMap;
+  let map: CodeMapMove;
   // let FullCodeSearch: boolean = true;
   let editScreen: EditScreen;
   
@@ -640,7 +641,8 @@ import { Sibling } from "../../../src/Models";
       >
         <Fa icon={faChevronRight} style="color:white;" />
       </button>
-      <CodeMap bind:this={map} />
+      <!-- <CodeMap bind:this={map} /> -->
+      <CodeMapMove bind:this={map} />
     </div>
   </div>
   <div hidden={$items?.settings?.currentPanel !== undefined ? ($items.settings.currentPanel === "settings" ? false : true) : true}>

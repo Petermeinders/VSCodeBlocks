@@ -32,6 +32,7 @@
   import { Sibling, Type } from "../../../src/Models";
   import GroupOfBlocks from "./GroupOfBlocks.svelte";
   import BlockContainer from "./Card/BlockContainer.svelte";
+  import MovableBlock from "./Card/MovableBlock.svelte";
 
   let common: Shared;
 
@@ -1741,10 +1742,14 @@
   }
 </script>
 
+<MovableBlock />
+
+
 <main id="Canvas">
   <Shared bind:this={common} />
   <!-- The mouse position is {m.x} x {m.y} -->
   <!-- <h1 style="text-align:center;">Code Map</h1> -->
+
 
   <div id="area" style="width:100%; height:100%; position:fixed; overflow:hidden">
     <div class="ds-selected" style="display:none" />
@@ -1775,6 +1780,8 @@
             {/if}
           {/each}
         </div>
+
+
 
         <!-- Line -->
         {#if $lines}

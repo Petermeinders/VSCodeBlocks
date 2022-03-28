@@ -194,6 +194,8 @@ export const editMode = writable(originEditMode, (set) => {
 
 export const items = writable(originItems);
 
+export const zoom = writable(0);
+
 export const tags = derived(
    items,
    $items => {
