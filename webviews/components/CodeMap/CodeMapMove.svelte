@@ -40,6 +40,7 @@ import { scale } from "svelte/transition";
 import { } from "os";
 import Selecto from "svelte-selecto";
 import type { OnSelectEnd } from "svelte-selecto";
+import { element } from "svelte/internal";
 
 
   let common: Shared;
@@ -595,7 +596,7 @@ import type { OnSelectEnd } from "svelte-selecto";
 
 
 
-<main id="CodeMapMove" style="width:500px; height:500px;" on:wheel={wheelHandler}>
+<main id="CodeMapMove" style="width:100%; height:95vh;" on:wheel={wheelHandler}>
 <Shared bind:this={common} />
 
 
@@ -721,7 +722,8 @@ on:resize={({ detail: e }) => {
     //     el.classList.remove("selected");
     // });
    // onBlockSelectStart(e);
-console.log("selecto drag start");
+   if (!e.inputEvent.altKey){
+    console.log("selecto drag start");
    const target = e.inputEvent.target;
                 if (
                     moveable.isMoveableElement(target)
@@ -729,9 +731,15 @@ console.log("selecto drag start");
                 ) {
                     e.stop();
                 }
+   }
+   else{
+    e.stop();
+   }
+
   }}
 
   on:select={({ detail: e }) => {
+    element:HTMLDivElement  = e;
       // e.added.forEach(el => {
       //     el.classList.add("selected");
       // });
@@ -739,6 +747,7 @@ console.log("selecto drag start");
       //     el.classList.remove("selected");
       // });
       // OnBlockDragOVERSelect(e);
+      if (!e.inputEvent.altKey)
       targets = e.selected;
   }}
 

@@ -161,7 +161,7 @@
 
 
 
-  <main class="single-block cube">
+  <main class="single-block cube" style="width:161px; position:absolute">
 
   <div bind:this={target}
   on:dblclick={() => dbClickBlock(treeItem)}
