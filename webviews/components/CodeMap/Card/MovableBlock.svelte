@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { afterUpdate, beforeUpdate, tick } from "svelte";
+  import { onMount, tick } from "svelte";
   import { Type } from '../../../../src/Models';
   import type { FilteredTree } from '../../../../src/Models';
   import RadialMenu from "../Card/CardRadial.svelte";
@@ -8,16 +8,11 @@
 
 
   import Moveable from "svelte-moveable";
-  import { zoom, codeMap, rightClickedBlockEvent } from "../../../store";
-import BlockContainer from "./BlockContainer.svelte";
+  import { zoom, codeMap, rightClickedBlockEvent, moveAbles } from "../../../store";
 
-  const frame = {
-    translate: [0, 0],
-  };
   let target;
   let moveable: Moveable;
   export let treeItem: FilteredTree;
-  export let OnDragEnded = (target: HTMLDivElement, treeItem: FilteredTree) => {};
   export let GroupBlocks = (event:MouseEvent) => {};
   export let Minimize = (event: any, treeItem: FilteredTree) => {};
   export let StartLink = (event: any, treeItem: FilteredTree) => {};
@@ -27,21 +22,18 @@ import BlockContainer from "./BlockContainer.svelte";
     $zoom, onzoomChange();
   }
 
-function OnDragEnd(target: HTMLDivElement, isDrag, clientX, clientY) {
-  console.log("onDragEnd", target, isDrag, clientX, clientY);
-  let codeBlock = $codeMap.flatTree.find((item) =>  item.id === target.id)
-
-  if (codeBlock)
-    OnDragEnded(target, codeBlock);
-}
+  onMount(async () => {
+    if (moveable){
+      $moveAbles.push(moveable);
+    }
+  })
 
   async function onzoomChange() {
       if (moveable) {
         // moveable.getInstance().padding = { left: 10 + $zoom, top: 10  + $zoom, right: 10  + $zoom, bottom: 10  };
         await tick();
-       moveable.request("scalable", {deltaWidth: 1, deltaHeight: 1 }, true);
+        moveable.request("scalable", {deltaWidth: 1, deltaHeight: 1 }, true);
         moveable.getInstance().className = "moveable2";
-
 
         moveable?.getInstance()?.updateRect();
       }
@@ -50,17 +42,6 @@ function OnDragEnd(target: HTMLDivElement, isDrag, clientX, clientY) {
     console.log(moveable?.getInstance().getRect());
     console.log("onZoomchange");
   }
-
-  beforeUpdate(() => {
-
-  });
-
-  afterUpdate(() => {
-   
-    console.log("afterUpdate");
-  });
-  
-
 
 
 //Card ----------------------------------------------------------------------------------------------------------------------
@@ -180,14 +161,7 @@ function OnDragEnd(target: HTMLDivElement, isDrag, clientX, clientY) {
 
 
 
-  <main>
-
-
-
-
-
-
-
+  <main class="single-block cube">
 
   <div bind:this={target}
   on:dblclick={() => dbClickBlock(treeItem)}
@@ -196,7 +170,7 @@ function OnDragEnd(target: HTMLDivElement, isDrag, clientX, clientY) {
   id={treeItem.id}
   data-fileType={treeItem.type}
   data-parentId={treeItem.parentId}
-  class="target card absolute highlight BlockImage {treeItem.type === Type.Folder ? 'directory' : 'file'}">
+  class="card absolute  highlight BlockImage {treeItem.type === Type.Folder ? 'directory' : 'file'}">
 
   <RadialMenu treeItem={treeItem} {StarClicked}  {GroupBlocks} />
 
@@ -227,56 +201,6 @@ function OnDragEnd(target: HTMLDivElement, isDrag, clientX, clientY) {
 </div>
 
 
-
-
-
-
-
-    <Moveable
-      draggable={true}
-      useResizeObserver={true}
-      zoom={1}
-      {target}
-      scalable={true}
-      resizable={true}
-      throttleResize={0}
-      throttleDrag={0}
-      bind:this={moveable}
-      on:dragStart={({ detail: { set } }) => {
-        set(frame.translate);
-      }}
-      on:drag={({ detail: { target, beforeTranslate } }) => {
-        frame.translate = beforeTranslate;
-        target.style.transform = `translate(${beforeTranslate[0]}px, ${beforeTranslate[1]}px)`;
-      }}
-      on:dragEnd={({ detail: { target, isDrag, clientX, clientY } }) => {
-        OnDragEnd(target, isDrag, clientX, clientY);
-      }}
-      on:resizeStart={({ detail: { target, set, setOrigin, dragStart } }) => {
-        // Set origin if transform-origin use %.
-        setOrigin(["%", "%"]);
-    
-        // If cssSize and offsetSize are different, set cssSize. (no box-sizing)
-        const style = window.getComputedStyle(target);
-        const cssWidth = parseFloat(style.width);
-        const cssHeight = parseFloat(style.height);
-        set([cssWidth, cssHeight]);
-    
-        // If a drag event has already occurred, there is no dragStart.
-        dragStart && dragStart.set(frame.translate);
-      }}
-      on:resize={({ detail: { target, width, height, drag } }) => {
-        target.style.width = `${width}px`;
-        target.style.height = `${height}px`;
-    
-        // get drag event
-        frame.translate = drag.beforeTranslate;
-        target.style.transform = `translate(${drag.beforeTranslate[0]}px, ${drag.beforeTranslate[1]}px)`;
-      }}
-      on:resizeEnd={({ detail: { target, isDrag, clientX, clientY } }) => {
-        console.log("onResizeEnd", target, isDrag);
-      }}
-    />
 </main>
 
 <style>

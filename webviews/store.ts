@@ -139,6 +139,8 @@ let originEditItem = {
    "id": "0", "tempId":"", "name": "test", "code":"if(${1:condition} ||${1:condition}){${2:expression}})", "linkedBlocks": [], "language":"java", "placeholders":["condition","expression"], "color":'white', "visible":"", "tags":["tag1","tag2"] 
 }
 
+let originMoveAbles = Array<Moveable>();
+
 let originLinkedBlocks:any[] = [];
 
 // [{ "id": "0", "name": "test", "code":"if(${1:condition} ||${1:condition}){${2:expression}})", "placeholders":["condition","expression"], "color":'white', "visible":"", "tags":["tag1","tag2"] },{ "id": "1", "name": "test2", "code":"...2", "color":'white', "visible":"", "tags":["tag1","tag2"] }]
@@ -185,6 +187,8 @@ export const groupedSquares: GroupedSquare[] = writable(originGroupedSquares);
 export const editItem = writable(originEditItem);
 
 export const searchTerm = writable(originSearchTerm);
+
+export const moveAbles = writable(originMoveAbles);
 
 export const editMode = writable(originEditMode, (set) => {
    console.log("Editmode Set!");
