@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, tick } from "svelte";
+  import { afterUpdate, beforeUpdate, onMount, tick } from "svelte";
   import { Type } from '../../../../src/Models';
   import type { FilteredTree } from '../../../../src/Models';
   import RadialMenu from "../Card/CardRadial.svelte";
@@ -11,34 +11,78 @@
   import { zoom, codeMap, rightClickedBlockEvent, moveAbles } from "../../../store";
 
   let target;
-  let moveable: Moveable;
+  // let moveable: Moveable;
+  export let moveable: Moveable;
   export let treeItem: FilteredTree;
   export let GroupBlocks = (event:MouseEvent) => {};
   export let Minimize = (event: any, treeItem: FilteredTree) => {};
   export let StartLink = (event: any, treeItem: FilteredTree) => {};
 
+  let addValue = true;
 
   $: {
     $zoom, onzoomChange();
   }
 
   onMount(async () => {
-    if (moveable){
-      $moveAbles.push(moveable);
-    }
+    // if (moveable){
+    //   $moveAbles.push(moveable);
+    // }
+   
   })
 
-  async function onzoomChange() {
+  beforeUpdate(() => {
+    if (moveable) {
+    //moveable.request("scalable", {deltaWidth: 1, deltaHeight: 1 }, true);
+    console.log("before update");
+    }
+  });
+
+  afterUpdate(() => {
+    if (moveable) {
+    //moveable.request("scalable", {deltaWidth: -1, deltaHeight: -1 }, true);
+    console.log("afterUpdate");
+    }
+  });
+
+  //Stupid hack to get the border of the card (Movable) to change to fit the object after the zoom has finished.
+  function onzoomChange() {
       if (moveable) {
         // moveable.getInstance().padding = { left: 10 + $zoom, top: 10  + $zoom, right: 10  + $zoom, bottom: 10  };
-        await tick();
-        moveable.request("scalable", {deltaWidth: 1, deltaHeight: 1 }, true);
-        moveable.getInstance().className = "moveable2";
+        var id = treeItem.id;
+        var element = document.getElementById(id);
+        // set width on element
+        if (element)
+        {
+          if (addValue)
+          {
+            element.style.width = (+element.offsetWidth + 1).toString() + "px";
+            addValue = false;
+          }
+          else{
+            element.style.width = (+element.offsetWidth - 1).toString() + "px";
+            addValue = true;
+          }
 
-        moveable?.getInstance()?.updateRect();
+
+
+          // element.style.display = "flex;"; 
+          // if (element.style.position = "absolute"){
+          //   element.style.position = "relative";
+          // }
+          // else{
+          //   element.style.position = "absolute";
+          // }
+        }
+          // element.style.width = 164 + "px";
+
+        //var move = moveable.getInstance();
+        //moveable.request("scalable", {deltaWidth: 1, deltaHeight: 1 }, true);
+        // moveable.getInstance().className = "moveable2";
+        //moveable.getInstance().renderDirections =  ["n", "nw", "ne"];
+        //moveable?.getInstance()?.updateRect();
       }
     
-    moveable?.getInstance()?.updateRect();
     console.log(moveable?.getInstance().getRect());
     console.log("onZoomchange");
   }
@@ -195,7 +239,6 @@
     {treeItem.type === Type.Custom ? treeItem.name.substring(0, 25) : treeItem.name}
   {/if}
 
-  {$zoom}
 
 
 </div>

@@ -72,8 +72,29 @@ import { element } from "svelte/internal";
       beforeMouseDown: function (e) {
         // allow mouse-down panning only if altKey is down. Otherwise - ignore
         var shouldIgnore = !e.altKey;
+        if (!shouldIgnore) {
+          if (selecto) {
+            selecto.selectableTargets = document.querySelectorAll(".selecto-area .cube");
+            console.log(selecto?.selectableTargets); 
+            document.querySelector(".moveable-control-box").style.display = "none";
+          }
+        }
         return shouldIgnore;
       },
+    });
+
+    instance.on('panend', function(e) {
+      if (selecto) {
+          selecto.selectableTargets = document.querySelectorAll(".selecto-area .cube");
+          document.querySelector(".moveable-control-box").style.display = "block";
+          let selected = selecto.getSelectableElements();
+          //selected[0].style.width = "99px";
+          selecto.getInstance().trigger("scroll");
+          //selecto.clickTarget(e, selected);
+          //selecto.setSelectedTargets(selected);
+
+
+        }
     });
 
     instance.on("zoom", function (e) {
@@ -85,9 +106,27 @@ import { element } from "svelte/internal";
       // ds.zoom = e.getTransform();
       console.log("LOADED!");
       console.log(instance.getTransform());
-      $zoom = instance?.getTransform()?.scale;
+      //$zoom = instance?.getTransform()?.scale;
       // document.getElementById("area").style.transform = `scale(${e.getTransform()})`;
     });
+
+    instance.on("pan", function(e){
+
+      // let controlBoxX = getTranslateX(document.querySelector(".moveable-control-box"));
+      // let controlBoxY = getTranslateY(document.querySelector(".moveable-control-box"));
+
+      // let canvasX = getTranslateX(document.querySelector("#canvas-inner"));
+      // let canvasY = getTranslateY(document.querySelector("#canvas-inner"));
+
+      // let controlBox = document.querySelector(".moveable-control-box");
+      // let resultX = controlBoxX + canvasX;
+      // let resultY = controlBoxY + canvasY;
+      // controlBox.style.transform = `translate3d(${resultX}px, ${resultY}px, 0px)`;
+
+      // console.log(controlBox.style.transform);
+
+      
+    })
 
   });
 
@@ -96,7 +135,22 @@ import { element } from "svelte/internal";
 
   });
 
+  function getTranslateX(myElement) {
+  var style = window.getComputedStyle(myElement);
+  var matrix = new WebKitCSSMatrix(style.transform);
+  //console.log('translateX: ', matrix.m41);
+  return matrix.m41;
+}
+
+function getTranslateY(myElement) {
+  var style = window.getComputedStyle(myElement);
+  var matrix = new WebKitCSSMatrix(style.transform);
+  //console.log('translateY: ', matrix.m42);
+  return matrix.m42;
+}
+
   afterUpdate(() => {
+    
     //NewSelecto();
 
 
@@ -706,7 +760,7 @@ on:resize={({ detail: e }) => {
 
   <Selecto class="selecto2" 
   bind:this={selecto}
-  dragContainer={document.body}
+  dragContainer={document.querySelector("#canvas-inner")}
   selectableTargets={[".selecto-area .cube"]}
   hitRate={0}
   selectByClick={true}
@@ -790,7 +844,7 @@ on:resize={({ detail: e }) => {
             {#if typeof treeItem.visible === "undefined" || treeItem?.visible === true}
               {#if (treeItem.type !== Type.Folder) || (treeItem.type !== Type.Folder && $items.settings.showFolders === true) || ( $items.settings.showFiles === true)}
 
-                <MovableBlock  {treeItem}  />
+                <MovableBlock {moveable}  {treeItem}  />
 
               {/if}
             {/if}
