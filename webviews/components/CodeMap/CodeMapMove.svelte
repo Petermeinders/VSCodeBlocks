@@ -96,7 +96,7 @@ import { renderer } from "../../renderer";
 
   const container = document.getElementById("CodeMapMove");
   const el = document.getElementById("selecto1");
-  // const el = document.getElementsByClassName("moveable-control-box");
+   const elBoxo = document.getElementsByClassName("moveable-control-box");
   const zoomPan = renderer({ scaleSensitivity: 5, minScale: .1, maxScale: 30, element: el });
   container.addEventListener("wheel", (event) => {
       // if (!event.ctrlKey) {
@@ -108,6 +108,7 @@ import { renderer } from "../../renderer";
           x: event.pageX,
           y: event.pageY
       });
+     
   });
   // container.addEventListener("dblclick", () => {
   //     zoomPan.panTo({
@@ -126,11 +127,23 @@ import { renderer } from "../../renderer";
             originX: event.movementX,
             originY: event.movementY
         });
+
+        HideBorderOnMove();
+       
     })
 
     container.addEventListener("contextmenu", (event) => {
         event.preventDefault();
     })
+
+    container.addEventListener("mouseup", (event) => {
+      if (event.button !== 2) {
+            return;
+        }
+        //ShowBorderAfterMove();
+
+    })
+
 
    
 
@@ -200,7 +213,21 @@ import { renderer } from "../../renderer";
 
 
 
+function HideBorderOnMove() {
+  if (selecto) {
+            selecto.selectableTargets = document.querySelectorAll(".selecto-area .cube");
+            console.log(selecto?.selectableTargets); 
+            document.querySelector(".moveable-control-box").style.display = "none";
+          }
+}
 
+function ShowBorderAfterMove() {
+  if (selecto) {
+            selecto.selectableTargets = document.querySelectorAll(".selecto-area .cube");
+            console.log(selecto?.selectableTargets); 
+            document.querySelector(".moveable-control-box").style.display = "block";
+          }
+}
 
 
 
