@@ -151,12 +151,13 @@
   {
     console.log(e);
     let menu;
+    
 
     $rightClickedBlockEvent = e;
     if (e.target.classList.contains("menu")) menu = e.target;
     if (e.target.querySelector(".menu")) menu = e.target.querySelector(".menu");
 
-    if (menu !== null) {
+    if (menu !== null && menu !== undefined) {
       if (menu.classList.contains("opened")) {
         menu.style.transform = "scale(0)";
         
@@ -168,6 +169,7 @@
         menu.classList.add("opened");
       }
     }
+    e.preventDefault();
   }
 
   const GetCardSpawnLocationX = (treeItem: FilteredTree) => {

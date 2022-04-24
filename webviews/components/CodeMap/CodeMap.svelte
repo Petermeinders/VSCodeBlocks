@@ -28,7 +28,7 @@
   import Shared from "../Shared.svelte";
   import { faSave } from "@fortawesome/free-regular-svg-icons";
   import { faFileDownload } from "@fortawesome/free-solid-svg-icons";
-  import panzoom from "panzoom";
+
   import { Sibling, Type } from "../../../src/Models";
   import GroupOfBlocks from "./GroupOfBlocks.svelte";
   import BlockContainer from "./Card/BlockContainer.svelte";
@@ -154,18 +154,18 @@
     var element = document.querySelector("#canvas-inner");
 
     // And pass it to panzoom
-    var instance = panzoom(element, {
-      // zoomSpeed: 0.095,
-      smoothScroll: false,
-      maxZoom: 1,
-      minZoom: 0.1,
-      initialZoom: 1,
-      beforeMouseDown: function (e) {
-        // allow mouse-down panning only if altKey is down. Otherwise - ignore
-        var shouldIgnore = !e.altKey;
-        return shouldIgnore;
-      },
-    });
+    // var instance = panzoom(element, {
+    //   // zoomSpeed: 0.095,
+    //   smoothScroll: false,
+    //   maxZoom: 1,
+    //   minZoom: 0.1,
+    //   initialZoom: 1,
+    //   beforeMouseDown: function (e) {
+    //     // allow mouse-down panning only if altKey is down. Otherwise - ignore
+    //     var shouldIgnore = !e.altKey;
+    //     return shouldIgnore;
+    //   },
+    // });
 
     instance.on("zoom", function (e) {
       console.log(e.getTransform());

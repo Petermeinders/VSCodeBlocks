@@ -30,7 +30,7 @@ moveAbles,
   import Shared from "../Shared.svelte";
   import { faSave } from "@fortawesome/free-regular-svg-icons";
   import { faFileDownload } from "@fortawesome/free-solid-svg-icons";
-  import panzoom from "panzoom";
+  // import panzoom from 'svg-pan-zoom'
   import { Sibling, Type } from "../../../src/Models";
   import GroupOfBlocks from "./GroupOfBlocks.svelte";
   import BlockContainer from "./Card/BlockContainer.svelte";
@@ -41,6 +41,7 @@ import { } from "os";
 import Selecto from "svelte-selecto";
 import type { OnSelectEnd } from "svelte-selecto";
 import { element } from "svelte/internal";
+import { renderer } from "../../renderer";
 
 
   let common: Shared;
@@ -63,54 +64,110 @@ import { element } from "svelte/internal";
     var selectoElement = document.querySelector("#canvas-inner");
 
     // And pass it to panzoom
-    var instance = panzoom(element, {
-      // zoomSpeed: 0.095,
-      smoothScroll: false,
-      maxZoom: 1,
-      minZoom: 0.1,
-      initialZoom: 1,
-      beforeMouseDown: function (e) {
-        // allow mouse-down panning only if altKey is down. Otherwise - ignore
-        var shouldIgnore = !e.altKey;
-        if (!shouldIgnore) {
-          if (selecto) {
-            selecto.selectableTargets = document.querySelectorAll(".selecto-area .cube");
-            console.log(selecto?.selectableTargets); 
-            document.querySelector(".moveable-control-box").style.display = "none";
-          }
+    // var instance = panzoom(element, {
+    //   // zoomSpeed: 0.095,
+    //   smoothScroll: false,
+    //   maxZoom: 1,
+    //   minZoom: 0.1,
+    //   initialZoom: 1,
+    //   beforeMouseDown: function (e) {
+    //     // allow mouse-down panning only if altKey is down. Otherwise - ignore
+    //     var shouldIgnore = !e.altKey;
+    //     if (!shouldIgnore) {
+    //       if (selecto) {
+    //         selecto.selectableTargets = document.querySelectorAll(".selecto-area .cube");
+    //         console.log(selecto?.selectableTargets); 
+    //         document.querySelector(".moveable-control-box").style.display = "none";
+    //       }
+    //     }
+    //     return shouldIgnore;
+    //   },
+    // });
+
+    // element?.parentElement?.addEventListener('wheel', instance.zoomWithWheel)
+
+
+
+
+
+
+
+ 
+
+  const container = document.getElementById("CodeMapMove");
+  const el = document.getElementById("selecto1");
+  // const el = document.getElementsByClassName("moveable-control-box");
+  const zoomPan = renderer({ scaleSensitivity: 5, minScale: .1, maxScale: 30, element: el });
+  container.addEventListener("wheel", (event) => {
+      // if (!event.ctrlKey) {
+      //     return;
+      // }
+      event.preventDefault();
+      zoomPan.zoom({
+          deltaScale: Math.sign(event.deltaY) > 0 ? -1 : 1,
+          x: event.pageX,
+          y: event.pageY
+      });
+  });
+  // container.addEventListener("dblclick", () => {
+  //     zoomPan.panTo({
+  //         originX: 0,
+  //         originY: 0,
+  //         scale: 1,
+  //     });
+  // });
+
+  container.addEventListener("mousemove", (event) => {
+        if (event.buttons !== 2) {
+            return;
         }
-        return shouldIgnore;
-      },
-    });
 
-    instance.on('panend', function(e) {
-      if (selecto) {
-          selecto.selectableTargets = document.querySelectorAll(".selecto-area .cube");
-          document.querySelector(".moveable-control-box").style.display = "block";
-          let selected = selecto.getSelectableElements();
-          //selected[0].style.width = "99px";
-          selecto.getInstance().trigger("scroll");
-          //selecto.clickTarget(e, selected);
-          //selecto.setSelectedTargets(selected);
+        zoomPan.panBy({
+            originX: event.movementX,
+            originY: event.movementY
+        });
+    })
+
+    container.addEventListener("contextmenu", (event) => {
+        event.preventDefault();
+    })
+
+   
+
+     //container.addEventListener("mousedown", onMousedown); 
 
 
-        }
-    });
 
-    instance.on("zoom", function (e) {
-      console.log(e.getTransform());
-      $currentZoom = e.getTransform().scale;
-      $currentScaleX = e.getTransform().x;
-      $currentScaleY = e.getTransform().y;
-      //e.zoomTo(.90);
-      // ds.zoom = e.getTransform();
-      console.log("LOADED!");
-      console.log(instance.getTransform());
-      //$zoom = instance?.getTransform()?.scale;
-      // document.getElementById("area").style.transform = `scale(${e.getTransform()})`;
-    });
 
-    instance.on("pan", function(e){
+
+    // instance.on('panend', function(e) {
+    //   if (selecto) {
+    //       selecto.selectableTargets = document.querySelectorAll(".selecto-area .cube");
+    //       document.querySelector(".moveable-control-box").style.display = "block";
+    //       let selected = selecto.getSelectableElements();
+    //       //selected[0].style.width = "99px";
+    //       selecto.getInstance().trigger("scroll");
+    //       //selecto.clickTarget(e, selected);
+    //       //selecto.setSelectedTargets(selected);
+
+
+    //     }
+    // });
+
+    // panzoom.add.add("zoom", function (e) {
+    //   console.log(e.getTransform());
+    //   $currentZoom = e.getTransform().scale;
+    //   $currentScaleX = e.getTransform().x;
+    //   $currentScaleY = e.getTransform().y;
+    //   //e.zoomTo(.90);
+    //   // ds.zoom = e.getTransform();
+    //   console.log("LOADED!");
+    //   console.log(instance.getTransform());
+    //   //$zoom = instance?.getTransform()?.scale;
+    //   // document.getElementById("area").style.transform = `scale(${e.getTransform()})`;
+    // });
+
+    //instance.on("pan", function(e){
 
       // let controlBoxX = getTranslateX(document.querySelector(".moveable-control-box"));
       // let controlBoxY = getTranslateY(document.querySelector(".moveable-control-box"));
@@ -126,9 +183,26 @@ import { element } from "svelte/internal";
       // console.log(controlBox.style.transform);
 
       
-    })
+    //})
 
   });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   beforeUpdate(() => {
     RenderBlocks();
@@ -671,6 +745,7 @@ function getTranslateY(myElement) {
   <Moveable
   bind:this={moveable}
   draggable={true}
+  rootContainer={document.getElementById("CodeMapMove")}
   target={targets}
   useResizeObserver={true}
   resizable={true}
@@ -872,6 +947,11 @@ on:resize={({ detail: e }) => {
   --color: rgb(15, 18, 25);
 
 }
+
+body {
+    overflow: hidden;
+}
+
     .container {
         max-width: 800px;
         ;
