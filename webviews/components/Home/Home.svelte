@@ -133,6 +133,82 @@ import CodeMapMove from "../CodeMap/CodeMapMove.svelte";
 
   // Before Render
   onMount(() => {
+    let customSnippets =
+[
+   {
+      id: "0",
+      tempId:"",
+      name: "test",
+      code: "if(${1:condition} ||${1:condition}){${2:expression}})",
+      language: "typescript",
+      placeholders: [
+         "condition",
+         "expression"
+      ],
+      color: "white",
+      visible: "",
+      linkedBlocks: [],
+      tags: [
+         "tag1",
+         "tag2"
+      ]
+   }
+]
+
+    $items = {
+              customSnippets,
+              vsSnippets: ["vsSnippets1", "vsSnippets2"],
+              selectedTags: [""],
+              settings: {
+                isFuzzy: false,
+                codeBlocksSaveLocation: "",
+                codeBlocksSaveLocationBackup: "",
+                codeMapSaveLocationRelative: "",
+                searchCode: false,
+                currentPanel: "",
+                hideBlocksBar: false,
+                showFolders: false,
+                showFiles: true,
+                showDefaultRelationship: true,
+                showCustomRelationship: true,
+                alwaysShowCodeBlockButtons: true,
+                strictCodeMapOutlineWordMatch: false,
+                mapEntireProject: false,
+                colorCodetoMatchCodeBlocks: true,
+                randomizeNewBlockColors: false,
+                defaultBlockColor: "blue",
+                codeMapFolderExclusion: "node_modules|packages",
+                visibleOutlineBlocks: [
+                  { name: "Array", checked: false },
+                  { name: "Boolean", checked: false },
+                  { name: "Class", checked: false },
+                  { name: "Constant", checked: false },
+                  { name: "Constructor", checked: false },
+                  { name: "Enum", checked: false },
+                  { name: "EnumMember", checked: false },
+                  { name: "Event", checked: false },
+                  { name: "Field", checked: false },
+                  { name: "File", checked: false },
+                  { name: "Function", checked: false },
+                  { name: "Interface", checked: false },
+                  { name: "Key", checked: false },
+                  { name: "Method", checked: true },
+                  { name: "Module", checked: false },
+                  { name: "Namespace", checked: false },
+                  { name: "Null", checked: false },
+                  { name: "Number", checked: false },
+                  { name: "Object", checked: false },
+                  { name: "Operator", checked: false },
+                  { name: "Package", checked: false },
+                  { name: "Property", checked: false },
+                  { name: "String", checked: false },
+                  { name: "Struct", checked: false },
+                  { name: "TypeParameter", checked: false },
+                  { name: "Variable", checked: false },
+                ],
+              },
+            };
+
     window.addEventListener("message", (event) => {
       const message = event.data; // The json data that the extension sent
       let lastId = common.getNonce();
@@ -315,7 +391,7 @@ import CodeMapMove from "../CodeMap/CodeMapMove.svelte";
                 codeBlocksSaveLocationBackup: "",
                 codeMapSaveLocationRelative: "",
                 searchCode: false,
-                currentPanel: "",
+                currentPanel: "codeBlocks",
                 hideBlocksBar: false,
                 showFolders: false,
                 showFiles: true,
@@ -363,8 +439,9 @@ import CodeMapMove from "../CodeMap/CodeMapMove.svelte";
           if (typeof message.value === "string") {
             try {
               $items = JSON.parse(message.value);
-
-              $items.customSnippets.forEach((element) => {
+              if ($items.customSnippets)
+              {
+                $items.customSnippets.forEach((element) => {
                 if (element.id.toString().includes("id:")) {
                   let index = $items.customSnippets.indexOf(element);
                   console.log(index);
@@ -376,9 +453,11 @@ import CodeMapMove from "../CodeMap/CodeMapMove.svelte";
                 type: "GetFiles",
                 value: settings,
               });
+              }
+             
             } catch (exception) {
               ErrorMessageVSCall("JSON Import Error");
-              console.log(exception);
+              console.log(exception.message);
               $items = originItems;
             }
           } else {
@@ -551,7 +630,6 @@ import CodeMapMove from "../CodeMap/CodeMapMove.svelte";
 <main>
   <Shared bind:this={common} />
   <ParseVSCodeSnippet bind:this={parseVSCodeSnippet} />
-
   <div hidden={$items.settings.currentPanel === "editMode" ? false : true}>
     <h1>EDIT MODE</h1>
     <EditScreen bind:this={editScreen} />

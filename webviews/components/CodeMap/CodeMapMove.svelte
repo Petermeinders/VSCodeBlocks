@@ -42,6 +42,7 @@ import Selecto from "svelte-selecto";
 import type { OnSelectEnd } from "svelte-selecto";
 import { element } from "svelte/internal";
 import { renderer } from "../../renderer";
+import CodeMapGroupsContainer from "./CodeMapGroupsContainer.svelte";
 
 
   let common: Shared;
@@ -128,7 +129,6 @@ import { renderer } from "../../renderer";
             originY: event.movementY
         });
 
-        HideBorderOnMove();
        
     })
 
@@ -136,11 +136,22 @@ import { renderer } from "../../renderer";
         event.preventDefault();
     })
 
+
+
+
     container.addEventListener("mouseup", (event) => {
       if (event.button !== 2) {
             return;
         }
         //ShowBorderAfterMove();
+
+    })
+
+    container.addEventListener("mousedown", (event) => {
+      if (event.buttons !== 2) {
+            return;
+        }
+      HideBorderOnMove();
 
     })
 
@@ -418,7 +429,27 @@ function getTranslateY(myElement) {
     }
   };
 
-  const OnDragEnded = (target:HTMLDivElement) => {
+  const OnSingleDragEnded = (target:HTMLDivElement) => {
+
+    HandleGeneratedBlock(target);
+    let treeItem = $codeMap.flatTree.find((item) =>  item.id == target.id)
+
+    if (treeItem)
+    {
+      treeItem.locationX = target.offsetLeft.toString();
+      treeItem.locationY = target.offsetTop.toString();
+    }
+
+    let elements;
+    if (selecto)
+    {
+      console.log(selecto?.selectableTargets); 
+      console.log("after update selecto");
+    }
+  }
+
+
+  const HandleGeneratedBlock = (target:HTMLDivElement) => {
     console.log(target);
     let treeItem = $codeMap.flatTree.find((item) =>  item.id === "generated")
     console.log(treeItem);
@@ -430,13 +461,6 @@ function getTranslateY(myElement) {
           ConvertGeneratedBlock(target, false);
         }
       }
-
-    let elements;
-    if (selecto)
-    {
-      console.log(selecto?.selectableTargets); 
-      console.log("after update selecto");
-    }
   }
 
   function FlattenTree(newTree) {
@@ -788,7 +812,6 @@ function getTranslateY(myElement) {
   }}
 
   on:drag={({ detail: e }) => {
-    console.log("dragging");
     const target = e.target;
     const frame = frameMap.get(target);
 
@@ -811,7 +834,7 @@ function getTranslateY(myElement) {
   }}
   on:dragEnd={({ detail: e }) => {
     const target = e.target;
-    OnDragEnded(target);
+    OnSingleDragEnded(target);
 
   }}
   on:dragGroupStart={({ detail: e }) => {

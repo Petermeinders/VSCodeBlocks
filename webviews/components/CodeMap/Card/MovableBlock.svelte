@@ -32,17 +32,11 @@
   })
 
   beforeUpdate(() => {
-    if (moveable) {
-    //moveable.request("scalable", {deltaWidth: 1, deltaHeight: 1 }, true);
-    console.log("before update");
-    }
+
   });
 
   afterUpdate(() => {
-    if (moveable) {
-    //moveable.request("scalable", {deltaWidth: -1, deltaHeight: -1 }, true);
-    console.log("afterUpdate");
-    }
+
   });
 
   //Stupid hack to get the border of the card (Movable) to change to fit the object after the zoom has finished.
