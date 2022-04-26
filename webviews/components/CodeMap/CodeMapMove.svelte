@@ -24,7 +24,7 @@ moveAbles,
   import Card from "./Card/Card.svelte";
   import { onMount, afterUpdate, beforeUpdate, tick, createEventDispatcher } from "svelte";
   import DragSelect from "dragselect";
-  import lodash, { flatMap } from "lodash";
+  import lodash, { find, flatMap } from "lodash";
   import deepdash from "deepdash";
   import Line from "./Line.svelte";
   import Shared from "../Shared.svelte";
@@ -97,7 +97,7 @@ import CodeMapGroupsContainer from "./CodeMapGroupsContainer.svelte";
 
   const container = document.getElementById("CodeMapMove");
   const el = document.getElementById("selecto1");
-   const elBoxo = document.getElementsByClassName("moveable-control-box");
+   //const elBoxo = document.getElementsByClassName("moveable-control-box");
   const zoomPan = renderer({ scaleSensitivity: 5, minScale: .1, maxScale: 30, element: el });
   container.addEventListener("wheel", (event) => {
       // if (!event.ctrlKey) {
@@ -431,14 +431,27 @@ function getTranslateY(myElement) {
 
   const OnSingleDragEnded = (target:HTMLDivElement) => {
 
-    HandleGeneratedBlock(target);
-    let treeItem = $codeMap.flatTree.find((item) =>  item.id == target.id)
+    var generatedTree = HandleGeneratedBlock(target);
+
+    let treeItem = $codeMap.flatTree.find((item) =>  item.id == target.children[0].id)
+
+    if (generatedTree)
+    {
+      treeItem = generatedTree;
+    }
 
     if (treeItem)
     {
-      treeItem.locationX = target.offsetLeft.toString();
-      treeItem.locationY = target.offsetTop.toString();
+      treeItem.locationX = getTranslateX(target).toString();
+      treeItem.locationY = getTranslateY(target).toString();
+
+      let index = $codeMap?.flatTree.indexOf(treeItem);
+    $codeMap.flatTree.splice(index, 1, treeItem);
+    $codeMap.flatTree = [...$codeMap.flatTree];
     }
+
+    
+    //treeItem = $codeMap.flatTree.find((item) =>  item.id == target.id)
 
     let elements;
     if (selecto)
@@ -460,7 +473,9 @@ function getTranslateY(myElement) {
         } else {
           ConvertGeneratedBlock(target, false);
         }
+        return treeItem;
       }
+      return null;
   }
 
   function FlattenTree(newTree) {
@@ -476,7 +491,9 @@ function getTranslateY(myElement) {
 
   function SetVisibility() {
     $codeMap?.flatTree.forEach((treeItem) => {
-      if (typeof treeItem.visible === "undefined") treeItem.visible = true;
+      if (treeItem){
+        if (typeof treeItem.visible === "undefined") treeItem.visible = true;
+      }
     });
   }
 
@@ -829,6 +846,12 @@ function getTranslateY(myElement) {
         });
     }
     const frame = frameMap.get(target);
+    const treeItem = $codeMap.flatTree.find((x) => x.id === target.children[0].id);
+
+    if (treeItem){
+      frame.translate[0] = parseInt(treeItem.locationX);
+      frame.translate[1] = parseInt(treeItem.locationY);
+    }
       
     e.set(frame.translate);
   }}
@@ -847,6 +870,13 @@ function getTranslateY(myElement) {
               });
           }
           const frame = frameMap.get(target);
+
+          const treeItem = $codeMap.flatTree.find((x) => x.id === ev.target.children[0].id);
+
+          if (treeItem){
+            frame.translate[0] = parseInt(treeItem.locationX);
+            frame.translate[1] = parseInt(treeItem.locationY);
+          }
   
           ev.set(frame.translate);
       });
@@ -858,6 +888,12 @@ function getTranslateY(myElement) {
   
           frame.translate = ev.beforeTranslate;
           target.style.transform = `translate(${frame.translate[0]}px, ${frame.translate[1]}px)`;
+      });
+  }}
+  on:dragGroupEnd={({ detail: e }) => {
+      e.events.forEach(ev => {
+          const target = ev.target;
+          OnSingleDragEnded(target);
       });
   }}
 

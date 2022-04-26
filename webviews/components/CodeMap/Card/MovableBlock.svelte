@@ -201,12 +201,12 @@
 
 
 
-  <main class="single-block cube" style="width:161px; position:absolute">
+  <main class="single-block cube" style="width:161px; position:absolute; { treeItem.locationX !== "0" && treeItem.locationY !== "0" ? 'transform: translate(' + treeItem.locationX + 'px' + ',' + treeItem.locationY + 'px);' : ''}">
 
   <div bind:this={target}
   on:dblclick={() => dbClickBlock(treeItem)}
   on:contextmenu={(event) => expand(event)}
-  style="{treeItem.locationX !== "0" && treeItem.locationY !== "0" ? 'left:' + GetCardSpawnLocationX(treeItem) + "px" + '; ' + 'top:' + GetCardSpawnLocationY(treeItem) + "px" + ";": ''}"
+  style=""
   id={treeItem.id}
   data-fileType={treeItem.type}
   data-parentId={treeItem.parentId}
