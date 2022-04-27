@@ -5,6 +5,8 @@
   import RadialMenu from "../Card/CardRadial.svelte";
   import CardMenu from "../Card/CardMenu.svelte";
   import { Sibling } from '../../../../src/Models';
+  import Selecto from "svelte-selecto";
+
 
 
   import Moveable from "svelte-moveable";
@@ -13,16 +15,21 @@
   let target;
   // let moveable: Moveable;
   export let moveable: Moveable;
+  export let selecto: Selecto
   export let treeItem: FilteredTree;
   export let GroupBlocks = (event:MouseEvent) => {};
   export let Minimize = (event: any, treeItem: FilteredTree) => {};
   export let StartLink = (event: any, treeItem: FilteredTree) => {};
+
+  let width = 160;
+  let height = 60;
 
   let addValue = true;
 
   $: {
     $zoom, onzoomChange();
   }
+
 
   onMount(async () => {
     // if (moveable){
@@ -41,24 +48,20 @@
 
   //Stupid hack to get the border of the card (Movable) to change to fit the object after the zoom has finished.
   function onzoomChange() {
-      if (moveable) {
-        // moveable.getInstance().padding = { left: 10 + $zoom, top: 10  + $zoom, right: 10  + $zoom, bottom: 10  };
-        var id = treeItem.id;
-        var element = document.getElementById(id);
+      if (selecto) {
+        var element = selecto.getInstance() //document.getElementById(id);
         // set width on element
-        if (element)
+        if (element && element?.selectedTargets.length > 0)
         {
           if (addValue)
           {
-            element.style.width = (+element.offsetWidth + 1).toString() + "px";
+            element.selectedTargets[0].style.width = (+selecto.getInstance().selectedTargets[0].offsetWidth + 1).toString() + "px";
             addValue = false;
           }
           else{
-            element.style.width = (+element.offsetWidth - 1).toString() + "px";
+            element.selectedTargets[0].style.width = (+selecto.getInstance().selectedTargets[0].offsetWidth - 1).toString() + "px";
             addValue = true;
           }
-
-
 
           // element.style.display = "flex;"; 
           // if (element.style.position = "absolute"){
@@ -77,9 +80,15 @@
         //moveable?.getInstance()?.updateRect();
       }
     
-    console.log(moveable?.getInstance().getRect());
+    console.log(selecto?.getInstance().boundContainer);
+    console.log(selecto?.getInstance().options.checkInput);
+
     console.log("onZoomchange");
   }
+
+  // function setHeight() {
+  //   return  document.getElementById(treeItem.id)?.parentElement.style.height === '' ? "height:190px;" : ""
+  // }
 
 
 //Card ----------------------------------------------------------------------------------------------------------------------
@@ -195,18 +204,38 @@
     $codeMap.flatTree = $codeMap.flatTree;
   }
 
+
+  document.onpaste = function (event) {
+    var items = (event.clipboardData || event.originalEvent.clipboardData).items;
+    console.log(JSON.stringify(items)); // might give you mime types
+    for (var index in items) {
+        var item = items[index];
+        if (item.kind === 'file') {
+            var blob = item.getAsFile();
+            var reader = new FileReader();
+            reader.onload = function (event) {
+                console.log(event.target.result); // data url!
+                $codeMap.activeWindow.activelySelectedBlocks.forEach((block) => {
+                  block.image = event?.target?.result ?? "";
+                });
+            }; 
+            reader.readAsDataURL(blob);
+        }
+    }
+};
+
 </script>
 
 
 
 
 
-  <main class="single-block cube" style="width:161px; position:absolute; { treeItem.locationX !== "0" && treeItem.locationY !== "0" ? 'transform: translate(' + treeItem.locationX + 'px' + ',' + treeItem.locationY + 'px);' : ''}">
-
+  <main class="single-block cube" style="min-width:161px; position:absolute; {"width:" + treeItem.imageWidth + "px;"} {"height:" + treeItem.imageHeight + "px;"} { treeItem.locationX !== "0" && treeItem.locationY !== "0" ? 'transform: translate(' + treeItem.locationX + 'px' + ',' + treeItem.locationY + 'px);' : ''}">
+  
   <div bind:this={target}
   on:dblclick={() => dbClickBlock(treeItem)}
   on:contextmenu={(event) => expand(event)}
-  style=""
+    style="height:100%;"
   id={treeItem.id}
   data-fileType={treeItem.type}
   data-parentId={treeItem.parentId}
@@ -232,7 +261,14 @@
 
 
   {#if treeItem?.image === "" || typeof(treeItem?.image) === "undefined"}
+  <div>
     {treeItem.type === Type.Custom ? treeItem.name.substring(0, 25) : treeItem.name}
+  </div>
+    {:else}
+    <div style="background-image:{treeItem?.image !== '' && typeof(treeItem?.image) !== 'undefined' ? 'url(' + treeItem.image + ')' : treeItem.color  ?? 'black' }; 
+    z-index:101; background-repeat: no-repeat !important; background-size:contain !important; min-height:20px; height:calc(100% - 40px)">
+    </div>
+
   {/if}
 
 

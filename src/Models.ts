@@ -60,6 +60,8 @@ export interface FilteredTree {
     sibling:Sibling,
     color:string,
     image:string,
+    imageHeight:number,
+    imageWidth:number,
     parentOrChildId:string,
     tags:[] | string[],
     placeholders:[] | string[],

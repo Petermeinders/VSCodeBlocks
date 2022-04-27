@@ -444,6 +444,8 @@ function getTranslateY(myElement) {
     {
       treeItem.locationX = getTranslateX(target).toString();
       treeItem.locationY = getTranslateY(target).toString();
+      treeItem.imageHeight = target.clientHeight;
+      treeItem.imageWidth = target.clientWidth;
 
       let index = $codeMap?.flatTree.indexOf(treeItem);
     $codeMap.flatTree.splice(index, 1, treeItem);
@@ -787,6 +789,23 @@ function getTranslateY(myElement) {
       //OnMouseUpObject.items[0].id = selected.id;
     }
   };
+
+  const OnBlockSelected = (targets: HTMLElement[]) => {
+    if (targets !== undefined && targets.length > 0)
+    {
+      targets.forEach((target) => {
+      let treeItem = $codeMap.flatTree.find(treeItem => treeItem.id === target.children[0].id);
+
+      if (treeItem){
+        $codeMap.activeWindow.activelySelectedBlocks = [];
+        $codeMap.activeWindow.activelySelectedBlocks.push(treeItem);
+      }
+    })
+    }
+   
+    
+    
+  }
 </script>
 
 
@@ -826,6 +845,7 @@ function getTranslateY(myElement) {
   }}
   on:click={({ detail: e }) => {
      console.log("Clicked");
+     OnBlockSelected([e.target]);
   }}
 
   on:drag={({ detail: e }) => {
@@ -858,6 +878,8 @@ function getTranslateY(myElement) {
   on:dragEnd={({ detail: e }) => {
     const target = e.target;
     OnSingleDragEnded(target);
+    e.target.style.width ;
+    e.target.style.height;
 
   }}
   on:dragGroupStart={({ detail: e }) => {
@@ -976,6 +998,8 @@ on:resize={({ detail: e }) => {
 
       // onBlockSelectEnd(e);
 
+      OnBlockSelected(e.selectedTargets);
+
       if (e.isDragStart) {
                     // e.inputEvent.preventDefault();
             
@@ -983,6 +1007,7 @@ on:resize={({ detail: e }) => {
                          moveable.dragStart(e.inputEvent);
                     });
                 }
+
     }}>
   </Selecto>
 
@@ -1005,7 +1030,7 @@ on:resize={({ detail: e }) => {
             {#if typeof treeItem.visible === "undefined" || treeItem?.visible === true}
               {#if (treeItem.type !== Type.Folder) || (treeItem.type !== Type.Folder && $items.settings.showFolders === true) || ( $items.settings.showFiles === true)}
 
-                <MovableBlock {moveable}  {treeItem}  />
+                <MovableBlock {moveable} {selecto}  {treeItem}  />
 
               {/if}
             {/if}
