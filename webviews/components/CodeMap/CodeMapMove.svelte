@@ -52,6 +52,7 @@ import CodeMapGroupsContainer from "./CodeMapGroupsContainer.svelte";
   let changedFile = "";
   let selecto: Selecto;
 
+
 //FrameMap is needed for Movable and Selecto
   const frameMap = new Map();
   let targets = [];
@@ -143,14 +144,15 @@ import CodeMapGroupsContainer from "./CodeMapGroupsContainer.svelte";
       if (event.button !== 2) {
             return;
         }
-        //ShowBorderAfterMove();
-
+       
+        $zoom = $zoom + 1;
     })
 
     container.addEventListener("mousedown", (event) => {
       if (event.buttons !== 2) {
             return;
         }
+       
       HideBorderOnMove();
 
     })
@@ -262,7 +264,7 @@ function getTranslateY(myElement) {
 }
 
   afterUpdate(() => {
-    
+    //mouseUpAfterPan = false;
     //NewSelecto();
 
 
@@ -566,18 +568,18 @@ function getTranslateY(myElement) {
   }
 
   function wheelHandler(event) {
-    console.log(event);
-    if (event.deltaY > 0) {
-      console.log("wheel backward");
-      $zoom =  $zoom +1;
+    // console.log(event);
+    // if (event.deltaY > 0) {
+    //   console.log("wheel backward");
+    //   $zoom =  $zoom +1;
       
-    } else {
-      console.log("wheel forward");
-      $zoom = $zoom +1;
+    // } else {
+    //   console.log("wheel forward");
+    //   $zoom = $zoom +1;
 
-      //moveable.getInstance().zoom = moveable.getInstance().zoom + 0.1;
-      //console.log(moveable.getInstance());
-    }
+    //   //moveable.getInstance().zoom = moveable.getInstance().zoom + 0.1;
+    //   //console.log(moveable.getInstance());
+    // }
   }
 
   function SaveCodeMapToFile() {

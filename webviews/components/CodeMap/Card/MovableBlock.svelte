@@ -43,26 +43,30 @@
   });
 
   afterUpdate(() => {
-
   });
 
   //Stupid hack to get the border of the card (Movable) to change to fit the object after the zoom has finished.
-  function onzoomChange() {
+  async function onzoomChange() {
       if (selecto) {
         var element = selecto.getInstance() //document.getElementById(id);
         // set width on element
         if (element && element?.selectedTargets.length > 0)
         {
-          if (addValue)
-          {
-            element.selectedTargets[0].style.width = (+selecto.getInstance().selectedTargets[0].offsetWidth + 1).toString() + "px";
-            addValue = false;
-          }
-          else{
-            element.selectedTargets[0].style.width = (+selecto.getInstance().selectedTargets[0].offsetWidth - 1).toString() + "px";
-            addValue = true;
-          }
+          // if (addValue)
+          // {
+          //   //element.selectedTargets[0].style.width = (+selecto.getInstance().selectedTargets[0].offsetWidth + 1).toString() + "px";
+          //   addValue = false;
+          // }
+          // else{
+          //   //element.selectedTargets[0].style.width = (+selecto.getInstance().selectedTargets[0].offsetWidth - 1).toString() + "px";
+          //   addValue = true;
+          // }
 
+          //This forces a rerender of the lines on selected items. Nothing else seems to work (tried Tick(), After, Before, etc)
+          setTimeout(() => ShowBorderAfterMove(), 40)
+          setTimeout(() => element.selectedTargets[0].style.width = (+selecto.getInstance().selectedTargets[0].offsetWidth + 1).toString() + "px", 0)
+          setTimeout(() => element.selectedTargets[0].style.width = (+selecto.getInstance().selectedTargets[0].offsetWidth - 1).toString() + "px", 40)
+          
           // element.style.display = "flex;"; 
           // if (element.style.position = "absolute"){
           //   element.style.position = "relative";
@@ -85,6 +89,14 @@
 
     console.log("onZoomchange");
   }
+
+  function ShowBorderAfterMove() {
+  if (selecto) {
+            selecto.selectableTargets = document.querySelectorAll(".selecto-area .cube");
+            console.log(selecto?.selectableTargets); 
+            document.querySelector(".moveable-control-box").style.display = "block";
+          }
+}
 
   // function setHeight() {
   //   return  document.getElementById(treeItem.id)?.parentElement.style.height === '' ? "height:190px;" : ""
