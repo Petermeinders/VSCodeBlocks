@@ -25,6 +25,7 @@
   let height = 60;
 
   let addValue = true;
+  let menuOpened = false;
 
   $: {
     $zoom, onzoomChange();
@@ -165,12 +166,14 @@
   function expand(e: any) 
   {
     console.log(e);
-    let menu;
+    menuOpened = true;
+    tick();
+    let menu = e.target.parentElement.parentElement.querySelector(".menu")
     
 
-    $rightClickedBlockEvent = e;
-    if (e.target.classList.contains("menu")) menu = e.target;
-    if (e.target.querySelector(".menu")) menu = e.target.querySelector(".menu");
+    //$rightClickedBlockEvent = e;
+   // if (e.target.classList.contains("menu")) menu = e.target;
+    //if (e.target.parentElement.querySelector(".menu")) menu = e.target.querySelector(".menu");
 
     if (menu !== null && menu !== undefined) {
       if (menu.classList.contains("opened")) {
@@ -180,6 +183,8 @@
         //New stuff here!!!
       } else {
         menu.style.transform = "scale(3)";
+        menu.style.background = "#23568a38";
+        menu.style.zIndex = "2";
         //New stuff here!!!
         menu.classList.add("opened");
       }
@@ -253,7 +258,9 @@
   data-parentId={treeItem.parentId}
   class="card absolute  highlight BlockImage {treeItem.type === Type.Folder ? 'directory' : 'file'}">
 
+
   <RadialMenu treeItem={treeItem} {StarClicked}  {GroupBlocks} />
+
 
   <!-- GENERATED -->
   {#if treeItem.sibling === Sibling.Self || treeItem.sibling === undefined}
