@@ -62,7 +62,16 @@
   };
 
   function NameChangeMenu(e: any, treeItem: FilteredTree) {
-    //Needs to be refactored here from Canvas -> ds.subscribe
+    let firstBlockInstance = treeItem;
+
+      tsvscode.postMessage({
+        type: "changeNameMenu",
+        value: firstBlockInstance.id,
+      });
+
+      // firstBlockInstance.code;
+      // firstBlockInstance.name;
+      // firstBlockInstance.id;
   }
 
   // @ts-nocheck
@@ -151,8 +160,8 @@
       <Fa id="Minimize" on:click={(event) => Minimize(event, treeItem)} size="1x" icon={faExpandAlt} style="color:yellow;" />
     {/if}
   </a>
-  <a href="#">
-    <Fa id="NameChangeMenu" on:click={(event) => NameChangeMenu(event, treeItem)} size="1x" icon={faFont} style="color:yellow;" />
+  <a href="#" on:click={(event) => NameChangeMenu(event, treeItem)}>
+    <Fa id="NameChangeMenu" size="1x" icon={faFont} style="color:yellow;" />
   </a>
   <a href="#">
     <!-- <Fa id="EditBlockMenu" on:click={(event) => EditBlockMenu(event, treeItem)} size="1x" icon={faPencilAlt} style="color:yellow;" /> -->

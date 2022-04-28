@@ -167,10 +167,8 @@
   {
     console.log(e);
     menuOpened = true;
-    tick();
     let menu = e.target.parentElement.parentElement.querySelector(".menu")
     
-
     //$rightClickedBlockEvent = e;
    // if (e.target.classList.contains("menu")) menu = e.target;
     //if (e.target.parentElement.querySelector(".menu")) menu = e.target.querySelector(".menu");
@@ -258,9 +256,7 @@
   data-parentId={treeItem.parentId}
   class="card absolute  highlight BlockImage {treeItem.type === Type.Folder ? 'directory' : 'file'}">
 
-
   <RadialMenu treeItem={treeItem} {StarClicked}  {GroupBlocks} />
-
 
   <!-- GENERATED -->
   {#if treeItem.sibling === Sibling.Self || treeItem.sibling === undefined}

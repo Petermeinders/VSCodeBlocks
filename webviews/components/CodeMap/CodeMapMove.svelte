@@ -158,6 +158,21 @@ import CodeMapGroupsContainer from "./CodeMapGroupsContainer.svelte";
     })
 
 
+    function CloseAllRadials() {
+    let menu;
+
+    let allMenus = document.querySelectorAll("#menu.opened");
+
+    // if (e.target.classList.contains("menu")) menu = e.target;
+    // if (e.target.querySelector(".menu")) menu = e.target.querySelector(".menu");
+
+    if (allMenus.length > 0) {
+      allMenus.forEach((menu) => {
+        menu.style.transform = "scale(0)";
+        menu.classList.remove("opened");
+      });
+    }
+  }
    
 
      //container.addEventListener("mousedown", onMousedown); 
@@ -568,6 +583,7 @@ function getTranslateY(myElement) {
   }
 
   function wheelHandler(event) {
+    $zoom =  $zoom +1;
     // console.log(event);
     // if (event.deltaY > 0) {
     //   console.log("wheel backward");
@@ -1025,6 +1041,7 @@ on:resize={({ detail: e }) => {
         <div class="zoom elements">
  {#if $codeMap?.flatTree}
           <div class="elements selecto-area" id="selecto1">
+            <div id="background-grid" class="background-grid"></div>
             {#each $codeMap.flatTree as treeItem}
             <!-- && typeof(treeItem.open) === "undefined" || treeItem?.open === true -->
 
@@ -1063,6 +1080,16 @@ on:resize={({ detail: e }) => {
 
 body {
     overflow: hidden;
+}
+
+.background-grid{
+  background: url(../../media/tile-grid-png-6.png);
+  width: 100000px;
+    height: 100001px;
+    position: absolute;
+    left: -9999px;
+    top: -9999px;
+    z-index: -99;
 }
 
     .container {
