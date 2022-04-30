@@ -149,11 +149,22 @@ import CodeMapGroupsContainer from "./CodeMapGroupsContainer.svelte";
     })
 
     container.addEventListener("mousedown", (event) => {
+      if (event.button === 0) {
+        //TODO: Move this to constant;
+        if (event?.target?.id === "background-grid") {
+          CloseAllRadials();  
+        }
+           console.log("left click");
+        }
+
+        HideBorderOnMove();
+       
+        // $zoom = $zoom - 1;
       if (event.buttons !== 2) {
             return;
         }
        
-      HideBorderOnMove();
+    
 
     })
 

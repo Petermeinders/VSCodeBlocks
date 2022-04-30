@@ -635,20 +635,22 @@ import CodeMapMove from "../CodeMap/CodeMapMove.svelte";
     <EditScreen bind:this={editScreen} />
   </div>
 
-  <div hidden={$items.settings.currentPanel !== "editMode" ? false : true}>
-    <div style="display: flex, align-items: center">
-      <h1 style="display: flex, align-items: center, justify-content: space-between;">
-        CodeBlocks
+  <div style="z-index:101; display:flex; justify-content: space-between;" hidden={$items.settings.currentPanel !== "editMode" ? false : true}>
+    <h1 style="display: flex, align-items: center, justify-content: space-between; z-index:101;">
+      CodeBlocks
+    </h1>
+    <div style="display: flex; justify-content: space-between; z-index:101;">
+      <div>
         <span style="cursor: pointer; " on:click={() => ShowSettings()}
-          ><Fa size="1x" icon={faCog} style="color:#007acc; padding-right: 4px; float:right" />
+          ><Fa size="1x" icon={faCog} style="color:#007acc; padding-right: 4px; float:right; font-size: 3em;" />
         </span>
         <span style="cursor: pointer; " on:click={() => ShowCodeBlocks()}
-          ><Fa size="1x" icon={faCubes} style="color:#007acc; padding-right: 4px; float:right" />
+          ><Fa size="1x" icon={faCubes} style="color:#007acc; padding-right: 4px; float:right; font-size: 3em;" />
         </span>
         <!-- <span style="cursor: pointer; " on:click={() => ShowCodeMap()}
           ><Fa size="1x" icon={faProjectDiagram} style="color:#007acc; padding-right: 4px; float:right" />
         </span> -->
-      </h1>
+      </div>
       	
       {#if importError === true}
         <div style="color:red;">
@@ -668,7 +670,7 @@ import CodeMapMove from "../CodeMap/CodeMapMove.svelte";
         <!-- PANEL -->
         <div class="container">
           <div id="code-container" class="code-container">
-            <button on:click={() => ($items.settings.hideBlocksBar = true)} class={$items?.settings?.hideBlocksBar === true ? "hide" : ""}>
+            <button on:click={() => ($items.settings.hideBlocksBar = true)} class={$items?.settings?.hideBlocksBar === true ? "hide" : ""} style="z-index:101;">
               <Fa icon={faChevronLeft} style="color:white;" />
             </button>
             <!-- TAGS ( Experimental )------------------------------------------------ -->
@@ -702,18 +704,18 @@ import CodeMapMove from "../CodeMap/CodeMapMove.svelte";
             </div>
           </div> -->
         <!-- / CODE BLOCK BUTTONS --------------------------------------------- -->
-        <div id="pocketAndMapGroups" class="pocketAndMapGroups">
+        <div id="pocketAndMapGroups" class="pocketAndMapGroups" style="z-index:101;">
           <Pocket />
           <CodeMapGroups />
         </div>
 
-        <div>
+        <div style="z-index:101;">
           <Outline />
         </div>
       </div>
 
       <button
-        style="margin-right:10px;"
+        style="margin-right:10px; z-index:101;"
         on:click={() => ($items.settings.hideBlocksBar = false)}
         class={typeof $items.settings.hideBlocksBar === "undefined" || $items.settings.hideBlocksBar === false ? "hide" : ""}
       >
@@ -723,7 +725,7 @@ import CodeMapMove from "../CodeMap/CodeMapMove.svelte";
       <CodeMapMove bind:this={map} />
     </div>
   </div>
-  <div hidden={$items?.settings?.currentPanel !== undefined ? ($items.settings.currentPanel === "settings" ? false : true) : true}>
+  <div hidden={$items?.settings?.currentPanel !== undefined ? ($items.settings.currentPanel === "settings" ? false : true) : true} style="z-index:101;">
     <SettingsScreen />
   </div>
 </main>
@@ -748,12 +750,14 @@ import CodeMapMove from "../CodeMap/CodeMapMove.svelte";
     flex-direction: row;
   }
 
+
   .codeBlocksContainer {
     width: 200px;
-  }
-  .codeBlocksContainer {
     display: flex;
     flex-direction: column;
+    z-index: 101;
+    background: #1e1e1e;
+    border: #6cc0e8 solid 1px;
   }
 
   .containerHeader {

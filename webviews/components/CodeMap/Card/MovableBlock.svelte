@@ -64,7 +64,7 @@
           // }
 
           //This forces a rerender of the lines on selected items. Nothing else seems to work (tried Tick(), After, Before, etc)
-          setTimeout(() => ShowBorderAfterMove(), 40)
+          setTimeout(() => ShowBorderAfterMove(), 50)
           setTimeout(() => element.selectedTargets[0].style.width = (+selecto.getInstance().selectedTargets[0].offsetWidth + 1).toString() + "px", 0)
           setTimeout(() => element.selectedTargets[0].style.width = (+selecto.getInstance().selectedTargets[0].offsetWidth - 1).toString() + "px", 40)
           
@@ -245,7 +245,7 @@
 
 
 
-  <main class="single-block cube" style="min-width:161px; position:absolute; {"width:" + treeItem.imageWidth + "px;"} {"height:" + treeItem.imageHeight + "px;"} { treeItem.locationX !== "0" && treeItem.locationY !== "0" ? 'transform: translate(' + treeItem.locationX + 'px' + ',' + treeItem.locationY + 'px);' : ''}">
+  <main class="single-block cube" style="background:#2c39575c; min-width:161px; position:absolute; {"width:" + treeItem.imageWidth + "px;"} {"height:" + treeItem.imageHeight + "px;"} { treeItem.locationX !== "0" && treeItem.locationY !== "0" ? 'transform: translate(' + treeItem.locationX + 'px' + ',' + treeItem.locationY + 'px);' : ''}">
   
   <div bind:this={target}
   on:dblclick={() => dbClickBlock(treeItem)}

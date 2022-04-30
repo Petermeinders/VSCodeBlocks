@@ -108,8 +108,8 @@
     </button>
   {/if}
 
-  <button id="StartLink" on:mousedown={(event) => StartLink(event, treeItem)}>
-    <Fa size="1x" icon={faLink} style="color:blue; padding-right: 4px; float:right" />
+  <button id="StartLink" on:mousedown={(event) => StartLink(event, treeItem)} >
+    <Fa size="1x" icon={faLink} class="greyedOut" style="padding-right: 4px; float:right" />
   </button>
   {#if treeItem.type === "custom" || treeItem.type === "outline"}
     <button id="DeleteBlock" on:mousedown={(event) => DeleteBlock(event, treeItem)}>

@@ -137,27 +137,27 @@
 <div class="menu" id="menu">
   <a href="#">
     {#if typeof treeItem.starred === "undefined" || treeItem.starred === false}
-      <Fa id="Star" on:click={() => StarClicked(treeItem)} size="1x" icon={faStar} style="color:yellow;" />
+      <Fa id="Star" on:click={() => StarClicked(treeItem)} class="greyedOut" size="1x" icon={faStar} />
     {:else}
-      <Fa id="Star" on:click={() => StarClicked(treeItem)} size="1x" icon={solidStar} style="color:yellow;" />
+      <Fa id="Star" on:click={() => StarClicked(treeItem)} class="greyedOut" size="1x" icon={solidStar} />
     {/if}
   </a>
   <a href="#" class="tooltip">
     <span style=" cursor: pointer;" on:click={(event) => GroupBlocks(event)}>
-      <Fa id="GroupBlocks" size="1x" icon={faObjectGroup} style="color:red;" /></span
+      <Fa id="GroupBlocks" size="1x" icon={faObjectGroup} class="greyedOut" /></span
     >
     <span class="tooltiptext">Group</span>
   </a>
   <a href="#">
     <span style=" cursor: pointer;" on:click={(event) => PasteImage(event)}>
-      <Fa size="1x" icon={faBullseye} style="color:red;" />
+      <Fa size="1x" icon={faBullseye} class="greyedOut"/>
     </span>
   </a>
   <a href="#">
     {#if typeof treeItem.open === "undefined" || treeItem.open === true}
-      <Fa id="Minimize" on:click={(event) => Minimize(event, treeItem)} size="1x" icon={faCompressArrowsAlt} style="color:yellow;" />
+      <Fa id="Minimize" on:click={(event) => Minimize(event, treeItem)} size="1x" icon={faCompressArrowsAlt} class="greyedOut" />
     {:else}
-      <Fa id="Minimize" on:click={(event) => Minimize(event, treeItem)} size="1x" icon={faExpandAlt} style="color:yellow;" />
+      <Fa id="Minimize" on:click={(event) => Minimize(event, treeItem)} size="1x" icon={faExpandAlt} class="greyedOut" />
     {/if}
   </a>
   <a href="#" on:click={(event) => NameChangeMenu(event, treeItem)}>
@@ -249,5 +249,10 @@
 
   a:hover {
     color: #c87f8a;
+  }
+
+  .greyedOut {
+    opacity: 0.5;
+    color:grey !important;
   }
 </style>
