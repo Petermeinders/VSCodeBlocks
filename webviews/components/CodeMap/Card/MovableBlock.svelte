@@ -6,11 +6,12 @@
   import CardMenu from "../Card/CardMenu.svelte";
   import { Sibling } from '../../../../src/Models';
   import Selecto from "svelte-selecto";
+  import Shared from "../../Shared.svelte";
 
 
-
+  let common: Shared;
   import Moveable from "svelte-moveable";
-  import { zoom, codeMap, rightClickedBlockEvent, moveAbles } from "../../../store";
+  import { zoom, codeMap, rightClickedBlockEvent, moveAbles, flatTree } from "../../../store";
 
   let target;
   // let moveable: Moveable;
@@ -25,7 +26,7 @@
   let height = 60;
 
   let addValue = true;
-  let menuOpened = false;
+
 
   $: {
     $zoom, onzoomChange();
@@ -162,34 +163,6 @@
     });
   }
 
-
-  function expand(e: any) 
-  {
-    console.log(e);
-    menuOpened = true;
-    let menu = e.target.parentElement.parentElement.querySelector(".menu")
-    
-    //$rightClickedBlockEvent = e;
-   // if (e.target.classList.contains("menu")) menu = e.target;
-    //if (e.target.parentElement.querySelector(".menu")) menu = e.target.querySelector(".menu");
-
-    if (menu !== null && menu !== undefined) {
-      if (menu.classList.contains("opened")) {
-        menu.style.transform = "scale(0)";
-        
-        menu.classList.remove("opened");
-        //New stuff here!!!
-      } else {
-        menu.style.transform = "scale(3)";
-        menu.style.background = "#23568a38";
-        menu.style.zIndex = "2";
-        //New stuff here!!!
-        menu.classList.add("opened");
-      }
-    }
-    e.preventDefault();
-  }
-
   const GetCardSpawnLocationX = (treeItem: FilteredTree) => {
     // if (treeItem.sibling === Sibling.Parent) {
     //   return treeItem.locationX;
@@ -244,19 +217,18 @@
 
 
 
+<Shared bind:this={common} />
+  <main class="single-block cube" style="background:#2c39575c; z-index:10; min-width:161px; position:absolute; {"width:" + treeItem.imageWidth + "px;"} {"height:" + treeItem.imageHeight + "px;"} { treeItem.locationX !== "0" && treeItem.locationY !== "0" ? 'transform: translate(' + treeItem.locationX + 'px' + ',' + treeItem.locationY + 'px);' : ''}">
 
-  <main class="single-block cube" style="background:#2c39575c; min-width:161px; position:absolute; {"width:" + treeItem.imageWidth + "px;"} {"height:" + treeItem.imageHeight + "px;"} { treeItem.locationX !== "0" && treeItem.locationY !== "0" ? 'transform: translate(' + treeItem.locationX + 'px' + ',' + treeItem.locationY + 'px);' : ''}">
-  
   <div bind:this={target}
   on:dblclick={() => dbClickBlock(treeItem)}
-  on:contextmenu={(event) => expand(event)}
+  on:contextmenu={(event) => common.expand(event)}
     style="height:100%;"
   id={treeItem.id}
   data-fileType={treeItem.type}
   data-parentId={treeItem.parentId}
   class="card absolute  highlight BlockImage {treeItem.type === Type.Folder ? 'directory' : 'file'}">
 
-  <RadialMenu treeItem={treeItem} {StarClicked}  {GroupBlocks} />
 
   <!-- GENERATED -->
   {#if treeItem.sibling === Sibling.Self || treeItem.sibling === undefined}

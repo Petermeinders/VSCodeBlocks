@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { codeMap, debug, editItem, editMode, items } from "../store";
-  import type { DerivedGroup, Group, Item } from "../../src/Models";
+  import { codeMap, currentlySelected, debug, editItem, editMode, items } from "../store";
+  import type { DerivedGroup, FilteredTree, Group, Item } from "../../src/Models";
   import { OutlineTypeEnum } from "../../src/Models";
   import lodash from "lodash";
   import deepdash from "deepdash";
@@ -320,6 +320,68 @@
         value: colorBlocks,
       });
     }
+  }
+
+
+  export function expand(e: any, moveable:any = null) 
+  {
+    console.log(e);
+    let menu = document.querySelector(".menu");
+    let selctedTreeItem = $codeMap.flatTree.find(x => x.id === e.currentTarget.id);
+
+    if(selctedTreeItem)
+      $currentlySelected.push(selctedTreeItem.id);
+
+    //$rightClickedBlockEvent = e;
+   // if (e.target.classList.contains("menu")) menu = e.target;
+    //if (e.target.parentElement.querySelector(".menu")) menu = e.target.querySelector(".menu");
+
+    if (menu !== null && menu !== undefined) {
+      if (menu.classList.contains("opened")) {
+        menu.style.transform = "scale(0)";
+        
+        menu.classList.remove("opened");
+        //New stuff here!!!
+      } else {
+        menu.style.transform = "scale(3)";
+        menu.style.background = "#23568a38";
+        menu.style.zIndex = "2";
+        menu.setAttribute("data-treeId", selctedTreeItem?.id);
+        // menu.style.left = selctedTreeItem.locationX + "px";
+        // menu.style.top = selctedTreeItem.locationY + "px";
+
+        // if (moveable !== null) {
+        //   menu.style.left = moveable.getInstance().getRect().transformOrigin[0]  + "px";
+        //   menu.style.top = moveable.getInstance().getRect().transformOrigin[1]  + "px";
+        // }
+        // menu.style.left = e.offsetX + "px";
+        // menu.style.top = e.offsetY + "px";
+        //New stuff here!!!
+        menu.classList.add("opened");
+      }
+    }
+    e.preventDefault();
+  }
+
+
+  export function GetLeftMostPixelFromBlock(blocks: FilteredTree[]) {
+    let leftMostPixel = 99999;
+    blocks.forEach((block) => {
+      if (+block.locationX < leftMostPixel) {
+        leftMostPixel = +block.locationX;
+      }
+    });
+    return leftMostPixel;
+  }
+
+  export function GetToptMostPixelFromBlock(blocks: FilteredTree[]) {
+    let topMostPixel = 99999;
+    blocks.forEach((block) => {
+      if (+block.locationY < topMostPixel) {
+        topMostPixel = +block.locationY;
+      }
+    });
+    return topMostPixel;
   }
 </script>
 

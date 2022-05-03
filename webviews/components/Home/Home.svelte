@@ -731,6 +731,10 @@ import CodeMapMove from "../CodeMap/CodeMapMove.svelte";
 </main>
 
 <style>
+  :global(body) {
+    padding:1px;
+  }
+
   .pocketAndMapGroups {
     display: flex;
     flex-direction: column;

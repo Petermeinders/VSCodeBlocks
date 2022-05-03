@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { flatTree, currentZoom, perimeterItem, codeMap, editItem, rightClickedBlockEvent, items } from "../../../store";
+  import { flatTree, currentZoom, perimeterItem, codeMap, editItem, rightClickedBlockEvent, items, currentlySelected } from "../../../store";
   import type { FilteredTree } from "../../../../src/Models";
   import deepdash from "deepdash";
   import { onMount } from "svelte";
@@ -30,7 +30,7 @@
   export let GroupBlocks = (event: MouseEvent) => {};
   export let Minimize = (event: any, treeItem: FilteredTree) => {};
 
-  export let treeItem: FilteredTree = {
+  export let treeItem: FilteredTree = $codeMap?.activeWindow?.activelySelectedBlocks?.length > 0 ? $codeMap?.activeWindow?.activelySelectedBlocks[0] : {
     id: "",
     path: "",
     name: "",
@@ -61,17 +61,16 @@
     codeDiff: false,
   };
 
-  function NameChangeMenu(e: any, treeItem: FilteredTree) {
-    let firstBlockInstance = treeItem;
-
+  function NameChangeMenu(e: any) {
+    if ($currentlySelected.length > 0)
+    {
       tsvscode.postMessage({
         type: "changeNameMenu",
-        value: firstBlockInstance.id,
+        value: $currentlySelected[0],
       });
 
-      // firstBlockInstance.code;
-      // firstBlockInstance.name;
-      // firstBlockInstance.id;
+      $currentlySelected = [];
+    }
   }
 
   // @ts-nocheck
@@ -144,7 +143,7 @@
   </a>
   <a href="#" class="tooltip">
     <span style=" cursor: pointer;" on:click={(event) => GroupBlocks(event)}>
-      <Fa id="GroupBlocks" size="1x" icon={faObjectGroup} class="greyedOut" /></span
+      <Fa id="GroupBlocks" size="1x" icon={faObjectGroup}  /></span
     >
     <span class="tooltiptext">Group</span>
   </a>

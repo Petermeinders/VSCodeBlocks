@@ -35,28 +35,28 @@
 
 
   //Expand or collapse radial menu
-  function expand(e: any) 
-  {
-    console.log(e);
-    let menu;
+  // function expand(e: any) 
+  // {
+  //   console.log(e);
+  //   let menu;
 
-    $rightClickedBlockEvent = e;
-    if (e.target.classList.contains("menu")) menu = e.target;
-    if (e.target.querySelector(".menu")) menu = e.target.querySelector(".menu");
+  //   $rightClickedBlockEvent = e;
+  //   if (e.target.classList.contains("menu")) menu = e.target;
+  //   if (e.target.querySelector(".menu")) menu = e.target.querySelector(".menu");
 
-    if (menu !== null) {
-      if (menu.classList.contains("opened")) {
-        menu.style.transform = "scale(0)";
+  //   if (menu !== null) {
+  //     if (menu.classList.contains("opened")) {
+  //       menu.style.transform = "scale(0)";
         
-        menu.classList.remove("opened");
-        //New stuff here!!!
-      } else {
-        menu.style.transform = "scale(3)";
-        //New stuff here!!!
-        menu.classList.add("opened");
-      }
-    }
-  }
+  //       menu.classList.remove("opened");
+  //       //New stuff here!!!
+  //     } else {
+  //       menu.style.transform = "scale(3)";
+  //       //New stuff here!!!
+  //       menu.classList.add("opened");
+  //     }
+  //   }
+  // }
 
   document.body.addEventListener("contextmenu", (e) => {
     e.preventDefault();

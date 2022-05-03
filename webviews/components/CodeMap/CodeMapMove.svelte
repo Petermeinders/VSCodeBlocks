@@ -24,7 +24,7 @@ moveAbles,
   import Card from "./Card/Card.svelte";
   import { onMount, afterUpdate, beforeUpdate, tick, createEventDispatcher } from "svelte";
   import DragSelect from "dragselect";
-  import lodash, { find, flatMap } from "lodash";
+  import lodash, { find, first, flatMap } from "lodash";
   import deepdash from "deepdash";
   import Line from "./Line.svelte";
   import Shared from "../Shared.svelte";
@@ -35,6 +35,7 @@ moveAbles,
   import GroupOfBlocks from "./GroupOfBlocks.svelte";
   import BlockContainer from "./Card/BlockContainer.svelte";
   import MovableBlock from "./Card/MovableBlock.svelte";
+  import RadialMenu from "./Card/CardRadial.svelte";
   import Moveable from "svelte-moveable";
 import { scale } from "svelte/transition";
 import { } from "os";
@@ -42,7 +43,17 @@ import Selecto from "svelte-selecto";
 import type { OnSelectEnd } from "svelte-selecto";
 import { element } from "svelte/internal";
 import { renderer } from "../../renderer";
-import CodeMapGroupsContainer from "./CodeMapGroupsContainer.svelte";
+import {
+    faCode,
+    faCompressArrowsAlt,
+    faExpandAlt,
+    faEyeSlash,
+    faFile,
+    faFolder,
+    faLink,
+    faStar as solidStar,
+    faTimesCircle,
+  } from "@fortawesome/free-solid-svg-icons";
 
 
   let common: Shared;
@@ -87,8 +98,6 @@ import CodeMapGroupsContainer from "./CodeMapGroupsContainer.svelte";
     // });
 
     // element?.parentElement?.addEventListener('wheel', instance.zoomWithWheel)
-
-
 
 
 
@@ -157,12 +166,14 @@ import CodeMapGroupsContainer from "./CodeMapGroupsContainer.svelte";
            console.log("left click");
         }
 
-        HideBorderOnMove();
-       
-        // $zoom = $zoom - 1;
+                // $zoom = $zoom - 1;
       if (event.buttons !== 2) {
             return;
         }
+
+        HideBorderOnMove();
+       
+
        
     
 
@@ -290,6 +301,7 @@ function getTranslateY(myElement) {
 }
 
   afterUpdate(() => {
+    
     //mouseUpAfterPan = false;
     //NewSelecto();
 
@@ -819,21 +831,186 @@ function getTranslateY(myElement) {
     }
   };
 
-  const OnBlockSelected = (targets: HTMLElement[]) => {
+  const UpdateActivelySelected = (targets: HTMLElement[]) => {
     if (targets !== undefined && targets.length > 0)
     {
+      $codeMap.activeWindow.activelySelectedBlocks = [];
       targets.forEach((target) => {
       let treeItem = $codeMap.flatTree.find(treeItem => treeItem.id === target.children[0].id);
 
       if (treeItem){
-        $codeMap.activeWindow.activelySelectedBlocks = [];
         $codeMap.activeWindow.activelySelectedBlocks.push(treeItem);
+        $codeMap.activeWindow.activelySelectedBlocks = [...$codeMap.activeWindow.activelySelectedBlocks];
       }
     })
     }
-   
-    
-    
+  };
+
+  const  SelectAllBlocksInAGroup = (targets: HTMLElement[]) => {
+    let firstBlock = targets[0];
+    let selectedBlocks :HTMLElement[] = [];
+
+    if (targets.length < 1) {
+      return targets;
+    }
+
+    $codeMap.groups.forEach((group) => {
+     if (group.blockIds.indexOf(firstBlock.children[0].id) !== -1){
+      console.log("group found");
+      console.log(group);
+      
+      group.blockIds.forEach((id) => {
+        selectedBlocks.push(document.querySelector('#'+id)?.parentElement);
+      }) 
+      // let sel = selecto.getInstance().once("select");
+      // selecto.getInstance().setSelectedTargets(selectedBlocks);
+      // console.log(selecto.getInstance().getSelectedTargets());
+      // moveable.getInstance().getManager().forceUpdate();
+      // targets = [].slice.call(document.querySelectorAll(".cube"));
+     }
+    })
+    if (selectedBlocks.length > 0) {
+            if (targets.length > 1){
+        setTimeout(() => AddEventListenerForClick(), 50)
+      }
+      return selectedBlocks;
+    }
+      else
+      return targets;
+  };
+
+
+
+
+  function GroupBlocks(e: MouseEvent) {
+    let blocks = GetSelectedCodeBlocks($codeMap.activeWindow.activelySelectedBlocks);
+    if (blocks.length === 0) {
+      let radialItemId = CheckforRadialItemClick(e.target);
+      let tempArray = new Array();
+      tempArray.push($rightClickedBlockEvent.target);
+      blocks = GetSelectedCodeBlocks(tempArray);
+      if (blocks.length === 0) return;
+    }
+
+    let foundGroup;
+    let lastItem = $codeMap?.groups?.slice(-1)[0]; //Check if any groups exist
+    let newGroup;
+
+    if ($codeMap?.groups?.length > 0) {
+      $codeMap?.groups.forEach((group) => {
+        let blockFound = group.blockIds.find((id) => id === blocks[0].id);
+        if (blockFound) {
+          foundGroup = group;
+        }
+      });
+
+      if (foundGroup) {
+        RemoveColor(foundGroup);
+        let index = $codeMap.groups.indexOf(foundGroup);
+        $codeMap.groups.splice(index, 1);
+        RenderBlocks();
+      } else {
+        AddGroup(blocks);
+      }
+    } else {
+      $codeMap.groups = Array<Group>();
+      AddGroup(blocks);
+    }
+  }
+
+  function GetSelectedCodeBlocks(selectedBlocks) {
+    let blocksList = [];
+    selectedBlocks.forEach((block) => {
+      $codeMap.flatTree.forEach((flatBlock) => {
+        if (flatBlock.id.toString() === block.id.toString()) {
+          blocksList.push(flatBlock);
+        }
+      });
+    });
+
+    return blocksList;
+  }
+
+  function CheckforRadialItemClick(target) {
+    let radialItemId;
+    if (target?.nodeName === "path") {
+      radialItemId = target.parentElement.parentElement.parentElement.id;
+      $currentlySelected.push(target.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement);
+      return radialItemId;
+    }
+    if (target?.nodeName === "svg") {
+      radialItemId = target.id;
+      $currentlySelected.push(target.parentElement.parentElement.parentElement);
+      return radialItemId;
+    }
+  }
+
+  function AddGroup(blocks: FilteredTree[]) {
+    let newGroup = { groupId: common.getNonce(), blockIds: [], name: "New Group", visible: true };
+    $groupedSquares.push({
+      groupId: common.getNonce(),
+      blocks: blocks,
+    });
+
+    $groupedSquares = $groupedSquares;
+    newGroup.color = "#" + Math.floor(Math.random() * 16777215).toString(16);
+
+    blocks.forEach((block) => {
+      newGroup.blockIds.push(block.id);
+      block.color = newGroup.color;
+      let blockIndex = $codeMap.flatTree.indexOf(block);
+      if (blockIndex !== -1) {
+        $codeMap.flatTree.splice(blockIndex, 1, block);
+      }
+    });
+
+    let newSet = [...new Set(newGroup.blockIds)];
+    newGroup.blockIds = newSet;
+    // newGroup = RenderGroupRectangle(newGroup);
+    $codeMap.groups.push(newGroup);
+  }
+
+  function RemoveColor(group) {
+    $codeMap.flatTree.forEach((treeItem) => {
+      group.blockIds.forEach((blockId) => {
+        if (treeItem.id.toString() === blockId.toString()) {
+          treeItem.color = null;
+        }
+      });
+    });
+  }
+
+
+  function AddEventListenerForClick() {
+    const groupSelect = document.getElementsByClassName("moveable-area")?.item(0);
+          if (groupSelect) {
+              groupSelect.addEventListener('contextmenu', function (event) {
+                console.log("newCLick");
+                event.preventDefault();
+                if (event.button !== 2) {
+                  return;
+                }
+
+                common.expand(event, moveable);
+                console.log(event.defaultPrevented)
+              })
+          }
+  }
+
+  function GetLeftMostPixel(group: any){
+    let groupOfBlocks: FilteredTree[] = [];
+    group.blockIds.forEach(blockId => {
+      groupOfBlocks.push($codeMap.flatTree.find(x => x.id === blockId));
+    });
+    return common.GetLeftMostPixelFromBlock(groupOfBlocks);
+  }
+
+  function GetTopMostPixel(group: any){
+    let groupOfBlocks: FilteredTree[] = [];
+    group.blockIds.forEach(blockId => {
+      groupOfBlocks.push($codeMap.flatTree.find(x => x.id === blockId));
+    });
+    return common.GetToptMostPixelFromBlock(groupOfBlocks);
   }
 </script>
 
@@ -874,7 +1051,8 @@ function getTranslateY(myElement) {
   }}
   on:click={({ detail: e }) => {
      console.log("Clicked");
-     OnBlockSelected([e.target]);
+     UpdateActivelySelected([e.target]);
+
   }}
 
   on:drag={({ detail: e }) => {
@@ -998,10 +1176,17 @@ on:resize={({ detail: e }) => {
                     e.stop();
                 }
    }
-   else{
-    e.stop();
-   }
 
+  }}
+
+  on:dragEnd={({ detail: e }) => {
+    UpdateActivelySelected(e.currentTarget.selectedTargets);
+    console.log("onDragEnd; Selected Blocks: ");
+    console.log($codeMap.activeWindow.activelySelectedBlocks);
+
+    AddEventListenerForClick();
+
+    
   }}
 
   on:select={({ detail: e }) => {
@@ -1013,8 +1198,13 @@ on:resize={({ detail: e }) => {
       //     el.classList.remove("selected");
       // });
       // OnBlockDragOVERSelect(e);
-      if (!e.inputEvent.altKey)
-      targets = e.selected;
+      if ($codeMap.groups)
+      targets = [].slice.call(SelectAllBlocksInAGroup(e.selected));
+
+
+
+      //targets = [].slice.call(document.querySelectorAll(".cube"));
+     
   }}
 
   on:selectEnd={({ detail: e }) => {
@@ -1025,19 +1215,23 @@ on:resize={({ detail: e }) => {
       //     el.classList.remove("selected");
       // });
 
-      // onBlockSelectEnd(e);
+      // onBlockSelectEnd(e); 
+  
+      //OnBlockSelected(e.selectedTargets);
 
-      OnBlockSelected(e.selectedTargets);
+    
+
 
       if (e.isDragStart) {
-                    // e.inputEvent.preventDefault();
-            
-                    setTimeout(() => {
-                         moveable.dragStart(e.inputEvent);
-                    });
-                }
-
+          e.inputEvent.preventDefault();
+          //console.log("selecto drag stopped");
+          setTimeout(() => {
+                moveable.dragStart(e.inputEvent);
+          });
+      }
+   
     }}>
+
   </Selecto>
 
 
@@ -1048,11 +1242,19 @@ on:resize={({ detail: e }) => {
 
 
   <div id="canvas-inner">
-   
+    <RadialMenu {GroupBlocks} />
         <div class="zoom elements">
  {#if $codeMap?.flatTree}
           <div class="elements selecto-area" id="selecto1">
             <div id="background-grid" class="background-grid"></div>
+
+            {#if $codeMap?.groups}
+              {#each $codeMap?.groups as group}
+              {@debug group}
+                <h1 style="position:absolute; {"left:" + GetLeftMostPixel(group)  + 'px;' + 'top:' + (GetTopMostPixel(group) - 20) + 'px;'}">{group.name}</h1>
+              {/each}
+            {/if}
+            
             {#each $codeMap.flatTree as treeItem}
             <!-- && typeof(treeItem.open) === "undefined" || treeItem?.open === true -->
 
@@ -1185,8 +1387,10 @@ body {
 
 
 
-
-
+/* THis is the select box */
+    :global(.rCS19atnxs) {
+      z-index: 20 !important;
+    }
 
 
 
