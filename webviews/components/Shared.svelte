@@ -364,7 +364,12 @@
   }
 
 
-  export function GetLeftMostPixelFromBlock(blocks: FilteredTree[]) {
+  export function GetLeftMostPixelFromGroup(group: any){
+    let blocks: FilteredTree[] = [];
+    group.blockIds.forEach(blockId => {
+      blocks.push($codeMap.flatTree.find(x => x.id === blockId));
+    });
+    
     let leftMostPixel = 99999;
     blocks.forEach((block) => {
       if (+block.locationX < leftMostPixel) {
@@ -374,7 +379,12 @@
     return leftMostPixel;
   }
 
-  export function GetToptMostPixelFromBlock(blocks: FilteredTree[]) {
+  export function GetTopMostPixelFromGroup(group: any){
+    let blocks: FilteredTree[] = [];
+    group.blockIds.forEach(blockId => {
+      blocks.push($codeMap.flatTree.find(x => x.id === blockId));
+    });
+    
     let topMostPixel = 99999;
     blocks.forEach((block) => {
       if (+block.locationY < topMostPixel) {
@@ -382,6 +392,56 @@
       }
     });
     return topMostPixel;
+  }
+
+  // export function GetLeftMostPixelFromBlock(blocks: FilteredTree[]) {
+  //   let leftMostPixel = 99999;
+  //   blocks.forEach((block) => {
+  //     if (+block.locationX < leftMostPixel) {
+  //       leftMostPixel = +block.locationX;
+  //     }
+  //   });
+  //   return leftMostPixel;
+  // }
+
+  // export function GetToptMostPixelFromBlock(blocks: FilteredTree[]) {
+  //   let topMostPixel = 99999;
+  //   blocks.forEach((block) => {
+  //     if (+block.locationY < topMostPixel) {
+  //       topMostPixel = +block.locationY;
+  //     }
+  //   });
+  //   return topMostPixel;
+  // }
+
+  export function GetBottomMostPixelFromGroup(group: any){
+    let blocks: FilteredTree[] = [];
+    group.blockIds.forEach(blockId => {
+      blocks.push($codeMap.flatTree.find(x => x.id === blockId));
+    });
+    
+    let bottomMostPixel = -99999;
+    blocks.forEach((block) => {
+      if (+block.locationY > bottomMostPixel) {
+        bottomMostPixel = +block.locationY;
+      }
+    });
+    return bottomMostPixel;
+  }
+
+  export function GetRightMostPixelFromGroup(group: any){
+    let blocks: FilteredTree[] = [];
+    group.blockIds.forEach(blockId => {
+      blocks.push($codeMap.flatTree.find(x => x.id === blockId));
+    });
+    
+    let rightMostPixel = -99999;
+    blocks.forEach((block) => {
+      if (+block.locationX > rightMostPixel) {
+        rightMostPixel = +block.locationX;
+      }
+    });
+    return rightMostPixel;
   }
 </script>
 

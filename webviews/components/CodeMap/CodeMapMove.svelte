@@ -19,7 +19,7 @@ zoom,
 moveAbles,
   } from "../../store";
   import Fa from "svelte-fa";
-  import type { FilteredTree, Group, BlockContainerInterface } from "../../../src/Models";
+  import type { FilteredTree, Group, BlockContainerInterface, ZoomElement } from "../../../src/Models";
   import { OutlineTypeEnum } from "../../../src/Models";
   import Card from "./Card/Card.svelte";
   import { onMount, afterUpdate, beforeUpdate, tick, createEventDispatcher } from "svelte";
@@ -41,7 +41,7 @@ import { scale } from "svelte/transition";
 import { } from "os";
 import Selecto from "svelte-selecto";
 import type { OnSelectEnd } from "svelte-selecto";
-import { element } from "svelte/internal";
+import { element, query_selector_all } from "svelte/internal";
 import { renderer } from "../../renderer";
 import {
     faCode,
@@ -62,6 +62,7 @@ import {
   let faketree = [];
   let changedFile = "";
   let selecto: Selecto;
+  let zoomElements: ZoomElement[] = [];
 
 
 //FrameMap is needed for Movable and Selecto
@@ -71,6 +72,7 @@ import {
   $: $codeMap?.activeWindow?.path, onWindowChange();
   $: $codeMap
   $: $activelySelectedText, SelectedTextChange();
+  $: zoomElements, PanZoomFunction();
 
   onMount(async () => {
     var element = document.querySelector("#canvas-inner");
@@ -102,100 +104,12 @@ import {
 
 
 
-
+    PanZoomFunction();
  
 
-  const container = document.getElementById("CodeMapMove");
-  const el = document.getElementById("selecto1");
-   //const elBoxo = document.getElementsByClassName("moveable-control-box");
-  const zoomPan = renderer({ scaleSensitivity: 5, minScale: .1, maxScale: 30, element: el });
-  container.addEventListener("wheel", (event) => {
-      // if (!event.ctrlKey) {
-      //     return;
-      // }
-      event.preventDefault();
-      zoomPan.zoom({
-          deltaScale: Math.sign(event.deltaY) > 0 ? -1 : 1,
-          x: event.pageX,
-          y: event.pageY
-      });
-     
-  });
-  // container.addEventListener("dblclick", () => {
-  //     zoomPan.panTo({
-  //         originX: 0,
-  //         originY: 0,
-  //         scale: 1,
-  //     });
-  // });
-
-  container.addEventListener("mousemove", (event) => {
-        if (event.buttons !== 2) {
-            return;
-        }
-
-        zoomPan.panBy({
-            originX: event.movementX,
-            originY: event.movementY
-        });
-
-       
-    })
-
-    container.addEventListener("contextmenu", (event) => {
-        event.preventDefault();
-    })
 
 
-
-
-    container.addEventListener("mouseup", (event) => {
-      if (event.button !== 2) {
-            return;
-        }
-       
-        $zoom = $zoom + 1;
-    })
-
-    container.addEventListener("mousedown", (event) => {
-      if (event.button === 0) {
-        //TODO: Move this to constant;
-        if (event?.target?.id === "background-grid") {
-          CloseAllRadials();  
-        }
-           console.log("left click");
-        }
-
-                // $zoom = $zoom - 1;
-      if (event.buttons !== 2) {
-            return;
-        }
-
-        HideBorderOnMove();
-       
-
-       
-    
-
-    })
-
-
-    function CloseAllRadials() {
-    let menu;
-
-    let allMenus = document.querySelectorAll("#menu.opened");
-
-    // if (e.target.classList.contains("menu")) menu = e.target;
-    // if (e.target.querySelector(".menu")) menu = e.target.querySelector(".menu");
-
-    if (allMenus.length > 0) {
-      allMenus.forEach((menu) => {
-        menu.style.transform = "scale(0)";
-        menu.classList.remove("opened");
-      });
-    }
-  }
-   
+  
 
      //container.addEventListener("mousedown", onMousedown); 
 
@@ -252,11 +166,135 @@ import {
 
 
 
+  const PanZoomFunction = () => {
+
+  const container = document.getElementById("CodeMapMove");
+  const el = document.getElementById("selecto1");
+   if (zoomElements.indexOf(el) === -1) {
+    zoomElements.push({element: el, transformationType: "matrix"});
+   }
+
+  // zoomElement.forEach(element => {
+  //   if (element && element.style.transform.length > 0) {
+  //   const {x, y, z} = getMatrixFrom3D(element);
+  //   element.style.transform = `matrix(${z}, 0, 0, ${z}, ${x}, ${y})`;
+  //   }
+  // })
+
+
+   //const elBoxo = document.getElementsByClassName("moveable-control-box");
+  const zoomPan = renderer({ scaleSensitivity: 5, minScale: .1, maxScale: 30, elements: zoomElements });
+  if (container){
+  container.addEventListener("wheel", (event) => {
+      // if (!event.ctrlKey) {
+      //     return;
+      // }
+      event.preventDefault();
+      zoomPan.zoom({
+          deltaScale: Math.sign(event.deltaY) > 0 ? -1 : 1,
+          pageX: event.pageX,
+          pageY: event.pageY
+      });
+     
+  });
+  // container.addEventListener("dblclick", () => {
+  //     zoomPan.panTo({
+  //         originX: 0,
+  //         originY: 0,
+  //         scale: 1,
+  //     });
+  // });
+
+  container.addEventListener("mousemove", (event) => {
+        if (event.buttons !== 2) {
+            return;
+        }
+
+        zoomPan.panBy({
+            originX: event.movementX,
+            originY: event.movementY
+        });
+
+       
+    })
+
+    container.addEventListener("contextmenu", (event) => {
+        event.preventDefault();
+    })
 
 
 
 
+    container.addEventListener("mouseup", (event) => {
+      if (event.button !== 2) {
+            return;
+        }
+       
+        //$zoom = $zoom + 1;
+    })
 
+    container.addEventListener("mousedown", (event) => {
+      if (event.button === 0) {
+        //TODO: Move this to constant;
+        if (event?.target?.id === "background-grid") {
+          CloseAllRadials();  
+        }
+           console.log("left click");
+        }
+
+                // $zoom = $zoom - 1;
+      if (event.buttons !== 2) {
+            return;
+        }
+
+        //HideBorderOnMove();
+       
+
+       
+    
+
+    })
+
+  }
+    }
+
+
+    function CloseAllRadials() {
+    let menu;
+
+    let allMenus = document.querySelectorAll("#menu.opened");
+
+    // if (e.target.classList.contains("menu")) menu = e.target;
+    // if (e.target.querySelector(".menu")) menu = e.target.querySelector(".menu");
+
+    if (allMenus.length > 0) {
+      allMenus.forEach((menu) => {
+        menu.style.transform = "scale(0)";
+        menu.classList.remove("opened");
+      });
+    }
+  }
+   
+
+
+    function getMatrixFrom3D(element) {
+      if (element !== null) {
+    const values = element.style.transform.split(/\w+\(|\);?/);
+    const transform = values[1].split(/,\s?/g).map(parseInt);
+    
+
+    return {
+      x: transform[0],
+      y: transform[1],
+      z: transform[2]
+    };
+  }
+  return {
+      x: 0,
+      y: 0,
+      z: 0
+    };
+}
 
 
 
@@ -283,7 +321,6 @@ function ShowBorderAfterMove() {
 
   beforeUpdate(() => {
     RenderBlocks();
-
   });
 
   function getTranslateX(myElement) {
@@ -301,6 +338,8 @@ function getTranslateY(myElement) {
 }
 
   afterUpdate(() => {
+
+
     
     //mouseUpAfterPan = false;
     //NewSelecto();
@@ -450,6 +489,15 @@ function getTranslateY(myElement) {
         SetVisibility();
 
         $codeMap.flatTree = [...new Set($codeMap.flatTree)];
+
+
+
+        // if ($codeMap?.groups.length > 0) {
+        //   $codeMap.groups.forEach((group) => {
+        //    group.height = (common.GetBottomMostPixelFromGroup(group) - common.GetTopMostPixelFromGroup(group))
+        //    group.width = (common.GetRightMostPixelFromGroup(group) - common.GetLeftMostPixelFromGroup(group))
+        //   });
+        // }
         //ColorCode();
         return;
       }
@@ -884,6 +932,8 @@ function getTranslateY(myElement) {
 
   function GroupBlocks(e: MouseEvent) {
     let blocks = GetSelectedCodeBlocks($codeMap.activeWindow.activelySelectedBlocks);
+
+    //No blocks selected
     if (blocks.length === 0) {
       let radialItemId = CheckforRadialItemClick(e.target);
       let tempArray = new Array();
@@ -892,7 +942,7 @@ function getTranslateY(myElement) {
       if (blocks.length === 0) return;
     }
 
-    let foundGroup;
+    let foundGroup: Group = undefined;
     let lastItem = $codeMap?.groups?.slice(-1)[0]; //Check if any groups exist
     let newGroup;
 
@@ -908,6 +958,9 @@ function getTranslateY(myElement) {
         RemoveColor(foundGroup);
         let index = $codeMap.groups.indexOf(foundGroup);
         $codeMap.groups.splice(index, 1);
+        foundGroup.blockIds.forEach(blockId => {
+          document.querySelector("#" + blockId)?.parentElement?.removeAttribute("data-groupId");
+        });
         RenderBlocks();
       } else {
         AddGroup(blocks);
@@ -946,7 +999,7 @@ function getTranslateY(myElement) {
   }
 
   function AddGroup(blocks: FilteredTree[]) {
-    let newGroup = { groupId: common.getNonce(), blockIds: [], name: "New Group", visible: true };
+    let newGroup = { groupId: common.getNonce(), blockIds: [], name: "New Group", visible: true, width:0, height:0, top:0, left:0 };
     $groupedSquares.push({
       groupId: common.getNonce(),
       blocks: blocks,
@@ -962,10 +1015,18 @@ function getTranslateY(myElement) {
       if (blockIndex !== -1) {
         $codeMap.flatTree.splice(blockIndex, 1, block);
       }
+
+      //Add groupid to element
+      document.querySelector("#" + block.id)?.parentElement?.setAttribute("data-groupId", newGroup.groupId);
     });
 
     let newSet = [...new Set(newGroup.blockIds)];
     newGroup.blockIds = newSet;
+    newGroup.width = $codeMap.activeWindow.selectionBorder.width;
+    newGroup.height = $codeMap.activeWindow.selectionBorder.height;
+    newGroup.top = $codeMap.activeWindow.selectionBorder.top;
+    newGroup.left = $codeMap.activeWindow.selectionBorder.left;
+
     // newGroup = RenderGroupRectangle(newGroup);
     $codeMap.groups.push(newGroup);
   }
@@ -997,21 +1058,86 @@ function getTranslateY(myElement) {
           }
   }
 
-  function GetLeftMostPixel(group: any){
-    let groupOfBlocks: FilteredTree[] = [];
-    group.blockIds.forEach(blockId => {
-      groupOfBlocks.push($codeMap.flatTree.find(x => x.id === blockId));
-    });
-    return common.GetLeftMostPixelFromBlock(groupOfBlocks);
+  function UpdateGroups() {
+   //Update Groups
+   if ($codeMap.groups.length > 0) {
+          $codeMap.groups.forEach((group) => {
+            if (group.blockIds.length > 0) {
+              let selectoBorder = document.querySelector('.moveable-area');
+              if (selectoBorder) {
+                  console.log(selecto.getInstance().getSelectedTargets());
+              }
+            }
+          });
+        }
   }
 
-  function GetTopMostPixel(group: any){
-    let groupOfBlocks: FilteredTree[] = [];
-    group.blockIds.forEach(blockId => {
-      groupOfBlocks.push($codeMap.flatTree.find(x => x.id === blockId));
-    });
-    return common.GetToptMostPixelFromBlock(groupOfBlocks);
+  function GetSelectoBorderAndSetActiveStore() {
+    if (!$codeMap.activeWindow.selectionBorder)
+      $codeMap.activeWindow.selectionBorder = {};
+
+    if (document.querySelector(".moveable-area")?.getBoundingClientRect()?.top){
+
+      $codeMap.activeWindow.selectionBorder.top = new WebKitCSSMatrix(document.querySelector(".moveable-area")?.parentElement?.style.transform).m42 //document.querySelector(".moveable-area")?.parentElement?.getBoundingClientRect()?.top;
+
+      // $codeMap.activeWindow.selectionBorder.bottom = document.querySelector(".moveable-area")?.parentElement?.getBoundingClientRect()?.bottom;
+      $codeMap.activeWindow.selectionBorder.left = new WebKitCSSMatrix(document.querySelector(".moveable-area")?.parentElement?.style.transform).m41 //document.querySelector(".moveable-area")?.parentElement?.getBoundingClientRect()?.left;
+      // $codeMap.activeWindow.selectionBorder.right = document.querySelector(".moveable-area")?.getBoundingClientRect()?.right;
+      $codeMap.activeWindow.selectionBorder.width = document.querySelector(".moveable-area")?.getBoundingClientRect()?.width;
+      $codeMap.activeWindow.selectionBorder.height = document.querySelector(".moveable-area")?.getBoundingClientRect()?.height;
+    }
+
   }
+
+  function UpdateActiveBorder(elements: HTMLElement[]){
+    console.log("dragGroupEnd");
+    GetSelectoBorderAndSetActiveStore();
+    let eGroupId = elements[0].getAttribute("data-groupId")
+    if (eGroupId) {
+      $codeMap.groups.find(x => x.groupId === eGroupId).width = $codeMap.activeWindow.selectionBorder.width;
+      $codeMap.groups.find(x => x.groupId === eGroupId).height = $codeMap.activeWindow.selectionBorder.height;
+      $codeMap.groups.find(x => x.groupId === eGroupId).top = $codeMap.activeWindow.selectionBorder.top;
+      $codeMap.groups.find(x => x.groupId === eGroupId).left = $codeMap.activeWindow.selectionBorder.left;
+    }
+  }
+
+
+
+function UpdateControlBoxBorder() {
+  const blueBorder = document.querySelector("div[data-styled-id='rCS19atnxs']");
+      let foundElement;
+      
+      zoomElements.forEach(element => {
+        if (element.element)
+            foundElement = element.element.classList.contains("moveable-control-box");
+      });
+
+      if (!foundElement){
+        zoomElements.push({element: blueBorder, transformationType: "translate3d"});
+      }
+      else {
+        zoomElements.splice(zoomElements.indexOf(foundElement), 1, {element: blueBorder, transformationType: "translate3d"})
+      }
+
+}
+
+function UpdateGroupBorder() {
+  const redborder = document.getElementById("redborder");
+      let foundElement;
+      
+      zoomElements.forEach(element => {
+        if (element.element)
+            foundElement = element.element.id === "redborder";
+      });
+
+      if (!foundElement){
+        zoomElements.push({element: redborder, transformationType: "matrix"});
+      }
+      else {
+        zoomElements.splice(zoomElements.indexOf(foundElement), 1, {element: redborder, transformationType: "matrix"})
+      }
+
+}
 </script>
 
 
@@ -1088,6 +1214,16 @@ function getTranslateY(myElement) {
     e.target.style.width ;
     e.target.style.height;
 
+    //   const blueBorder = document.querySelector("div[data-styled-id='rCS19atnxs']");
+    //  if (!zoomElements.find(x => x.element === blueBorder)){
+    //     zoomElements.push({element: blueBorder, transformationType: "translate3d"});
+    //   }
+    //   else {
+    //     let el = zoomElements.find(x => x.element === blueBorder);
+    //     zoomElements.splice(zoomElements.indexOf(el), 1, {element: blueBorder, transformationType: "translate3d"})
+    //   }
+    
+
   }}
   on:dragGroupStart={({ detail: e }) => {
       e.events.forEach(ev => {
@@ -1124,6 +1260,11 @@ function getTranslateY(myElement) {
           const target = ev.target;
           OnSingleDragEnded(target);
       });
+      UpdateActiveBorder(e.targets);
+
+      UpdateControlBoxBorder()
+
+     
   }}
 
 on:resizeStart={({ detail: e }) => {
@@ -1185,8 +1326,12 @@ on:resize={({ detail: e }) => {
     console.log($codeMap.activeWindow.activelySelectedBlocks);
 
     AddEventListenerForClick();
+    GetSelectoBorderAndSetActiveStore();
+    UpdateControlBoxBorder();
+    // UpdateGroupBorder();  
 
-    
+
+           
   }}
 
   on:select={({ detail: e }) => {
@@ -1200,6 +1345,8 @@ on:resize={({ detail: e }) => {
       // OnBlockDragOVERSelect(e);
       if ($codeMap.groups)
       targets = [].slice.call(SelectAllBlocksInAGroup(e.selected));
+
+
 
 
 
@@ -1219,7 +1366,7 @@ on:resize={({ detail: e }) => {
   
       //OnBlockSelected(e.selectedTargets);
 
-    
+    //$codeMap.activeWindow.selectionBorder.top = e.topleft;
 
 
       if (e.isDragStart) {
@@ -1245,15 +1392,17 @@ on:resize={({ detail: e }) => {
     <RadialMenu {GroupBlocks} />
         <div class="zoom elements">
  {#if $codeMap?.flatTree}
+ <!-- {#if $codeMap?.groups}
+              {#each $codeMap?.groups as group}
+                <input type="text" bind:value="{group.name}" style="background:none; font-size: x-large; width: auto; position:absolute; {"left:" + (common.GetLeftMostPixelFromGroup(group) + 13)  + 'px;' + 'top:' + (common.GetTopMostPixelFromGroup(group) - 20) + 'px;'}">
+                <div id="redborder" style="border: red solid; position:absolute; {"height:" + (group.height)  + "px;" + " width:" + (group.width) + "px;" } {"left:" + (common.GetLeftMostPixelFromGroup(group) + 13) + 'px;' + 'top:' + (common.GetTopMostPixelFromGroup(group) - 20)  + 'px;'}">
+                </div>
+                {/each}
+            {/if} -->
           <div class="elements selecto-area" id="selecto1">
             <div id="background-grid" class="background-grid"></div>
 
-            {#if $codeMap?.groups}
-              {#each $codeMap?.groups as group}
-              {@debug group}
-                <h1 style="position:absolute; {"left:" + GetLeftMostPixel(group)  + 'px;' + 'top:' + (GetTopMostPixel(group) - 20) + 'px;'}">{group.name}</h1>
-              {/each}
-            {/if}
+            
             
             {#each $codeMap.flatTree as treeItem}
             <!-- && typeof(treeItem.open) === "undefined" || treeItem?.open === true -->

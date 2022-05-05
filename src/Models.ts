@@ -106,7 +106,25 @@ export interface FilteredTree {
     blockIds:string[],
     color:string,
     name:string,
+    left:number
+    top:number
+    width:number,
+    height:number,
     visible:boolean,
+ }
+
+ export interface ZoomElement {
+    element:HTMLDivElement,
+    transformationType:string,
+ }
+
+ export interface SelectionBorder{
+   top:number,
+   left:number,
+   bottom:number,
+   right:number,
+   width:number,
+   height:number
  }
  
  export interface ActiveWindow {
@@ -114,6 +132,7 @@ export interface FilteredTree {
     id:string,
     block:FilteredTree,
     activelySelectedBlocks:FilteredTree[],
+    selectionBorder: SelectionBorder,
     outline: [{
        children:[],
        containerName:string,
