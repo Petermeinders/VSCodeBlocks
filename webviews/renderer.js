@@ -43,29 +43,17 @@ const pan = ({ state, originX, originY }) => {
         }
     });
 
-    state.elements.forEach(el => {
-      if (el.element && el.transformationType === 'redbox'){
-        let oldX = el.element.offsetLeft;
-        let oldY = el.element.offsetTop;
-
-        oldX += originX;
-        oldY += originY;
-
-         el.element.style.transform = getMatrix({ scale: state.transformation.scale, translateX: state.transformation.translateX, translateY: state.transformation.translateY });
-      }
-  });
-
-  state.elements.forEach(el => {
-    if (el.element && el.transformationType === 'topandleft'){
-      let {x, y, z} = getMatrixFrom3D(el.element);
-      x += originX;
-      y += originY;
-      z = 1;
-if (x !== 0 || y !== 0) {
-      el.element.style.transform = `matrix(${z}, 0, 0, ${z}, ${x}, ${y})`;
-    }
-  }
-});
+//   state.elements.forEach(el => {
+//     if (el.element && el.transformationType === 'topandleft'){
+//       let {x, y, z} = getMatrixFrom3D(el.element);
+//       x += originX;
+//       y += originY;
+//       z = 1;
+// if (x !== 0 || y !== 0) {
+//       el.element.style.transform = `matrix(${z}, 0, 0, ${z}, ${x}, ${y})`;
+//     }
+//   }
+// });
 };
 
 const canPan = (state) => ({
@@ -78,14 +66,24 @@ const canPan = (state) => ({
 
 const canZoom = (state) => ({
     zoom: ({ pageX, pageY, deltaScale }) => {
+      // let left1 = state.elements[0].element.getBoundingClientRect().left;
+      // let top1 = state.elements[0].element.getBoundingClientRect().top;
+       const { minScale, maxScale, scaleSensitivity } = state;
+       const [scale, newScale] = getScale({ scale: state.transformation.scale, deltaScale, minScale, maxScale, scaleSensitivity });
+      // let originX1 = pageX - left1;
+      // let originY1 = pageY - top1;
+      // let newOriginX1 = originX1 / scale;
+      // let newOriginY1 = originY1 / scale;
+
+
+
       let left;
       let top;
+
       let originX;
-      let originY;
+      let  originY;
       let newOriginX;
       let newOriginY;
-      const { minScale, maxScale, scaleSensitivity } = state;
-      const [scale, newScale] = getScale({ scale: state.transformation.scale, deltaScale, minScale, maxScale, scaleSensitivity });
 
       ///Translate3d
       // state.elements.forEach((elem) => {
@@ -111,7 +109,12 @@ const canZoom = (state) => ({
       //     elem.element.style.transform = `matrix(${newScale}, 0, 0, ${newScale}, ${translateX}, ${translateY})`;
       //     //state.transformation = { originX: newOriginX, originY: newOriginY, translateX, translateY, scale: newScale };
       //   }
+
       // });
+
+      // const translate1 = getTranslate({ scale, minScale, maxScale });
+      // const translateX1 = translate1({ pos: originX1, prevPos: state.transformation.originX, translate: state.transformation.translateX });
+      // const translateY1 = translate1({ pos: originY1, prevPos: state.transformation.originY, translate: state.transformation.translateY });
 
       //Matrix
       state.elements.forEach((elem) => {
@@ -125,18 +128,20 @@ const canZoom = (state) => ({
           newOriginY = originY / scale;
 
           elem.element.style.transformOrigin = `${newOriginX}px ${newOriginY}px`;
-
-          
+          console.log()
           const translate = getTranslate({ scale, minScale, maxScale });
           const translateX = translate({ pos: originX, prevPos: state.transformation.originX, translate: state.transformation.translateX });
           const translateY = translate({ pos: originY, prevPos: state.transformation.originY, translate: state.transformation.translateY });
 
-          elem.element.style.transform = getMatrix({ scale: newScale, translateX, translateY });
 
-          state.transformation = { originX: newOriginX, originY: newOriginY, translateX, translateY, scale: newScale };
+        elem.element.style.transform = getMatrix({ scale: newScale, translateX, translateY });
+
+        state.transformation = { originX: newOriginX, originY: newOriginY, translateX, translateY, scale: newScale };
+          
         }
       });
 
+      //state.transformation = { originX: newOriginX1, originY: newOriginY1, translateX1, translateY1, scale: newScale };
 
     }
 });

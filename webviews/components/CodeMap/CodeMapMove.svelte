@@ -64,6 +64,8 @@ import {
   let selecto: Selecto;
   let zoomElements: ZoomElement[] = [];
 
+  let isScrolling = false;
+
 
 //FrameMap is needed for Movable and Selecto
   const frameMap = new Map();
@@ -117,13 +119,21 @@ import {
       // if (!event.ctrlKey) {
       //     return;
       // }
+      // if (isScrolling){
+      //   isScrolling = false;
+      //   return;
+      // }
+
+     // isScrolling = true;
+
       event.preventDefault();
       zoomPan.zoom({
           deltaScale: Math.sign(event.deltaY) > 0 ? -1 : 1,
           pageX: event.pageX,
           pageY: event.pageY
       });
-     1
+
+
   });
   // container.addEventListener("dblclick", () => {
   //     zoomPan.panTo({
@@ -291,7 +301,7 @@ function getTranslateY(myElement) {
   afterUpdate(() => {
 
 
-    
+    isScrolling = false;
     //mouseUpAfterPan = false;
     //NewSelecto();
 
@@ -1087,7 +1097,7 @@ function UpdateGroupName(){
       //Do nothing
     }
     else{
-      zoomElements.push({element: document.getElementById(group.groupId), transformationType: "topandleft"});
+      zoomElements.push({element: document.getElementById(group.groupId), transformationType: "matrix"});
     }
   });
 }
@@ -1132,6 +1142,7 @@ function UpdateGroupName(){
   on:click={({ detail: e }) => {
      console.log("Clicked");
      UpdateActivelySelected([e.target]);
+     UpdateControlBoxBorder()
 
   }}
 
@@ -1284,7 +1295,7 @@ on:resize={({ detail: e }) => {
 
     AddEventListenerForClick();
     GetSelectoBorderAndSetActiveStore();
-    //UpdateControlBoxBorder();
+    UpdateControlBoxBorder();
      //UpdateGroupBorder();  
 
 
