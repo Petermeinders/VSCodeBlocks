@@ -1290,8 +1290,8 @@
     let width = greatestX - leastX;
     let height = greatestY - leastY;
 
-    group.width = width;
-    group.height = height;
+    // group.width = width;
+    // group.height = height;
     group.startXY;
 
     return group;

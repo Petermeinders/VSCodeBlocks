@@ -20,9 +20,15 @@ const pan = ({ state, originX, originY }) => {
         if (el.element && el.transformationType === 'translate3d') {
 
                     let {x, y, z} = getMatrixFrom3D(el.element);
+                    // if (x === 0 && y === 0) {
+                    //   x = +el.element.style.left.replace("px","");
+                    //   y =  +el.element.style.top.replace("px","");
+                    // }
+
                     x += originX;
                     y += originY;
                     z = 1;
+       
                     el.element.style.transform = `matrix(${z}, 0, 0, ${z}, ${x}, ${y})`;
                 
             }
@@ -36,6 +42,30 @@ const pan = ({ state, originX, originY }) => {
            el.element.style.transform = getMatrix({ scale: state.transformation.scale, translateX: state.transformation.translateX, translateY: state.transformation.translateY });
         }
     });
+
+    state.elements.forEach(el => {
+      if (el.element && el.transformationType === 'redbox'){
+        let oldX = el.element.offsetLeft;
+        let oldY = el.element.offsetTop;
+
+        oldX += originX;
+        oldY += originY;
+
+         el.element.style.transform = getMatrix({ scale: state.transformation.scale, translateX: state.transformation.translateX, translateY: state.transformation.translateY });
+      }
+  });
+
+  state.elements.forEach(el => {
+    if (el.element && el.transformationType === 'topandleft'){
+      let {x, y, z} = getMatrixFrom3D(el.element);
+      x += originX;
+      y += originY;
+      z = 1;
+if (x !== 0 || y !== 0) {
+      el.element.style.transform = `matrix(${z}, 0, 0, ${z}, ${x}, ${y})`;
+    }
+  }
+});
 };
 
 const canPan = (state) => ({

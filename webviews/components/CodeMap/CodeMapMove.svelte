@@ -78,89 +78,8 @@ import {
     var element = document.querySelector("#canvas-inner");
     var selectoElement = document.querySelector("#canvas-inner");
 
-    // And pass it to panzoom
-    // var instance = panzoom(element, {
-    //   // zoomSpeed: 0.095,
-    //   smoothScroll: false,
-    //   maxZoom: 1,
-    //   minZoom: 0.1,
-    //   initialZoom: 1,
-    //   beforeMouseDown: function (e) {
-    //     // allow mouse-down panning only if altKey is down. Otherwise - ignore
-    //     var shouldIgnore = !e.altKey;
-    //     if (!shouldIgnore) {
-    //       if (selecto) {
-    //         selecto.selectableTargets = document.querySelectorAll(".selecto-area .cube");
-    //         console.log(selecto?.selectableTargets); 
-    //         document.querySelector(".moveable-control-box").style.display = "none";
-    //       }
-    //     }
-    //     return shouldIgnore;
-    //   },
-    // });
-
-    // element?.parentElement?.addEventListener('wheel', instance.zoomWithWheel)
-
-
-
-
     PanZoomFunction();
  
-
-
-
-  
-
-     //container.addEventListener("mousedown", onMousedown); 
-
-
-
-
-
-    // instance.on('panend', function(e) {
-    //   if (selecto) {
-    //       selecto.selectableTargets = document.querySelectorAll(".selecto-area .cube");
-    //       document.querySelector(".moveable-control-box").style.display = "block";
-    //       let selected = selecto.getSelectableElements();
-    //       //selected[0].style.width = "99px";
-    //       selecto.getInstance().trigger("scroll");
-    //       //selecto.clickTarget(e, selected);
-    //       //selecto.setSelectedTargets(selected);
-
-
-    //     }
-    // });
-
-    // panzoom.add.add("zoom", function (e) {
-    //   console.log(e.getTransform());
-    //   $currentZoom = e.getTransform().scale;
-    //   $currentScaleX = e.getTransform().x;
-    //   $currentScaleY = e.getTransform().y;
-    //   //e.zoomTo(.90);
-    //   // ds.zoom = e.getTransform();
-    //   console.log("LOADED!");
-    //   console.log(instance.getTransform());
-    //   //$zoom = instance?.getTransform()?.scale;
-    //   // document.getElementById("area").style.transform = `scale(${e.getTransform()})`;
-    // });
-
-    //instance.on("pan", function(e){
-
-      // let controlBoxX = getTranslateX(document.querySelector(".moveable-control-box"));
-      // let controlBoxY = getTranslateY(document.querySelector(".moveable-control-box"));
-
-      // let canvasX = getTranslateX(document.querySelector("#canvas-inner"));
-      // let canvasY = getTranslateY(document.querySelector("#canvas-inner"));
-
-      // let controlBox = document.querySelector(".moveable-control-box");
-      // let resultX = controlBoxX + canvasX;
-      // let resultY = controlBoxY + canvasY;
-      // controlBox.style.transform = `translate3d(${resultX}px, ${resultY}px, 0px)`;
-
-      // console.log(controlBox.style.transform);
-
-      
-    //})
 
   });
 
@@ -168,9 +87,13 @@ import {
 
   const PanZoomFunction = () => {
 
+    zoomElements = zoomElements.filter(element => {
+      return element !== null;
+    });
+
   const container = document.getElementById("CodeMapMove");
   const el = document.getElementById("selecto1");
-   if (zoomElements.indexOf(el) === -1) {
+   if (zoomElements.findIndex(el => el.element.id === "selecto1") === -1) {
     zoomElements.push({element: el, transformationType: "matrix"});
    }
 
@@ -180,6 +103,11 @@ import {
   //   element.style.transform = `matrix(${z}, 0, 0, ${z}, ${x}, ${y})`;
   //   }
   // })
+
+
+  zoomElements = zoomElements.filter(element => {
+  return element.element !== null;
+});
 
 
    //const elBoxo = document.getElementsByClassName("moveable-control-box");
@@ -195,7 +123,7 @@ import {
           pageX: event.pageX,
           pageY: event.pageY
       });
-     
+     1
   });
   // container.addEventListener("dblclick", () => {
   //     zoomPan.panTo({
@@ -229,7 +157,6 @@ import {
       if (event.button !== 2) {
             return;
         }
-       
         //$zoom = $zoom + 1;
     })
 
@@ -247,8 +174,7 @@ import {
             return;
         }
 
-        //HideBorderOnMove();
-       
+        
 
        
     
@@ -303,9 +229,34 @@ import {
 
 function HideBorderOnMove() {
   if (selecto) {
-            selecto.selectableTargets = document.querySelectorAll(".selecto-area .cube");
+            selecto.selectableTargets = document.querySelectorAll(".groupBorder");
             console.log(selecto?.selectableTargets); 
-            document.querySelector(".moveable-control-box").style.display = "none";
+            document.querySelector(".groupBorder").style.visibility = "hidden";
+          }
+}
+
+function HideGroupNameAndBorderOnMove() {
+  if (selecto) {
+            document.querySelectorAll(".groupName").forEach( element => {
+              element.style.visibility = "hidden";
+            });
+
+            document.querySelectorAll(".groupBorder").forEach( element => {
+              element.style.visibility = "hidden";
+            });
+          }
+}
+
+function ShowGroupNameAndBorderAfterMove() {
+  if (selecto) {
+
+            document.querySelectorAll(".groupName").forEach( element => {
+              element.style.visibility = "visible";
+            })
+
+            document.querySelectorAll(".groupBorder").forEach( element => {
+              element.style.visibility = "visible";
+            })
           }
 }
 
@@ -1105,39 +1056,42 @@ function getTranslateY(myElement) {
 
 function UpdateControlBoxBorder() {
   const blueBorder = document.querySelector("div[data-styled-id='rCS19atnxs']");
-      let foundElement;
-      
-      zoomElements.forEach(element => {
-        if (element.element)
-            foundElement = element.element.classList.contains("moveable-control-box");
-      });
+      let foundElement = zoomElements.findIndex(f => f?.element?.classList?.contains("moveable-control-box"));
 
-      if (!foundElement){
+      if (foundElement === -1) {
         zoomElements.push({element: blueBorder, transformationType: "translate3d"});
       }
       else {
-        zoomElements.splice(zoomElements.indexOf(foundElement), 1, {element: blueBorder, transformationType: "translate3d"})
+        zoomElements.splice(zoomElements.findIndex(f => f?.element?.classList?.contains("moveable-control-box")), 1, {element: blueBorder, transformationType: "translate3d"})
       }
 
 }
 
-function UpdateGroupBorder() {
-  const redborder = document.getElementById("redborder");
-      let foundElement;
-      
-      zoomElements.forEach(element => {
-        if (element.element)
-            foundElement = element.element.id === "redborder";
-      });
+// function UpdateGroupBorder() {
+//   const redborder = document.getElementById("redborder");
+//       let foundElement = zoomElements.findIndex(f => f?.element?.id === "redborder");
 
-      if (!foundElement){
-        zoomElements.push({element: redborder, transformationType: "matrix"});
-      }
-      else {
-        zoomElements.splice(zoomElements.indexOf(foundElement), 1, {element: redborder, transformationType: "matrix"})
-      }
+//       if (foundElement === -1){
+//         zoomElements.push({element: redborder, transformationType: "redbox"});
+//       }
+//       else {
+//         zoomElements.splice(zoomElements.findIndex(f => f?.element?.id === "redborder"), 1, {element: redborder, transformationType: "redbox"})
+//       }
+// }
 
+function UpdateGroupName(){
+  $codeMap.groups.forEach((group) => {
+    let foundZoomGroup = zoomElements.find(f => f?.element?.id === group.groupId);
+
+    if (foundZoomGroup) {
+      //Do nothing
+    }
+    else{
+      zoomElements.push({element: document.getElementById(group.groupId), transformationType: "topandleft"});
+    }
+  });
 }
+
 </script>
 
 
@@ -1245,6 +1199,7 @@ function UpdateGroupBorder() {
   
           ev.set(frame.translate);
       });
+      HideGroupNameAndBorderOnMove();
   }}
   on:dragGroup={({ detail: e }) => {
       e.events.forEach(ev => {
@@ -1263,7 +1218,9 @@ function UpdateGroupBorder() {
       UpdateActiveBorder(e.targets);
 
       UpdateControlBoxBorder()
-
+      UpdateGroupName();
+      ShowGroupNameAndBorderAfterMove();
+     // UpdateGroupBorder();
      
   }}
 
@@ -1327,8 +1284,10 @@ on:resize={({ detail: e }) => {
 
     AddEventListenerForClick();
     GetSelectoBorderAndSetActiveStore();
-    UpdateControlBoxBorder();
-    // UpdateGroupBorder();  
+    //UpdateControlBoxBorder();
+     //UpdateGroupBorder();  
+
+
 
 
            
@@ -1392,17 +1351,20 @@ on:resize={({ detail: e }) => {
     <RadialMenu {GroupBlocks} />
         <div class="zoom elements">
  {#if $codeMap?.flatTree}
- <!-- {#if $codeMap?.groups}
-              {#each $codeMap?.groups as group}
-                <input type="text" bind:value="{group.name}" style="background:none; font-size: x-large; width: auto; position:absolute; {"left:" + (common.GetLeftMostPixelFromGroup(group) + 13)  + 'px;' + 'top:' + (common.GetTopMostPixelFromGroup(group) - 20) + 'px;'}">
-                <div id="redborder" style="border: red solid; position:absolute; {"height:" + (group.height)  + "px;" + " width:" + (group.width) + "px;" } {"left:" + (common.GetLeftMostPixelFromGroup(group) + 13) + 'px;' + 'top:' + (common.GetTopMostPixelFromGroup(group) - 20)  + 'px;'}">
-                </div>
-                {/each}
-            {/if} -->
+
           <div class="elements selecto-area" id="selecto1">
             <div id="background-grid" class="background-grid"></div>
 
-            
+            {#if $codeMap?.groups}
+            {#each $codeMap?.groups as group}
+            <div id="{group.groupId}" >
+              <input class="groupName" type="text" bind:value="{group.name}" style="background:none; font-size: x-large; width: auto; position:absolute; {"transform: translate(" + (common.GetLeftMostPixelFromGroup(group))+ "px," + (common.GetTopMostPixelFromGroup(group) - 42) + "px);"}">
+              <div class="groupBorder" style="border: red solid; position:absolute; {"height:" + (group.height + 10)  + "px;" + " width:" + (group.width + 6) + "px;" } {"transform: translate(" + (common.GetLeftMostPixelFromGroup(group) - 6)+ "px," + (common.GetTopMostPixelFromGroup(group) -4 ) + "px);"} "/>
+            </div>
+
+
+              {/each}
+          {/if}
             
             {#each $codeMap.flatTree as treeItem}
             <!-- && typeof(treeItem.open) === "undefined" || treeItem?.open === true -->
