@@ -63,6 +63,7 @@ import {
   let changedFile = "";
   let selecto: Selecto;
   let zoomElements: ZoomElement[] = [];
+  let testval;
 
   let isScrolling = false;
 
@@ -74,13 +75,18 @@ import {
   $: $codeMap?.activeWindow?.path, onWindowChange();
   $: $codeMap
   $: $activelySelectedText, SelectedTextChange();
-  $: zoomElements, PanZoomFunction();
+
 
   onMount(async () => {
     var element = document.querySelector("#canvas-inner");
     var selectoElement = document.querySelector("#canvas-inner");
 
-    PanZoomFunction();
+    
+
+    testval = document.getElementById("canvas-inner");
+    if (testval) {
+      PanZoomFunction();
+    }
  
 
   });
@@ -94,10 +100,9 @@ import {
     });
 
   const container = document.getElementById("CodeMapMove");
-  const el = document.getElementById("selecto1");
-   if (zoomElements.findIndex(el => el.element.id === "selecto1") === -1) {
-    zoomElements.push({element: el, transformationType: "matrix"});
-   }
+   const el = document.getElementById("selecto1");
+  //const el = document.getElementsByClassName("vscode-dark")[0];
+  zoomElements.push(el);
 
   // zoomElement.forEach(element => {
   //   if (element && element.style.transform.length > 0) {
@@ -113,7 +118,7 @@ import {
 
 
    //const elBoxo = document.getElementsByClassName("moveable-control-box");
-  const zoomPan = renderer({ scaleSensitivity: 5, minScale: .1, maxScale: 30, elements: zoomElements });
+  const zoomPan = renderer({ scaleSensitivity: 5, minScale: .1, maxScale: 30, element: el });
   if (container){
   container.addEventListener("wheel", (event) => {
       // if (!event.ctrlKey) {
@@ -129,8 +134,8 @@ import {
       event.preventDefault();
       zoomPan.zoom({
           deltaScale: Math.sign(event.deltaY) > 0 ? -1 : 1,
-          pageX: event.pageX,
-          pageY: event.pageY
+          x: event.pageX,
+          y: event.pageY
       });
 
 
@@ -1123,11 +1128,12 @@ function UpdateGroupName(){
     <button class="codeBlockTopButtons" type="button" on:click={OnNewContainerClick} style="display:inline;">New Container</button>
   </div>
 
-
+  {#if testval}
 
   <Moveable
   bind:this={moveable}
   draggable={true}
+  container={document.getElementById("selecto1")}
   rootContainer={document.getElementById("CodeMapMove")}
   target={targets}
   useResizeObserver={true}
@@ -1142,7 +1148,7 @@ function UpdateGroupName(){
   on:click={({ detail: e }) => {
      console.log("Clicked");
      UpdateActivelySelected([e.target]);
-     UpdateControlBoxBorder()
+     //UpdateControlBoxBorder()
 
   }}
 
@@ -1228,7 +1234,7 @@ function UpdateGroupName(){
       });
       UpdateActiveBorder(e.targets);
 
-      UpdateControlBoxBorder()
+      //UpdateControlBoxBorder()
       UpdateGroupName();
       ShowGroupNameAndBorderAfterMove();
      // UpdateGroupBorder();
@@ -1256,9 +1262,10 @@ on:resize={({ detail: e }) => {
 
 
 
-
-  <Selecto class="selecto2" 
+{console.log("select!!!")}
+  <Selecto class="selecto2"
   bind:this={selecto}
+  container={document.getElementById("canvas-inner")}
   dragContainer={document.querySelector("#canvas-inner")}
   selectableTargets={[".selecto-area .cube"]}
   hitRate={0}
@@ -1295,7 +1302,7 @@ on:resize={({ detail: e }) => {
 
     AddEventListenerForClick();
     GetSelectoBorderAndSetActiveStore();
-    UpdateControlBoxBorder();
+    //UpdateControlBoxBorder();
      //UpdateGroupBorder();  
 
 
@@ -1350,7 +1357,7 @@ on:resize={({ detail: e }) => {
     }}>
 
   </Selecto>
-
+{/if}
 
   
 
