@@ -498,9 +498,12 @@ function getTranslateY(myElement) {
   };
 
   const OnSingleDragEnded = (target:HTMLDivElement) => {
-
-    var generatedTree = HandleGeneratedBlock(target);
-
+    var generatedTree;
+    if(target && target.children.length > 0 && target.children[0].id === "generated")
+    {
+      generatedTree = HandleGeneratedBlock(target);
+    }
+    
     let treeItem = $codeMap.flatTree.find((item) =>  item.id == target.children[0].id)
 
     if (generatedTree)
@@ -516,19 +519,18 @@ function getTranslateY(myElement) {
       treeItem.imageWidth = target.clientWidth;
 
       let index = $codeMap?.flatTree.indexOf(treeItem);
-    $codeMap.flatTree.splice(index, 1, treeItem);
-    $codeMap.flatTree = [...$codeMap.flatTree];
+      $codeMap.flatTree.splice(index, 1, treeItem);
+      $codeMap.flatTree = [...$codeMap.flatTree];
     }
-
-    
+        
     //treeItem = $codeMap.flatTree.find((item) =>  item.id == target.id)
 
-    let elements;
-    if (selecto)
-    {
-      console.log(selecto?.selectableTargets); 
-      console.log("after update selecto");
-    }
+    //let elements;
+    // if (selecto)
+    // {
+    //   console.log(selecto?.selectableTargets); 
+    //   console.log("after update selecto");
+    // }
   }
 
 
@@ -888,7 +890,7 @@ function getTranslateY(myElement) {
       console.log(group);
       
       group.blockIds.forEach((id) => {
-        selectedBlocks.push(document.querySelector('#'+id)?.parentElement);
+        selectedBlocks.push(document.querySelector('#'+id));
       }) 
       // let sel = selecto.getInstance().once("select");
       // selecto.getInstance().setSelectedTargets(selectedBlocks);
@@ -1281,8 +1283,6 @@ on:resize={({ detail: e }) => {
 
 
 
-
-{console.log("select!!!")}
   <Selecto class="selecto2"
   bind:this={selecto}
   container={document.getElementById("canvas-inner")}
