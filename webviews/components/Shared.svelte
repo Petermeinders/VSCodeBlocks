@@ -395,6 +395,13 @@
     return topMostPixel;
   }
 
+  export const ErrorMessageVSCall = (message: any) => {
+    tsvscode.postMessage({
+      type: "onError",
+      value: message,
+    });
+  };
+
   // export function GetLeftMostPixelFromBlock(blocks: FilteredTree[]) {
   //   let leftMostPixel = 99999;
   //   blocks.forEach((block) => {

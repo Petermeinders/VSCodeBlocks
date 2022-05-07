@@ -19,7 +19,8 @@ zoom,
 moveAbles,
   } from "../../store";
   import Fa from "svelte-fa";
-  import type { FilteredTree, Group, BlockContainerInterface, ZoomElement } from "../../../src/Models";
+  import type { FilteredTree, Group, BlockContainerInterface, ZoomElement} from "../../../src/Models";
+  import Shared from "../Shared.svelte"; 
   import { OutlineTypeEnum } from "../../../src/Models";
   import Card from "./Card/Card.svelte";
   import { onMount, afterUpdate, beforeUpdate, tick, createEventDispatcher } from "svelte";
@@ -27,7 +28,6 @@ moveAbles,
   import lodash, { find, first, flatMap } from "lodash";
   import deepdash from "deepdash";
   import Line from "./Line.svelte";
-  import Shared from "../Shared.svelte";
   import { faSave } from "@fortawesome/free-regular-svg-icons";
   import { faFileDownload } from "@fortawesome/free-solid-svg-icons";
   // import panzoom from 'svg-pan-zoom'
@@ -927,14 +927,29 @@ function getTranslateY(myElement) {
     let foundGroup: Group = undefined;
     let lastItem = $codeMap?.groups?.slice(-1)[0]; //Check if any groups exist
     let newGroup;
+    let singleBlockNotInGroup = false;
 
     if ($codeMap?.groups?.length > 0) {
-      $codeMap?.groups.forEach((group) => {
-        let blockFound = group.blockIds.find((id) => id === blocks[0].id);
-        if (blockFound) {
-          foundGroup = group;
-        }
+      $codeMap?.groups.forEach((group:Group) => {
+        blocks.forEach((block) => {
+          let blockFound = group.blockIds.find((id) => id === block.id);
+
+          if (blockFound) {
+            foundGroup = group;
+          }
+          else{
+            singleBlockNotInGroup = true;
+          }
+        });
       });
+
+      if (foundGroup && singleBlockNotInGroup) {
+        
+          //Throw error message;
+          common.expand(e);
+          common.ErrorMessageVSCall("You can't group a group with a single block. Ungroup first.");
+          return;
+        }
 
       if (foundGroup) {
         RemoveColor(foundGroup);
