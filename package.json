@@ -26,6 +26,7 @@
 		"onCommand:vsblocksnipets.passBlocksToWindow",
 		"onCommand:vsblocksnipets.passBlocksToSidebar",
 		"onCommand:vsblocksnipets.changeTextColor",
+		"onCommand:vsblocksnipets.GetSettings",
 		"onView:vsblocksnipets-sidebar"
 	],
 	"main": "./dist/extension.js",
@@ -129,6 +130,11 @@
 				"command": "vsblocksnipets.changeTextColor",
 				"category": "VSBlockSnipets",
 				"title": "changeTextColor"
+			},
+			{
+				"command": "vsblocksnipets.GetSettings",
+				"category": "VSBlockSnipets",
+				"title": "GetSettings"
 			}
 		]
 	},

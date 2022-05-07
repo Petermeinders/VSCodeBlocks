@@ -114,7 +114,7 @@ export interface FilteredTree {
  }
 
  export interface ZoomElement {
-    element:HTMLDivElement,
+    element: HTMLDivElement,
     transformationType:string,
  }
 

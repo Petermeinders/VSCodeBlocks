@@ -205,6 +205,10 @@ export function activate(context: vscode.ExtensionContext) {
 			const config = vscode.workspace.getConfiguration('vsblocksnipets');
 			const saveLocation = config.get('codeBlockSaveLocation');
 
+			const codeMapSaveLocation = config.get('codeMapSaveLocation');
+			config.update("codeMapSaveLocation", data.settings.codeMapSaveLocationRelative, true);
+			config.update("codeMapSaveLocation", data.settings.codeMapSaveLocationRelative, false);
+
 			let fs = vscode.workspace.fs;
 
 			if (typeof (data) === 'undefined') {
@@ -362,7 +366,20 @@ export function activate(context: vscode.ExtensionContext) {
 				}));
 
 
+				context.subscriptions.push(
+					vscode.commands.registerCommand('vsblocksnipets.GetSettings', (data) => {
+						const config = vscode.workspace.getConfiguration('vsblocksnipets');
+						const codeMapSaveLocation = config.get('codeMapSaveLocation');
 
+						let settings = {codeMapSaveLocation: codeMapSaveLocation};
+
+						HellowWorldPanel.currentPanel._panel.webview.postMessage({
+							type: "PullSettingsFromConfig",
+							value: settings,
+						  });
+					}));
+			
+			
 
 
 	context.subscriptions.push(

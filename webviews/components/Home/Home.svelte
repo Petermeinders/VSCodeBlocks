@@ -9,7 +9,7 @@
   import { originItems } from "../../store";
   import EditScreen from "../EditScreen.svelte";
   import LinkedBlocks from "../CodeBlocks/LinkedBlocks.svelte";
-  import { faChevronLeft, faChevronRight, faCog, faCubes, faProjectDiagram } from "@fortawesome/free-solid-svg-icons";
+  import { faBorderStyle, faChevronLeft, faChevronRight, faCog, faCubes, faProjectDiagram } from "@fortawesome/free-solid-svg-icons";
   import Fa from "svelte-fa";
   import CodeMap from "../CodeMap/CodeMap.svelte";
   import SettingsScreen from "../SettingsScreen.svelte";
@@ -133,6 +133,9 @@ import CodeMapMove from "../CodeMap/CodeMapMove.svelte";
 
   // Before Render
   onMount(() => {
+    //Prevent scrolling
+    document.getElementById("home").parentElement.style.overflow = "hidden";
+    
     let customSnippets =
 [
    {
@@ -501,6 +504,10 @@ import CodeMapMove from "../CodeMap/CodeMapMove.svelte";
           }
           break;
 
+        case "PullSettingsFromConfig":
+          $items.settings.codeMapSaveLocationRelative = message.value.codeMapSaveLocation;
+        break;
+
         case "window-change":
           if ($codeMap !== null && $codeMap.activeWindow !== null) {
             $codeMap.activeWindow = { path: "", outline: {} };
@@ -544,10 +551,10 @@ import CodeMapMove from "../CodeMap/CodeMapMove.svelte";
       console.log($items);
     }
 
-    tsvscode.postMessage({
-      type: "saveData",
-      value: $items,
-    });
+    // tsvscode.postMessage({
+    //   type: "saveData",
+    //   value: $items,
+    // });
   };
 
   function FullScreen() {
@@ -574,6 +581,7 @@ import CodeMapMove from "../CodeMap/CodeMapMove.svelte";
 
   const ShowSettings = () => {
     $items.settings.currentPanel = "settings";
+    PullSettingsFromConfig();
   };
 
   const ShowCodeMap = () => {
@@ -583,6 +591,17 @@ import CodeMapMove from "../CodeMap/CodeMapMove.svelte";
   const ShowCodeBlocks = () => {
     $items.settings.currentPanel = "codeBlocks";
   };
+
+  function PullSettingsFromConfig(){
+    tsvscode.postMessage({
+      type: "PullConfigSettings",
+      value: "",
+    });
+  }
+
+  function PushSettingsToConfig(){
+
+  }
 
   // Every time user changes tabs, we need check the visible code blocks
   // and make sure code matches the lines stored on the blocks
@@ -627,7 +646,7 @@ import CodeMapMove from "../CodeMap/CodeMapMove.svelte";
   };
 </script>
 
-<main>
+<main id="home">
   <Shared bind:this={common} />
   <ParseVSCodeSnippet bind:this={parseVSCodeSnippet} />
   <div hidden={$items.settings.currentPanel === "editMode" ? false : true}>
@@ -673,13 +692,14 @@ import CodeMapMove from "../CodeMap/CodeMapMove.svelte";
             <button on:click={() => ($items.settings.hideBlocksBar = true)} class={$items?.settings?.hideBlocksBar === true ? "hide" : ""} style="z-index:101;">
               <Fa icon={faChevronLeft} style="color:white;" />
             </button>
+            not implemented yet
             <!-- TAGS ( Experimental )------------------------------------------------ -->
             <!-- <div style="display:flex; flex-direction: row;">
               <Tags />
               
             </div> -->
              <!-- /TAGS------------------------------------------------ -->
-            <LinkedBlocks />
+            <!-- <LinkedBlocks /> -->
             <!-- CODE BLOCKS ( Experimental )----------------------------------------------------- -->
               <!-- <Dnd {FullCodeSearch} /> -->
             <!-- / CODE BLOCKS----------------------------------------------------- -->
@@ -704,14 +724,14 @@ import CodeMapMove from "../CodeMap/CodeMapMove.svelte";
             </div>
           </div> -->
         <!-- / CODE BLOCK BUTTONS --------------------------------------------- -->
-        <div id="pocketAndMapGroups" class="pocketAndMapGroups" style="z-index:101;">
+        <!-- <div id="pocketAndMapGroups" class="pocketAndMapGroups" style="z-index:101;">
           <Pocket />
           <CodeMapGroups />
         </div>
 
         <div style="z-index:101;">
           <Outline />
-        </div>
+        </div> -->
       </div>
 
       <button

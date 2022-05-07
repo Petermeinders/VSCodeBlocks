@@ -25,6 +25,8 @@
   export let Minimize = (event: any, treeItem: FilteredTree) => {};
   export let StartLink = (event: any, treeItem: FilteredTree) => {};
 
+  let disabed = true;
+
   export let treeItem: FilteredTree = {
     id: "",
     path: "",
@@ -68,22 +70,26 @@
 
 <div class="cardButtons">
   <!-- <button id="MoveToPocket"  on:click={closeHandler}><Fa size="1x" icon={faTrashRestore} style="color:red; padding-right: 4px; float:right" /></button> -->
-  <ColorPicker currentBlock={treeItem} color={treeItem.color} />
-
-  {#if treeItem.type === "directory"}
-    <Fa size="1x" icon={faFolder} style="color:yellow; padding-right: 4px; padding-left:4px; float:right" />
+  {#if disabed === false}
+    <ColorPicker currentBlock={treeItem} color={treeItem.color} />
   {/if}
 
-  {#if treeItem.type === "file"}
-    <Fa size="1x" icon={faFile} style="color:white; padding-right: 4px; padding-left:4px; float:right" />
-  {/if}
+  {#if disabed === false}
+    {#if treeItem.type === "directory"}
+      <Fa size="1x" icon={faFolder} style="color:yellow; padding-right: 4px; padding-left:4px; float:right" />
+    {/if}
 
-  {#if treeItem.type === "custom"}
-    <Fa size="1x" icon={faCode} style="color:white; padding-right: 4px; padding-left:4px; float:right" />
-  {/if}
+    {#if treeItem.type === "file"}
+      <Fa size="1x" icon={faFile} style="color:white; padding-right: 4px; padding-left:4px; float:right" />
+    {/if}
 
-  {#if treeItem.type === "outline"}
-    <CodeIcons blockType={treeItem.extension} />
+    {#if treeItem.type === "custom"}
+      <Fa size="1x" icon={faCode} style="color:white; padding-right: 4px; padding-left:4px; float:right" />
+    {/if}
+
+    {#if treeItem.type === "outline"}
+      <CodeIcons blockType={treeItem.extension} />
+    {/if}
   {/if}
 
   {#if typeof treeItem.starred === "undefined" || treeItem.starred === false}
@@ -97,20 +103,24 @@
   {/if}
 
   <!-- <button id="SelectPerimeter" on:click={GroupClick}><Fa size="1x" icon={faBullseye} style="color:red; padding-right: 4px; float:right" /></button> -->
+  {#if disabed === false}
+    {#if typeof treeItem.open === "undefined" || treeItem.open === true}
+      <button id="Minimize" on:click={(event) => Minimize(event, treeItem)}>
+        <Fa size="1x" icon={faCompressArrowsAlt} style="color:yellow; padding-right: 4px; float:right" />
+      </button>
+    {:else}
+      <button id="Minimize" on:click={(event) => Minimize(event, treeItem)}>
+        <Fa size="1x" icon={faExpandAlt} style="color:yellow; padding-right: 4px; float:right" />
+      </button>
+    {/if}
+  {/if}
 
-  {#if typeof treeItem.open === "undefined" || treeItem.open === true}
-    <button id="Minimize" on:click={(event) => Minimize(event, treeItem)}>
-      <Fa size="1x" icon={faCompressArrowsAlt} style="color:yellow; padding-right: 4px; float:right" />
-    </button>
-  {:else}
-    <button id="Minimize" on:click={(event) => Minimize(event, treeItem)}>
-      <Fa size="1x" icon={faExpandAlt} style="color:yellow; padding-right: 4px; float:right" />
+  {#if disabed === false}
+    <button id="StartLink" on:mousedown={(event) => StartLink(event, treeItem)} >
+      <Fa size="1x" icon={faLink} class="greyedOut" style="padding-right: 4px; float:right" />
     </button>
   {/if}
 
-  <button id="StartLink" on:mousedown={(event) => StartLink(event, treeItem)} >
-    <Fa size="1x" icon={faLink} class="greyedOut" style="padding-right: 4px; float:right" />
-  </button>
   {#if treeItem.type === "custom" || treeItem.type === "outline"}
     <button id="DeleteBlock" on:mousedown={(event) => DeleteBlock(event, treeItem)}>
       <Fa size="1x" icon={faTimesCircle} style="color:red; padding-right: 4px; float:right" />

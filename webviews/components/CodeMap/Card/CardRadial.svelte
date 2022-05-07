@@ -61,6 +61,8 @@
     codeDiff: false,
   };
 
+  let disabled = true;
+
   function NameChangeMenu(e: any) {
     if ($currentlySelected.length > 0)
     {
@@ -134,31 +136,37 @@
 </script>
 
 <div class="menu" id="menu">
-  <a href="#">
+  {#if disabled === false}
+  <a href="#" class="disabled">
     {#if typeof treeItem.starred === "undefined" || treeItem.starred === false}
       <Fa id="Star" on:click={() => StarClicked(treeItem)} class="greyedOut" size="1x" icon={faStar} />
     {:else}
       <Fa id="Star" on:click={() => StarClicked(treeItem)} class="greyedOut" size="1x" icon={solidStar} />
     {/if}
   </a>
+  {/if}
   <a href="#" class="tooltip">
     <span style=" cursor: pointer;" on:click={(event) => GroupBlocks(event)}>
-      <Fa id="GroupBlocks" size="1x" icon={faObjectGroup}  /></span
+      <Fa id="GroupBlocks" size="1x" icon={faObjectGroup} style="color:#b30505"   /></span
     >
     <span class="tooltiptext">Group</span>
   </a>
+  {#if disabled === false}
   <a href="#">
     <span style=" cursor: pointer;" on:click={(event) => PasteImage(event)}>
       <Fa size="1x" icon={faBullseye} class="greyedOut"/>
     </span>
   </a>
-  <a href="#">
+  {/if}
+  {#if disabled === false}
+  <a href="#" class="disabled">
     {#if typeof treeItem.open === "undefined" || treeItem.open === true}
       <Fa id="Minimize" on:click={(event) => Minimize(event, treeItem)} size="1x" icon={faCompressArrowsAlt} class="greyedOut" />
     {:else}
       <Fa id="Minimize" on:click={(event) => Minimize(event, treeItem)} size="1x" icon={faExpandAlt} class="greyedOut" />
     {/if}
   </a>
+  {/if}
   <a href="#" on:click={(event) => NameChangeMenu(event, treeItem)}>
     <Fa id="NameChangeMenu" size="1x" icon={faFont} style="color:yellow;" />
   </a>
@@ -192,7 +200,7 @@
   }
 
   .menu {
-    background-color: #3794ff00;
+    background-color: #000000b3 !important;
     height: 100px;
     width: 100px;
     transform: scale(0);
@@ -203,7 +211,7 @@
     margin: auto;
     top: 0px;
     left: 0px;
-    z-index: 15;
+    z-index: 50;
     transition: 0.1s;
   }
 
@@ -252,4 +260,9 @@
     opacity: 0.5;
     color:grey !important;
   }
+
+  .disabled {
+  color: #8f8f8f !important;
+  cursor: default;
+}
 </style>
