@@ -23,12 +23,15 @@
   } from "@fortawesome/free-solid-svg-icons";
   import { faStar } from "@fortawesome/free-regular-svg-icons";
   import {} from "os";
+  import Shared from "../../Shared.svelte";
   import CodeIcons from "../../CodeIcons.svelte";
 
   export let closeHandler = () => {};
   export let StarClicked = (treeItem: any) => {};
   export let GroupBlocks = (event: MouseEvent) => {};
   export let Minimize = (event: any, treeItem: FilteredTree) => {};
+
+  let common:Shared;
 
   export let treeItem: FilteredTree = $codeMap?.activeWindow?.activelySelectedBlocks?.length > 0 ? $codeMap?.activeWindow?.activelySelectedBlocks[0] : {
     id: "",
@@ -73,6 +76,7 @@
 
       $currentlySelected = [];
     }
+    common.expand(e);
   }
 
   // @ts-nocheck
@@ -94,6 +98,7 @@
       if (treeItem.path === block.path && typeof block.path !== "undefined") {
         treeItem.language = block.language;
       }
+      common.expand(event);
     });
 
     $editItem = {
@@ -134,7 +139,7 @@
 
 
 </script>
-
+<Shared bind:this={common} />
 <div class="menu" id="menu">
   {#if disabled === false}
   <a href="#" class="disabled">

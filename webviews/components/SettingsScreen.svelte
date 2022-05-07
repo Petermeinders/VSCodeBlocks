@@ -13,6 +13,7 @@
       console.log($items);
     }
 
+    $items.settings.currentPanel = "codeBlocks";
     tsvscode.postMessage({
       type: "saveData",
       value: $items,
