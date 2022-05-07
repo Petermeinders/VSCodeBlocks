@@ -202,10 +202,8 @@
     position: absolute;
     margin: auto;
     top: 0px;
-    bottom: 0px;
     left: 0px;
-    right: 0px;
-    z-index: -1;
+    z-index: 15;
     transition: 0.1s;
   }
 

@@ -163,6 +163,11 @@ import {
 
     container.addEventListener("contextmenu", (event) => {
         event.preventDefault();
+        console.log("right lcicked;")
+        if (event?.target?.classList?.contains("moveable-area")) {
+
+        common.expand(event, moveable);
+        }
     })
 
 
@@ -178,11 +183,20 @@ import {
     container.addEventListener("mousedown", (event) => {
       if (event.button === 0) {
         //TODO: Move this to constant;
+          if (event?.target?.id === "background-grid") {
+            CloseAllRadials();  
+          }
+           console.log("left down");
+        }
+
+        if (event.button === 2) {
+        //TODO: Move this to constant;
         if (event?.target?.id === "background-grid") {
           CloseAllRadials();  
         }
-           console.log("left click");
+           console.log("Right down");
         }
+
 
                 // $zoom = $zoom - 1;
       if (event.buttons !== 2) {
@@ -884,9 +898,9 @@ function getTranslateY(myElement) {
      }
     })
     if (selectedBlocks.length > 0) {
-            if (targets.length > 1){
-        setTimeout(() => AddEventListenerForClick(), 50)
-      }
+      //       if (targets.length > 1){
+      //   setTimeout(() => AddEventListenerForClick(), 50)
+      // }
       return selectedBlocks;
     }
       else
@@ -935,6 +949,8 @@ function getTranslateY(myElement) {
       $codeMap.groups = Array<Group>();
       AddGroup(blocks);
     }
+
+    common.expand(e);
   }
 
   function GetSelectedCodeBlocks(selectedBlocks) {
@@ -1058,7 +1074,7 @@ function getTranslateY(myElement) {
   function UpdateActiveBorder(elements: HTMLElement[]){
     console.log("dragGroupEnd");
     GetSelectoBorderAndSetActiveStore();
-    let eGroupId = elements[0].getAttribute("data-groupId")
+    let eGroupId = elements[0]?.getAttribute("data-groupId");
     if (eGroupId) {
       $codeMap.groups.find(x => x.groupId === eGroupId).width = $codeMap.activeWindow.selectionBorder.width;
       $codeMap.groups.find(x => x.groupId === eGroupId).height = $codeMap.activeWindow.selectionBorder.height;
@@ -1144,10 +1160,13 @@ function UpdateGroupName(){
   
   on:clickGroup={({ detail: e }) => {
       selecto.clickTarget(e.inputEvent, e.inputTarget);
+      UpdateActivelySelected(e.currentTarget.selectedTargets);
+      // AddEventListenerForClick();
   }}
   on:click={({ detail: e }) => {
      console.log("Clicked");
      UpdateActivelySelected([e.target]);
+    //  AddEventListenerForClick();
      //UpdateControlBoxBorder()
 
   }}
@@ -1232,6 +1251,7 @@ function UpdateGroupName(){
           const target = ev.target;
           OnSingleDragEnded(target);
       });
+      UpdateActivelySelected(e.targets);
       UpdateActiveBorder(e.targets);
 
       //UpdateControlBoxBorder()
@@ -1300,8 +1320,9 @@ on:resize={({ detail: e }) => {
     console.log("onDragEnd; Selected Blocks: ");
     console.log($codeMap.activeWindow.activelySelectedBlocks);
 
-    AddEventListenerForClick();
-    GetSelectoBorderAndSetActiveStore();
+    // AddEventListenerForClick();
+    UpdateActivelySelected(e.currentTarget.selectedTargets);
+    UpdateActiveBorder(e.currentTarget.selectedTargets);
     //UpdateControlBoxBorder();
      //UpdateGroupBorder();  
 
@@ -1345,7 +1366,6 @@ on:resize={({ detail: e }) => {
 
     //$codeMap.activeWindow.selectionBorder.top = e.topleft;
 
-
       if (e.isDragStart) {
           e.inputEvent.preventDefault();
           //console.log("selecto drag stopped");
@@ -1366,7 +1386,6 @@ on:resize={({ detail: e }) => {
 
 
   <div id="canvas-inner">
-    <RadialMenu {GroupBlocks} />
         <div class="zoom elements">
  {#if $codeMap?.flatTree}
 
@@ -1383,7 +1402,7 @@ on:resize={({ detail: e }) => {
 
               {/each}
           {/if}
-            
+          <RadialMenu {GroupBlocks} />
             {#each $codeMap.flatTree as treeItem}
             <!-- && typeof(treeItem.open) === "undefined" || treeItem?.open === true -->
 

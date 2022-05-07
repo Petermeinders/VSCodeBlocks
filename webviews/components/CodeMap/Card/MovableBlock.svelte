@@ -218,7 +218,7 @@
 
 
 <Shared bind:this={common} />
-  <main class="single-block cube" style="background:#2c39575c; z-index:10; min-width:161px; position:absolute; {"width:" + treeItem.imageWidth + "px;"} {"height:" + treeItem.imageHeight + "px;"} { treeItem.locationX !== "0" && treeItem.locationY !== "0" ? 'transform: translate(' + treeItem.locationX + 'px' + ',' + treeItem.locationY + 'px);' : ''}">
+  <main class="single-block cube" style="background:#2c39575c; z-index:10; min-width:161px; min-height: 65px; position:absolute; {"width:" + treeItem.imageWidth + "px;"} {"height:" + treeItem.imageHeight + "px;"} { treeItem.locationX !== "0" && treeItem.locationY !== "0" ? 'transform: translate(' + treeItem.locationX + 'px' + ',' + treeItem.locationY + 'px);' : ''}">
 
   <div bind:this={target}
   on:dblclick={() => dbClickBlock(treeItem)}
