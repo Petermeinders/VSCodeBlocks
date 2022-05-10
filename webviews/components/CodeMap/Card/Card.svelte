@@ -134,7 +134,7 @@
   }
 
   //Pin/Unpin block
-  function StarClicked(treeItem: FilteredTree) {
+  function StarClicked(treeItem) {
     if (treeItem.starred) {
       treeItem.starred = false;
     } else {

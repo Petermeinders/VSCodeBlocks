@@ -18,9 +18,11 @@
   import { faStar } from "@fortawesome/free-regular-svg-icons";
   import {} from "os";
   import CodeIcons from "../../CodeIcons.svelte";
+  import Shared from "../../Shared.svelte";
+
+  let common: Shared;
 
   export let closeHandler = () => {};
-  export let StarClicked = (treeItem: any) => {};
   export let GroupBlocks = (event: MouseEvent) => {};
   export let Minimize = (event: any, treeItem: FilteredTree) => {};
   export let StartLink = (event: any, treeItem: FilteredTree) => {};
@@ -69,6 +71,9 @@
 </script>
 
 <div class="cardButtons">
+  <!-- Import shared doc -->
+<Shared bind:this={common} />
+
   <!-- <button id="MoveToPocket"  on:click={closeHandler}><Fa size="1x" icon={faTrashRestore} style="color:red; padding-right: 4px; float:right" /></button> -->
   {#if disabed === false}
     <ColorPicker currentBlock={treeItem} color={treeItem.color} />
@@ -93,11 +98,11 @@
   {/if}
 
   {#if typeof treeItem.starred === "undefined" || treeItem.starred === false}
-    <button id="Star" on:click={() => StarClicked(treeItem)}
+    <button id="Star" on:click={() => common.StarClicked(treeItem)}
       ><Fa size="1x" icon={faStar} style="color:yellow; padding-right: 4px; float:right" /></button
     >
   {:else}
-    <button id="Star" on:click={() => StarClicked(treeItem)}
+    <button id="Star" on:click={() => common.StarClicked(treeItem)}
       ><Fa size="1x" icon={solidStar} style="color:yellow; padding-right: 4px; float:right" /></button
     >
   {/if}

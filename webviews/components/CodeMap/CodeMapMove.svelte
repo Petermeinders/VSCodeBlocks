@@ -614,6 +614,14 @@ function getTranslateY(myElement) {
     }
   }
 
+  function CheckIfBlockIsInAGroup(block){
+      $codeMap.groups.forEach((group) => {
+        if (group.groupId.includes(block.id)){
+          return group;
+        }
+      });
+  }
+
   function HideOutline() {
     $codeMap.flatTree.forEach((flatItem) => {
       if (flatItem.type === "outline" && flatItem.starred !== true) {
@@ -890,7 +898,7 @@ function getTranslateY(myElement) {
       console.log(group);
       
       group.blockIds.forEach((id) => {
-        selectedBlocks.push(document.querySelector('#'+id));
+        selectedBlocks.push(document.querySelector("[id='"+id+"']"));
       }) 
       // let sel = selecto.getInstance().once("select");
       // selecto.getInstance().setSelectedTargets(selectedBlocks);
@@ -925,38 +933,47 @@ function getTranslateY(myElement) {
     }
 
     let foundGroup: Group = undefined;
+    let problemFound = 0;
     let lastItem = $codeMap?.groups?.slice(-1)[0]; //Check if any groups exist
     let newGroup;
     let singleBlockNotInGroup = false;
 
+    //Get first block selected and check if it's in a group (make sure only 1).
     if ($codeMap?.groups?.length > 0) {
       $codeMap?.groups.forEach((group:Group) => {
-        blocks.forEach((block) => {
-          let blockFound = group.blockIds.find((id) => id === block.id);
-
-          if (blockFound) {
+         group.blockIds.forEach(id => {
+          if (id === blocks[0].id){
             foundGroup = group;
           }
-          else{
-            singleBlockNotInGroup = true;
-          }
-        });
+        })
       });
 
-      if (foundGroup && singleBlockNotInGroup) {
+      //Make sure other selected blocks are in the same group
+      if (foundGroup){
+        foundGroup.blockIds.forEach((id) => {
+           if (blocks.findIndex(block => block.id === id) === -1) {
+                problemFound += 1;
+           }
+        });
+      }
+
+      //Throw error message if no group found but other blocks are in a group;
+      if (foundGroup && problemFound > 0) {
         
-          //Throw error message;
+          
           common.expand(e);
           common.ErrorMessageVSCall("You can't group a group with a single block. Ungroup first.");
           return;
-        }
+      }
+
+
 
       if (foundGroup) {
         RemoveColor(foundGroup);
         let index = $codeMap.groups.indexOf(foundGroup);
         $codeMap.groups.splice(index, 1);
         foundGroup.blockIds.forEach(blockId => {
-          document.querySelector("#" + blockId)?.parentElement?.removeAttribute("data-groupId");
+          document.querySelector("[id='"+blockId+"']")?.removeAttribute("data-groupId");
         });
         RenderBlocks();
       } else {
@@ -1016,7 +1033,7 @@ function getTranslateY(myElement) {
       }
 
       //Add groupid to element
-      document.querySelector("#" + block.id)?.parentElement?.setAttribute("data-groupId", newGroup.groupId);
+      document.querySelector("[id='"+block.id+"']")?.setAttribute("data-groupId", newGroup.groupId);
     });
 
     let newSet = [...new Set(newGroup.blockIds)];
@@ -1082,8 +1099,8 @@ function getTranslateY(myElement) {
       // $codeMap.activeWindow.selectionBorder.bottom = document.querySelector(".moveable-area")?.parentElement?.getBoundingClientRect()?.bottom;
       $codeMap.activeWindow.selectionBorder.left = new WebKitCSSMatrix(document.querySelector(".moveable-area")?.parentElement?.style.transform).m41 //document.querySelector(".moveable-area")?.parentElement?.getBoundingClientRect()?.left;
       // $codeMap.activeWindow.selectionBorder.right = document.querySelector(".moveable-area")?.getBoundingClientRect()?.right;
-      $codeMap.activeWindow.selectionBorder.width = document.querySelector(".moveable-area")?.getBoundingClientRect()?.width;
-      $codeMap.activeWindow.selectionBorder.height = document.querySelector(".moveable-area")?.getBoundingClientRect()?.height;
+      $codeMap.activeWindow.selectionBorder.width = +document.querySelector(".moveable-area").style.width.replace("px","")
+      $codeMap.activeWindow.selectionBorder.height = +document.querySelector(".moveable-area").style.height.replace("px","")
     }
 
   }
@@ -1268,10 +1285,12 @@ function UpdateGroupName(){
           const target = ev.target;
           OnSingleDragEnded(target);
       });
+      //UpdateControlBoxBorder();
+      GetSelectoBorderAndSetActiveStore();
       UpdateActivelySelected(e.targets);
       UpdateActiveBorder(e.targets);
 
-      //UpdateControlBoxBorder()
+
       UpdateGroupName();
       ShowGroupNameAndBorderAfterMove();
      // UpdateGroupBorder();
@@ -1326,6 +1345,11 @@ on:resize={({ detail: e }) => {
                 ) {
                     e.stop();
                 }
+   }
+
+   if (e.inputEvent.target.classList.contains("menu"))
+   {
+    e.stop();
    }
 
   }}
@@ -1408,12 +1432,13 @@ on:resize={({ detail: e }) => {
             <div id="background-grid" class="background-grid"></div>
 
             {#if $codeMap?.groups}
-            {#each $codeMap?.groups as group}
-            <div id="{group.groupId}" >
-              <input class="groupName" type="text" bind:value="{group.name}" style="background:none; font-size: x-large; width: auto; position:absolute; {"transform: translate(" + (common.GetLeftMostPixelFromGroup(group))+ "px," + (common.GetTopMostPixelFromGroup(group) - 42) + "px);"}">
-              <div class="groupBorder" style="border: red solid; position:absolute; {"height:" + (group.height + 10)  + "px;" + " width:" + (group.width + 6) + "px;" } {"transform: translate(" + (common.GetLeftMostPixelFromGroup(group) - 6)+ "px," + (common.GetTopMostPixelFromGroup(group) -4 ) + "px);"} "/>
-            </div>
-
+              {#each $codeMap?.groups as group}
+                {#if group.visible}
+                <div id="{group.groupId}" >
+                  <input class="groupName" type="text" bind:value="{group.name}" style="background:none; font-size: x-large; width: auto; position:absolute; {"transform: translate(" + (common.GetLeftMostPixelFromGroup(group))+ "px," + (common.GetTopMostPixelFromGroup(group) - 42) + "px);"}">
+                  <div class="groupBorder" style="border: red solid; position:absolute; {"height:" + (group.height + 10)  + "px;" + " width:" + (group.width + 6) + "px;" } {"transform: translate(" + (common.GetLeftMostPixelFromGroup(group) - 6)+ "px," + (common.GetTopMostPixelFromGroup(group) -4 ) + "px);"} "/>
+                </div>
+                {/if}
 
               {/each}
           {/if}

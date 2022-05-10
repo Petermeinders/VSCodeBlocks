@@ -27,7 +27,6 @@
   import CodeIcons from "../../CodeIcons.svelte";
 
   export let closeHandler = () => {};
-  export let StarClicked = (treeItem: any) => {};
   export let GroupBlocks = (event: MouseEvent) => {};
   export let Minimize = (event: any, treeItem: FilteredTree) => {};
 
@@ -141,15 +140,15 @@
 </script>
 <Shared bind:this={common} />
 <div class="menu" id="menu">
-  {#if disabled === false}
-  <a href="#" class="disabled">
+
+  <a href="#">
     {#if typeof treeItem.starred === "undefined" || treeItem.starred === false}
-      <Fa id="Star" on:click={() => StarClicked(treeItem)} class="greyedOut" size="1x" icon={faStar} />
+      <Fa id="Star" on:click={() => common.StarClicked(treeItem)} size="1x" icon={faStar} />
     {:else}
-      <Fa id="Star" on:click={() => StarClicked(treeItem)} class="greyedOut" size="1x" icon={solidStar} />
+      <Fa id="Star" on:click={() => common.StarClicked(treeItem)}  size="1x" icon={solidStar} />
     {/if}
   </a>
-  {/if}
+
   <a href="#" class="tooltip">
     <span style=" cursor: pointer;" on:click={(event) => GroupBlocks(event)}>
       <Fa id="GroupBlocks" size="1x" icon={faObjectGroup} style="color:#b30505"   /></span

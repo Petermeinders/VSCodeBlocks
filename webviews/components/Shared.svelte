@@ -451,6 +451,33 @@
     });
     return rightMostPixel;
   }
+
+    //Pin/Unpin block
+  export function StarClicked(treeItem: FilteredTree) {
+    if (treeItem.starred) {
+      treeItem.starred = false;
+    } else {
+      treeItem.starred = true;
+    }
+
+    let index = $codeMap.flatTree.indexOf(treeItem);
+    $codeMap.flatTree.splice(index, 1, treeItem);
+    $codeMap.flatTree = $codeMap.flatTree;
+
+    StarSelectedBlocks();
+  }
+
+  
+  function StarSelectedBlocks() { 
+    let selectedBlocks = $codeMap.activeWindow.activelySelectedBlocks;
+    let setVisibility = false;
+
+    if (selectedBlocks[0].visible === false) 
+      setVisibility = true;
+    selectedBlocks.forEach(selectedBlock => {
+      selectedBlock.visible = setVisibility;
+    });
+  }
 </script>
 
 <main />
