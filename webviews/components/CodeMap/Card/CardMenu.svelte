@@ -1,9 +1,8 @@
 <script lang="ts">
-  import { flatTree, currentZoom, perimeterItem, codeMap, editItem, rightClickedBlockEvent, items } from "../../../store";
+  import { codeMap } from "../../../store";
   import type { FilteredTree } from "../../../../src/Models";
   import Fa from "svelte-fa";
   import ColorPicker from "../../ColorPicker.svelte";
-
   import {
     faCode,
     faCompressArrowsAlt,
@@ -22,43 +21,12 @@
 
   let common: Shared;
 
-  export let closeHandler = () => {};
-  export let GroupBlocks = (event: MouseEvent) => {};
   export let Minimize = (event: any, treeItem: FilteredTree) => {};
   export let StartLink = (event: any, treeItem: FilteredTree) => {};
 
   let disabed = true;
 
-  export let treeItem: FilteredTree = {
-    id: "",
-    path: "",
-    name: "",
-    size: 0,
-    type: "",
-    color: "",
-    tags: [],
-    placeholders: [],
-    code: "",
-    language: "",
-    visible: false,
-    open: false,
-    parentId: "",
-    outputx: 0,
-    outputy: 0,
-    inputx: 0,
-    inputy: 0,
-    children: [],
-    extension: "",
-    locationX: "",
-    locationY: "",
-    startLine: "",
-    startCharacter: "",
-    endLine: "",
-    endCharacter: "",
-    starred: false,
-    linkedTargetBlocks: [],
-    codeDiff: false,
-  };
+  export let treeItem: FilteredTree;
 
   function HideBlock(e: any, treeItem: FilteredTree) {
     treeItem.visible = false;
@@ -70,9 +38,10 @@
   }
 </script>
 
-<div class="cardButtons">
-  <!-- Import shared doc -->
 <Shared bind:this={common} />
+
+{#if treeItem}
+<div class="cardButtons">
 
   <!-- <button id="MoveToPocket"  on:click={closeHandler}><Fa size="1x" icon={faTrashRestore} style="color:red; padding-right: 4px; float:right" /></button> -->
   {#if disabed === false}
@@ -139,6 +108,7 @@
     <img src={treeItem.image} style="width:100%; height:100%; padding-right: 4px; float:right" />
   {/if} -->
 </div>
+{/if}
 
 <style>
   .cardButtons {
