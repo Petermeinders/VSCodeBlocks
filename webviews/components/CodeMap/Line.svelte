@@ -1,4 +1,6 @@
 <script lang="ts">
+    // THIS FILE IS NOT CURRENTLY IMPLEMENTED. FUTURE USE POSSIBLE.
+
   import { codeMap, lines } from "../../store";
 
   export let x1: number = 0;

@@ -17,7 +17,7 @@
   import Outline from "../CodeMap/Outline.svelte";
   import ParseVSCodeSnippet from "./VSCodeSnippets.svelte";
 import { Sibling } from "../../../src/Models";
-import CodeMapMove from "../CodeMap/CodeMapMove.svelte";
+import CodeMapMove from "../CodeMap/CodeMap.svelte";
 
   //Parent component for the code map and code blocks
 

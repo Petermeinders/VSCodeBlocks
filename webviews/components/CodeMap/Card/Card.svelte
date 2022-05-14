@@ -116,9 +116,6 @@
   }
 
 
-
-
-
   //Copy Paste?
   document.onpaste = function (event) {
     var items = (event.clipboardData || event.originalEvent.clipboardData).items;

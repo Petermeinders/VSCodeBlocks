@@ -18,7 +18,7 @@ moveAbles,
   import { onMount, afterUpdate, beforeUpdate } from "svelte";
   // import panzoom from 'svg-pan-zoom'
   import { Sibling, Type } from "../../../src/Models";
-  import MovableBlock from "./Card/MovableBlock.svelte";
+  import Card from "./Card/Card.svelte";
   import RadialMenu from "./Card/CardRadial.svelte";
   import Moveable from "svelte-moveable";
 import { } from "os";
@@ -1421,7 +1421,7 @@ on:resize={({ detail: e }) => {
             {#if typeof treeItem.visible === "undefined" || treeItem?.visible === true}
               {#if (treeItem.type !== Type.Folder) || (treeItem.type !== Type.Folder && $items.settings.showFolders === true) || ( $items.settings.showFiles === true)}
 
-                <MovableBlock {moveable} {selecto}  {treeItem}  />
+                <Card {moveable} {selecto}  {treeItem}  />
 
               {/if}
             {/if}
