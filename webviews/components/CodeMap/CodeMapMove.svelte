@@ -2,15 +2,10 @@
   import {
     codeMap,
     currentZoom,
-    currentScaleX,
-    currentScaleY,
-    perimeterItem,
     currentlySelected,
     items,
     debug,
     activelySelectedText,
-    activePath,
-    lines,
     activeSelectionMeta,
     rightClickedBlockEvent,
     groupedSquares,
@@ -18,42 +13,18 @@
 zoom,
 moveAbles,
   } from "../../store";
-  import Fa from "svelte-fa";
   import type { FilteredTree, Group, BlockContainerInterface, ZoomElement} from "../../../src/Models";
   import Shared from "../Shared.svelte"; 
-  import { OutlineTypeEnum } from "../../../src/Models";
-  import Card from "./Card/Card.svelte";
-  import { onMount, afterUpdate, beforeUpdate, tick, createEventDispatcher } from "svelte";
-  import DragSelect from "dragselect";
-  import lodash, { find, first, flatMap } from "lodash";
-  import deepdash from "deepdash";
-  import Line from "./Line.svelte";
-  import { faSave } from "@fortawesome/free-regular-svg-icons";
-  import { faFileDownload } from "@fortawesome/free-solid-svg-icons";
+  import { onMount, afterUpdate, beforeUpdate } from "svelte";
   // import panzoom from 'svg-pan-zoom'
   import { Sibling, Type } from "../../../src/Models";
-  import GroupOfBlocks from "./GroupOfBlocks.svelte";
-  import BlockContainer from "./Card/BlockContainer.svelte";
   import MovableBlock from "./Card/MovableBlock.svelte";
   import RadialMenu from "./Card/CardRadial.svelte";
   import Moveable from "svelte-moveable";
-import { scale } from "svelte/transition";
 import { } from "os";
 import Selecto from "svelte-selecto";
 import type { OnSelectEnd } from "svelte-selecto";
-import { element, query_selector_all } from "svelte/internal";
 import { renderer } from "../../renderer";
-import {
-    faCode,
-    faCompressArrowsAlt,
-    faExpandAlt,
-    faEyeSlash,
-    faFile,
-    faFolder,
-    faLink,
-    faStar as solidStar,
-    faTimesCircle,
-  } from "@fortawesome/free-solid-svg-icons";
 
 
   let common: Shared;

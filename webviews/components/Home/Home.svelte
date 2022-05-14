@@ -11,11 +11,9 @@
   import LinkedBlocks from "../CodeBlocks/LinkedBlocks.svelte";
   import { faBorderStyle, faChevronLeft, faChevronRight, faCog, faCubes, faProjectDiagram } from "@fortawesome/free-solid-svg-icons";
   import Fa from "svelte-fa";
-  import CodeMap from "../CodeMap/CodeMap.svelte";
   import SettingsScreen from "../SettingsScreen.svelte";
   import Shared from "../Shared.svelte";
   import Pocket from "../CodeMap/Pocket.svelte";
-  import CodeMapGroups from "../CodeMap/CodeMapGroupsContainer.svelte";
   import Outline from "../CodeMap/Outline.svelte";
   import ParseVSCodeSnippet from "./VSCodeSnippets.svelte";
 import { Sibling } from "../../../src/Models";
