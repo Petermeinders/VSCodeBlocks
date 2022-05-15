@@ -478,6 +478,19 @@
       selectedBlock.visible = setVisibility;
     });
   }
+
+  export function CloseAllRadials() {
+    let menu;
+
+    let allMenus = document.querySelectorAll("#menu.opened");
+
+    if (allMenus.length > 0) {
+      allMenus.forEach((menu) => {
+        menu.style.transform = "scale(0)";
+        menu.classList.remove("opened");
+      });
+    }
+  }
 </script>
 
 <main />

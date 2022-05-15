@@ -16,13 +16,28 @@
   import Shared from "../../Shared.svelte";
 import { onMount } from "svelte";
 
-  export let closeHandler = () => {};
   export let GroupBlocks = (event: MouseEvent) => {};
   export let Minimize = (event: any, treeItem: FilteredTree) => {};
 
   let common:Shared;
+  $: $codeMap.activeWindow.activelySelectedBlocks, ActiveBlockChange()
 
-  export let treeItem: FilteredTree; //= $codeMap?.activeWindow?.activelySelectedBlocks[0]
+  export let treeItem: FilteredTree;
+
+  function ActiveBlockChange() {
+    if ($codeMap?.activeWindow?.activelySelectedBlocks?.length > 0) {
+      treeItem = $codeMap?.activeWindow?.activelySelectedBlocks[0]
+    }
+  }
+
+//   onMount(() => {
+// if (treeItem){
+  
+// }
+// else{
+//   treeItem = $codeMap?.activeWindow?.activelySelectedBlocks?.pop();
+// }
+//   })
   
   // $codeMap?.activeWindow?.activelySelectedBlocks?.length > 0 ? $codeMap?.activeWindow?.activelySelectedBlocks[0] : {
   //   id: "",

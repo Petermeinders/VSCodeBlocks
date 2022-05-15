@@ -9,23 +9,20 @@
     activeSelectionMeta,
     rightClickedBlockEvent,
     groupedSquares,
-    blockContainerStore,
-zoom,
-moveAbles,
+    zoom,
   } from "../../store";
-  import type { FilteredTree, Group, BlockContainerInterface, ZoomElement} from "../../../src/Models";
-  import Shared from "../Shared.svelte"; 
+  import type { FilteredTree, Group, ZoomElement } from "../../../src/Models";
+  import Shared from "../Shared.svelte";
   import { onMount, afterUpdate, beforeUpdate } from "svelte";
-  // import panzoom from 'svg-pan-zoom'
   import { Sibling, Type } from "../../../src/Models";
   import Card from "./Card/Card.svelte";
   import RadialMenu from "./Card/CardRadial.svelte";
   import Moveable from "svelte-moveable";
-import { } from "os";
-import Selecto from "svelte-selecto";
-import type { OnSelectEnd } from "svelte-selecto";
-import { renderer } from "../../renderer";
-
+  import {} from "os";
+  import Selecto from "svelte-selecto";
+  import type { OnSelectEnd } from "svelte-selecto";
+  import { renderer } from "../../renderer";
+  import FutureFeatures from "./FutureFeatures.svelte";
 
   let common: Shared;
   let moveable: Moveable;
@@ -34,401 +31,113 @@ import { renderer } from "../../renderer";
   let changedFile = "";
   let selecto: Selecto;
   let zoomElements: ZoomElement[] = [];
-  let testval;
+  let hasCanvasRenderedYet;
 
   let isScrolling = false;
 
-
-//FrameMap is needed for Movable and Selecto
+  //FrameMap is needed for Movable and Selecto
   const frameMap = new Map();
   let targets = [];
 
   $: $codeMap?.activeWindow?.path, onWindowChange();
-  $: $codeMap
+  $: $codeMap;
   $: $activelySelectedText, SelectedTextChange();
 
-
   onMount(async () => {
-    var element = document.querySelector("#canvas-inner");
-    var selectoElement = document.querySelector("#canvas-inner");
+    // var element = document.querySelector("#canvas-inner");
+    // var selectoElement = document.querySelector("#canvas-inner");
 
-    
-
-    testval = document.getElementById("canvas-inner");
-    if (testval) {
+    hasCanvasRenderedYet = document.getElementById("canvas-inner");
+    if (hasCanvasRenderedYet) {
       PanZoomFunction();
     }
- 
-
   });
-
-
-
-  const PanZoomFunction = () => {
-
-    zoomElements = zoomElements.filter(element => {
-      return element !== null;
-    });
-
-  const container = document.getElementById("CodeMapMove");
-   const el = document.getElementById("selecto1");
-  //const el = document.getElementsByClassName("vscode-dark")[0];
-  zoomElements.push(el);
-
-  // zoomElement.forEach(element => {
-  //   if (element && element.style.transform.length > 0) {
-  //   const {x, y, z} = getMatrixFrom3D(element);
-  //   element.style.transform = `matrix(${z}, 0, 0, ${z}, ${x}, ${y})`;
-  //   }
-  // })
-
-
-  zoomElements = zoomElements.filter(element => {
-  return element.element !== null;
-});
-
-
-   //const elBoxo = document.getElementsByClassName("moveable-control-box");
-  const zoomPan = renderer({ scaleSensitivity: 5, minScale: .1, maxScale: 30, element: el });
-  if (container){
-  container.addEventListener("wheel", (event) => {
-      // if (!event.ctrlKey) {
-      //     return;
-      // }
-      // if (isScrolling){
-      //   isScrolling = false;
-      //   return;
-      // }
-
-     // isScrolling = true;
-
-      event.preventDefault();
-      zoomPan.zoom({
-          deltaScale: Math.sign(event.deltaY) > 0 ? -1 : 1,
-          x: event.pageX,
-          y: event.pageY
-      });
-
-
-  });
-  // container.addEventListener("dblclick", () => {
-  //     zoomPan.panTo({
-  //         originX: 0,
-  //         originY: 0,
-  //         scale: 1,
-  //     });
-  // });
-
-  container.addEventListener("mousemove", (event) => {
-        if (event.buttons !== 2) {
-            return;
-        }
-
-        zoomPan.panBy({
-            originX: event.movementX,
-            originY: event.movementY
-        });
-
-       
-    })
-
-    container.addEventListener("contextmenu", (event) => {
-        event.preventDefault();
-        console.log("right lcicked;")
-        if (event?.target?.classList?.contains("moveable-area")) {
-
-        common.expand(event, moveable);
-        }
-    })
-
-
-
-
-    container.addEventListener("mouseup", (event) => {
-      if (event.button !== 2) {
-            return;
-        }
-        //$zoom = $zoom + 1;
-    })
-
-    container.addEventListener("mousedown", (event) => {
-      if (event.button === 0) {
-        //TODO: Move this to constant;
-          if (event?.target?.id === "background-grid") {
-            CloseAllRadials();  
-          }
-           console.log("left down");
-        }
-
-        if (event.button === 2) {
-        //TODO: Move this to constant;
-        if (event?.target?.id === "background-grid") {
-          CloseAllRadials();  
-        }
-           console.log("Right down");
-        }
-
-
-                // $zoom = $zoom - 1;
-      if (event.buttons !== 2) {
-            return;
-        }
-
-        
-
-       
-    
-
-    })
-
-  }
-    }
-
-
-    function CloseAllRadials() {
-    let menu;
-
-    let allMenus = document.querySelectorAll("#menu.opened");
-
-    // if (e.target.classList.contains("menu")) menu = e.target;
-    // if (e.target.querySelector(".menu")) menu = e.target.querySelector(".menu");
-
-    if (allMenus.length > 0) {
-      allMenus.forEach((menu) => {
-        menu.style.transform = "scale(0)";
-        menu.classList.remove("opened");
-      });
-    }
-  }
-   
-
-
-    function getMatrixFrom3D(element) {
-      if (element !== null) {
-    const values = element.style.transform.split(/\w+\(|\);?/);
-    const transform = values[1].split(/,\s?/g).map(parseInt);
-    
-
-    return {
-      x: transform[0],
-      y: transform[1],
-      z: transform[2]
-    };
-  }
-  return {
-      x: 0,
-      y: 0,
-      z: 0
-    };
-}
-
-
-
-
-
-
-function HideBorderOnMove() {
-  if (selecto) {
-            selecto.selectableTargets = document.querySelectorAll(".groupBorder");
-            console.log(selecto?.selectableTargets); 
-            document.querySelector(".groupBorder").style.visibility = "hidden";
-          }
-}
-
-function HideGroupNameAndBorderOnMove() {
-  if (selecto) {
-            document.querySelectorAll(".groupName").forEach( element => {
-              element.style.visibility = "hidden";
-            });
-
-            document.querySelectorAll(".groupBorder").forEach( element => {
-              element.style.visibility = "hidden";
-            });
-          }
-}
-
-function ShowGroupNameAndBorderAfterMove() {
-  if (selecto) {
-
-            document.querySelectorAll(".groupName").forEach( element => {
-              element.style.visibility = "visible";
-            })
-
-            document.querySelectorAll(".groupBorder").forEach( element => {
-              element.style.visibility = "visible";
-            })
-          }
-}
-
-function ShowBorderAfterMove() {
-  if (selecto) {
-            selecto.selectableTargets = document.querySelectorAll(".selecto-area .cube");
-            console.log(selecto?.selectableTargets); 
-            document.querySelector(".moveable-control-box").style.display = "block";
-          }
-}
-
-
 
   beforeUpdate(() => {
     RenderBlocks();
   });
 
-  function getTranslateX(myElement) {
-  var style = window.getComputedStyle(myElement);
-  var matrix = new WebKitCSSMatrix(style.transform);
-  //console.log('translateX: ', matrix.m41);
-  return matrix.m41;
-}
-
-function getTranslateY(myElement) {
-  var style = window.getComputedStyle(myElement);
-  var matrix = new WebKitCSSMatrix(style.transform);
-  //console.log('translateY: ', matrix.m42);
-  return matrix.m42;
-}
-
   afterUpdate(() => {
-
-
     isScrolling = false;
-    //mouseUpAfterPan = false;
-    //NewSelecto();
-
-
-    // if (selecto) {
-    //   selecto?.selectableTargets = document.querySelectorAll(".selecto-area .cube");
-    //   console.log(selecto?.selectableTargets); 
-    // }
-
-      
   });
 
-  // const NewSelecto = () => {
-  //   if (document.querySelector(".cube") && document.querySelector(".selecto2"))
-  //   {
-  //     if (selecto === undefined)
-  //     {
-  //       return;
-  //     }
 
-  //     if (selecto.toggleContinueSelect === "shift")
-  //     {
-  //       return;
-  //     }
-  //     selecto.target = document.querySelector("#CodeMapMove");
-  //     selecto = new Selecto({
-  //       container:document.body,
-  //   dragContainer:".elements",
-  //   selectableTargets:[".selecto-area .cube"],
-  //   selectByClick:true,
-  //   selectFromInside:true,
-  //   continueSelect:false,
-  //   toggleContinueSelect:"shift",
-  //   keyContainer:window,
-  //   hitRate:100,
-  //   ratio:0
-  // }
-  //   );
-  //   selecto.$on("select", ({ detail: e }) => {
-  //       console.log("SELECTED!");
-  //       e.added.forEach(el => {
-  //                   el.classList.add("selected");
-  //               });
-  //               e.removed.forEach(el => {
-  //                   el.classList.remove("selected");
-  //               });
-  //   });
-  //   selecto.$on("selectStart", ({ detail: e }) => {
-  //       console.log("SELECTED Start!");
-  //       e.added.forEach(el => {
-  //                   el.classList.add("selected");
-  //               });
-  //               e.removed.forEach(el => {
-  //                   el.classList.remove("selected");
-  //               });
-  //   });
-  //   selecto.$on("selectEnd", ({ detail: e }) => {
-  //       console.log("SELECTED End!");
-  //       e.afterAdded.forEach(el => {
-  //                   el.classList.add("selected");
-  //               });
-  //               e.afterRemoved.forEach(el => {
-  //                   el.classList.remove("selected");
-  //               });
-  //   });
-  //   console.log("new Selecto");
-  //   }
-    
-  // }
+  const PanZoomFunction = () => {
+    zoomElements = zoomElements.filter((element) => {
+      return element !== null;
+    });
 
-  const OnBlockDragOVERSelect =  ({detail: e}) => {
-    console.log("SELECTED!");
-    console.log(selecto.getSelectedTargets());
-  }  
+    const container = document.getElementById("CodeMapMove");
+    const el = document.getElementById("selecto1");
+    zoomElements.push(el);
 
-  const onBlockSelectStart =  ({detail: e}) => {
-    
-  } 
+    zoomElements = zoomElements.filter((element) => {
+      return element.element !== null;
+    });
 
-  const onBlockSelectEnd =  (e: OnSelectEnd) => {
-    console.log("blocks selected");
-    console.log(e);
-    HideShowLinesForSelectedBlocks(e);
-  } 
+    //const elBoxo = document.getElementsByClassName("moveable-control-box");
+    const zoomPan = renderer({ scaleSensitivity: 5, minScale: 0.1, maxScale: 30, element: el });
+    if (container) {
+      container.addEventListener("wheel", (event) => {
 
-  const HideShowLinesForSelectedBlocks =  (e: OnSelectEnd) => {
-    let elementList;
-    let selectedBlock = new Array<FilteredTree>();
+        event.preventDefault();
+        zoomPan.zoom({
+          deltaScale: Math.sign(event.deltaY) > 0 ? -1 : 1,
+          x: event.pageX,
+          y: event.pageY,
+        });
+      });
 
-      $moveAbles.forEach((moveable) => {
-        let move = moveable.getInstance();
-        if (move.target.classList.contains("selected"))
-        {
-          
-          move.renderDirections = ["n", "nw", "ne", "s", "se", "sw", "e", "w"];
+      container.addEventListener("mousemove", (event) => {
+        if (event.buttons !== 2) {
+          return;
         }
-        else
-        {
-          move.renderDirections = [];
+
+        zoomPan.panBy({
+          originX: event.movementX,
+          originY: event.movementY,
+        });
+      });
+
+      container.addEventListener("contextmenu", (event) => {
+        event.preventDefault();
+        console.log("right lcicked;");
+        if (event?.target?.classList?.contains("moveable-area")) {
+          common.expand(event, moveable);
         }
       });
 
+      container.addEventListener("mouseup", (event) => {
+        if (event.button !== 2) {
+          return;
+        }
+        //$zoom = $zoom + 1;
+      });
 
+      container.addEventListener("mousedown", (event) => {
+        if (event.button === 0) {
+          //TODO: Move this to constant;
+          if (event?.target?.id === "background-grid") {
+            common.CloseAllRadials();
+          }
+          console.log("left down");
+        }
 
+        if (event.button === 2) {
+          //TODO: Move this to constant;
+          if (event?.target?.id === "background-grid") {
+            common.CloseAllRadials();
+          }
+          console.log("Right down");
+        }
 
-
-    // e.selected.forEach((element) => {
-    //   if (element.classList.contains("selected"))
-    //   {
-    //     //elementList.push(element);
-    //     let selected = $codeMap.flatTree.find(x => x.id === element.id)
-
-    //     if (selected)
-    //     {
-    //       selectedBlock.push(selected);
-    //       console.log($moveAbles);
-    //       $moveAbles.forEach((moveAble) => {
-    //         let move = moveAble.getInstance();
-    //         if (move.target.id === selected.id)
-    //         {
-    //           move.renderDirections = ["n", "nw", "ne", "s", "se", "sw", "e", "w"];
-    //         }
-    //         else
-    //         {
-    //           move.renderDirections = [];
-    //         }
-    //       });
-    //       // Moveable movable = Moveable.getinstance(e.selected[0]);
-    //       // console.log(movable);
-    //     }
-    //   }
-    // });
-
-    //let selected = $codeMap.flatTree.find(x => x.id === e.id)
-  }
-
-
+        // $zoom = $zoom - 1;
+        if (event.buttons !== 2) {
+          return;
+        }
+      });
+    }
+  };
 
   const RenderBlocks = () => {
     if (!isMoving) {
@@ -441,15 +150,6 @@ function getTranslateY(myElement) {
 
         $codeMap.flatTree = [...new Set($codeMap.flatTree)];
 
-
-
-        // if ($codeMap?.groups.length > 0) {
-        //   $codeMap.groups.forEach((group) => {
-        //    group.height = (common.GetBottomMostPixelFromGroup(group) - common.GetTopMostPixelFromGroup(group))
-        //    group.width = (common.GetRightMostPixelFromGroup(group) - common.GetLeftMostPixelFromGroup(group))
-        //   });
-        // }
-        //ColorCode();
         return;
       }
 
@@ -458,7 +158,6 @@ function getTranslateY(myElement) {
           faketree = JSON.parse(JSON.stringify($codeMap.canvas.children));
           FlattenTree(faketree);
 
-          // faketree = _.index(faketree)
 
           $codeMap.flatTree = [...new Set(faketree)];
         } else {
@@ -468,22 +167,57 @@ function getTranslateY(myElement) {
     }
   };
 
-  const OnSingleDragEnded = (target:HTMLDivElement) => {
+
+  function HideGroupNameAndBorderOnMove() {
+    if (selecto) {
+      document.querySelectorAll(".groupName").forEach((element) => {
+        element.style.visibility = "hidden";
+      });
+
+      document.querySelectorAll(".groupBorder").forEach((element) => {
+        element.style.visibility = "hidden";
+      });
+    }
+  }
+
+  function ShowGroupNameAndBorderAfterMove() {
+    if (selecto) {
+      document.querySelectorAll(".groupName").forEach((element) => {
+        element.style.visibility = "visible";
+      });
+
+      document.querySelectorAll(".groupBorder").forEach((element) => {
+        element.style.visibility = "visible";
+      });
+    }
+  }
+
+
+  function getTranslateX(myElement) {
+    var style = window.getComputedStyle(myElement);
+    var matrix = new WebKitCSSMatrix(style.transform);
+    return matrix.m41;
+  }
+
+  function getTranslateY(myElement) {
+    var style = window.getComputedStyle(myElement);
+    var matrix = new WebKitCSSMatrix(style.transform);
+    return matrix.m42;
+  }
+
+  const OnSingleDragEnded = (target: HTMLDivElement) => {
     var generatedTree;
-    if(target && target.children.length > 0 && target.children[0].id === "generated")
-    {
+    if (target && target.children.length > 0 && target.children[0].id === "generated") {
       generatedTree = HandleGeneratedBlock(target);
     }
-    
-    let treeItem = $codeMap.flatTree.find((item) =>  item.id == target.children[0].id)
 
-    if (generatedTree)
-    {
+    let treeItem = $codeMap.flatTree.find((item) => item.id == target.children[0].id);
+
+    if (generatedTree) {
       treeItem = generatedTree;
     }
 
-    if (treeItem)
-    {
+    if (treeItem) {
       treeItem.locationX = getTranslateX(target).toString();
       treeItem.locationY = getTranslateY(target).toString();
       treeItem.imageHeight = target.clientHeight;
@@ -493,33 +227,23 @@ function getTranslateY(myElement) {
       $codeMap.flatTree.splice(index, 1, treeItem);
       $codeMap.flatTree = [...$codeMap.flatTree];
     }
-        
-    //treeItem = $codeMap.flatTree.find((item) =>  item.id == target.id)
+  };
 
-    //let elements;
-    // if (selecto)
-    // {
-    //   console.log(selecto?.selectableTargets); 
-    //   console.log("after update selecto");
-    // }
-  }
-
-
-  const HandleGeneratedBlock = (target:HTMLDivElement) => {
+  const HandleGeneratedBlock = (target: HTMLDivElement) => {
     console.log(target);
-    let treeItem = $codeMap.flatTree.find((item) =>  item.id === "generated")
+    let treeItem = $codeMap.flatTree.find((item) => item.id === "generated");
     console.log(treeItem);
 
     if (treeItem?.id === "generated") {
-        if (treeItem?.sibling === Sibling.Self) {
-          ConvertGeneratedBlock(target, true);
-        } else {
-          ConvertGeneratedBlock(target, false);
-        }
-        return treeItem;
+      if (treeItem?.sibling === Sibling.Self) {
+        ConvertGeneratedBlockToPermanent(target, true);
+      } else {
+        ConvertGeneratedBlockToPermanent(target, false);
       }
-      return null;
-  }
+      return treeItem;
+    }
+    return null;
+  };
 
   function FlattenTree(newTree) {
     newTree.forEach((item) => {
@@ -534,7 +258,7 @@ function getTranslateY(myElement) {
 
   function SetVisibility() {
     $codeMap?.flatTree.forEach((treeItem) => {
-      if (treeItem){
+      if (treeItem) {
         if (typeof treeItem.visible === "undefined") treeItem.visible = true;
       }
     });
@@ -548,14 +272,6 @@ function getTranslateY(myElement) {
 
       HideOutline();
 
-      // $codeMap.activeWindow.outline[0].location.uri.path
-
-      // if (typeof $codeMap.activeWindow.block !== "undefined")
-      // {
-      //   GetOutline();
-
-      // }
-
       changedFile = $codeMap?.activeWindow?.path;
 
       $codeMap.flatTree.forEach((flatItem) => {
@@ -566,31 +282,12 @@ function getTranslateY(myElement) {
           $codeMap.activeWindow.block = flatItem;
           common.GetOutline($codeMap.activeWindow.block);
           ShowRecursivelyUPFromFile(flatItem, false);
-          //ShowRecursivelyDOWNFromFile(flatItem);
 
           RenderBlocks();
-
-          // if (treeItem.parentId === 0){
-          // $codeMap.flatTree.forEach((innerItem) => {
-          //   if (innerItem.parentId === $codeMap.activeWindow.id)
-          //   {
-          //     innerItem.visible = true;
-          //   }
-          // });
-
-          // }
         }
       });
       common?.GetOutline($codeMap.activeWindow.block);
     }
-  }
-
-  function CheckIfBlockIsInAGroup(block){
-      $codeMap.groups.forEach((group) => {
-        if (group.groupId.includes(block.id)){
-          return group;
-        }
-      });
   }
 
   function HideOutline() {
@@ -615,21 +312,10 @@ function getTranslateY(myElement) {
   }
 
   function wheelHandler(event) {
-    $zoom =  $zoom +1;
-    // console.log(event);
-    // if (event.deltaY > 0) {
-    //   console.log("wheel backward");
-    //   $zoom =  $zoom +1;
-      
-    // } else {
-    //   console.log("wheel forward");
-    //   $zoom = $zoom +1;
-
-    //   //moveable.getInstance().zoom = moveable.getInstance().zoom + 0.1;
-    //   //console.log(moveable.getInstance());
-    // }
+    $zoom = $zoom + 1;
   }
 
+  //Calls to the server typescript files
   function SaveCodeMapToFile() {
     tsvscode.postMessage({
       type: "saveCodeMap",
@@ -658,41 +344,6 @@ function getTranslateY(myElement) {
     });
   }
 
-  function OrganizeSelected() {
-    //let selected = ds.getSelection();
-    console.log($currentlySelected);
-
-    // let clickedElement = $currentlySelected[0];
-
-    $currentlySelected.reverse();
-
-    let childPos = $currentlySelected[0].getBoundingClientRect();
-    let parentPos = $currentlySelected[0].parentElement.getBoundingClientRect();
-    let firstX = childPos.x - parentPos.x;
-    let firstY = childPos.y - parentPos.y;
-
-    $currentlySelected.forEach((item) => {
-      item.getBoundingClientRect();
-      let translate = "translate3d(" + firstX + "px, " + firstY + "px, 1px) scale(" + $currentZoom + ")";
-
-      item.style.transform = translate;
-      firstY += 56;
-      ds.addSelection(item);
-    });
-  }
-
-  function OnNewContainerClick() {
-    let newContainer: BlockContainerInterface = {
-      id: common.getNonce(),
-      name: "Name Here!",
-      blocks: [],
-      locationX: 0,
-      locationY: 0,
-    };
-    $blockContainerStore.push(newContainer);
-    $blockContainerStore = $blockContainerStore;
-    console.log($blockContainerStore);
-  }
 
   function SelectedTextChange() {
     // let existingOutline = ShowActivelySelectedOutline();
@@ -700,7 +351,6 @@ function getTranslateY(myElement) {
       GenerateCodeBlockFromSelectedText(Sibling.Self, undefined);
     }
   }
-
 
   export const GenerateCodeBlockFromSelectedText = (sibling: Sibling, existingTreeItem: FilteredTree | undefined) => {
     if ($codeMap?.flatTree) {
@@ -798,12 +448,10 @@ function getTranslateY(myElement) {
           $codeMap.flatTree.push(generatedBlock);
         }
       }
-     // NewSelecto();
-
     }
   };
 
-  export const ConvertGeneratedBlock = (target: HTMLDivElement, keepOriginal: boolean) => {
+  export const ConvertGeneratedBlockToPermanent = (target: HTMLDivElement, keepOriginal: boolean) => {
     let selected = $codeMap.flatTree.find((x) => x.id === "generated");
     let duplicate = $codeMap.flatTree.find((x) => x.name === selected?.name && x.id !== "generated" && x.type === Type.Custom);
 
@@ -833,63 +481,48 @@ function getTranslateY(myElement) {
           $codeMap.flatTree = [...$codeMap.flatTree];
         }
       }
-      // if (document.getElementById("generated") !== null) {
-      //   document.getElementById("generated").id = selected.id;
-      // }
-      //OnMouseUpObject.items[0].id = selected.id;
     }
   };
 
   const UpdateActivelySelected = (targets: HTMLElement[]) => {
-    if (targets !== undefined && targets.length > 0)
-    {
+    if (targets !== undefined && targets.length > 0) {
       $codeMap.activeWindow.activelySelectedBlocks = [];
       targets.forEach((target) => {
-      let treeItem = $codeMap.flatTree.find(treeItem => treeItem.id === target.children[0].id);
+        let treeItem = $codeMap.flatTree.find((treeItem) => treeItem.id === target.children[0].id);
 
-      if (treeItem){
-        $codeMap.activeWindow.activelySelectedBlocks.push(treeItem);
-        $codeMap.activeWindow.activelySelectedBlocks = [...$codeMap.activeWindow.activelySelectedBlocks];
-      }
-    })
+        if (treeItem) {
+          $codeMap.activeWindow.activelySelectedBlocks.push(treeItem);
+          $codeMap.activeWindow.activelySelectedBlocks = [...$codeMap.activeWindow.activelySelectedBlocks];
+        }
+      });
     }
   };
 
-  const  SelectAllBlocksInAGroup = (targets: HTMLElement[]) => {
+  const SelectAllBlocksInAGroup = (targets: HTMLElement[]) => {
     let firstBlock = targets[0];
-    let selectedBlocks :HTMLElement[] = [];
+    let selectedBlocks: HTMLElement[] = [];
 
     if (targets.length < 1) {
       return targets;
     }
 
     $codeMap.groups.forEach((group) => {
-     if (group.blockIds.indexOf(firstBlock.children[0].id) !== -1){
-      console.log("group found");
-      console.log(group);
-      
-      group.blockIds.forEach((id) => {
-        selectedBlocks.push(document.querySelector("[id='"+id+"']"));
-      }) 
-      // let sel = selecto.getInstance().once("select");
-      // selecto.getInstance().setSelectedTargets(selectedBlocks);
-      // console.log(selecto.getInstance().getSelectedTargets());
-      // moveable.getInstance().getManager().forceUpdate();
-      // targets = [].slice.call(document.querySelectorAll(".cube"));
-     }
-    })
+      if (group.blockIds.indexOf(firstBlock.children[0].id) !== -1) {
+        console.log("group found");
+        console.log(group);
+
+        group.blockIds.forEach((id) => {
+          selectedBlocks.push(document.querySelector("[id='" + id + "']"));
+        });
+      }
+    });
     if (selectedBlocks.length > 0) {
       //       if (targets.length > 1){
       //   setTimeout(() => AddEventListenerForClick(), 50)
       // }
       return selectedBlocks;
-    }
-      else
-      return targets;
+    } else return targets;
   };
-
-
-
 
   function GroupBlocks(e: MouseEvent) {
     let blocks = GetSelectedCodeBlocks($codeMap.activeWindow.activelySelectedBlocks);
@@ -911,40 +544,36 @@ function getTranslateY(myElement) {
 
     //Get first block selected and check if it's in a group (make sure only 1).
     if ($codeMap?.groups?.length > 0) {
-      $codeMap?.groups.forEach((group:Group) => {
-         group.blockIds.forEach(id => {
-          if (id === blocks[0].id){
+      $codeMap?.groups.forEach((group: Group) => {
+        group.blockIds.forEach((id) => {
+          if (id === blocks[0].id) {
             foundGroup = group;
           }
-        })
+        });
       });
 
       //Make sure other selected blocks are in the same group
-      if (foundGroup){
+      if (foundGroup) {
         foundGroup.blockIds.forEach((id) => {
-           if (blocks.findIndex(block => block.id === id) === -1) {
-                problemFound += 1;
-           }
+          if (blocks.findIndex((block) => block.id === id) === -1) {
+            problemFound += 1;
+          }
         });
       }
 
       //Throw error message if no group found but other blocks are in a group;
       if (foundGroup && problemFound > 0) {
-        
-          
-          common.expand(e);
-          common.ErrorMessageVSCall("You can't group a group with a single block. Ungroup first.");
-          return;
+        common.expand(e);
+        common.ErrorMessageVSCall("You can't group a group with a single block. Ungroup first.");
+        return;
       }
-
-
 
       if (foundGroup) {
         RemoveColor(foundGroup);
         let index = $codeMap.groups.indexOf(foundGroup);
         $codeMap.groups.splice(index, 1);
-        foundGroup.blockIds.forEach(blockId => {
-          document.querySelector("[id='"+blockId+"']")?.removeAttribute("data-groupId");
+        foundGroup.blockIds.forEach((blockId) => {
+          document.querySelector("[id='" + blockId + "']")?.removeAttribute("data-groupId");
         });
         RenderBlocks();
       } else {
@@ -986,7 +615,7 @@ function getTranslateY(myElement) {
   }
 
   function AddGroup(blocks: FilteredTree[]) {
-    let newGroup = { groupId: common.getNonce(), blockIds: [], name: "New Group", visible: true, width:0, height:0, top:0, left:0 };
+    let newGroup = { groupId: common.getNonce(), blockIds: [], name: "New Group", visible: true, width: 0, height: 0, top: 0, left: 0 };
     $groupedSquares.push({
       groupId: common.getNonce(),
       blocks: blocks,
@@ -1004,7 +633,7 @@ function getTranslateY(myElement) {
       }
 
       //Add groupid to element
-      document.querySelector("[id='"+block.id+"']")?.setAttribute("data-groupId", newGroup.groupId);
+      document.querySelector("[id='" + block.id + "']")?.setAttribute("data-groupId", newGroup.groupId);
     });
 
     let newSet = [...new Set(newGroup.blockIds)];
@@ -1029,114 +658,51 @@ function getTranslateY(myElement) {
   }
 
 
-  function AddEventListenerForClick() {
-    const groupSelect = document.getElementsByClassName("moveable-area")?.item(0);
-          if (groupSelect) {
-              groupSelect.addEventListener('contextmenu', function (event) {
-                console.log("newCLick");
-                event.preventDefault();
-                if (event.button !== 2) {
-                  return;
-                }
 
-                common.expand(event, moveable);
-                console.log(event.defaultPrevented)
-              })
-          }
-  }
 
-  function UpdateGroups() {
-   //Update Groups
-   if ($codeMap.groups.length > 0) {
-          $codeMap.groups.forEach((group) => {
-            if (group.blockIds.length > 0) {
-              let selectoBorder = document.querySelector('.moveable-area');
-              if (selectoBorder) {
-                  console.log(selecto.getInstance().getSelectedTargets());
-              }
-            }
-          });
-        }
-  }
 
   function GetSelectoBorderAndSetActiveStore() {
-    if (!$codeMap.activeWindow.selectionBorder)
-      $codeMap.activeWindow.selectionBorder = {};
+    if (!$codeMap.activeWindow.selectionBorder) $codeMap.activeWindow.selectionBorder = {};
 
-    if (document.querySelector(".moveable-area")?.getBoundingClientRect()?.top){
-
-      $codeMap.activeWindow.selectionBorder.top = new WebKitCSSMatrix(document.querySelector(".moveable-area")?.parentElement?.style.transform).m42 //document.querySelector(".moveable-area")?.parentElement?.getBoundingClientRect()?.top;
+    if (document.querySelector(".moveable-area")?.getBoundingClientRect()?.top) {
+      $codeMap.activeWindow.selectionBorder.top = new WebKitCSSMatrix(document.querySelector(".moveable-area")?.parentElement?.style.transform).m42; //document.querySelector(".moveable-area")?.parentElement?.getBoundingClientRect()?.top;
 
       // $codeMap.activeWindow.selectionBorder.bottom = document.querySelector(".moveable-area")?.parentElement?.getBoundingClientRect()?.bottom;
-      $codeMap.activeWindow.selectionBorder.left = new WebKitCSSMatrix(document.querySelector(".moveable-area")?.parentElement?.style.transform).m41 //document.querySelector(".moveable-area")?.parentElement?.getBoundingClientRect()?.left;
+      $codeMap.activeWindow.selectionBorder.left = new WebKitCSSMatrix(document.querySelector(".moveable-area")?.parentElement?.style.transform).m41; //document.querySelector(".moveable-area")?.parentElement?.getBoundingClientRect()?.left;
       // $codeMap.activeWindow.selectionBorder.right = document.querySelector(".moveable-area")?.getBoundingClientRect()?.right;
-      $codeMap.activeWindow.selectionBorder.width = +document.querySelector(".moveable-area").style.width.replace("px","")
-      $codeMap.activeWindow.selectionBorder.height = +document.querySelector(".moveable-area").style.height.replace("px","")
+      $codeMap.activeWindow.selectionBorder.width = +document.querySelector(".moveable-area").style.width.replace("px", "");
+      $codeMap.activeWindow.selectionBorder.height = +document.querySelector(".moveable-area").style.height.replace("px", "");
     }
-
   }
 
-  function UpdateActiveBorder(elements: HTMLElement[]){
+  function UpdateActiveBorder(elements: HTMLElement[]) {
     console.log("dragGroupEnd");
     GetSelectoBorderAndSetActiveStore();
     let eGroupId = elements[0]?.getAttribute("data-groupId");
     if (eGroupId) {
-      $codeMap.groups.find(x => x.groupId === eGroupId).width = $codeMap.activeWindow.selectionBorder.width;
-      $codeMap.groups.find(x => x.groupId === eGroupId).height = $codeMap.activeWindow.selectionBorder.height;
-      $codeMap.groups.find(x => x.groupId === eGroupId).top = $codeMap.activeWindow.selectionBorder.top;
-      $codeMap.groups.find(x => x.groupId === eGroupId).left = $codeMap.activeWindow.selectionBorder.left;
+      $codeMap.groups.find((x) => x.groupId === eGroupId).width = $codeMap.activeWindow.selectionBorder.width;
+      $codeMap.groups.find((x) => x.groupId === eGroupId).height = $codeMap.activeWindow.selectionBorder.height;
+      $codeMap.groups.find((x) => x.groupId === eGroupId).top = $codeMap.activeWindow.selectionBorder.top;
+      $codeMap.groups.find((x) => x.groupId === eGroupId).left = $codeMap.activeWindow.selectionBorder.left;
     }
   }
 
 
+  function UpdateGroupName() {
+    $codeMap.groups.forEach((group) => {
+      let foundZoomGroup = zoomElements.find((f) => f?.element?.id === group.groupId);
 
-function UpdateControlBoxBorder() {
-  const blueBorder = document.querySelector("div[data-styled-id='rCS19atnxs']");
-      let foundElement = zoomElements.findIndex(f => f?.element?.classList?.contains("moveable-control-box"));
-
-      if (foundElement === -1) {
-        zoomElements.push({element: blueBorder, transformationType: "translate3d"});
+      if (foundZoomGroup) {
+        //Do nothing
+      } else {
+        zoomElements.push({ element: document.getElementById(group.groupId), transformationType: "matrix" });
       }
-      else {
-        zoomElements.splice(zoomElements.findIndex(f => f?.element?.classList?.contains("moveable-control-box")), 1, {element: blueBorder, transformationType: "translate3d"})
-      }
-
-}
-
-// function UpdateGroupBorder() {
-//   const redborder = document.getElementById("redborder");
-//       let foundElement = zoomElements.findIndex(f => f?.element?.id === "redborder");
-
-//       if (foundElement === -1){
-//         zoomElements.push({element: redborder, transformationType: "redbox"});
-//       }
-//       else {
-//         zoomElements.splice(zoomElements.findIndex(f => f?.element?.id === "redborder"), 1, {element: redborder, transformationType: "redbox"})
-//       }
-// }
-
-function UpdateGroupName(){
-  $codeMap.groups.forEach((group) => {
-    let foundZoomGroup = zoomElements.find(f => f?.element?.id === group.groupId);
-
-    if (foundZoomGroup) {
-      //Do nothing
-    }
-    else{
-      zoomElements.push({element: document.getElementById(group.groupId), transformationType: "matrix"});
-    }
-  });
-}
-
+    });
+  }
 </script>
 
-
-
-
 <main id="CodeMapMove" style="width:100%; height:95vh;" on:wheel={wheelHandler}>
-<Shared bind:this={common} />
-
-
+  <Shared bind:this={common} />
 
   <div class="ds-selected" style="display:none" />
   <div style="display:flex; flex-direction: row;      z-index: 10; position: absolute;">
@@ -1149,438 +715,397 @@ function UpdateGroupName(){
     <button class="codeBlockTopButtons" type="button" on:click={OnNewContainerClick} style="display:inline;">New Container</button> -->
   </div>
 
-  {#if testval}
+  {#if hasCanvasRenderedYet}
+    <Moveable
+      bind:this={moveable}
+      draggable={true}
+      container={document.getElementById("selecto1")}
+      rootContainer={document.getElementById("CodeMapMove")}
+      target={targets}
+      useResizeObserver={true}
+      resizable={true}
+      throttleResize={0}
+      throttleDrag={0}
+      on:clickGroup={({ detail: e }) => {
+        selecto.clickTarget(e.inputEvent, e.inputTarget);
+        UpdateActivelySelected(e.currentTarget.selectedTargets);
+        // AddEventListenerForClick();
+      }}
+      on:click={({ detail: e }) => {
+        console.log("Clicked");
+        UpdateActivelySelected([e.target]);
+        //  AddEventListenerForClick();
+        //UpdateControlBoxBorder()
+      }}
+      on:drag={({ detail: e }) => {
+        const target = e.target;
+        const frame = frameMap.get(target);
 
-  <Moveable
-  bind:this={moveable}
-  draggable={true}
-  container={document.getElementById("selecto1")}
-  rootContainer={document.getElementById("CodeMapMove")}
-  target={targets}
-  useResizeObserver={true}
-  resizable={true}
-  throttleResize={0}
-  throttleDrag={0}
-
-  
-  on:clickGroup={({ detail: e }) => {
-      selecto.clickTarget(e.inputEvent, e.inputTarget);
-      UpdateActivelySelected(e.currentTarget.selectedTargets);
-      // AddEventListenerForClick();
-  }}
-  on:click={({ detail: e }) => {
-     console.log("Clicked");
-     UpdateActivelySelected([e.target]);
-    //  AddEventListenerForClick();
-     //UpdateControlBoxBorder()
-
-  }}
-
-  on:drag={({ detail: e }) => {
-    const target = e.target;
-    const frame = frameMap.get(target);
-
-    frame.translate = e.beforeTranslate;
-    target.style.transform = `translate(${frame.translate[0]}px, ${frame.translate[1]}px)`;
-  }}
-
-  on:dragStart={({ detail: e }) => {
-    const target = e.target;
-    console.log("dragstart");
-    console.log(e);
-    if (!frameMap.has(target)) {
-        frameMap.set(target, {
+        frame.translate = e.beforeTranslate;
+        target.style.transform = `translate(${frame.translate[0]}px, ${frame.translate[1]}px)`;
+      }}
+      on:dragStart={({ detail: e }) => {
+        const target = e.target;
+        console.log("dragstart");
+        console.log(e);
+        if (!frameMap.has(target)) {
+          frameMap.set(target, {
             translate: [0, 0],
-        });
-    }
-    const frame = frameMap.get(target);
-    const treeItem = $codeMap.flatTree.find((x) => x.id === target.children[0].id);
+          });
+        }
+        const frame = frameMap.get(target);
+        const treeItem = $codeMap.flatTree.find((x) => x.id === target.children[0].id);
 
-    if (treeItem){
-      frame.translate[0] = parseInt(treeItem.locationX);
-      frame.translate[1] = parseInt(treeItem.locationY);
-    }
-      
-    e.set(frame.translate);
-  }}
-  on:dragEnd={({ detail: e }) => {
-    const target = e.target;
-    OnSingleDragEnded(target);
-    e.target.style.width ;
-    e.target.style.height;
+        if (treeItem) {
+          frame.translate[0] = parseInt(treeItem.locationX);
+          frame.translate[1] = parseInt(treeItem.locationY);
+        }
 
-    //   const blueBorder = document.querySelector("div[data-styled-id='rCS19atnxs']");
-    //  if (!zoomElements.find(x => x.element === blueBorder)){
-    //     zoomElements.push({element: blueBorder, transformationType: "translate3d"});
-    //   }
-    //   else {
-    //     let el = zoomElements.find(x => x.element === blueBorder);
-    //     zoomElements.splice(zoomElements.indexOf(el), 1, {element: blueBorder, transformationType: "translate3d"})
-    //   }
-    
+        e.set(frame.translate);
+      }}
+      on:dragEnd={({ detail: e }) => {
+        const target = e.target;
+        OnSingleDragEnded(target);
+        e.target.style.width;
+        e.target.style.height;
 
-  }}
-  on:dragGroupStart={({ detail: e }) => {
-      e.events.forEach(ev => {
+        //   const blueBorder = document.querySelector("div[data-styled-id='rCS19atnxs']");
+        //  if (!zoomElements.find(x => x.element === blueBorder)){
+        //     zoomElements.push({element: blueBorder, transformationType: "translate3d"});
+        //   }
+        //   else {
+        //     let el = zoomElements.find(x => x.element === blueBorder);
+        //     zoomElements.splice(zoomElements.indexOf(el), 1, {element: blueBorder, transformationType: "translate3d"})
+        //   }
+      }}
+      on:dragGroupStart={({ detail: e }) => {
+        e.events.forEach((ev) => {
           const target = ev.target;
-  
+
           if (!frameMap.has(target)) {
-              frameMap.set(target, {
-                  translate: [0, 0],
-              });
+            frameMap.set(target, {
+              translate: [0, 0],
+            });
           }
           const frame = frameMap.get(target);
 
           const treeItem = $codeMap.flatTree.find((x) => x.id === ev.target.children[0].id);
 
-          if (treeItem){
+          if (treeItem) {
             frame.translate[0] = parseInt(treeItem.locationX);
             frame.translate[1] = parseInt(treeItem.locationY);
           }
-  
+
           ev.set(frame.translate);
-      });
-      HideGroupNameAndBorderOnMove();
-  }}
-  on:dragGroup={({ detail: e }) => {
-      e.events.forEach(ev => {
+        });
+        HideGroupNameAndBorderOnMove();
+      }}
+      on:dragGroup={({ detail: e }) => {
+        e.events.forEach((ev) => {
           const target = ev.target;
           const frame = frameMap.get(target);
-  
+
           frame.translate = ev.beforeTranslate;
           target.style.transform = `translate(${frame.translate[0]}px, ${frame.translate[1]}px)`;
-      });
-  }}
-  on:dragGroupEnd={({ detail: e }) => {
-      e.events.forEach(ev => {
+        });
+      }}
+      on:dragGroupEnd={({ detail: e }) => {
+        e.events.forEach((ev) => {
           const target = ev.target;
           OnSingleDragEnded(target);
-      });
-      //UpdateControlBoxBorder();
-      GetSelectoBorderAndSetActiveStore();
-      UpdateActivelySelected(e.targets);
-      UpdateActiveBorder(e.targets);
+        });
+        //UpdateControlBoxBorder();
+        GetSelectoBorderAndSetActiveStore();
+        UpdateActivelySelected(e.targets);
+        UpdateActiveBorder(e.targets);
 
+        UpdateGroupName();
+        ShowGroupNameAndBorderAfterMove();
+        // UpdateGroupBorder();
+      }}
+      on:resizeStart={({ detail: e }) => {
+        e.setOrigin(["%", "%"]);
+        const target = e.target;
+        const frame = frameMap.get(target);
+        e.dragStart && e.dragStart.set(frame.translate);
+      }}
+      on:resize={({ detail: e }) => {
+        const beforeTranslate = e.drag.beforeTranslate;
+        const target = e.target;
+        const frame = frameMap.get(target);
 
-      UpdateGroupName();
-      ShowGroupNameAndBorderAfterMove();
-     // UpdateGroupBorder();
-     
-  }}
+        frame.translate = beforeTranslate;
+        e.target.style.width = `${e.width}px`;
+        e.target.style.height = `${e.height}px`;
+        e.target.style.transform = `translate(${beforeTranslate[0]}px, ${beforeTranslate[1]}px)`;
+      }}
+    />
 
-on:resizeStart={({ detail: e }) => {
-  e.setOrigin(["%", "%"]);
-  const target = e.target;
-  const frame = frameMap.get(target);
-  e.dragStart && e.dragStart.set(frame.translate);
-}}
-on:resize={({ detail: e }) => {
-  const beforeTranslate = e.drag.beforeTranslate;
-  const target = e.target;
-  const frame = frameMap.get(target);
+    <Selecto
+      class="selecto2"
+      bind:this={selecto}
+      container={document.getElementById("canvas-inner")}
+      dragContainer={document.querySelector("#canvas-inner")}
+      selectableTargets={[".selecto-area .cube"]}
+      hitRate={0}
+      selectByClick={true}
+      selectFromInside={false}
+      toggleContinueSelect={["shift"]}
+      ratio={0}
+      on:dragStart={({ detail: e }) => {
+        //  e.added.forEach(el => {
+        //     el.classList.add("selected");
+        // });
+        // e.removed.forEach(el => {
+        //     el.classList.remove("selected");
+        // });
+        // onBlockSelectStart(e);
+        if (!e.inputEvent.altKey) {
+          console.log("selecto drag start");
+          const target = e.inputEvent.target;
+          if (moveable.isMoveableElement(target) || targets.some((t) => t === target || t.contains(target))) {
+            e.stop();
+          }
+        }
 
-  frame.translate = beforeTranslate;
-  e.target.style.width = `${e.width}px`;
-  e.target.style.height = `${e.height}px`;
-  e.target.style.transform = `translate(${beforeTranslate[0]}px, ${beforeTranslate[1]}px)`;
-}}
-></Moveable>
+        if (e.inputEvent.target.classList.contains("menu")) {
+          e.stop();
+        }
+      }}
+      on:dragEnd={({ detail: e }) => {
+        UpdateActivelySelected(e.currentTarget.selectedTargets);
+        console.log("onDragEnd; Selected Blocks: ");
+        console.log($codeMap.activeWindow.activelySelectedBlocks);
 
+        // AddEventListenerForClick();
+        UpdateActivelySelected(e.currentTarget.selectedTargets);
+        UpdateActiveBorder(e.currentTarget.selectedTargets);
+        //UpdateControlBoxBorder();
+        //UpdateGroupBorder();
+      }}
+      on:select={({ detail: e }) => {
+        element: HTMLDivElement = e;
+        // e.added.forEach(el => {
+        //     el.classList.add("selected");
+        // });
+        // e.removed.forEach(el => {
+        //     el.classList.remove("selected");
+        // });
+        // OnBlockDragOVERSelect(e);
+        if ($codeMap.groups) targets = [].slice.call(SelectAllBlocksInAGroup(e.selected));
 
+        //targets = [].slice.call(document.querySelectorAll(".cube"));
+      }}
+      on:selectEnd={({ detail: e }) => {
+        // e.afterAdded.forEach(el => {
+        //     el.classList.add("selected");
+        // });
+        // e.afterRemoved.forEach(el => {
+        //     el.classList.remove("selected");
+        // });
 
-  <Selecto class="selecto2"
-  bind:this={selecto}
-  container={document.getElementById("canvas-inner")}
-  dragContainer={document.querySelector("#canvas-inner")}
-  selectableTargets={[".selecto-area .cube"]}
-  hitRate={0}
-  selectByClick={true}
-  selectFromInside={false}
-  toggleContinueSelect={["shift"]}
-  ratio={0}
-  
-  on:dragStart={({ detail: e }) => {
-    //  e.added.forEach(el => {
-    //     el.classList.add("selected");
-    // });
-    // e.removed.forEach(el => {
-    //     el.classList.remove("selected");
-    // });
-   // onBlockSelectStart(e);
-   if (!e.inputEvent.altKey){
-    console.log("selecto drag start");
-   const target = e.inputEvent.target;
-                if (
-                    moveable.isMoveableElement(target)
-                    || targets.some(t => t === target || t.contains(target))
-                ) {
-                    e.stop();
-                }
-   }
+        // onBlockSelectEnd(e);
 
-   if (e.inputEvent.target.classList.contains("menu"))
-   {
-    e.stop();
-   }
+        //OnBlockSelected(e.selectedTargets);
 
-  }}
+        //$codeMap.activeWindow.selectionBorder.top = e.topleft;
 
-  on:dragEnd={({ detail: e }) => {
-    UpdateActivelySelected(e.currentTarget.selectedTargets);
-    console.log("onDragEnd; Selected Blocks: ");
-    console.log($codeMap.activeWindow.activelySelectedBlocks);
-
-    // AddEventListenerForClick();
-    UpdateActivelySelected(e.currentTarget.selectedTargets);
-    UpdateActiveBorder(e.currentTarget.selectedTargets);
-    //UpdateControlBoxBorder();
-     //UpdateGroupBorder();  
-
-
-
-
-           
-  }}
-
-  on:select={({ detail: e }) => {
-    element:HTMLDivElement  = e;
-      // e.added.forEach(el => {
-      //     el.classList.add("selected");
-      // });
-      // e.removed.forEach(el => {
-      //     el.classList.remove("selected");
-      // });
-      // OnBlockDragOVERSelect(e);
-      if ($codeMap.groups)
-      targets = [].slice.call(SelectAllBlocksInAGroup(e.selected));
-
-
-
-
-
-      //targets = [].slice.call(document.querySelectorAll(".cube"));
-     
-  }}
-
-  on:selectEnd={({ detail: e }) => {
-      // e.afterAdded.forEach(el => {
-      //     el.classList.add("selected");
-      // });
-      // e.afterRemoved.forEach(el => {
-      //     el.classList.remove("selected");
-      // });
-
-      // onBlockSelectEnd(e); 
-  
-      //OnBlockSelected(e.selectedTargets);
-
-    //$codeMap.activeWindow.selectionBorder.top = e.topleft;
-
-      if (e.isDragStart) {
+        if (e.isDragStart) {
           e.inputEvent.preventDefault();
           //console.log("selecto drag stopped");
           setTimeout(() => {
-                moveable.dragStart(e.inputEvent);
+            moveable.dragStart(e.inputEvent);
           });
-      }
-   
-    }}>
+        }
+      }}
+    />
+  {/if}
 
-  </Selecto>
-{/if}
-
-  
-
-
-<!-- <div class="empty elements"></div> -->
-
+  <!-- <div class="empty elements"></div> -->
 
   <div id="canvas-inner">
-        <div class="zoom elements">
- {#if $codeMap?.flatTree}
+    <div class="zoom elements">
+      {#if $codeMap?.flatTree}
+        <div class="elements selecto-area" id="selecto1">
+          <div id="background-grid" class="background-grid" />
 
-          <div class="elements selecto-area" id="selecto1">
-            <div id="background-grid" class="background-grid"></div>
-
-            {#if $codeMap?.groups}
-              {#each $codeMap?.groups as group}
-                {#if group.visible}
-                <div id="{group.groupId}" >
-                  <input class="groupName" type="text" bind:value="{group.name}" style="background:none; font-size: x-large; width: auto; position:absolute; {"transform: translate(" + (common.GetLeftMostPixelFromGroup(group))+ "px," + (common.GetTopMostPixelFromGroup(group) - 42) + "px);"}">
-                  <div class="groupBorder" style="border: red solid; position:absolute; {"height:" + (group.height + 10)  + "px;" + " width:" + (group.width + 6) + "px;" } {"transform: translate(" + (common.GetLeftMostPixelFromGroup(group) - 6)+ "px," + (common.GetTopMostPixelFromGroup(group) -4 ) + "px);"} "/>
+          {#if $codeMap?.groups}
+            {#each $codeMap?.groups as group}
+              {#if group.visible}
+                <div id={group.groupId}>
+                  <input
+                    class="groupName"
+                    type="text"
+                    bind:value={group.name}
+                    style="background:none; font-size: x-large; width: auto; position:absolute; {'transform: translate(' +
+                      common.GetLeftMostPixelFromGroup(group) +
+                      'px,' +
+                      (common.GetTopMostPixelFromGroup(group) - 42) +
+                      'px);'}"
+                  />
+                  <div
+                    class="groupBorder"
+                    style="border: red solid; position:absolute; {'height:' +
+                      (group.height + 10) +
+                      'px;' +
+                      ' width:' +
+                      (group.width + 6) +
+                      'px;'} {'transform: translate(' +
+                      (common.GetLeftMostPixelFromGroup(group) - 6) +
+                      'px,' +
+                      (common.GetTopMostPixelFromGroup(group) - 4) +
+                      'px);'} "
+                  />
                 </div>
-                {/if}
-
-              {/each}
+              {/if}
+            {/each}
           {/if}
+
           <RadialMenu {GroupBlocks} />
-            {#each $codeMap.flatTree as treeItem}
+          
+          {#each $codeMap.flatTree as treeItem}
             <!-- && typeof(treeItem.open) === "undefined" || treeItem?.open === true -->
 
             <!-- //Not file or directory? //Directory and showFolders === true?   //file and showfiles === true? -->
             {#if typeof treeItem.visible === "undefined" || treeItem?.visible === true}
-              {#if (treeItem.type !== Type.Folder) || (treeItem.type !== Type.Folder && $items.settings.showFolders === true) || ( $items.settings.showFiles === true)}
-
-                <Card {moveable} {selecto}  {treeItem}  />
-
+              {#if treeItem.type !== Type.Folder || (treeItem.type !== Type.Folder && $items.settings.showFolders === true) || $items.settings.showFiles === true}
+                <Card {moveable} {selecto} {treeItem} />
               {/if}
             {/if}
           {/each}
         </div>
         <!-- This is the container for the draggable/selecto -->
-        <div class="empty elements"></div>
+        <div class="empty elements" />
 
-     
-
-       
-          <!-- Card -->
-       
+        <!-- Card -->
 
         <!-- Line -->
       {/if}
+    </div>
   </div>
-</div>
 </main>
-
-
 
 <style>
   :root {
-  --color: rgb(15, 18, 25);
+    --color: rgb(15, 18, 25);
+  }
 
-}
-
-body {
+  body {
     overflow: hidden;
-}
+  }
 
-.background-grid{
-  background: url(../../media/tile-grid-png-6.png);
-  width: 100000px;
+  .background-grid {
+    background: url(../../media/tile-grid-png-6.png);
+    width: 100000px;
     height: 100001px;
     position: absolute;
     left: -9999px;
     top: -9999px;
     z-index: -99;
-}
+  }
 
-    .container {
-        max-width: 800px;
-        ;
-    }
+  .container {
+    max-width: 800px;
+  }
 
-    .logo {
-        position: relative;
-        width: 150px;
-        height: 150px;
-        margin: 0px auto;
-        font-size: 0;
-        text-align: left;
-    }
-    
-    .logo.logos {
-        width: 320px;
-        text-align: center;
-    }
-    
-    .logos .selecto {
-        padding: 16px;
-    }
-    
-    .logo img {
-        position: relative;
-        height: 100%;
-        box-sizing: border-box;
-    }
+  .logo {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    margin: 0px auto;
+    font-size: 0;
+    text-align: left;
+  }
 
-    .button {
-        border: 1px solid #333;
-        color: #333;
-        background: transparent;
-        appearance: none;
-        -webkit-appearance: none;
-        box-sizing: border-box;
-        cursor: pointer;
-        width: 120px;
-        height: 42px;
-        font-size: 14px;
-        letter-spacing: 1px;
-        transition: all ease 0.2s;
-        margin: 0px 5px;
-    }
-    
-    .button:hover {
-        background: #333;
-        color: white;
-    }
+  .logo.logos {
+    width: 320px;
+    text-align: center;
+  }
+
+  .logos .selecto {
+    padding: 16px;
+  }
+
+  .logo img {
+    position: relative;
+    height: 100%;
+    box-sizing: border-box;
+  }
+
+  .button {
+    border: 1px solid #333;
+    color: #333;
+    background: transparent;
+    appearance: none;
+    -webkit-appearance: none;
+    box-sizing: border-box;
+    cursor: pointer;
+    width: 120px;
+    height: 42px;
+    font-size: 14px;
+    letter-spacing: 1px;
+    transition: all ease 0.2s;
+    margin: 0px 5px;
+  }
+
+  .button:hover {
+    background: #333;
+    color: white;
+  }
 
   .block {
-        display: inline-block;
-        border-radius: 5px;
-        width: 40px;
-        height: 40px;
-        margin: 4px;
-        background: #eee;
-        --color: #4af;
-    }
+    display: inline-block;
+    border-radius: 5px;
+    width: 40px;
+    height: 40px;
+    margin: 4px;
+    background: #eee;
+    --color: #4af;
+  }
 
-    /* .elements {
+  /* .elements {
         margin-top: 40px;
         border: 2px solid #eee;
     } */
 
-    .selecto-area {
-        padding: 20px;
-    }
+  .selecto-area {
+    padding: 20px;
+  }
 
+  :global(.single-block .selected) {
+    color: #fff;
+    background: var(--color);
+  }
 
-    
-    :global(.single-block .selected) {
-        color: #fff;
-        background: var(--color);
-    }
+  .empty.elements {
+    border: none;
+  }
 
-    .empty.elements {
-        border: none;
-    }
+  /* THis is the select box */
+  :global(.rCS19atnxs) {
+    z-index: 20 !important;
+  }
 
+  .cube {
+    display: inline-block;
+    border-radius: 5px;
+    width: 40px;
+    height: 40px;
+    margin: 4px;
+    background: #eee;
+    --color: #4af;
+  }
 
+  .selecto-area {
+    padding: 20px;
+  }
 
-/* THis is the select box */
-    :global(.rCS19atnxs) {
-      z-index: 20 !important;
-    }
+  .selecto-area :global(.selected) {
+    color: #fff;
+    background: var(--color);
+  }
 
-
-
-    
-
-
-    .cube {
-        display: inline-block;
-        border-radius: 5px;
-        width: 40px;
-        height: 40px;
-        margin: 4px;
-        background: #eee;
-        --color: #4af;
-    }
-
-
-    .selecto-area {
-        padding: 20px;
-    }
-
-    
-    .selecto-area :global(.selected) {
-        color: #fff;
-        background: var(--color);
-    }
-    
-
-    .empty.elements {
-        border: none;
-    }
-
-
+  .empty.elements {
+    border: none;
+  }
 </style>
