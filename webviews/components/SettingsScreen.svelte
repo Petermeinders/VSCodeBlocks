@@ -1,7 +1,9 @@
 <script lang="ts">
-  import { codeMap, debug, editItem, editMode, items } from "../store";
-  import Fa from "svelte-fa";
-  import { faTint, faTag, faFont, faPlusCircle, faPencilAlt, faTimesCircle, faSearch } from "@fortawesome/free-solid-svg-icons";
+
+  //File Purpse:
+  //Settings Screen found in top right corner
+
+  import { debug, items } from "../store";
   import Shared from "./Shared.svelte";
 
   let common: Shared;

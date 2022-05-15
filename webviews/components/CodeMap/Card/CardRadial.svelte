@@ -15,8 +15,12 @@
   import {} from "os";
   import Shared from "../../Shared.svelte";
 import { onMount } from "svelte";
+import HelperGroupBlocks from "../HelperGroupBlocks.svelte";
 
-  export let GroupBlocks = (event: MouseEvent) => {};
+let helperGroupBlocks: HelperGroupBlocks;
+
+
+  //export let GroupBlocks = (event: MouseEvent) => {};
   export let Minimize = (event: any, treeItem: FilteredTree) => {};
 
   let common:Shared;
@@ -132,6 +136,8 @@ import { onMount } from "svelte";
 </script>
 
 <Shared bind:this={common} />
+<HelperGroupBlocks bind:this={helperGroupBlocks} />
+
 {#if treeItem}
 
   <div class="menu" id="menu">
@@ -144,7 +150,7 @@ import { onMount } from "svelte";
   </a>
 
   <a href="#" class="tooltip">
-    <span style=" cursor: pointer;" on:click={(event) => GroupBlocks(event)}>
+    <span style=" cursor: pointer;" on:click={(event) => helperGroupBlocks.GroupBlocks(event)}>
       <Fa id="GroupBlocks" size="1x" icon={faObjectGroup} style="color:#b30505"   /></span
     >
     <span class="tooltiptext">Group</span>

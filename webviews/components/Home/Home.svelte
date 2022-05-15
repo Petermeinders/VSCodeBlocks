@@ -210,6 +210,7 @@ import CodeMapMove from "../CodeMap/CodeMap.svelte";
               },
             };
 
+            //Events that are called from TS files (aka calls back into the webview from VSCode)
     window.addEventListener("message", (event) => {
       const message = event.data; // The json data that the extension sent
       let lastId = common.getNonce();
@@ -542,6 +543,7 @@ import CodeMapMove from "../CodeMap/CodeMap.svelte";
     });
   };
 
+
   // All the methods for making calls to the VS backend
   const ExportCodeVSCall = () => {
     if ($debug) {
@@ -690,7 +692,7 @@ import CodeMapMove from "../CodeMap/CodeMap.svelte";
             <button on:click={() => ($items.settings.hideBlocksBar = true)} class={$items?.settings?.hideBlocksBar === true ? "hide" : ""} style="z-index:101;">
               <Fa icon={faChevronLeft} style="color:white;" />
             </button>
-            not implemented yet
+            <!-- not implemented yet -->
             <!-- TAGS ( Experimental )------------------------------------------------ -->
             <!-- <div style="display:flex; flex-direction: row;">
               <Tags />
