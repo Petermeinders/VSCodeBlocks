@@ -72,6 +72,19 @@ export function activate(context: vscode.ExtensionContext) {
 
 	});
 
+	// vscode.workspace.workspaceFile.
+
+	// vscode.workspace.onDidOpenTextDocument(document => {
+	// 	if (document) {
+	// 		console.log(document);
+
+			
+	// 	}
+
+	// });
+
+
+
 	vscode.window.onDidChangeTextEditorViewColumn(event => {
 		if (event) {
 			console.log(event);
@@ -258,6 +271,28 @@ export function activate(context: vscode.ExtensionContext) {
 				}
 			}
 		}));
+
+		context.subscriptions.push(
+			vscode.commands.registerCommand('vsblocksnipets.createFolderBlock', (data) => {
+				// vscode.window.showInformationMessage(data.value.customSnippets);
+				console.log("you fired");
+
+				if (typeof HellowWorldPanel.currentPanel !== "undefined") {
+					let editObject = { path: data.path };
+					let testfold = vscode.Uri.file(data.path);
+					let relpath = vscode.RelativePattern(testfold, '*.*');
+					let files = vscode.workspace.findFiles(relpath).then((files) => {
+						console.log(files);
+						if (files.length > 0){
+							let returnObj = {folderPath: data.path, files: files};
+							HellowWorldPanel.currentPanel._panel.webview.postMessage({
+								type: "create-folder-codeblock",
+								value: returnObj,
+							  });
+						}
+					});
+				  }
+			}));
 
 
 		context.subscriptions.push(

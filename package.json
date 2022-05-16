@@ -27,6 +27,7 @@
 		"onCommand:vsblocksnipets.passBlocksToSidebar",
 		"onCommand:vsblocksnipets.changeTextColor",
 		"onCommand:vsblocksnipets.GetSettings",
+		"onCommand:vsblocksnipets.createFolderBlock",
 		"onView:vsblocksnipets-sidebar"
 	],
 	"main": "./dist/extension.js",
@@ -135,8 +136,22 @@
 				"command": "vsblocksnipets.GetSettings",
 				"category": "VSBlockSnipets",
 				"title": "GetSettings"
+			},
+			{
+				"command": "vsblocksnipets.createFolderBlock",
+				"category": "VSBlockSnipets",
+				"title": "Create Code Map Of Folder"
 			}
-		]
+		],
+		"menus": {
+			"explorer/context": [
+				{
+					"when": "explorerResourceIsFolder",
+					"command": "vsblocksnipets.createFolderBlock",
+					"group": "myGroup"
+				}
+			]
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "webpack --mode production",

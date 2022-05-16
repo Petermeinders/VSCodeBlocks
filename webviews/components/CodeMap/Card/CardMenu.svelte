@@ -1,6 +1,7 @@
 <script lang="ts">
   import { codeMap } from "../../../store";
   import type { FilteredTree } from "../../../../src/Models";
+  import {Type} from "../../../../src/Models";
   import Fa from "svelte-fa";
   import ColorPicker from "../../ColorPicker.svelte";
   import {
@@ -48,23 +49,23 @@
     <ColorPicker currentBlock={treeItem} color={treeItem.color} />
   {/if}
 
-  {#if disabed === false}
-    {#if treeItem.type === "directory"}
+
+    {#if treeItem.type === Type.Folder}
       <Fa size="1x" icon={faFolder} style="color:yellow; padding-right: 4px; padding-left:4px; float:right" />
     {/if}
 
-    {#if treeItem.type === "file"}
+    {#if treeItem.type === Type.File}
       <Fa size="1x" icon={faFile} style="color:white; padding-right: 4px; padding-left:4px; float:right" />
     {/if}
 
-    {#if treeItem.type === "custom"}
+    {#if treeItem.type === Type.Custom}
       <Fa size="1x" icon={faCode} style="color:white; padding-right: 4px; padding-left:4px; float:right" />
     {/if}
 
     {#if treeItem.type === "outline"}
       <CodeIcons blockType={treeItem.extension} />
     {/if}
-  {/if}
+
 
   {#if typeof treeItem.starred === "undefined" || treeItem.starred === false}
     <button id="Star" on:click={() => common.StarClicked(treeItem)}

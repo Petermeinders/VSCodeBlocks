@@ -17,6 +17,7 @@
   import Outline from "../CodeMap/Outline.svelte";
   import ParseVSCodeSnippet from "./VSCodeSnippets.svelte";
 import { Sibling } from "../../../src/Models";
+import type {FilteredTree} from "../../../src/Models";
 import CodeMapMove from "../CodeMap/CodeMap.svelte";
 
   //Parent component for the code map and code blocks
@@ -264,6 +265,13 @@ import CodeMapMove from "../CodeMap/CodeMap.svelte";
           if (message.value !== "") {
             let langId = message.value;
             $editItem.language = langId;
+          }
+          break;
+
+          case "create-folder-codeblock":
+          if (message.value !== "") {
+            let returnObj = message.value;
+            AddFolderToCodeMap(returnObj);
           }
           break;
 
@@ -602,6 +610,33 @@ import CodeMapMove from "../CodeMap/CodeMap.svelte";
   function PushSettingsToConfig(){
 
   }
+
+  //This takes the folder path and gets all the files under it and creates code blocks from them
+  const AddFolderToCodeMap = (returnObj) => {
+    if ($debug) console.log("Add Folder to Code Map!");
+    let foundBlocks: string[] = [];
+    returnObj.folderName = returnObj.folderPath.split("/").pop();
+    returnObj.folderPath = returnObj.folderPath.substring(1);
+    returnObj.files.forEach((file) => {
+      // let tempArray = file.path.split("\\");
+      // tempArray.pop();
+      // let folderPath = tempArray.join("/");
+      // if (folderPath === returnObj.path) {
+      //   foundBlocks.push(file);
+      // }
+
+      foundBlocks.push(file.path);
+
+    });
+    // let foundBlock = $codeMap.flatTree.find(x => x.path === path);
+    if (foundBlocks?.length > 0){
+      console.log(foundBlocks);
+
+      //SENDING FOLDER FOR NOW UNTIL REFACTORING TO USE FILES!!!!!
+      map.GenerateCodeBlockFromSelectedText(Sibling.Self, undefined, returnObj);
+
+    }
+  };
 
   // Every time user changes tabs, we need check the visible code blocks
   // and make sure code matches the lines stored on the blocks

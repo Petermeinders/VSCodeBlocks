@@ -178,10 +178,13 @@
 
     <!-- Display image if image pasted in, else show text -->
     {#if treeItem?.image === "" || typeof treeItem?.image === "undefined"}
-      <div>
+      <div class="font-text">
         {treeItem.type === Type.Custom ? treeItem.name.substring(0, 25) : treeItem.name}
       </div>
     {:else}
+    <div class="font-text">
+      {treeItem.type === Type.Custom ? treeItem.name.substring(0, 25) : treeItem.name}
+    </div>
       <div
         style="background-image:{treeItem?.image !== '' && typeof treeItem?.image !== 'undefined'
           ? 'url(' + treeItem.image + ')'
@@ -195,5 +198,10 @@
 <style>
   :global(.moveable2) {
     border: 1px solid red;
+  }
+  
+  .font-text{
+    font-weight: bold;
+    font-size: large;
   }
 </style>

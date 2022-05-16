@@ -12,6 +12,7 @@
     zoom,
   } from "../../store";
   import type { FilteredTree, Group, ZoomElement } from "../../../src/Models";
+  import { newBlock } from "../../../src/Models";
   import Shared from "../Shared.svelte";
   import { onMount, afterUpdate, beforeUpdate } from "svelte";
   import { Sibling, Type } from "../../../src/Models";
@@ -24,7 +25,6 @@
   import { renderer } from "../../renderer";
   import FutureFeatures from "./FutureFeatures.svelte";
   import HelperGroupBlocks from "./HelperGroupBlocks.svelte";
-
 
   let common: Shared;
   let helperGroupBlocks: HelperGroupBlocks;
@@ -65,7 +65,6 @@
     isScrolling = false;
   });
 
-
   const PanZoomFunction = () => {
     zoomElements = zoomElements.filter((element) => {
       return element !== null;
@@ -83,7 +82,6 @@
     const zoomPan = renderer({ scaleSensitivity: 5, minScale: 0.1, maxScale: 30, element: el });
     if (container) {
       container.addEventListener("wheel", (event) => {
-
         event.preventDefault();
         zoomPan.zoom({
           deltaScale: Math.sign(event.deltaY) > 0 ? -1 : 1,
@@ -162,7 +160,6 @@
           faketree = JSON.parse(JSON.stringify($codeMap.canvas.children));
           FlattenTree(faketree);
 
-
           $codeMap.flatTree = [...new Set(faketree)];
         } else {
           $codeMap.flatTree = [];
@@ -170,7 +167,6 @@
       }
     }
   };
-
 
   function HideGroupNameAndBorderOnMove() {
     if (selecto) {
@@ -195,7 +191,6 @@
       });
     }
   }
-
 
   function getTranslateX(myElement) {
     var style = window.getComputedStyle(myElement);
@@ -348,7 +343,6 @@
     });
   }
 
-
   function SelectedTextChange() {
     // let existingOutline = ShowActivelySelectedOutline();
     if ($activelySelectedText.length > 0) {
@@ -356,7 +350,7 @@
     }
   }
 
-  export const GenerateCodeBlockFromSelectedText = (sibling: Sibling, existingTreeItem: FilteredTree | undefined) => {
+  export const GenerateCodeBlockFromSelectedText = (sibling: Sibling, existingTreeItem, folder = {}) => {
     if ($codeMap?.flatTree) {
       let ExistingGenerated = $codeMap?.flatTree.find((x) => x.id === "generated");
       let duplicate = $codeMap?.flatTree.find((x) => x.name === $activelySelectedText && existingTreeItem === undefined);
@@ -379,78 +373,52 @@
         }
       } else {
         // Generating new block from selected text or file
+        let index = $codeMap?.flatTree.indexOf(ExistingGenerated);
+        let generatedBlock = newBlock;
+
+        generatedBlock.id = "generated";
+        generatedBlock.name = $activelySelectedText.substring(0, 25);
+        generatedBlock.path = $activeSelectionMeta.path.toString();
+        generatedBlock.code = $activelySelectedText;
+        generatedBlock.placeholders = [];
+        generatedBlock.color = $items.settings.randomizeNewBlockColors ? "#" + Math.floor(Math.random() * 16777215).toString(16) : "#3c3c3ce3";
+        generatedBlock.visible = true;
+        generatedBlock.tags = ["custom"];
+
+        generatedBlock.sibling = sibling;
+        generatedBlock.open = true;
+        generatedBlock.extension = "custom";
+        generatedBlock.locationX = existingTreeItem !== undefined ? existingTreeItem?.locationX : 0;
+        generatedBlock.locationY = existingTreeItem !== undefined ? (+existingTreeItem?.locationY - 100).toString() : 0;
+        generatedBlock.startLine = $activeSelectionMeta.startLine.toString();
+        generatedBlock.startCharacter = $activeSelectionMeta.startCharacter.toString();
+        generatedBlock.endLine = $activeSelectionMeta.endLine.toString();
+        generatedBlock.endCharacter = $activeSelectionMeta.endCharacter.toString();
+        generatedBlock.starred = $activeSelectionMeta.isStarred;
+        generatedBlock.linkedTargetBlocks = [];
+
+        if (folder?.files.length > 0) {
+          //FUTURE IMPLEMENTATION OF FOLDER. ADD EACH FILE IN IT TO THE TREEOBJECT AND GENERATE THEM IN A GROUP
+
+          // folder.forEach((filePath) => {
+
+          // });
+
+          generatedBlock.type = Type.Folder;
+          generatedBlock.path = folder.folderPath;
+          generatedBlock.name = folder.folderName;
+          generatedBlock.starred = true;
+        }
+
         if (ExistingGenerated) {
-          let index = $codeMap?.flatTree.indexOf(ExistingGenerated);
-          let generatedBlock = {};
-
-          generatedBlock.id = "generated";
-          generatedBlock.name = $activelySelectedText.substring(0, 25);
-          generatedBlock.path = $activeSelectionMeta.path.toString();
-          generatedBlock.code = $activelySelectedText;
-          generatedBlock.language = undefined;
-          generatedBlock.placeholders = [];
-          generatedBlock.color = $items.settings.randomizeNewBlockColors ? "#" + Math.floor(Math.random() * 16777215).toString(16) : "#3c3c3ce3";
-          generatedBlock.visible = true;
-          generatedBlock.linkedBlocks = [];
-          generatedBlock.tags = ["custom"];
-
-          generatedBlock.sibling = sibling;
-          generatedBlock.size = undefined;
-          generatedBlock.type = "custom";
-          generatedBlock.open = true;
-          generatedBlock.parentId = undefined;
-          generatedBlock.outputx = undefined;
-          generatedBlock.outputy = undefined;
-          generatedBlock.inputx = undefined;
-          generatedBlock.inputy = undefined;
-          generatedBlock.children = undefined;
-          generatedBlock.extension = "custom";
-          generatedBlock.locationX = existingTreeItem !== undefined ? existingTreeItem?.locationX : 0;
-          generatedBlock.locationY = existingTreeItem !== undefined ? (+existingTreeItem?.locationY - 100).toString() : 0;
-          generatedBlock.startLine = $activeSelectionMeta.startLine.toString();
-          generatedBlock.startCharacter = $activeSelectionMeta.startCharacter.toString();
-          generatedBlock.endLine = $activeSelectionMeta.endLine.toString();
-          generatedBlock.endCharacter = $activeSelectionMeta.endCharacter.toString();
-          generatedBlock.starred = $activeSelectionMeta.isStarred;
-          generatedBlock.linkedTargetBlocks = [];
-
           $codeMap.flatTree.splice(index, 1, generatedBlock);
         } else {
-          let generatedBlock = {};
-
-          generatedBlock.id = "generated";
-          generatedBlock.name = $activelySelectedText.substring(0, 25);
-          generatedBlock.path = $activeSelectionMeta.path;
-          generatedBlock.code = $activelySelectedText;
-          generatedBlock.language = undefined;
-          generatedBlock.placeholders = [];
           generatedBlock.color = "#3c3c3ce3";
-          generatedBlock.visible = true;
-          generatedBlock.linkedBlocks = [];
-          generatedBlock.tags = ["custom"];
-
-          generatedBlock.sibling = sibling;
-          generatedBlock.size = undefined;
-          generatedBlock.type = "custom";
-          generatedBlock.open = true;
-          generatedBlock.parentId = undefined;
-          generatedBlock.outputx = undefined;
-          generatedBlock.outputy = undefined;
-          generatedBlock.inputx = undefined;
-          generatedBlock.inputy = undefined;
-          generatedBlock.children = undefined;
-          generatedBlock.extension = "custom";
-          generatedBlock.locationX = existingTreeItem !== undefined ? existingTreeItem?.locationX : 0;
-          generatedBlock.locationY = existingTreeItem !== undefined ? (+existingTreeItem?.locationY + 100).toString() : 0;
-          generatedBlock.startLine = $activeSelectionMeta.startLine.toString();
-          generatedBlock.startCharacter = $activeSelectionMeta.startCharacter.toString();
-          generatedBlock.endLine = $activeSelectionMeta.endLine.toString();
-          generatedBlock.endCharacter = $activeSelectionMeta.endCharacter.toString();
           generatedBlock.starred = true;
-          generatedBlock.linkedTargetBlocks = [];
 
           $codeMap.flatTree.push(generatedBlock);
         }
+        RenderBlocks();
       }
     }
   };
@@ -528,7 +496,6 @@
     } else return targets;
   };
 
-  
   function GetSelectoBorderAndSetActiveStore() {
     if (!$codeMap.activeWindow.selectionBorder) $codeMap.activeWindow.selectionBorder = {};
 
@@ -554,7 +521,6 @@
       $codeMap.groups.find((x) => x.groupId === eGroupId).left = $codeMap.activeWindow.selectionBorder.left;
     }
   }
-
 
   function UpdateGroupName() {
     $codeMap.groups.forEach((group) => {
@@ -831,7 +797,7 @@
           {/if}
 
           <RadialMenu />
-          
+
           {#each $codeMap.flatTree as treeItem}
             <!-- && typeof(treeItem.open) === "undefined" || treeItem?.open === true -->
 
