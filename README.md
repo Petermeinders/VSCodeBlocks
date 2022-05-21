@@ -5,11 +5,14 @@
 
 VSCode Blocks' is an extension for building code maps from snippets of code easily and quickly. Essentially providing a visual metadata design to your project. My goal is to keep this code-agnostic and efficiency-focused so that it will enhance a developers day to day work.
 
-Secondary feature: An added feature that's highly experimental is for saving off blocks/snippets of your code into searchable/taggable blocks that can be seen and retrieved from a left sidebar. It uses JSON format to store and retrieve previously saved blocks and your store can be shared with others. I'm currently working on refining it and extending functionality further.
+Data is stored in JSON format on file of your chosing.
+
+This is currently highly experimental and has bugs. But feel free to let me know what you find and what you would like to see added as I expect to grow this extension even further.
 
 
 ## Installation
 
+TODO: Get on vs code's extenion store.
 Easy: Get the latest release, open VSCode, go to extensions tab, click 3 dots at top right -> install from VSIX file, locate downloaded file.
 
 ## Usage
@@ -28,7 +31,7 @@ Drag select blocks and move them together. Pan while holding left ALT. Zoom with
 
 ![alt text](https://github.com/Petermeinders/VSCodeBlockSnippets/blob/main/ReadMe%20Files/Move-Blocks.gif "VSCode Blocks Image")
 
-Group similar blocks, store blocks temporarily in the "Pocket"...
+Group similar blocks (left side bar was removed for now)...
 
 ![alt text](https://github.com/Petermeinders/VSCodeBlockSnippets/blob/main/ReadMe%20Files/Grouping-and-Pocket.gif "VSCode Blocks Image")
 
@@ -36,15 +39,16 @@ Rename blocks...
 
 ![alt text](https://github.com/Petermeinders/VSCodeBlockSnippets/blob/main/ReadMe%20Files/Rename-Block.gif "VSCode Blocks Image")
 
-Draw lines between blocks...
+(Upcoming feature) Draw lines between blocks...
 
 ![alt text](https://github.com/Petermeinders/VSCodeBlockSnippets/blob/main/ReadMe%20Files/Lines.jpg "VSCode Blocks Image")
 
-And much more!
+---
+You can now also right click of a folder and select "add to code map".
 
 Right now this project is highly experimental and it's taking me time to fix all the bugs to get this to a stable state.
 
-I'l be writing up much more documentation here later.
+I'l continue to add here as more features come out.
 
 ## Contributing
 Pull requests are welcome as I can use all the help I can get :)
