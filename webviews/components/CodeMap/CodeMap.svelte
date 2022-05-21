@@ -11,7 +11,7 @@
     groupedSquares,
     zoom,
   } from "../../store";
-  import type { FilteredTree, Group, ZoomElement } from "../../../src/Models";
+  import type {ZoomElement } from "../../../src/Models";
   import { newBlock } from "../../../src/Models";
   import Shared from "../Shared.svelte";
   import { onMount, afterUpdate, beforeUpdate } from "svelte";

@@ -280,7 +280,7 @@ export function activate(context: vscode.ExtensionContext) {
 				if (typeof HellowWorldPanel.currentPanel !== "undefined") {
 					let editObject = { path: data.path };
 					let testfold = vscode.Uri.file(data.path);
-					let relpath = vscode.RelativePattern(testfold, '*.*');
+					let relpath = new vscode.RelativePattern(testfold, '*.*');
 					let files = vscode.workspace.findFiles(relpath).then((files) => {
 						console.log(files);
 						if (files.length > 0){

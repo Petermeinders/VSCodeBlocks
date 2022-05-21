@@ -1,8 +1,9 @@
 {
-	"name": "vsblocksnipets",
-	"displayName": "VSBlockSnipets",
-	"description": "Save and organize code snippets",
+	"name": "VSCodeBlocks",
+	"displayName": "VSCodeBlocks",
+	"description": "Map your code in visual blocks",
 	"version": "0.0.1",
+	"icon": "images/VsCodeBlocks.png",
 	"engines": {
 		"vscode": "^1.58.0"
 	},
