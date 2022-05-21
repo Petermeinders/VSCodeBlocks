@@ -1,15 +1,17 @@
 {
-	"name": "vsblocksnipets",
-	"displayName": "VSBlockSnipets",
-	"description": "Save and organize code snippets",
-	"version": "0.0.1",
+	"name": "VSCodeBlocks",
+	"displayName": "VSCodeBlocks",
+	"description": "Map your code in visual blocks",
+	"version": "0.0.3",
+	"icon": "images/VsCodeBlocksSquare.png",
 	"engines": {
 		"vscode": "^1.58.0"
 	},
 	"categories": [
 		"Other"
 	],
-	"publisher": "PeterM",
+	"publisher": "PeterFinal-ReMeinder",
+	"repository": "https://github.com/Petermeinders/VSCodeBlocks.git",
 	"activationEvents": [
 		"onStartupFinished",
 		"onCommand:vsblocksnipets.startPanel",

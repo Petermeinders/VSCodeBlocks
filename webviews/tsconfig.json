@@ -8,7 +8,7 @@
       "esModuleInterop": true, 
       "types": ["node", "svelte", "ts"],
       "lib": [
-        "es6","es2021"
+        "es6","es2021","dom"
       ],
   }
 }
