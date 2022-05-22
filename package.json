@@ -2,7 +2,7 @@
 	"name": "VSCodeBlocks",
 	"displayName": "VSCodeBlocks",
 	"description": "Map your code in visual blocks",
-	"version": "0.0.3",
+	"version": "0.0.4",
 	"icon": "images/VsCodeBlocksSquare.png",
 	"engines": {
 		"vscode": "^1.58.0"
@@ -28,6 +28,8 @@
 		"onCommand:vsblocksnipets.passBlocksToWindow",
 		"onCommand:vsblocksnipets.passBlocksToSidebar",
 		"onCommand:vsblocksnipets.changeTextColor",
+		"onCommand:vsblocksnipets.GetSettings",
+		"onCommand:vsblocksnipets.createFolderBlock",
 		"onView:vsblocksnipets-sidebar"
 	],
 	"main": "./dist/extension.js",
@@ -131,8 +133,27 @@
 				"command": "vsblocksnipets.changeTextColor",
 				"category": "VSBlockSnipets",
 				"title": "changeTextColor"
+			},
+			{
+				"command": "vsblocksnipets.GetSettings",
+				"category": "VSBlockSnipets",
+				"title": "GetSettings"
+			},
+			{
+				"command": "vsblocksnipets.createFolderBlock",
+				"category": "VSBlockSnipets",
+				"title": "Create Code Map Of Folder"
 			}
-		]
+		],
+		"menus": {
+			"explorer/context": [
+				{
+					"when": "explorerResourceIsFolder",
+					"command": "vsblocksnipets.createFolderBlock",
+					"group": "myGroup"
+				}
+			]
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "webpack --mode production",
