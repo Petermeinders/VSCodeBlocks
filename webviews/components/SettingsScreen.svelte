@@ -1,10 +1,13 @@
 <script lang="ts">
-  import { codeMap, debug, editItem, editMode, items } from "../store";
-  import Fa from "svelte-fa";
-  import { faTint, faTag, faFont, faPlusCircle, faPencilAlt, faTimesCircle, faSearch } from "@fortawesome/free-solid-svg-icons";
+
+  //File Purpse:
+  //Settings Screen found in top right corner
+
+  import { debug, items } from "../store";
   import Shared from "./Shared.svelte";
 
   let common: Shared;
+  let disabled = true;
 
   function SaveSettings() {
     if ($debug) {
@@ -12,6 +15,7 @@
       console.log($items);
     }
 
+    $items.settings.currentPanel = "codeBlocks";
     tsvscode.postMessage({
       type: "saveData",
       value: $items,
@@ -23,12 +27,22 @@
   <Shared bind:this={common} />
   <div>
     <div class="settingsContainer">
+      <h2>Debug Enabled?</h2>
+      <input type=checkbox  bind:checked={$debug}/>  Debug
+    </div> 
+
+    {#if !disabled}
+
+    <div class="settingsContainer">
       <h2>Outline Blocks Visibility</h2>
       {#each $items.settings.visibleOutlineBlocks as {name, checked}}
         <input type="checkbox"  bind:checked={checked}/> <span> {name}</span>
       {/each}
     </div>
+
+    {/if}
   </div>
+  {#if !disabled}
   <div class="settingsContainer">
     <h2>CodeBlocks Settings</h2>
     <div class="subContainer" style="display:flex;">
@@ -39,16 +53,16 @@
     Save backup location
     <input type=textbox  bind:value={$items.settings.codeBlocksSaveLocationBackup}/>  
   </div> 
-  <div class="settingsContainer">
-    <h2>Debug Enabled?</h2>
-    <input type=checkbox  bind:checked={$debug}/>  Debug
-  </div> 
+  {/if}
   <div class="settingsContainer">
     <h2>CodeMap</h2>
     <div class="subContainer">
       Save project location
       <input type=textbox  bind:value={$items.settings.codeMapSaveLocationRelative}/>  
     </div>
+
+    {#if !disabled}
+
     <!-- <div class="subContainer">
       <input type=checkbox bind:checked={$items.settings.defaultBlockColor}/>Default block color
     </div> -->
@@ -80,6 +94,7 @@
       <b>Pipe deliminaed folder exclusion (recursive) (regex escape characters)</b>
       <textarea bind:value={$items.settings.codeMapFolderExclusion}></textarea>
     </div>
+    {/if}
   </div> 
 
   <div>

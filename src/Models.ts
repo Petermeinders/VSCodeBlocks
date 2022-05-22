@@ -1,20 +1,5 @@
 import * as _vscode from "vscode";
 
-
-
-//     export interface Item {
-//         id: string;
-//         tempId:string;
-//         name: string;
-//         code: string;
-//         innerItems: string;
-//         linkedBlocks:[];
-//         placeholders:[];
-//         color:string;
-//         visible:string;
-//         tags: [];
-// }
-
 export enum Sibling {
       "Parent",
       "Child",
@@ -114,7 +99,7 @@ export interface FilteredTree {
  }
 
  export interface ZoomElement {
-    element:HTMLDivElement,
+    element: any,
     transformationType:string,
  }
 
@@ -191,4 +176,41 @@ export interface FilteredTree {
    Struct = 22,
    TypeParameter = 25,
    Variable = 12,
+ }
+
+
+ export const newBlock: FilteredTree = {
+    id: "",
+    path: "",
+    name: "",
+    size: undefined,
+    type: Type.Custom,
+    sibling: Sibling.Self,
+    color: "",
+    image: "",
+    imageHeight: 0,
+    imageWidth: 0,
+    parentOrChildId: "",
+    tags: [],
+    placeholders: [],
+    code: "",
+    language: undefined,
+    visible: false,
+    open: false,
+    parentId: undefined,
+    outputx: undefined,
+    outputy: undefined,
+    inputx: undefined,
+    inputy: undefined,
+    children: undefined,
+    extension: "",
+    locationX: "",
+    locationY: "",
+    startLine: "",
+    startCharacter: "",
+    endLine: "",
+    endCharacter: "",
+    starred: false,
+    linkedTargetBlocks: [],
+    codeDiff: false
  }

@@ -1,4 +1,5 @@
 <script lang="ts">
+  // THIS FILE IS NOT CURRENTLY IMPLEMENTED. FUTURE USE POSSIBLE.
     // @ts-nocheck
     import { codeMap, items } from "../../store";
     import { flip } from "svelte/animate";

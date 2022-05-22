@@ -1,66 +1,88 @@
 <script lang="ts">
-  import { flatTree, currentZoom, perimeterItem, codeMap, editItem, rightClickedBlockEvent, items, currentlySelected } from "../../../store";
+  import {codeMap, editItem, currentlySelected } from "../../../store";
   import type { FilteredTree } from "../../../../src/Models";
-  import deepdash from "deepdash";
-  import { onMount } from "svelte";
   import Fa from "svelte-fa";
-  import ColorPicker from "../../ColorPicker.svelte";
-  import Radial from "./CardRadial.svelte";
   import {
     faBullseye,
-    faCode,
     faCompressArrowsAlt,
     faExpandAlt,
-    faEyeSlash,
-    faFile,
-    faFolder,
     faFont,
-    faLink,
     faObjectGroup,
     faPencilAlt,
     faStar as solidStar,
-    faTimesCircle,
   } from "@fortawesome/free-solid-svg-icons";
   import { faStar } from "@fortawesome/free-regular-svg-icons";
   import {} from "os";
-  import CodeIcons from "../../CodeIcons.svelte";
+  import Shared from "../../Shared.svelte";
+import { onMount } from "svelte";
+import HelperGroupBlocks from "../HelperGroupBlocks.svelte";
 
-  export let closeHandler = () => {};
-  export let StarClicked = (treeItem: any) => {};
-  export let GroupBlocks = (event: MouseEvent) => {};
+let helperGroupBlocks: HelperGroupBlocks;
+
+
+  //export let GroupBlocks = (event: MouseEvent) => {};
   export let Minimize = (event: any, treeItem: FilteredTree) => {};
 
-  export let treeItem: FilteredTree = $codeMap?.activeWindow?.activelySelectedBlocks?.length > 0 ? $codeMap?.activeWindow?.activelySelectedBlocks[0] : {
-    id: "",
-    path: "",
-    name: "",
-    size: 0,
-    type: "",
-    color: "",
-    tags: [],
-    placeholders: [],
-    code: "",
-    language: "",
-    visible: false,
-    open: false,
-    parentId: "",
-    outputx: 0,
-    outputy: 0,
-    inputx: 0,
-    inputy: 0,
-    children: [],
-    extension: "",
-    locationX: "",
-    locationY: "",
-    startLine: "",
-    startCharacter: "",
-    endLine: "",
-    endCharacter: "",
-    starred: false,
-    linkedTargetBlocks: [],
-    codeDiff: false,
-  };
+  let common:Shared;
+  $: $codeMap.activeWindow.activelySelectedBlocks, ActiveBlockChange()
 
+  export let treeItem: FilteredTree;
+
+  function ActiveBlockChange() {
+    if ($codeMap?.activeWindow?.activelySelectedBlocks?.length > 0) {
+      treeItem = $codeMap?.activeWindow?.activelySelectedBlocks[0]
+    }
+  }
+
+//   onMount(() => {
+// if (treeItem){
+  
+// }
+// else{
+//   treeItem = $codeMap?.activeWindow?.activelySelectedBlocks?.pop();
+// }
+//   })
+  
+  // $codeMap?.activeWindow?.activelySelectedBlocks?.length > 0 ? $codeMap?.activeWindow?.activelySelectedBlocks[0] : {
+  //   id: "",
+  //   path: "",
+  //   name: "",
+  //   size: 0,
+  //   type: "",
+  //   color: "",
+  //   tags: [],
+  //   placeholders: [],
+  //   code: "",
+  //   language: "",
+  //   visible: false,
+  //   open: false,
+  //   parentId: "",
+  //   outputx: 0,
+  //   outputy: 0,
+  //   inputx: 0,
+  //   inputy: 0,
+  //   children: [],
+  //   extension: "",
+  //   locationX: "",
+  //   locationY: "",
+  //   startLine: "",
+  //   startCharacter: "",
+  //   endLine: "",
+  //   endCharacter: "",
+  //   starred: false,
+  //   linkedTargetBlocks: [],
+  //   codeDiff: false,
+  //   sibling: null, 
+  //   image: null, 
+  //   imageHeight: null, 
+  //   imageWidth: null, 
+  //   parentOrChildId: null
+  // };
+
+  // Not ready features check this;
+  let disabled = true;
+
+  //"A" icon action to activate VSCode's simple text field editor
   function NameChangeMenu(e: any) {
     if ($currentlySelected.length > 0)
     {
@@ -71,27 +93,16 @@
 
       $currentlySelected = [];
     }
+    common.expand(e);
   }
 
-  // @ts-nocheck
-  var i = 0;
-  function expand() {
-    if (i == 0) {
-      document.getElementById("menu").style.transform = "scale(3)";
-      document.getElementById("plus").style.transform = "rotate(45deg)";
-      i = 1;
-    } else {
-      document.getElementById("menu").style.transform = "scale(0)";
-      document.getElementById("plus").style.transform = "rotate(0deg)";
-      i = 0;
-    }
-  }
-
+  //Needs to be cleaned up and refactored
   function EditCodeBlock(event: any, treeItem: FilteredTree) {
     $codeMap.flatTree.forEach((block) => {
       if (treeItem.path === block.path && typeof block.path !== "undefined") {
         treeItem.language = block.language;
       }
+      common.expand(event);
     });
 
     $editItem = {
@@ -113,15 +124,7 @@
     });
   }
 
-  function GroupButtonClick() {
-    console.log("groupclick");
-    $perimeterItem = {
-      id: treeItem.id,
-      parentId: treeItem.parentId,
-    };
-  }
-
-  function PasteImage(event){
+  function PasteImage(){
     console.log("PageImage");
 
     // tsvscode.postMessage({
@@ -130,43 +133,57 @@
     // });
   }
 
-
 </script>
 
-<div class="menu" id="menu">
+<Shared bind:this={common} />
+<HelperGroupBlocks bind:this={helperGroupBlocks} />
+
+{#if treeItem}
+
+  <div class="menu" id="menu">
   <a href="#">
     {#if typeof treeItem.starred === "undefined" || treeItem.starred === false}
-      <Fa id="Star" on:click={() => StarClicked(treeItem)} class="greyedOut" size="1x" icon={faStar} />
+      <Fa id="Star" on:click={() => common.StarClicked(treeItem)} size="1x" icon={faStar} />
     {:else}
-      <Fa id="Star" on:click={() => StarClicked(treeItem)} class="greyedOut" size="1x" icon={solidStar} />
+      <Fa id="Star" on:click={() => common.StarClicked(treeItem)}  size="1x" icon={solidStar} />
     {/if}
   </a>
+
   <a href="#" class="tooltip">
-    <span style=" cursor: pointer;" on:click={(event) => GroupBlocks(event)}>
-      <Fa id="GroupBlocks" size="1x" icon={faObjectGroup}  /></span
+    <span style=" cursor: pointer;" on:click={(event) => helperGroupBlocks.GroupBlocks(event)}>
+      <Fa id="GroupBlocks" size="1x" icon={faObjectGroup} style="color:#b30505"   /></span
     >
     <span class="tooltiptext">Group</span>
   </a>
+
+  {#if disabled === false}
   <a href="#">
-    <span style=" cursor: pointer;" on:click={(event) => PasteImage(event)}>
+    <span style=" cursor: pointer;" on:click={(event) => PasteImage()}>
       <Fa size="1x" icon={faBullseye} class="greyedOut"/>
     </span>
   </a>
-  <a href="#">
+  {/if}
+
+  {#if disabled === false}
+  <a href="#" class="disabled">
     {#if typeof treeItem.open === "undefined" || treeItem.open === true}
       <Fa id="Minimize" on:click={(event) => Minimize(event, treeItem)} size="1x" icon={faCompressArrowsAlt} class="greyedOut" />
     {:else}
       <Fa id="Minimize" on:click={(event) => Minimize(event, treeItem)} size="1x" icon={faExpandAlt} class="greyedOut" />
     {/if}
   </a>
-  <a href="#" on:click={(event) => NameChangeMenu(event, treeItem)}>
+  {/if}
+
+  <a href="#" on:click={(event) => NameChangeMenu(event)}>
     <Fa id="NameChangeMenu" size="1x" icon={faFont} style="color:yellow;" />
   </a>
+
   <a href="#">
-    <!-- <Fa id="EditBlockMenu" on:click={(event) => EditBlockMenu(event, treeItem)} size="1x" icon={faPencilAlt} style="color:yellow;" /> -->
-    <span style=" cursor: pointer;" on:click={(event) => EditCodeBlock(event, treeItem)}><Fa icon={faPencilAlt} style="color:orange;" /> </span>
+      <span style=" cursor: pointer;" on:click={(event) => EditCodeBlock(event, treeItem)}><Fa icon={faPencilAlt} style="color:orange;" /> </span>
   </a>
 </div>
+{/if}
+
 
 <style>
   .toggle {
@@ -192,7 +209,7 @@
   }
 
   .menu {
-    background-color: #3794ff00;
+    background-color: #000000b3 !important;
     height: 100px;
     width: 100px;
     transform: scale(0);
@@ -202,10 +219,8 @@
     position: absolute;
     margin: auto;
     top: 0px;
-    bottom: 0px;
     left: 0px;
-    right: 0px;
-    z-index: -1;
+    z-index: 50;
     transition: 0.1s;
   }
 
@@ -254,4 +269,9 @@
     opacity: 0.5;
     color:grey !important;
   }
+
+  .disabled {
+  color: #8f8f8f !important;
+  cursor: default;
+}
 </style>

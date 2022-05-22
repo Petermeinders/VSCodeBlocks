@@ -330,11 +330,21 @@
     let selctedTreeItem = $codeMap.flatTree.find(x => x.id === e.currentTarget.id);
 
     if(selctedTreeItem)
+    {
+      //Phase this out...
+      $currentlySelected = [];
       $currentlySelected.push(selctedTreeItem.id);
+      //Keep these...
+      $codeMap.activeWindow.activelySelectedBlocks = [];
+      $codeMap.activeWindow.activelySelectedBlocks.push(selctedTreeItem);
 
-    //$rightClickedBlockEvent = e;
-   // if (e.target.classList.contains("menu")) menu = e.target;
-    //if (e.target.parentElement.querySelector(".menu")) menu = e.target.querySelector(".menu");
+    }
+
+    if (!selctedTreeItem){
+
+    }
+
+ 
 
     if (menu !== null && menu !== undefined) {
       if (menu.classList.contains("opened")) {
@@ -345,17 +355,8 @@
       } else {
         menu.style.transform = "scale(3)";
         menu.style.background = "#23568a38";
-        menu.style.zIndex = "2";
-        menu.setAttribute("data-treeId", selctedTreeItem?.id);
-        // menu.style.left = selctedTreeItem.locationX + "px";
-        // menu.style.top = selctedTreeItem.locationY + "px";
-
-        // if (moveable !== null) {
-        //   menu.style.left = moveable.getInstance().getRect().transformOrigin[0]  + "px";
-        //   menu.style.top = moveable.getInstance().getRect().transformOrigin[1]  + "px";
-        // }
-        // menu.style.left = e.offsetX + "px";
-        // menu.style.top = e.offsetY + "px";
+        menu.style.left = $codeMap.activeWindow.activelySelectedBlocks[0].locationX + "px";
+        menu.style.top = $codeMap.activeWindow.activelySelectedBlocks[0].locationY + "px";
         //New stuff here!!!
         menu.classList.add("opened");
       }
@@ -393,6 +394,13 @@
     });
     return topMostPixel;
   }
+
+  export const ErrorMessageVSCall = (message: any) => {
+    tsvscode.postMessage({
+      type: "onError",
+      value: message,
+    });
+  };
 
   // export function GetLeftMostPixelFromBlock(blocks: FilteredTree[]) {
   //   let leftMostPixel = 99999;
@@ -442,6 +450,46 @@
       }
     });
     return rightMostPixel;
+  }
+
+    //Pin/Unpin block
+  export function StarClicked(treeItem: FilteredTree) {
+    if (treeItem.starred) {
+      treeItem.starred = false;
+    } else {
+      treeItem.starred = true;
+    }
+
+    let index = $codeMap.flatTree.indexOf(treeItem);
+    $codeMap.flatTree.splice(index, 1, treeItem);
+    $codeMap.flatTree = $codeMap.flatTree;
+
+    StarSelectedBlocks();
+  }
+
+  
+  function StarSelectedBlocks() { 
+    let selectedBlocks = $codeMap.activeWindow.activelySelectedBlocks;
+    let setVisibility = false;
+
+    if (selectedBlocks[0].visible === false) 
+      setVisibility = true;
+    selectedBlocks.forEach(selectedBlock => {
+      selectedBlock.visible = setVisibility;
+    });
+  }
+
+  export function CloseAllRadials() {
+    let menu;
+
+    let allMenus = document.querySelectorAll("#menu.opened");
+
+    if (allMenus.length > 0) {
+      allMenus.forEach((menu) => {
+        menu.style.transform = "scale(0)";
+        menu.classList.remove("opened");
+      });
+    }
   }
 </script>
 

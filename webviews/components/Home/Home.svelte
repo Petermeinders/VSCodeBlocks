@@ -9,17 +9,16 @@
   import { originItems } from "../../store";
   import EditScreen from "../EditScreen.svelte";
   import LinkedBlocks from "../CodeBlocks/LinkedBlocks.svelte";
-  import { faChevronLeft, faChevronRight, faCog, faCubes, faProjectDiagram } from "@fortawesome/free-solid-svg-icons";
+  import { faBorderStyle, faChevronLeft, faChevronRight, faCog, faCubes, faProjectDiagram } from "@fortawesome/free-solid-svg-icons";
   import Fa from "svelte-fa";
-  import CodeMap from "../CodeMap/CodeMap.svelte";
   import SettingsScreen from "../SettingsScreen.svelte";
   import Shared from "../Shared.svelte";
   import Pocket from "../CodeMap/Pocket.svelte";
-  import CodeMapGroups from "../CodeMap/CodeMapGroupsContainer.svelte";
   import Outline from "../CodeMap/Outline.svelte";
   import ParseVSCodeSnippet from "./VSCodeSnippets.svelte";
 import { Sibling } from "../../../src/Models";
-import CodeMapMove from "../CodeMap/CodeMapMove.svelte";
+import type {FilteredTree} from "../../../src/Models";
+import CodeMapMove from "../CodeMap/CodeMap.svelte";
 
   //Parent component for the code map and code blocks
 
@@ -133,6 +132,9 @@ import CodeMapMove from "../CodeMap/CodeMapMove.svelte";
 
   // Before Render
   onMount(() => {
+    //Prevent scrolling
+    document.getElementById("home").parentElement.style.overflow = "hidden";
+    
     let customSnippets =
 [
    {
@@ -209,6 +211,7 @@ import CodeMapMove from "../CodeMap/CodeMapMove.svelte";
               },
             };
 
+            //Events that are called from TS files (aka calls back into the webview from VSCode)
     window.addEventListener("message", (event) => {
       const message = event.data; // The json data that the extension sent
       let lastId = common.getNonce();
@@ -262,6 +265,13 @@ import CodeMapMove from "../CodeMap/CodeMapMove.svelte";
           if (message.value !== "") {
             let langId = message.value;
             $editItem.language = langId;
+          }
+          break;
+
+          case "create-folder-codeblock":
+          if (message.value !== "") {
+            let returnObj = message.value;
+            AddFolderToCodeMap(returnObj);
           }
           break;
 
@@ -501,6 +511,10 @@ import CodeMapMove from "../CodeMap/CodeMapMove.svelte";
           }
           break;
 
+        case "PullSettingsFromConfig":
+          $items.settings.codeMapSaveLocationRelative = message.value.codeMapSaveLocation;
+        break;
+
         case "window-change":
           if ($codeMap !== null && $codeMap.activeWindow !== null) {
             $codeMap.activeWindow = { path: "", outline: {} };
@@ -537,6 +551,7 @@ import CodeMapMove from "../CodeMap/CodeMapMove.svelte";
     });
   };
 
+
   // All the methods for making calls to the VS backend
   const ExportCodeVSCall = () => {
     if ($debug) {
@@ -544,10 +559,10 @@ import CodeMapMove from "../CodeMap/CodeMapMove.svelte";
       console.log($items);
     }
 
-    tsvscode.postMessage({
-      type: "saveData",
-      value: $items,
-    });
+    // tsvscode.postMessage({
+    //   type: "saveData",
+    //   value: $items,
+    // });
   };
 
   function FullScreen() {
@@ -574,6 +589,7 @@ import CodeMapMove from "../CodeMap/CodeMapMove.svelte";
 
   const ShowSettings = () => {
     $items.settings.currentPanel = "settings";
+    PullSettingsFromConfig();
   };
 
   const ShowCodeMap = () => {
@@ -582,6 +598,44 @@ import CodeMapMove from "../CodeMap/CodeMapMove.svelte";
 
   const ShowCodeBlocks = () => {
     $items.settings.currentPanel = "codeBlocks";
+  };
+
+  function PullSettingsFromConfig(){
+    tsvscode.postMessage({
+      type: "PullConfigSettings",
+      value: "",
+    });
+  }
+
+  function PushSettingsToConfig(){
+
+  }
+
+  //This takes the folder path and gets all the files under it and creates code blocks from them
+  const AddFolderToCodeMap = (returnObj) => {
+    if ($debug) console.log("Add Folder to Code Map!");
+    let foundBlocks: string[] = [];
+    returnObj.folderName = returnObj.folderPath.split("/").pop();
+    returnObj.folderPath = returnObj.folderPath.substring(1);
+    returnObj.files.forEach((file) => {
+      // let tempArray = file.path.split("\\");
+      // tempArray.pop();
+      // let folderPath = tempArray.join("/");
+      // if (folderPath === returnObj.path) {
+      //   foundBlocks.push(file);
+      // }
+
+      foundBlocks.push(file.path);
+
+    });
+    // let foundBlock = $codeMap.flatTree.find(x => x.path === path);
+    if (foundBlocks?.length > 0){
+      console.log(foundBlocks);
+
+      //SENDING FOLDER FOR NOW UNTIL REFACTORING TO USE FILES!!!!!
+      map.GenerateCodeBlockFromSelectedText(Sibling.Self, undefined, returnObj);
+
+    }
   };
 
   // Every time user changes tabs, we need check the visible code blocks
@@ -627,7 +681,7 @@ import CodeMapMove from "../CodeMap/CodeMapMove.svelte";
   };
 </script>
 
-<main>
+<main id="home">
   <Shared bind:this={common} />
   <ParseVSCodeSnippet bind:this={parseVSCodeSnippet} />
   <div hidden={$items.settings.currentPanel === "editMode" ? false : true}>
@@ -673,13 +727,14 @@ import CodeMapMove from "../CodeMap/CodeMapMove.svelte";
             <button on:click={() => ($items.settings.hideBlocksBar = true)} class={$items?.settings?.hideBlocksBar === true ? "hide" : ""} style="z-index:101;">
               <Fa icon={faChevronLeft} style="color:white;" />
             </button>
+            <!-- not implemented yet -->
             <!-- TAGS ( Experimental )------------------------------------------------ -->
             <!-- <div style="display:flex; flex-direction: row;">
               <Tags />
               
             </div> -->
              <!-- /TAGS------------------------------------------------ -->
-            <LinkedBlocks />
+            <!-- <LinkedBlocks /> -->
             <!-- CODE BLOCKS ( Experimental )----------------------------------------------------- -->
               <!-- <Dnd {FullCodeSearch} /> -->
             <!-- / CODE BLOCKS----------------------------------------------------- -->
@@ -704,14 +759,14 @@ import CodeMapMove from "../CodeMap/CodeMapMove.svelte";
             </div>
           </div> -->
         <!-- / CODE BLOCK BUTTONS --------------------------------------------- -->
-        <div id="pocketAndMapGroups" class="pocketAndMapGroups" style="z-index:101;">
+        <!-- <div id="pocketAndMapGroups" class="pocketAndMapGroups" style="z-index:101;">
           <Pocket />
           <CodeMapGroups />
         </div>
 
         <div style="z-index:101;">
           <Outline />
-        </div>
+        </div> -->
       </div>
 
       <button

@@ -72,6 +72,19 @@ export function activate(context: vscode.ExtensionContext) {
 
 	});
 
+	// vscode.workspace.workspaceFile.
+
+	// vscode.workspace.onDidOpenTextDocument(document => {
+	// 	if (document) {
+	// 		console.log(document);
+
+			
+	// 	}
+
+	// });
+
+
+
 	vscode.window.onDidChangeTextEditorViewColumn(event => {
 		if (event) {
 			console.log(event);
@@ -205,6 +218,10 @@ export function activate(context: vscode.ExtensionContext) {
 			const config = vscode.workspace.getConfiguration('vsblocksnipets');
 			const saveLocation = config.get('codeBlockSaveLocation');
 
+			const codeMapSaveLocation = config.get('codeMapSaveLocation');
+			config.update("codeMapSaveLocation", data.settings.codeMapSaveLocationRelative, true);
+			config.update("codeMapSaveLocation", data.settings.codeMapSaveLocationRelative, false);
+
 			let fs = vscode.workspace.fs;
 
 			if (typeof (data) === 'undefined') {
@@ -254,6 +271,28 @@ export function activate(context: vscode.ExtensionContext) {
 				}
 			}
 		}));
+
+		context.subscriptions.push(
+			vscode.commands.registerCommand('vsblocksnipets.createFolderBlock', (data) => {
+				// vscode.window.showInformationMessage(data.value.customSnippets);
+				console.log("you fired");
+
+				if (typeof HellowWorldPanel.currentPanel !== "undefined") {
+					let editObject = { path: data.path };
+					let testfold = vscode.Uri.file(data.path);
+					let relpath = new vscode.RelativePattern(testfold, '*.*');
+					let files = vscode.workspace.findFiles(relpath).then((files) => {
+						console.log(files);
+						if (files.length > 0){
+							let returnObj = {folderPath: data.path, files: files};
+							HellowWorldPanel.currentPanel._panel.webview.postMessage({
+								type: "create-folder-codeblock",
+								value: returnObj,
+							  });
+						}
+					});
+				  }
+			}));
 
 
 		context.subscriptions.push(
@@ -362,7 +401,20 @@ export function activate(context: vscode.ExtensionContext) {
 				}));
 
 
+				context.subscriptions.push(
+					vscode.commands.registerCommand('vsblocksnipets.GetSettings', (data) => {
+						const config = vscode.workspace.getConfiguration('vsblocksnipets');
+						const codeMapSaveLocation = config.get('codeMapSaveLocation');
 
+						let settings = {codeMapSaveLocation: codeMapSaveLocation};
+
+						HellowWorldPanel.currentPanel._panel.webview.postMessage({
+							type: "PullSettingsFromConfig",
+							value: settings,
+						  });
+					}));
+			
+			
 
 
 	context.subscriptions.push(

@@ -1,107 +1,105 @@
 <script lang="ts">
-  import { flatTree, currentZoom, perimeterItem, codeMap, editItem, rightClickedBlockEvent, items } from "../../../store";
-  import type { FilteredTree } from '../../../../src/Models';
-  import { Sibling } from '../../../../src/Models';
-  import lodash, { flatten } from "lodash";
-  import deepdash from "deepdash";
-  import { onMount } from "svelte";
+  import { afterUpdate, beforeUpdate, onMount, tick } from "svelte";
+  import { Type } from "../../../../src/Models";
+  import type { Group } from "../../../../src/Models";
+  import type { FilteredTree } from "../../../../src/Models";
   import RadialMenu from "../Card/CardRadial.svelte";
-  import {} from "os";
   import CardMenu from "../Card/CardMenu.svelte";
+  import { Sibling } from "../../../../src/Models";
+  import Selecto from "svelte-selecto";
+  import Shared from "../../Shared.svelte";
+  import Moveable from "svelte-moveable";
+  import { zoom, codeMap, rightClickedBlockEvent, moveAbles, flatTree, debug } from "../../../store";
 
+  let common: Shared;
+  let target;
 
-  const _ = deepdash(lodash);
-  export let left = 30;
-  export let top = 30;
-  export let card;
+  //Exported to parent
+  export let moveable: Moveable;
+  export let selecto: Selecto;
   export let treeItem: FilteredTree;
-  export let closeHandler = () => {};
-  export let GroupBlocks = (event:MouseEvent) => {};
-  export let SelectPerimeter = () => {};
+  export let GroupBlocks = (event: MouseEvent) => {};
   export let Minimize = (event: any, treeItem: FilteredTree) => {};
   export let StartLink = (event: any, treeItem: FilteredTree) => {};
 
-  // let buttonsDisplay = $items.settings.alwaysShowCodeBlockButtons ? 'display:flex;' : "display:none;";
+  $: {
+    $zoom, onzoomChange();
+  }
 
+  onMount(async () => {});
 
-  // function ColorChange(currentBlock, color:string){
-  //   currentBlock.color
-  // }
+  //Stupid hack to get the border of the card (Movable) to change to fit the object after the zoom has finished.
+  async function onzoomChange() {
+    if (selecto) {
+      var element = selecto.getInstance(); //document.getElementById(id);
+      // set width on element
+      if (element && element?.selectedTargets.length > 0) {
+        //This forces a rerender of the lines on selected items. Nothing else seems to work (tried Tick(), After, Before, etc)
+        setTimeout(() => ShowBorderAfterMove(), 50);
+        setTimeout(() => (element.selectedTargets[0].style.width = (+selecto.getInstance().selectedTargets[0].offsetWidth + 1).toString() + "px"), 0);
+        setTimeout(
+          () => (element.selectedTargets[0].style.width = (+selecto.getInstance().selectedTargets[0].offsetWidth - 1).toString() + "px"),
+          40
+        );
+      }
+    }
 
+    if ($debug) {
+      console.log(selecto?.getInstance().boundContainer);
+      console.log(selecto?.getInstance().options.checkInput);
+    }
 
-  //
+    console.log("onZoomchange");
+  }
 
-  // onMount(async () => {});
+  function ShowBorderAfterMove() {
+    if (selecto) {
+      selecto.selectableTargets = document.querySelectorAll(".selecto-area .cube");
+      console.log(selecto?.selectableTargets);
+      document.querySelector(".moveable-control-box").style.display = "block";
+    }
+  }
 
-
-  //Expand or collapse radial menu
-  // function expand(e: any) 
-  // {
-  //   console.log(e);
-  //   let menu;
-
-  //   $rightClickedBlockEvent = e;
-  //   if (e.target.classList.contains("menu")) menu = e.target;
-  //   if (e.target.querySelector(".menu")) menu = e.target.querySelector(".menu");
-
-  //   if (menu !== null) {
-  //     if (menu.classList.contains("opened")) {
-  //       menu.style.transform = "scale(0)";
-        
-  //       menu.classList.remove("opened");
-  //       //New stuff here!!!
-  //     } else {
-  //       menu.style.transform = "scale(3)";
-  //       //New stuff here!!!
-  //       menu.classList.add("opened");
-  //     }
-  //   }
-  // }
-
-  document.body.addEventListener("contextmenu", (e) => {
-    e.preventDefault();
-    console.log("ITWORKED2!");
-  });
+  //Card ----------------------------------------------------------------------------------------------------------------------
 
   //Double Clicking block opens file and takes you to the line
   function dbClickBlock(item: FilteredTree) {
-    let dbClickValues:FilteredTree = {
-    id: "",
-    path: "",
-    name: "",
-    size: 0,
-    type: "",
-    color: "",
-    tags: [],
-    placeholders: [],
-    code: "",
-    language: "",
-    visible: false,
-    open: false,
-    parentId: "",
-    outputx: 0,
-    outputy: 0,
-    inputx: 0,
-    inputy: 0,
-    children: [],
-    extension: "",
-    locationX: "",
-    locationY: "",
-    startLine: "",
-    startCharacter: "",
-    endLine: "",
-    endCharacter: "",
-    starred: false,
-    linkedTargetBlocks: [],
-    codeDiff: false
-};
+    let dbClickValues: FilteredTree = {
+      id: "",
+      path: "",
+      name: "",
+      size: 0,
+      type: Type.Custom,
+      color: "",
+      tags: [],
+      placeholders: [],
+      code: "",
+      language: "",
+      visible: false,
+      open: false,
+      parentId: "",
+      outputx: 0,
+      outputy: 0,
+      inputx: 0,
+      inputy: 0,
+      children: [],
+      extension: "",
+      locationX: "",
+      locationY: "",
+      startLine: "",
+      startCharacter: "",
+      endLine: "",
+      endCharacter: "",
+      starred: false,
+      linkedTargetBlocks: [],
+      codeDiff: false,
+    };
     dbClickValues.path = item.path;
     dbClickValues.type = item.type;
     dbClickValues.startLine = item.startLine;
     dbClickValues.startCharacter = item.startCharacter;
     dbClickValues.endLine = item.endLine;
     dbClickValues.endCharacter = item.endCharacter;
-
 
     if (item.type === "outline") {
       $codeMap.flatTree.forEach((flatItem) => {
@@ -117,212 +115,93 @@
     });
   }
 
-  const GetCardSpawnLocationX = (treeItem: FilteredTree) => {
-    // if (treeItem.sibling === Sibling.Parent) {
-    //   return treeItem.locationX;
-    // }
 
-    return treeItem.locationX;
-  }
-
-  const GetCardSpawnLocationY = (treeItem: FilteredTree) => {
-    // if (treeItem.sibling === Sibling.Parent) {
-    //   return treeItem.locationY + 100;
-    // }
-
-    return treeItem.locationY;
-  }
-
-  //Pin/Unpin block
-  function StarClicked(treeItem: FilteredTree) {
-    if (treeItem.starred) {
-      treeItem.starred = false;
-    } else {
-      treeItem.starred = true;
-    }
-
-    let index = $codeMap.flatTree.indexOf(treeItem);
-    $codeMap.flatTree.splice(index, 1, treeItem);
-    $codeMap.flatTree = $codeMap.flatTree;
-  }
-
-  // function handleMouseOver(e:any) {
-	// 	buttonsDisplay = 'display:flex;';
-	// }
-	// function handleMouseOut(e:any) {
-  //   if (!$items.settings.alwaysShowCodeBlockButtons){
-  //     buttonsDisplay = 'display:none;';
-  //   }
-	// }
-
+  //Copy Paste?
   document.onpaste = function (event) {
     var items = (event.clipboardData || event.originalEvent.clipboardData).items;
     console.log(JSON.stringify(items)); // might give you mime types
     for (var index in items) {
-        var item = items[index];
-        if (item.kind === 'file') {
-            var blob = item.getAsFile();
-            var reader = new FileReader();
-            reader.onload = function (event) {
-                console.log(event.target.result); // data url!
-                $codeMap.activeWindow.activelySelectedBlocks.forEach((block) => {
-                  block.image = event?.target?.result ?? "";
-                });
-            }; 
-            reader.readAsDataURL(blob);
-        }
+      var item = items[index];
+      if (item.kind === "file") {
+        var blob = item.getAsFile();
+        var reader = new FileReader();
+        reader.onload = function (event) {
+          console.log(event.target.result); // data url!
+          $codeMap.activeWindow.activelySelectedBlocks.forEach((block) => {
+            block.image = event?.target?.result ?? "";
+          });
+        };
+        reader.readAsDataURL(blob);
+      }
     }
-};
+  };
 </script>
 
-
-
-
-<div class="ds-selected ds-hover absolute" style="display:none" />
-
+<!-- Import shared doc -->
+<Shared bind:this={common} />
 
 <main
-  on:dblclick={() => dbClickBlock(treeItem)}
-  on:contextmenu={(event) => expand(event)}
-
-  style="
-    background:{treeItem?.image !== "" && typeof(treeItem?.image) !== "undefined" ? "url(" + treeItem.image + ")" : treeItem.color  ?? "black" }; 
-    z-index:101; 
-    {treeItem.locationX !== "0" && treeItem.locationY !== "0" ? 'left:' + GetCardSpawnLocationX(treeItem) + "px" + '; ' + 'top:' + GetCardSpawnLocationY(treeItem) + "px" + ";": ''}"
   id={treeItem.id}
-  data-fileType={treeItem.type}
-  data-parentId={treeItem.parentId}
-  class="card absolute highlight BlockImage {treeItem.type === 'directory' ? 'directory' : 'file'}">
-
-
-
-  <RadialMenu treeItem={treeItem} {StarClicked}  {GroupBlocks} />
-
-  <!-- GENERATED -->
-  {#if treeItem.sibling === Sibling.Self || treeItem.sibling === undefined}
-    {#if treeItem.id !== "generated"}
-        <CardMenu treeItem={treeItem} {StarClicked} {Minimize} {StartLink}/>
-        {:else if treeItem.name !== ""}
-          <div class="generatedHeader">
-            <h2 style="color:white">Grab to create block</h2>
-          </div>
+  class="single-block cube"
+  style="background:#2c39575c; z-index:10; min-width:161px; min-height: 65px; position:absolute; {'width:' + treeItem.imageWidth + 'px;'} {'height:' +
+    treeItem.imageHeight +
+    'px;'} {treeItem.locationX !== '0' && treeItem.locationY !== '0'
+    ? 'transform: translate(' + treeItem.locationX + 'px' + ',' + treeItem.locationY + 'px);'
+    : ''}"
+>
+  <div
+    bind:this={target}
+    on:dblclick={() => dbClickBlock(treeItem)}
+    on:contextmenu={(event) => common.expand(event)}
+    style="height:100%;"
+    id={treeItem.id}
+    data-fileType={treeItem.type}
+    data-parentId={treeItem.parentId}
+    class="card absolute  highlight BlockImage {treeItem.type === Type.Folder ? 'directory' : 'file'}"
+  >
+    <!-- GENERATED -->
+    {#if treeItem.sibling === Sibling.Self || treeItem.sibling === undefined}
+      {#if treeItem.id !== "generated"}
+        <CardMenu {treeItem} {Minimize} {StartLink} />
+      {:else if treeItem.name !== ""}
+        <div class="generatedHeader">
+          <h2 style="color:white">Grab to create block</h2>
+        </div>
+      {/if}
+      <!-- Not used at the moment -->
+    {:else if treeItem.sibling === Sibling.Parent}
+      <!-- Generated Sibling -->
+      <div class="generatedHeader">
+        <h2 style="color:white">Generated Parent</h2>
+      </div>
     {/if}
-  {:else if treeItem.sibling === Sibling.Parent}
-    <!-- Generated Sibling -->
-  <div class="generatedHeader">
-    <h2 style="color:white">Generated Parent</h2>
+
+    <!-- Display image if image pasted in, else show text -->
+    {#if treeItem?.image === "" || typeof treeItem?.image === "undefined"}
+      <div class="font-text">
+        {treeItem.type === Type.Custom ? treeItem.name.substring(0, 25) : treeItem.name}
+      </div>
+    {:else}
+    <div class="font-text">
+      {treeItem.type === Type.Custom ? treeItem.name.substring(0, 25) : treeItem.name}
+    </div>
+      <div
+        style="background-image:{treeItem?.image !== '' && typeof treeItem?.image !== 'undefined'
+          ? 'url(' + treeItem.image + ')'
+          : treeItem.color ?? 'black'}; 
+    z-index:101; background-repeat: no-repeat !important; background-size:contain !important; min-height:20px; height:calc(100% - 40px)"
+      />
+    {/if}
   </div>
-  {/if}
-
-
-
-  {#if treeItem?.image === "" || typeof(treeItem?.image) === "undefined"}
-    {treeItem.type === "outline" ? treeItem.name.substring(0, 25) : treeItem.name}
-  {/if}
 </main>
 
-
-
 <style>
-  * {
-    user-select: none;
+  :global(.moveable2) {
+    border: 1px solid red;
   }
-  .card {
-    /* padding: 5px; */
-    user-select: none;
-    cursor: grab;
-    /* width: 50px;
-  height: 50px; */
-
-    display: flex;
-
-    flex-direction: column;
-    color: white;
+  
+  .font-text{
     font-weight: bold;
-    border: 0;
-    padding-bottom:10px;
-    text-align: center;
-
+    font-size: large;
   }
-
-  .absolute {
-    position: absolute;
-  }
-
-  .ds-selected {
-    outline: 3px solid red;
-    outline-offset: 3px;
-    color: #dedede;
-    font-weight: bold;
-  }
-
-  .card:focus {
-    border: 1px solid blue;
-  }
-
-  .card:hover .inner-hide {
-    visibility: hidden;
-  }
-
-  .directory {
-    border: solid 3px #864fc5;
-    background: #b26effcc;
-  }
-
-  .file {
-    border: solid 3px #4e58bf;
-    background: #6e88ffcc;
-  }
-
-  .generatedHeader {
-    align-content: center;
-    text-align: center;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .ds-hover {
-    background: red;
-  }
-
-  .highlight {
-    border-color: white;
-    z-index: 102 !important;
-  }
-
-  .tooltip .tooltiptext {
-    visibility: hidden;
-    width: 20px;
-    background-color: black;
-    color: #fff;
-    text-align: center;
-    border-radius: 6px;
-    padding: 5px 0;
-    position: absolute;
-    top: -25px;
-    font-size: 0.4rem;
-    /* left: -5px; */
-    z-index: 1;
-  }
-
-  .DisplayNone {
-    display:none;
-  }
-
-  .BlockImage {
-   background-size: contain !important;
-   background-position-y: 30px  !important;
-   background-repeat: no-repeat !important;
-   min-height: 70px;
-  }
-
-  /* 
-  body {
-    background-color: #eedddd;
-    padding: 0px;
-    margin: 0px;
-    overflow: hidden;
-  } */
-
- 
 </style>

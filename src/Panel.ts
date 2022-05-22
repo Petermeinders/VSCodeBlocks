@@ -585,6 +585,11 @@ if (data.value.mapEntireProject)
           break;
         }
 
+        case "PullConfigSettings": {
+          vscode.commands.executeCommand("vsblocksnipets.GetSettings", data.value);
+          break;
+        }
+
         case "saveData": {
           if (!data.value) {
             return;
