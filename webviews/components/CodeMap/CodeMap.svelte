@@ -397,7 +397,7 @@
         generatedBlock.starred = $activeSelectionMeta.isStarred;
         generatedBlock.linkedTargetBlocks = [];
 
-        if (folder?.files.length > 0) {
+        if (folder?.files?.length > 0) {
           //FUTURE IMPLEMENTATION OF FOLDER. ADD EACH FILE IN IT TO THE TREEOBJECT AND GENERATE THEM IN A GROUP
 
           // folder.forEach((filePath) => {
