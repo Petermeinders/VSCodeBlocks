@@ -2,7 +2,7 @@
 	"name": "VSCodeBlocks",
 	"displayName": "VSCodeBlocks",
 	"description": "Map your code in visual blocks",
-	"version": "0.0.4",
+	"version": "0.0.5",
 	"icon": "images/VsCodeBlocksSquare.png",
 	"engines": {
 		"vscode": "^1.58.0"

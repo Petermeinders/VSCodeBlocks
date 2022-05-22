@@ -374,8 +374,43 @@
       } else {
         // Generating new block from selected text or file
         let index = $codeMap?.flatTree.indexOf(ExistingGenerated);
-        let generatedBlock = newBlock;
+        let generatedBlock = {
+    id: "",
+    path: "",
+    name: "",
+    size: undefined,
+    type: Type.Custom,
+    sibling: Sibling.Self,
+    color: "",
+    image: "",
+    imageHeight: 0,
+    imageWidth: 0,
+    parentOrChildId: "",
+    tags: [],
+    placeholders: [],
+    code: "",
+    language: undefined,
+    visible: false,
+    open: false,
+    parentId: undefined,
+    outputx: undefined,
+    outputy: undefined,
+    inputx: undefined,
+    inputy: undefined,
+    children: undefined,
+    extension: "",
+    locationX: "",
+    locationY: "",
+    startLine: "",
+    startCharacter: "",
+    endLine: "",
+    endCharacter: "",
+    starred: false,
+    linkedTargetBlocks: [],
+    codeDiff: false
+ }
 
+ 
         generatedBlock.id = "generated";
         generatedBlock.name = $activelySelectedText.substring(0, 25);
         generatedBlock.path = $activeSelectionMeta.path.toString();
