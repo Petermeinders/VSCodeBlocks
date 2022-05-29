@@ -12,8 +12,8 @@ This is currently highly experimental and has bugs. But feel free to let me know
 
 ## Installation
 
-TODO: Get on vs code's extenion store.
-Easy: Get the latest release, open VSCode, go to extensions tab, click 3 dots at top right -> install from VSIX file, locate downloaded file.
+Search for "VSCodeBlocks" on Visual Studio Code's extensions.
+Add extension.
 
 ## Usage
 You should now have a new icon on the bottom right of VSCode called "CodeBlocks" with a beaker. Click this and it will be opened in a new window on the right.
