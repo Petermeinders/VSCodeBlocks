@@ -12,7 +12,6 @@
     zoom,
   } from "../../store";
   import type {ZoomElement } from "../../../src/Models";
-  import { newBlock } from "../../../src/Models";
   import Shared from "../Shared.svelte";
   import { onMount, afterUpdate, beforeUpdate } from "svelte";
   import { Sibling, Type } from "../../../src/Models";
@@ -762,7 +761,13 @@
         //     el.classList.remove("selected");
         // });
         // OnBlockDragOVERSelect(e);
-        if ($codeMap.groups) targets = [].slice.call(SelectAllBlocksInAGroup(e.selected));
+        if ($codeMap.groups) 
+        {
+          targets = [].slice.call(SelectAllBlocksInAGroup(e.selected));
+        }
+        else{
+          if (!e.inputEvent.altKey) targets = e.selected;
+        }
 
         //targets = [].slice.call(document.querySelectorAll(".cube"));
       }}
