@@ -17,7 +17,7 @@
 
     $items.settings.currentPanel = "codeBlocks";
     tsvscode.postMessage({
-      type: "saveData",
+      type: "saveSettings",
       value: $items,
     });
   }

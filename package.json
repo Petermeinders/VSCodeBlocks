@@ -105,9 +105,9 @@
 				"title": "Choose a codemap save file to load"
 			},
 			{
-				"command": "vsblocksnipets.SaveDataToFile",
+				"command": "vsblocksnipets.SaveSettingsToFile",
 				"category": "VSBlockSnipets",
-				"title": "SaveDataToFile"
+				"title": "SaveSettingsToFile"
 			},
 			{
 				"command": "vsblocksnipets.SaveCodeMapToFile",

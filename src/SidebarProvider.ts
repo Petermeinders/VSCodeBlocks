@@ -39,12 +39,12 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           vscode.window.showInformationMessage(data.value);
           break;
         }
-        case "saveData": {
+        case "SaveSettingsToFile": {
           if (!data.value) {
             return;
           }
 
-          vscode.commands.executeCommand("vsblocksnipets.SaveDataToFile", data.value);
+          vscode.commands.executeCommand("vsblocksnipets.SaveSettingsToFile", data.value);
           break;
         }
         case "fullScreen": {

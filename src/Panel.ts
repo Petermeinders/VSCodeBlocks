@@ -15,7 +15,6 @@ export class HellowWorldPanel {
    */
 
   
-
   public static currentPanel: HellowWorldPanel | undefined;
 
   public static readonly viewType = "hello-world";
@@ -590,12 +589,12 @@ if (data.value.mapEntireProject)
           break;
         }
 
-        case "saveData": {
+        case "saveSettings": {
           if (!data.value) {
             return;
           }
 
-          vscode.commands.executeCommand("vsblocksnipets.SaveDataToFile", data.value);
+          vscode.commands.executeCommand("vsblocksnipets.SaveSettingsToFile", data.value);
 
           break;
         }
