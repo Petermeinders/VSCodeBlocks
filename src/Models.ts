@@ -42,6 +42,7 @@ export interface FilteredTree {
     name:string,
     size:number,
     type:Type,
+    groupId:string,
     sibling:Sibling,
     color:string,
     image:string,

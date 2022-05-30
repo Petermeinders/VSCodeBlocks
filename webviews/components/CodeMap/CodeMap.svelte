@@ -547,8 +547,11 @@
   function UpdateActiveBorder(elements: HTMLElement[]) {
     console.log("dragGroupEnd");
     GetSelectoBorderAndSetActiveStore();
-    let eGroupId = elements[0]?.getAttribute("data-groupId");
-    if (eGroupId) {
+    //let eGroupId = elements[0]?.getAttribute("data-groupId");
+
+    let block =  $codeMap.flatTree.find((x) => x.id === elements[0]?.id);
+
+    if (block?.blockId) {
       $codeMap.groups.find((x) => x.groupId === eGroupId).width = $codeMap.activeWindow.selectionBorder.width;
       $codeMap.groups.find((x) => x.groupId === eGroupId).height = $codeMap.activeWindow.selectionBorder.height;
       $codeMap.groups.find((x) => x.groupId === eGroupId).top = $codeMap.activeWindow.selectionBorder.top;

@@ -83,7 +83,9 @@
         let index = $codeMap.groups.indexOf(foundGroup);
         $codeMap.groups.splice(index, 1);
         foundGroup.blockIds.forEach((blockId) => {
-          document.querySelector("[id='" + blockId + "']")?.removeAttribute("data-groupId");
+          let block = $codeMap.flatTree.find((block) => block.id === blockId);
+          block.groupId = undefined;
+          //document.querySelector("[id='" + blockId + "']")?.removeAttribute("data-groupId");
         });
         // RenderBlocks();
       } else {
@@ -138,12 +140,14 @@
       newGroup.blockIds.push(block.id);
       block.color = newGroup.color;
       let blockIndex = $codeMap.flatTree.indexOf(block);
+      block.groupId = newGroup.groupId;
       if (blockIndex !== -1) {
         $codeMap.flatTree.splice(blockIndex, 1, block);
       }
 
+
       //Add groupid to element
-      document.querySelector("[id='" + block.id + "']")?.setAttribute("data-groupId", newGroup.groupId);
+      //document.querySelector("[id='" + block.id + "']")?.setAttribute("data-groupId", newGroup.groupId);
     });
 
     let newSet = [...new Set(newGroup.blockIds)];
