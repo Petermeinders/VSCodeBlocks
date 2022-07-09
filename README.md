@@ -1,13 +1,16 @@
 
 # VSCode Blocks
 
-![alt text](images/CodeCode.jpg "VSCode Blocks Image")
+![alt text](images/LinkCode.png.jpg "VSCode Blocks Image")
 
-VSCode Blocks' is an extension for building code maps from snippets of code easily and quickly. Essentially providing a visual metadata design to your project. My goal is to keep this code-agnostic and efficiency-focused so that it will enhance a developers day to day work.
+
+VSCode Blocks is an extension for building code maps from snippets of code easily and quickly. Essentially providing a visual metadata design to your project. My goal is to keep this code-agnostic and efficiency-focused so that it will enhance a developers day to day work.
 
 Data is stored in JSON format on file of your chosing.
 
 This is currently highly experimental and has bugs. But feel free to let me know what you find and what you would like to see added as I expect to grow this extension even further.
+
+![alt text](images/CodeCode.jpg "VSCode Blocks Image")
 
 
 ## Installation
