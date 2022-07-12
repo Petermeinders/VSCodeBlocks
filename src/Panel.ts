@@ -320,8 +320,8 @@ export class HellowWorldPanel {
     }
   }
 
-  public static onActiveEditorChange(path, code){
-    let pathAndCode = {path:path, code:code};
+  public static onActiveEditorChange(path, code, name){
+    let pathAndCode = {path:path, code:code, name:name};
     HellowWorldPanel.currentPanel._panel.webview.postMessage({
       type: "onActiveEditorChange",
       value: pathAndCode,
@@ -779,7 +779,7 @@ if (data.value.mapEntireProject)
           vscode.workspace.openTextDocument(fileURI).then((document) => {
             vscode.window.showTextDocument(document, viewColum).then(editor => {
               
-            if (data.value.type === "outline" || data.value.type === "custom")
+            if (data.value.type === "outline" || data.value.type === "custom" || data.value.type === 2)
             {
               let newRange = new vscode.Range(parseInt(data.value.startLine), parseInt(data.value.startCharacter), parseInt(data.value.endLine), parseInt(data.value.endCharacter))
 

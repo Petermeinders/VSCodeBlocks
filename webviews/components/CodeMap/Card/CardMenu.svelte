@@ -7,6 +7,7 @@
   import {
     faCode,
     faCompressArrowsAlt,
+    faExclamation,
     faExpandAlt,
     faEyeSlash,
     faFile,
@@ -96,13 +97,18 @@
     </button>
   {/if}
 
-  {#if treeItem.type === "custom" || treeItem.type === "outline"}
+  {#if treeItem.type === "custom" || treeItem.type === 2 || treeItem.type === "outline"}
     <button id="DeleteBlock" on:mousedown={(event) => DeleteBlock(event, treeItem)}>
       <Fa size="1x" icon={faTimesCircle} style="color:red; padding-right: 4px; float:right" />
     </button>
   {:else}
     <button id="HideBlock" on:mousedown={(event) => HideBlock(event, treeItem)}>
       <Fa size="1x" icon={faEyeSlash} style="color:black; padding-right: 4px; float:right" />
+    </button>
+  {/if}
+  {#if treeItem.codeDiff === true}
+    <button id="CodeDiffFlag" style="background: red" on:mousedown={(event) => StartLink(event, treeItem)} >
+      <Fa size="1x" icon={faExclamation} style="color:white; padding-right: 4px; float:right" />
     </button>
   {/if}
   <!-- {#if treeItem.image !== ""}

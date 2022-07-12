@@ -46,6 +46,8 @@
   $: $codeMap;
   $: $activelySelectedText, SelectedTextChange();
 
+  $: $activeSelectionMeta.endLine, onEndLineChange();
+
   onMount(async () => {
     // var element = document.querySelector("#canvas-inner");
     // var selectoElement = document.querySelector("#canvas-inner");
@@ -63,6 +65,11 @@
   afterUpdate(() => {
     isScrolling = false;
   });
+
+  const onEndLineChange = () => {
+   console.log("endlinechanged");
+   console.log($activeSelectionMeta.endLine);
+  };
 
   const PanZoomFunction = () => {
     zoomElements = zoomElements.filter((element) => {
@@ -560,6 +567,9 @@
   }
 
   function UpdateGroupName() {
+    if (!$codeMap.group){
+      return;
+    }
     $codeMap.groups.forEach((group) => {
       let foundZoomGroup = zoomElements.find((f) => f?.element?.id === group.groupId);
 
@@ -570,6 +580,30 @@
       }
     });
   }
+
+  function GroupDoubleClick(){
+    console.log("GroupDoubleClick");
+  }
+
+  function AddEventListenerForClick(e) {
+    const groupSelect = document.getElementsByClassName("moveable-area")?.item(0);
+    const groupItem = $codeMap.flatTree.find(x => x.id === e.targets[0].id);
+
+    if (groupItem)
+    {
+      console.log("GroupDoubleClickEventCreated");
+      console.log(groupItem);
+
+    }
+
+    // if (groupSelect) {
+    //   groupSelect.addEventListener("dblclick", function (event) {
+    //     console.log("dblclick");
+    //     event.preventDefault();
+    //   });
+    // }
+  }
+
 </script>
 
 <main id="CodeMapMove" style="width:100%; height:95vh;" on:wheel={wheelHandler}>
@@ -601,7 +635,7 @@
       on:clickGroup={({ detail: e }) => {
         selecto.clickTarget(e.inputEvent, e.inputTarget);
         UpdateActivelySelected(e.currentTarget.selectedTargets);
-        // AddEventListenerForClick();
+        AddEventListenerForClick(e);
       }}
       on:click={({ detail: e }) => {
         console.log("Clicked");

@@ -40,6 +40,7 @@ export interface FilteredTree {
     id:string,
     path:string,
     name:string,
+    fileName:string,
     size:number,
     type:Type,
     groupId:string,
@@ -128,7 +129,8 @@ export interface FilteredTree {
        name: string,
     }],
     flatOutline:FilteredTree[], 
-    code:string
+    code:string,
+    fileName:string
  }
  
  export interface CodeMap {
@@ -184,6 +186,7 @@ export interface FilteredTree {
     id: "",
     path: "",
     name: "",
+    fileName: "",
     size: undefined,
     type: Type.Custom,
     sibling: Sibling.Self,
@@ -213,5 +216,6 @@ export interface FilteredTree {
     endCharacter: "",
     starred: false,
     linkedTargetBlocks: [],
-    codeDiff: false
+    codeDiff: false,
+    groupId: ""
  }

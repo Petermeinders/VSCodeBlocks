@@ -333,9 +333,11 @@ import CodeMapMove from "../CodeMap/CodeMap.svelte";
 
         case "onActiveEditorChange":
           $codeMap.activeWindow.code = message.value.code ?? "";
+          $codeMap.activeWindow.path = message.value.path ?? "";
+          $codeMap.activeWindow.fileName = message.value.name ?? "";
           common.ColorCode(message.value.path);
           HideShowBlocks(message.value.path);
-          CheckCodeBlocksAccuracy();
+          CheckCodeBlocksAccuracy(); //Removed do to buggyness
 
           break;
 
@@ -633,14 +635,46 @@ import CodeMapMove from "../CodeMap/CodeMap.svelte";
     }
   };
 
+
   // Every time user changes tabs, we need check the visible code blocks
   // and make sure code matches the lines stored on the blocks
   const CheckCodeBlocksAccuracy = () => {
     let activeWindowCode = $codeMap.activeWindow.code;
 
-    $codeMap.flatTree.forEach((codeBlock) => {
+    //Cycle through each visible block and determine if:
+    //1: File/Folder still exists
+    //2: Path is still acurrate
+    //3: Code is still accurate
+    $codeMap.flatTree.forEach((codeBlock: FilteredTree) => {
+      //Visible Check
       if (codeBlock.visible === true) {
-        if (activeWindowCode.includes(codeBlock.code)) {
+
+        //TODO: Check if block exists in filesystem and path is still accurate
+        if (codeBlock.path === "SEARCH FILE SYSTEM") {
+          return;
+        }
+
+        //Return if block is a file or folder
+        if (codeBlock.type !== 2 || (codeBlock.startLine === "0" && codeBlock.endCharacter === "0")) {
+          return;
+        }
+
+        //Return if block is not from this opened/viewing file
+        if (codeBlock.path !== $codeMap.activeWindow.path && codeBlock.fileName !== $codeMap.activeWindow.fileName) {
+          return;
+        }
+
+        //Check codeblock code exists in active window code
+        if (!activeWindowCode.replace(/\s/g, "").includes(codeBlock.code.replace(/\s/g, ""))) {
+          //Did not find matching code
+          codeBlock.codeDiff = true;
+          return;
+        }
+
+        //Code exists in the file, now try and find the beginning and end of the block 
+        //In case the line numbers have changed
+
+          codeBlock.codeDiff = false;
           var codeBlockLines = codeBlock.code.split("\n");
           let codeBlockFirstLine = codeBlockLines[0] === "" || codeBlockLines[0] ===  "\r" ? codeBlockLines[1] : codeBlockLines[0];
           let codeBlockLastLine =
@@ -650,27 +684,32 @@ import CodeMapMove from "../CodeMap/CodeMap.svelte";
           let foundStartLine = -1;
           let foundEndLine = -1;
 
-          var lines = activeWindowCode.split("\n");
-          for (var i = 0; i < lines.length; i++) {
-            if (foundStartLine === -1 && lines[i].includes(codeBlockFirstLine)) {
-              foundStartLine = i;
-              let endval = foundStartLine + codeBlock.code.length;
-            }
+          //Commented out auto updating codeblock due to innacuracy:
 
-            if (foundEndLine === -1 && lines[i].includes(codeBlockLastLine)) {
-              foundEndLine = i;
-            }
-          }
 
-          if (foundStartLine !== -1 && foundEndLine !== -1) {
-            codeBlock.startLine = foundStartLine.toString();
-            codeBlock.endLine = foundEndLine.toString();
-            //Check line numbers and update?
-          } else {
-            codeBlock.codeDiff = true;
-            //Mark codeDiff = true;
-          }
-        }
+          // let activeWindowLines = activeWindowCode.split("\n");
+          //Process of updating start and end line numbers
+          //Prob. need to trim before comparing
+          // var lines = activeWindowCode.split("\n");
+          // for (var i = 0; i < lines.length; i++) {
+          //   if (foundStartLine === -1 && lines[i].includes(codeBlockFirstLine)) {
+          //     foundStartLine = i;
+          //     let endval = foundStartLine + codeBlock.code.length;
+          //   }
+
+          //   if (foundEndLine === -1 && lines[i].includes(codeBlockLastLine)) {
+          //     foundEndLine = i;
+          //   }
+          // }
+
+          // if (foundStartLine !== -1 && foundEndLine !== -1) {
+          //   codeBlock.startLine = foundStartLine.toString();
+          //   codeBlock.endLine = foundEndLine.toString();
+          //   //Check line numbers and update?
+          // } else {
+          //   codeBlock.codeDiff = true;
+          //   //Mark codeDiff = true;
+          // }
       }
     });
   };

@@ -61,7 +61,7 @@ export function activate(context: vscode.ExtensionContext) {
 
       HellowWorldPanel.onDragAndDrop(path, scheme, name);
 
-      HellowWorldPanel.onActiveEditorChange(path2, code);
+      HellowWorldPanel.onActiveEditorChange(path2, code, name);
     }
   });
 
